@@ -1,0 +1,6 @@
+pyqgis
+GDAL
+
+# Everything we need can be installed using the installers available on the QGIS 
+# website. http://qgis.org/
+# The code is tested in QGIS 2.8.6wien, python 2.7.12. 
