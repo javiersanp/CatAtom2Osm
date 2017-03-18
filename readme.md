@@ -4,10 +4,12 @@ Conversion Tool of the data sets of the INSPIRE Services of the Spanish
 Cadastre (http://www.catastro.minhap.gob.es/webinspire/index.html) to
 OSM files.
 
-Requeriments:
+## Requeriments
 
 * pyqgis
 * GDAL
+
+## Instalation
 
 Everything we need can be installed using the installers available on the QGIS 
 website. http://qgis.org/
@@ -33,12 +35,12 @@ Services of the Spanish Cadastre:
   * A.ES.SDGC.BU.GGMMM.zip (Buildings)
   * A.ES.SDGC.AD.GGMMM.zip (Addresses)
 
-Options:
-  -h, --help       show this help message and exit
-  --log=log_level  Select the log level between DEBUG, INFO, WARNING, ERROR or
+Options:  
+  * -h, --help       show this help message and exit
+  * --log=log_level  Select the log level between DEBUG, INFO, WARNING, ERROR or
                    CRITICAL.
 
-CatAtom2Osm app description:
+## Description
 
   * catatom2osm.py
     CatAtom2Osm main application class.
