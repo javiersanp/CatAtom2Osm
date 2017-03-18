@@ -1,5 +1,3 @@
-# CatAtom2Osm README.md file
-
 Conversion Tool of the data sets of the INSPIRE Services of the Spanish
 Cadastre (http://www.catastro.minhap.gob.es/webinspire/index.html) to
 OSM files.
