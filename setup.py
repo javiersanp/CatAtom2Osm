@@ -1,5 +1,5 @@
 app_name = 'CatAtom2Osm'
-app_version = '2017-03-18'
+app_version = '2017-03-22'
 
 """Application preferences"""
 log_level = 'INFO' # Default console log level
