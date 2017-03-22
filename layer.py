@@ -426,76 +426,103 @@ class ConsLayer(BaseLayer):
                 for point in ring[0:-1]:
                     vertexs[point].append(feature.id())
         return (vertexs, features)
-
-    def simplify(self):
+    
+    def get_vertexs(self):
+        """Returns a in memory layer with the coordinates of each vertex"""
+        vertexs = QgsVectorLayer("Point", "vertexs", "memory")
+        vertexs.startEditing() # layer with the coordinates of each vertex
+        for feature in self.getFeatures(): 
+            for ring in feature.geometry().asPolygon():
+                for point in ring[0:-1]:
+                    feat = QgsFeature(QgsFields())
+                    geom = QgsGeometry.fromPoint(point)
+                    feat.setGeometry(geom)
+                    vertexs.addFeature(feat)
+        vertexs.commitChanges()
+        return vertexs
+    
+    def get_duplicates(self, dup_thr=None):
         """
-        Reduces the number of vertexs in a polygon layer according to:
-        * Merge vertexs nearest than 'dup_thr' meters.
-        * Delete vertex if the distance to the segment formed by its parents is
-            less than 'cath_thr' meters.
-        * Delete vertex if the angle with its parent is near of the straight 
-            angle for less than 'angle_thr' degrees.
+        Returns a dict of duplicated vertexs for each coordinate.
+        Two vertexs are duplicated if they are nearest than dup_thr.
+        """
+        vertexs = self.get_vertexs()
+        vertexs_by_fid = {feat.id(): feat for feat in vertexs.getFeatures()}
+        index = QgsSpatialIndex()
+        index = QgsSpatialIndex(vertexs.getFeatures())
+        dup_thr = self.dup_thr if dup_thr is None else dup_thr
+        duplicates = defaultdict(list)
+        for vertex in vertexs.getFeatures():
+            point = Point(vertex.geometry().asPoint())
+            area_of_candidates = point.boundingBox(dup_thr)
+            fids = index.intersects(area_of_candidates)
+            for fid in fids:
+                dup = vertexs_by_fid[fid].geometry().asPoint()
+                dist = point.sqrDist(dup)
+                if dup != point and dist < dup_thr**2:
+                    duplicates[point].append(dup)
+        return duplicates
+        
+    def merge_duplicates(self):
+        """
+        Reduces the number of vertexs in a polygon layer merging vertexs nearest 
+        than 'dup_thr' meters.
         """
         dup_thr = self.dup_thr
-        cath_thr = self.cath_thr
-        angle_thr = self.angle_thr
         if log.getEffectiveLevel() <= logging.DEBUG:
-            debshp = DebugWriter("debug_simplify.shp", self.crs())
-        index = QgsSpatialIndex()
-        index = QgsSpatialIndex(self.getFeatures())
-        (vertexs, features) = self.create_dict_of_vertex_and_features()
-        killed = 0
-        duped = 0
+            debshp = DebugWriter("debug_duplicated.shp", self.crs())
+        (parents_per_vertex, features) = self.create_dict_of_vertex_and_features()
+        dupes = 0
+        duplicates = self.get_duplicates()
         self.startEditing()
-        for pnt, parents in vertexs.items():
-            # First, merge vertexs nearest than dup_thr 
-            point = Point(pnt)
-            area_of_candidates = point.boundingBox(dup_thr)
-            for fid in index.intersects(area_of_candidates):
-                feat = features[fid]
-                geom = feat.geometry()
-                (p, ndx, ndxa, ndxb, dist) = geom.closestVertex(point)
-                if dist > 0 and dist < dup_thr**2:
-                    area = geom.area()
-                    if geom.moveVertex(point.x(), point.y(), ndx):
-                        duped += 1
-                        self.writer.changeGeometryValues({fid: geom})
-                        if log.getEffectiveLevel() <= logging.DEBUG:
-                            debshp.add_point(point, "Duplicated. dist=%f" % math.sqrt(dist))
-            # Test if this vertex is a 'corner' in any of its parent polygons
-            corners = 0
-            deb_values = []
-            for fid in parents:
-                feat = features[fid]
-                geom = feat.geometry()
-                (is_point, angle, cath) = point.is_corner_with_context(geom)
-                deb_values.append((is_point, angle, cath))
-                if is_point:
-                    corners += 1
-                    break
-            # If not is a corner delete the vertex from all its parents.
-            if corners == 0:
-                killed += 1
-                for fid in parents:
+        duplist = sorted(duplicates.keys(), key=lambda x: -len(duplicates[x]))
+        for point in duplist:
+            for dup in duplicates[point]:
+                for fid in parents_per_vertex[dup]:
                     feat = features[fid]
                     geom = feat.geometry()
-                    (point, ndx, ndxa, ndxb, dist) = geom.closestVertex(point)
-                    area = geom.area()
-                    if (geom.deleteVertex(ndx)):
+                    (p, ndx, ndxa, ndxb, dist) = geom.closestVertex(dup)
+                    if geom.moveVertex(point.x(), point.y(), ndx):
+                        dupes += 1
+                        if log.getEffectiveLevel() <= logging.DEBUG:
+                            debshp.add_point(p, "Merge. %s" % feat['localId'])
                         self.writer.changeGeometryValues({fid: geom})
-                if log.getEffectiveLevel() <= logging.DEBUG:
-                    debshp.add_point(point, "Deleted. %s" % str(deb_values))
-            elif log.getEffectiveLevel() <= logging.DEBUG:
-                debshp.add_point(point, "Keep. %s" % str(deb_values))
+                if dup in duplist:
+                    duplist.remove(dup)
         self.commitChanges()
-        
-        if log.getEffectiveLevel() <= logging.DEBUG:
-            del debshp
-        return (duped, killed)
+        return dupes
+
+    def clean_duplicated_nodes_in_polygons(self):
+        """
+        Cleans consecutives nodes with the same coordinates in any ring of a 
+        polygon.
+        """
+        dupes = 0
+        self.startEditing()
+        for feature in self.getFeatures(): 
+            geom = feature.geometry()
+            replace = False
+            new_polygon = []
+            for ring in geom.asPolygon():
+                if ring:
+                    merged = [ring[0]]
+                    for i, point in enumerate(ring[1:]):
+                        if point == ring[i]:
+                            dupes += 1
+                            replace=True
+                        else:
+                            merged.append(point)
+                    new_polygon.append(merged)
+            if replace:
+                new_geom = QgsGeometry().fromPolygon(new_polygon)
+                self.writer.changeGeometryValues({feature.id(): new_geom})
+        self.commitChanges()
+        return dupes
 
     def add_topological_points(self):
         """For each vertex in a polygon layer, adds it to nearest segments."""
         threshold = self.dist_thr # Distance threshold to create nodes
+        angle_thr = self.angle_thr
         tp = 0
         if log.getEffectiveLevel() <= logging.DEBUG:
             debshp = DebugWriter("debug_topology.shp", self.crs())
@@ -517,13 +544,16 @@ class ConsLayer(BaseLayer):
                         va = g.vertexAt(vertex)
                         vb = g.vertexAt(vertex - 1)
                         if distance < threshold**2 and point <> va and point <> vb:
-                            note = "refused by insertVertex"
-                            if g.insertVertex(point.x(), point.y(), vertex):
-                                note = "refused by isGeosValid"
-                                if g.isGeosValid():
-                                    note = "accepted"
-                                    tp += 1
-                                    self.writer.changeGeometryValues({fid: g})
+                            note = "refused by angle"
+                            angle = abs(point.azimuth(va) - point.azimuth(vb))
+                            if abs(180 - angle) <= angle_thr:
+                                note = "refused by insertVertex"
+                                if g.insertVertex(point.x(), point.y(), vertex):
+                                    note = "refused by isGeosValid"
+                                    if g.isGeosValid():
+                                        note = "accepted"
+                                        tp += 1
+                                        self.writer.changeGeometryValues({fid: g})
                             if log.getEffectiveLevel() <= logging.DEBUG:
                                 debshp.add_point(point, note)
         self.commitChanges()
@@ -531,6 +561,56 @@ class ConsLayer(BaseLayer):
         if log.getEffectiveLevel() <= logging.DEBUG:
             del debshp
         return tp
+
+
+    def simplify(self):
+        """
+        Reduces the number of vertexs in a polygon layer according to:
+        * Delete vertex if the distance to the segment formed by its parents is
+            less than 'cath_thr' meters.
+        * Delete vertex if the angle with its parent is near of the straight 
+            angle for less than 'angle_thr' degrees.
+        """
+        cath_thr = self.cath_thr
+        angle_thr = self.angle_thr
+        if log.getEffectiveLevel() <= logging.DEBUG:
+            debshp = DebugWriter("debug_simplify.shp", self.crs())
+        index = QgsSpatialIndex()
+        index = QgsSpatialIndex(self.getFeatures())
+        (parents_per_vertex, features) = self.create_dict_of_vertex_and_features()
+        killed = 0
+        dupes = 0
+        self.startEditing()
+        for pnt, parents in parents_per_vertex.items():
+            # Test if this vertex is a 'corner' in any of its parent polygons
+            point = Point(pnt)
+            deb_values = []
+            corners = 0
+            for fid in parents:
+                feat = features[fid]
+                geom = feat.geometry()
+                (is_corner, angle, cath) = point.is_corner_with_context(geom)
+                deb_values.append((is_corner, angle, cath))
+                if is_corner:
+                    corners += 1
+                    break
+            if corners == 0:     # If not is a corner
+                killed += 1      # delete the vertex from all its parents.
+                for fid in frozenset(parents):
+                    feat = features[fid]
+                    geom = feat.geometry()
+                    (point, ndx, ndxa, ndxb, dist) = geom.closestVertex(point)
+                    if (geom.deleteVertex(ndx)):
+                        parents.remove(fid)
+                        self.writer.changeGeometryValues({fid: geom})
+                if log.getEffectiveLevel() <= logging.DEBUG:
+                    msg = str(["%s angle=%.1f, cath=%.4f" % v for v in deb_values])
+                    debshp.add_point(point, "Deleted. %s" % msg)
+            elif log.getEffectiveLevel() <= logging.DEBUG:
+                msg = str(["%s angle=%.1f, cath=%.4f" % v for v in deb_values])
+                debshp.add_point(point, "Keep. %s" % msg)
+        self.commitChanges()
+        return killed
 
 
 class DebugWriter(QgsVectorFileWriter):
@@ -547,14 +627,14 @@ class DebugWriter(QgsVectorFileWriter):
         self.fields = QgsFields()
         self.fields.append(QgsField("note", QVariant.String, len=100))
         QgsVectorFileWriter.__init__(self, filename, "utf-8", self.fields, 
-                        QGis.WKBPoint, crs, driver_name)
-
+                QGis.WKBPoint, crs, driver_name)
+    
     def add_point(self, point, note=None):
         """Adds a point to the layer with the attribute note."""
         feat = QgsFeature(QgsFields(self.fields))
         geom = QgsGeometry.fromPoint(point)
         feat.setGeometry(geom)
         if note:
-            feat.setAttribute("note", note)
+            feat.setAttribute("note", note[:254])
         return self.addFeature(feat)
 

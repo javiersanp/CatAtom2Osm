@@ -22,16 +22,6 @@ def tearDownModule():
     gdal.SetConfigOption('GML_SKIP_RESOLVE_ELEMS', 'ALL')
 
 
-class TestDictList(unittest.TestCase):
-
-    def test_append(self):
-        l = dictlist()
-        l.append('a', 1)
-        self.assertEquals(l['a'], [1])
-        l.append('a', 2)
-        self.assertEquals(l['a'], [1,2])
-        
-
 class TestPoint(unittest.TestCase):
 
     def test_boundigBox(self):
@@ -140,6 +130,7 @@ class TestConsLayer(unittest.TestCase):
         self.assertTrue(self.fixture.isValid(), "Loading fixture")
         self.layer.append(self.fixture, rename={})
         self.assertEquals(self.layer.featureCount(), self.fixture.featureCount())
+        self.writer = self.layer.dataProvider()
 
     def test_is_building(self):
         self.assertTrue(ConsLayer.is_building('foobar'))
@@ -275,6 +266,50 @@ class TestConsLayer(unittest.TestCase):
             .intersects(features[fid].geometry()) 
                 for (vertex, fids) in vertexs.items() for fid in fids]))
 
+    def test_get_vertexs(self):
+        vertexs = self.layer.get_vertexs()
+        vcount = 0
+        for feature in self.layer.getFeatures(): 
+            for ring in feature.geometry().asPolygon():
+                for point in ring[0:-1]:
+                    vcount += 1
+        self.assertEquals(vcount, vertexs.featureCount())
+        
+    def test_get_duplicates(self):
+        duplicates = self.layer.get_duplicates()
+        self.assertGreater(len(duplicates), 0)
+        distances = [point.sqrDist(dup) for point, dupes in duplicates.items() 
+            for dup in dupes]
+        self.assertTrue(all([dist < setup.dup_thr for dist in distances]))
+
+    def test_merge_duplicates(self):
+        duplicates = self.layer.get_duplicates()
+        self.assertGreater(len(duplicates), 0)
+        self.layer.merge_duplicates()
+        duplicates = self.layer.get_duplicates()
+        self.assertEquals(len(duplicates), 0)
+        
+    def test_clean_duplicated_nodes_in_polygons(self):
+        feat = self.layer.getFeatures().next()
+        geom = feat.geometry()
+        new_geom = QgsGeometry(geom)
+        l = len(new_geom.asPolygon()[0])
+        self.assertGreater(l, 3)
+        v = new_geom.vertexAt(l-1)
+        self.assertTrue(new_geom.insertVertex(v.x(), v.y(), l-1))
+        v = new_geom.vertexAt(0)
+        self.assertTrue(new_geom.insertVertex(v.x(), v.y(), 0))
+        v = new_geom.vertexAt(l/2)
+        self.assertTrue(new_geom.insertVertex(v.x(), v.y(), l/2))
+        self.assertTrue(new_geom.insertVertex(v.x(), v.y(), l/2))
+        self.layer.startEditing()
+        self.writer.changeGeometryValues({feat.id(): new_geom})
+        self.layer.commitChanges()
+        self.layer.clean_duplicated_nodes_in_polygons()
+        new_feat = self.layer.getFeatures().next()
+        clean_geom = new_feat.geometry()
+        self.assertEquals(geom.asPolygon(), clean_geom.asPolygon())
+    
 
 class TestAddressLayer(unittest.TestCase):
 

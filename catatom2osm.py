@@ -95,16 +95,25 @@ class CatAtom2Osm:
         if tc:
             log.info("Deleted %d building parts with no floors above ground", tc)
         
-        (duped, killed) = building.simplify()
-        if duped:
-            log.info("Merged %d duplicated vertexs in building", duped)
-        if killed:
-            log.info("Simplified %d vertexs in building", killed)
+        if log.getEffectiveLevel() == logging.DEBUG:
+            self.export_layer(building, 'building.shp')
+
+        dupes = building.merge_duplicates()
+        if dupes:
+            log.info("Merged %d duplicated vertexs in building", dupes)
+
+        consecutives = building.clean_duplicated_nodes_in_polygons()
+        if consecutives:
+            log.info("Merged %d duplicated vertexs in polygons", dupes)
 
         tp = building.add_topological_points()
         if tp:
             log.info ("Created %d topological points in building", tp)
         
+        killed = building.simplify()
+        if killed:
+            log.info("Simplified %d vertexs in building", killed)
+
         pm = building.merge_building_parts()
         if pm:
             log.info("Merged %d building parts to footprint", pm)
@@ -112,9 +121,7 @@ class CatAtom2Osm:
         building.reproject()
         building_osm = self.osm_from_layer(building, translate.building_tags)
         self.write_osm(building_osm, "building.osm")
-        if log.getEffectiveLevel() == logging.DEBUG:
-            self.export_layer(building, 'building.shp')
-
+        
         if self.options.parcel:
             parcel = layer.ParcelLayer()
             parcel_gml = self.read_gml_layer("cadastralparcel", building.crs())
@@ -156,6 +163,7 @@ class CatAtom2Osm:
                 self.export_layer(address, 'address.shp')
 
     def __del__(self):
+        log.info("Finished!")
         if hasattr(self, 'qgs'):
             self.qgs.exitQgis()
         
@@ -191,7 +199,7 @@ class CatAtom2Osm:
             gml_fn = ".".join((setup.fn_prefix, group, self.zipCode, layername, "gml"))
         zip_fn = ".".join((setup.fn_prefix, group, self.zipCode, "zip"))
         gml_path = "/".join((self.path, gml_fn))
-        gml_layer = QgsVectorLayer(str(gml_path), layername, "ogr")
+        gml_layer = QgsVectorLayer(gml_path, layername, "ogr")
         if not gml_layer.isValid():
             gml_path = "/".join(('/vsizip', self.path, zip_fn, gml_fn))
             gml_layer = QgsVectorLayer(str(gml_path), layername, "ogr")
