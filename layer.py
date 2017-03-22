@@ -290,7 +290,6 @@ class ConsLayer(BaseLayer):
         self.dup_thr = setup.dup_thr # Distance in meters to merge nearest vertexs.
         self.cath_thr = setup.dist_thr # Threshold in meters for cathetus reduction
         self.angle_thr = setup.angle_thr # Threshold in degrees from straight angle to delete a vertex
-        self.area_warning = setup.area_warning # Admited percent of area change.
         self.dist_thr = setup.dist_thr # Threshold for topological points.
 
     def explode_multi_parts(self):
@@ -436,12 +435,10 @@ class ConsLayer(BaseLayer):
             less than 'cath_thr' meters.
         * Delete vertex if the angle with its parent is near of the straight 
             angle for less than 'angle_thr' degrees.
-        * Log a warning if the change in area is greater than 'area_warning' percent.
         """
         dup_thr = self.dup_thr
         cath_thr = self.cath_thr
         angle_thr = self.angle_thr
-        area_warning = self.area_warning
         if log.getEffectiveLevel() <= logging.DEBUG:
             debshp = DebugWriter("debug_simplify.shp", self.crs())
         index = QgsSpatialIndex()
@@ -462,9 +459,6 @@ class ConsLayer(BaseLayer):
                     area = geom.area()
                     if geom.moveVertex(point.x(), point.y(), ndx):
                         duped += 1
-                        if abs(area - geom.area()) / area > area_warning:
-                            log.warning("Too much change simplifying %d, %s in %s", 
-                                    feat.id(), feat['localId'], self.name())
                         self.writer.changeGeometryValues({fid: geom})
                         if log.getEffectiveLevel() <= logging.DEBUG:
                             debshp.add_point(point, "Duplicated. dist=%f" % math.sqrt(dist))
@@ -488,9 +482,6 @@ class ConsLayer(BaseLayer):
                     (point, ndx, ndxa, ndxb, dist) = geom.closestVertex(point)
                     area = geom.area()
                     if (geom.deleteVertex(ndx)):
-                        if abs(area - geom.area()) / area > area_warning:
-                            log.warning("Too much change simplifying %d, %s in %s", 
-                                    feat.id(), feat['localId'], self.name())
                         self.writer.changeGeometryValues({fid: geom})
                 if log.getEffectiveLevel() <= logging.DEBUG:
                     debshp.add_point(point, "Deleted. %s" % str(deb_values))

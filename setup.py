@@ -14,5 +14,3 @@ silence_gdal = False
 dup_thr = 0.01 # Distance in meters to merge nearest vertexs.
 dist_thr = 0.05 # Threshold in meters for vertex simplification and topological points.
 angle_thr = 2 # Threshold in degrees from straight angle to delete a vertex
-area_warning = 0.01 # Admited percent of area change.
-
