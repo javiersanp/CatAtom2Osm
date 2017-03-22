@@ -159,24 +159,18 @@ class TestOsmWay(OsmTestCase):
         w1 = self.d.Way([n, (2,2), (3,3)])
         w2 = self.d.Way([(1,1), (2,2), (3,3)])
         self.assertEquals(w1, w2)
+        n.tags['foo'] = 'bar'
+        self.assertEquals(w1, w2)
         
-    def test_ne(self):
-        n1 = self.d.Node(1,1)
-        n2 = self.d.Node(2,2)
-        w1 = self.d.Way([n1, n2, (3,3)])
-        w2 = self.d.Way([(1,1), (2,2), (3,3)])
-        w3 = self.d.Way([(1,1), (2,2)])
-        w4 = self.d.Way([(1,1), n2])
-        self.assertNotEquals(w1, w3)
-        n1.tags['foo'] = 'bar'
-        self.assertNotEquals(w1, w2)
-        n2.id = 1
-        self.assertNotEquals(w3, w4)
-
     def test_geometry(self):
         g = ((1,1), (2,2), (3,3))
         w = self.d.Way(g)
         self.assertEquals(w.geometry(), g)
+        
+    def test_clean_duplicated_nodes(self):
+        w = self.d.Way([(0,0), (1,1), (1,1), (2,2)])
+        w.clean_duplicated_nodes()
+        self.assertEquals(len(w.nodes), 3)
         
 
 class TestOsmRelation(OsmTestCase):

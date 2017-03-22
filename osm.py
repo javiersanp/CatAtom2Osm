@@ -53,6 +53,8 @@ class Osm(object):
         """Assign new unique index to each element in the dataset"""
         if merge:
             self.merge_duplicated()
+            for way in self.ways:
+                way.clean_duplicated_nodes()
         for el in self.elements:
             el.new_index()
 
@@ -100,6 +102,9 @@ class Element(object):
             return a == b
         else:
             False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def new_index(self):
         """Assign a new unique index if the element is not uploaded (id < 0)"""
@@ -160,7 +165,14 @@ class Way(Element):
 
     def geometry(self):
         return tuple(n.geometry() for n in self.nodes)
-        
+    
+    def clean_duplicated_nodes(self):
+        if self.nodes:
+            merged = [self.nodes[0]]
+            for i, n in enumerate(self.nodes[1:]):
+                if n != self.nodes[i]:
+                    merged.append(n)
+            self.nodes = merged
 
 class Relation(Element):
     """A relation is a collection of nodes, ways or relations"""
