@@ -30,9 +30,6 @@
   
 
   
-        <link rel="index" title="Index"
-              href="../../genindex.html"/>
-        <link rel="search" title="Search" href="../../search.html"/>
     <link rel="top" title="CatAtom2Osm 2017-03-22 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
@@ -83,8 +80,9 @@
           
             
             
-                <!-- Local TOC -->
-                <div class="local-toc"></div>
+                <ul class="simple">
+</ul>
+
             
           
         </div>
@@ -132,14 +130,14 @@
 <span class="kn">import</span> <span class="nn">random</span>
 
 <span class="kn">import</span> <span class="nn">gdal</span>
-<span class="kn">from</span> <span class="nn">qgis.core</span> <span class="k">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">PyQt4.QtCore</span> <span class="k">import</span> <span class="n">QVariant</span>
+<span class="kn">from</span> <span class="nn">qgis.core</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">PyQt4.QtCore</span> <span class="kn">import</span> <span class="n">QVariant</span>
 
 <span class="kn">import</span> <span class="nn">setup</span>
-<span class="kn">from</span> <span class="nn">layer</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">layer</span> <span class="kn">import</span> <span class="o">*</span>
 
-<span class="n">QgsApplication</span><span class="o">.</span><span class="n">setPrefixPath</span><span class="p">(</span><span class="n">setup</span><span class="o">.</span><span class="n">qgs_prefix_path</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-<span class="n">qgs</span> <span class="o">=</span> <span class="n">QgsApplication</span><span class="p">([],</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">QgsApplication</span><span class="o">.</span><span class="n">setPrefixPath</span><span class="p">(</span><span class="n">setup</span><span class="o">.</span><span class="n">qgs_prefix_path</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+<span class="n">qgs</span> <span class="o">=</span> <span class="n">QgsApplication</span><span class="p">([],</span> <span class="bp">False</span><span class="p">)</span>
 
 <div class="viewcode-block" id="setUpModule"><a class="viewcode-back" href="../../api/test.html#test.test_layer.setUpModule">[docs]</a><span class="k">def</span> <span class="nf">setUpModule</span><span class="p">():</span>
     <span class="n">qgs</span><span class="o">.</span><span class="n">initQgis</span><span class="p">()</span>

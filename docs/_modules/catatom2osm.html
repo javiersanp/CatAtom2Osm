@@ -30,9 +30,6 @@
   
 
   
-        <link rel="index" title="Index"
-              href="../genindex.html"/>
-        <link rel="search" title="Search" href="../search.html"/>
     <link rel="top" title="CatAtom2Osm 2017-03-22 documentation" href="../index.html"/>
         <link rel="up" title="Module code" href="index.html"/> 
 
@@ -83,8 +80,9 @@
           
             
             
-                <!-- Local TOC -->
-                <div class="local-toc"></div>
+                <ul class="simple">
+</ul>
+
             
           
         </div>
@@ -138,8 +136,8 @@
 <span class="kn">import</span> <span class="nn">codecs</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="kn">from</span> <span class="nn">qgis.core</span> <span class="k">import</span> <span class="p">(</span><span class="n">QGis</span><span class="p">,</span> <span class="n">QgsApplication</span><span class="p">,</span> <span class="n">QgsVectorLayer</span><span class="p">)</span>
-<span class="kn">from</span> <span class="nn">osgeo</span> <span class="k">import</span> <span class="n">gdal</span>
+<span class="kn">from</span> <span class="nn">qgis.core</span> <span class="kn">import</span> <span class="p">(</span><span class="n">QGis</span><span class="p">,</span> <span class="n">QgsApplication</span><span class="p">,</span> <span class="n">QgsVectorLayer</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">osgeo</span> <span class="kn">import</span> <span class="n">gdal</span>
 
 <span class="kn">import</span> <span class="nn">setup</span>
 <span class="kn">import</span> <span class="nn">layer</span>
@@ -193,9 +191,9 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">aPath</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Not a directory: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">aPath</span><span class="p">)</span>
         <span class="c1"># Init qGis API</span>
-        <span class="n">QgsApplication</span><span class="o">.</span><span class="n">setPrefixPath</span><span class="p">(</span><span class="n">setup</span><span class="o">.</span><span class="n">qgs_prefix_path</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">QgsApplication</span><span class="o">.</span><span class="n">setPrefixPath</span><span class="p">(</span><span class="n">setup</span><span class="o">.</span><span class="n">qgs_prefix_path</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
         
-        <span class="bp">self</span><span class="o">.</span><span class="n">qgs</span> <span class="o">=</span> <span class="n">QgsApplication</span><span class="p">([],</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qgs</span> <span class="o">=</span> <span class="n">QgsApplication</span><span class="p">([],</span> <span class="bp">False</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">qgs</span><span class="o">.</span><span class="n">initQgis</span><span class="p">()</span>
         <span class="c1"># sets GDAL to convert xlink references to fields but not resolve</span>
         <span class="n">gdal</span><span class="o">.</span><span class="n">SetConfigOption</span><span class="p">(</span><span class="s1">&#39;GML_ATTRIBUTES_TO_OGR_FIELDS&#39;</span><span class="p">,</span> <span class="s1">&#39;YES&#39;</span><span class="p">)</span>
@@ -297,7 +295,7 @@
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;qgs&#39;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">qgs</span><span class="o">.</span><span class="n">exitQgis</span><span class="p">()</span>
         
-<div class="viewcode-block" id="CatAtom2Osm.read_gml_layer"><a class="viewcode-back" href="../api/catatom2osm.html#catatom2osm.CatAtom2Osm.read_gml_layer">[docs]</a>    <span class="k">def</span> <span class="nf">read_gml_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layername</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="CatAtom2Osm.read_gml_layer"><a class="viewcode-back" href="../api/catatom2osm.html#catatom2osm.CatAtom2Osm.read_gml_layer">[docs]</a>    <span class="k">def</span> <span class="nf">read_gml_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layername</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a qgis vector layer from a GML Cadastre file.</span>
 
@@ -321,7 +319,7 @@
                 <span class="s1">&#39;adminunitname&#39;</span><span class="p">]:</span>
             <span class="n">group</span> <span class="o">=</span> <span class="s1">&#39;AD&#39;</span> 
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="bp">None</span>
         <span class="k">if</span> <span class="n">group</span> <span class="o">==</span> <span class="s1">&#39;AD&#39;</span><span class="p">:</span>    
             <span class="n">gml_fn</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">setup</span><span class="o">.</span><span class="n">fn_prefix</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">zipCode</span><span class="p">,</span> 
                 <span class="s2">&quot;gml|layername=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">layername</span><span class="p">))</span>
@@ -374,7 +372,7 @@
         <span class="n">data</span> <span class="o">=</span> <span class="n">osm</span><span class="o">.</span><span class="n">Osm</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">layer</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">():</span> 
             <span class="n">geom</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span>
-            <span class="n">e</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="bp">None</span>
             <span class="k">if</span> <span class="n">geom</span><span class="o">.</span><span class="n">wkbType</span><span class="p">()</span> <span class="o">==</span> <span class="n">QGis</span><span class="o">.</span><span class="n">WKBPolygon</span><span class="p">:</span>
                 <span class="n">pol</span> <span class="o">=</span> <span class="n">geom</span><span class="o">.</span><span class="n">asPolygon</span><span class="p">()</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pol</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
