@@ -1,0 +1,471 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>catatom2osm &mdash; CatAtom2Osm 2017-03-22 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="CatAtom2Osm 2017-03-22 documentation" href="../index.html"/>
+        <link rel="up" title="Module code" href="index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> CatAtom2Osm
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2017-03-22
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <!-- Local TOC -->
+                <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">CatAtom2Osm</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Module code</a> &raquo;</li>
+      
+    <li>catatom2osm</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for catatom2osm</h1><div class="highlight"><pre>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Tool to convert the data sets from the Spanish Cadastre ATOM Services to OSM files</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">codecs</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">qgis.core</span> <span class="k">import</span> <span class="p">(</span><span class="n">QGis</span><span class="p">,</span> <span class="n">QgsApplication</span><span class="p">,</span> <span class="n">QgsVectorLayer</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">osgeo</span> <span class="k">import</span> <span class="n">gdal</span>
+
+<span class="kn">import</span> <span class="nn">setup</span>
+<span class="kn">import</span> <span class="nn">layer</span>
+<span class="kn">import</span> <span class="nn">translate</span>
+<span class="kn">import</span> <span class="nn">osmxml</span>
+<span class="kn">import</span> <span class="nn">osm</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">setup</span><span class="o">.</span><span class="n">app_name</span> <span class="o">+</span> <span class="s2">&quot;.catatom2osm&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">setup</span><span class="o">.</span><span class="n">silence_gdal</span><span class="p">:</span>
+    <span class="n">gdal</span><span class="o">.</span><span class="n">PushErrorHandler</span><span class="p">(</span><span class="s1">&#39;CPLQuietErrorHandler&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="ZipCodeError"><a class="viewcode-back" href="../api/catatom2osm.html#catatom2osm.ZipCodeError">[docs]</a><span class="k">class</span> <span class="nc">ZipCodeError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception for malformed zip codes&quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="LayerIOError"><a class="viewcode-back" href="../api/catatom2osm.html#catatom2osm.LayerIOError">[docs]</a><span class="k">class</span> <span class="nc">LayerIOError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception for layer input/output errors&quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="CatAtom2Osm"><a class="viewcode-back" href="../api/catatom2osm.html#catatom2osm.CatAtom2Osm">[docs]</a><span class="k">class</span> <span class="nc">CatAtom2Osm</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Main application class for a tool to convert the data sets from the </span>
+<span class="sd">    Spanish Cadastre ATOM Services to OSM files.</span>
+<span class="sd">    </span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        path (str): Directory where the source files are located.</span>
+<span class="sd">        zipCode (str): Five digits (GGMMM) Zip Code matching Province (GG) </span>
+<span class="sd">                       and Municipality (MMM) codes.</span>
+<span class="sd">        qgs (QgsApplication): Instance of qGis API.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">aPath</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            aPath (str): Directory where the source files are located.</span>
+<span class="sd">            options (dict): Dictionary of options.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Gets path of data directory and Zip Code value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;\d{5}&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">aPath</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">m</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ZipCodeError</span><span class="p">(</span><span class="s2">&quot;Directory name must begin with a 5 digits ZIP code&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">aPath</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zipCode</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">aPath</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Directory not exists: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">aPath</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">aPath</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Not a directory: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">aPath</span><span class="p">)</span>
+        <span class="c1"># Init qGis API</span>
+        <span class="n">QgsApplication</span><span class="o">.</span><span class="n">setPrefixPath</span><span class="p">(</span><span class="n">setup</span><span class="o">.</span><span class="n">qgs_prefix_path</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">qgs</span> <span class="o">=</span> <span class="n">QgsApplication</span><span class="p">([],</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qgs</span><span class="o">.</span><span class="n">initQgis</span><span class="p">()</span>
+        <span class="c1"># sets GDAL to convert xlink references to fields but not resolve</span>
+        <span class="n">gdal</span><span class="o">.</span><span class="n">SetConfigOption</span><span class="p">(</span><span class="s1">&#39;GML_ATTRIBUTES_TO_OGR_FIELDS&#39;</span><span class="p">,</span> <span class="s1">&#39;YES&#39;</span><span class="p">)</span>
+        <span class="n">gdal</span><span class="o">.</span><span class="n">SetConfigOption</span><span class="p">(</span><span class="s1">&#39;GML_SKIP_RESOLVE_ELEMS&#39;</span><span class="p">,</span> <span class="s1">&#39;ALL&#39;</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Initialized qGis API&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CatAtom2Osm.run"><a class="viewcode-back" href="../api/catatom2osm.html#catatom2osm.CatAtom2Osm.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Launches the app&quot;&quot;&quot;</span>
+        <span class="n">building</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">ConsLayer</span><span class="p">()</span>
+        <span class="n">building_gml</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_gml_layer</span><span class="p">(</span><span class="s2">&quot;building&quot;</span><span class="p">)</span>
+        <span class="n">building</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">building_gml</span><span class="p">)</span>
+        <span class="k">del</span> <span class="n">building_gml</span>
+
+        <span class="n">part_gml</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_gml_layer</span><span class="p">(</span><span class="s2">&quot;buildingpart&quot;</span><span class="p">)</span>
+        <span class="n">building</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part_gml</span><span class="p">)</span>
+        <span class="k">del</span> <span class="n">part_gml</span>
+        
+        <span class="n">other_gml</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_gml_layer</span><span class="p">(</span><span class="s2">&quot;otherconstruction&quot;</span><span class="p">)</span>
+        <span class="n">building</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">other_gml</span><span class="p">)</span>
+        <span class="k">del</span> <span class="n">other_gml</span>
+
+        <span class="p">(</span><span class="n">mp</span><span class="p">,</span> <span class="n">np</span><span class="p">)</span> <span class="o">=</span> <span class="n">building</span><span class="o">.</span><span class="n">explode_multi_parts</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">mp</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> multipart buildings splited in </span><span class="si">%d</span><span class="s2"> parts&quot;</span><span class="p">,</span> <span class="n">mp</span><span class="p">,</span> <span class="n">np</span><span class="p">)</span>
+
+        <span class="n">tc</span> <span class="o">=</span> <span class="n">building</span><span class="o">.</span><span class="n">remove_parts_below_ground</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">tc</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Deleted </span><span class="si">%d</span><span class="s2"> building parts with no floors above ground&quot;</span><span class="p">,</span> <span class="n">tc</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">log</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">()</span> <span class="o">==</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">export_layer</span><span class="p">(</span><span class="n">building</span><span class="p">,</span> <span class="s1">&#39;building.shp&#39;</span><span class="p">)</span>
+
+        <span class="n">dupes</span> <span class="o">=</span> <span class="n">building</span><span class="o">.</span><span class="n">merge_duplicates</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">dupes</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Merged </span><span class="si">%d</span><span class="s2"> duplicated vertexs in building&quot;</span><span class="p">,</span> <span class="n">dupes</span><span class="p">)</span>
+
+        <span class="n">consecutives</span> <span class="o">=</span> <span class="n">building</span><span class="o">.</span><span class="n">clean_duplicated_nodes_in_polygons</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">consecutives</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Merged </span><span class="si">%d</span><span class="s2"> duplicated vertexs in polygons&quot;</span><span class="p">,</span> <span class="n">dupes</span><span class="p">)</span>
+
+        <span class="n">tp</span> <span class="o">=</span> <span class="n">building</span><span class="o">.</span><span class="n">add_topological_points</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">tp</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span> <span class="p">(</span><span class="s2">&quot;Created </span><span class="si">%d</span><span class="s2"> topological points in building&quot;</span><span class="p">,</span> <span class="n">tp</span><span class="p">)</span>
+        
+        <span class="n">killed</span> <span class="o">=</span> <span class="n">building</span><span class="o">.</span><span class="n">simplify</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">killed</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Simplified </span><span class="si">%d</span><span class="s2"> vertexs in building&quot;</span><span class="p">,</span> <span class="n">killed</span><span class="p">)</span>
+
+        <span class="n">pm</span> <span class="o">=</span> <span class="n">building</span><span class="o">.</span><span class="n">merge_building_parts</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">pm</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Merged </span><span class="si">%d</span><span class="s2"> building parts to footprint&quot;</span><span class="p">,</span> <span class="n">pm</span><span class="p">)</span>
+
+        <span class="n">building</span><span class="o">.</span><span class="n">reproject</span><span class="p">()</span>
+        <span class="n">building_osm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">osm_from_layer</span><span class="p">(</span><span class="n">building</span><span class="p">,</span> <span class="n">translate</span><span class="o">.</span><span class="n">building_tags</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_osm</span><span class="p">(</span><span class="n">building_osm</span><span class="p">,</span> <span class="s2">&quot;building.osm&quot;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">parcel</span><span class="p">:</span>
+            <span class="n">parcel</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">ParcelLayer</span><span class="p">()</span>
+            <span class="n">parcel_gml</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_gml_layer</span><span class="p">(</span><span class="s2">&quot;cadastralparcel&quot;</span><span class="p">,</span> <span class="n">building</span><span class="o">.</span><span class="n">crs</span><span class="p">())</span>
+            <span class="n">parcel</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parcel_gml</span><span class="p">)</span>
+            <span class="k">del</span> <span class="n">parcel_gml</span>
+            <span class="n">parcel</span><span class="o">.</span><span class="n">reproject</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">export_layer</span><span class="p">(</span><span class="n">parcel</span><span class="p">,</span> <span class="s1">&#39;parcel.geojson&#39;</span><span class="p">,</span> <span class="s1">&#39;GeoJSON&#39;</span><span class="p">)</span>
+            <span class="n">parcel_osm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">osm_from_layer</span><span class="p">(</span><span class="n">parcel</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_osm</span><span class="p">(</span><span class="n">parcel_osm</span><span class="p">,</span> <span class="s2">&quot;parcel.osm&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">log</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">()</span> <span class="o">==</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">export_layer</span><span class="p">(</span><span class="n">parcel</span><span class="p">,</span> <span class="s1">&#39;parcel.shp&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">zoning</span><span class="p">:</span>
+            <span class="n">zoning</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">ZoningLayer</span><span class="p">()</span>
+            <span class="n">zoning_gml</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_gml_layer</span><span class="p">(</span><span class="s2">&quot;cadastralzoning&quot;</span><span class="p">,</span> <span class="n">building</span><span class="o">.</span><span class="n">crs</span><span class="p">())</span>
+            <span class="n">zoning</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">zoning_gml</span><span class="p">)</span>
+            <span class="k">del</span> <span class="n">zoning_gml</span>
+            <span class="n">zoning</span><span class="o">.</span><span class="n">reproject</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">export_layer</span><span class="p">(</span><span class="n">zoning</span><span class="p">,</span> <span class="s1">&#39;zoning.geojson&#39;</span><span class="p">,</span> <span class="s1">&#39;GeoJSON&#39;</span><span class="p">)</span>
+            <span class="n">zoning_osm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">osm_from_layer</span><span class="p">(</span><span class="n">zoning</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_osm</span><span class="p">(</span><span class="n">zoning_osm</span><span class="p">,</span> <span class="s2">&quot;zoning.osm&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">log</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">()</span> <span class="o">==</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">export_layer</span><span class="p">(</span><span class="n">zoning</span><span class="p">,</span> <span class="s1">&#39;zoning.shp&#39;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">address</span><span class="p">:</span>
+            <span class="n">address_gml</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_gml_layer</span><span class="p">(</span><span class="s2">&quot;address&quot;</span><span class="p">)</span>
+            <span class="n">address</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">AddressLayer</span><span class="p">()</span>
+            <span class="n">address</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">address_gml</span><span class="p">)</span>
+            <span class="n">addrstreet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_gml_layer</span><span class="p">(</span><span class="s2">&quot;thoroughfarename&quot;</span><span class="p">)</span>
+            <span class="n">adminunit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_gml_layer</span><span class="p">(</span><span class="s2">&quot;adminunitname&quot;</span><span class="p">)</span>
+            <span class="n">zipcode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_gml_layer</span><span class="p">(</span><span class="s2">&quot;postaldescriptor&quot;</span><span class="p">)</span>
+            <span class="n">address</span><span class="o">.</span><span class="n">join_field</span><span class="p">(</span><span class="n">addrstreet</span><span class="p">,</span> <span class="s1">&#39;TN_id&#39;</span><span class="p">,</span> <span class="s1">&#39;gml_id&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">],</span> <span class="s1">&#39;TN_&#39;</span><span class="p">)</span>
+            <span class="n">address</span><span class="o">.</span><span class="n">join_field</span><span class="p">(</span><span class="n">adminunit</span><span class="p">,</span> <span class="s1">&#39;AU_id&#39;</span><span class="p">,</span> <span class="s1">&#39;gml_id&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">],</span> <span class="s1">&#39;AU_&#39;</span><span class="p">)</span>
+            <span class="n">address</span><span class="o">.</span><span class="n">join_field</span><span class="p">(</span><span class="n">zipcode</span><span class="p">,</span> <span class="s1">&#39;PD_id&#39;</span><span class="p">,</span> <span class="s1">&#39;gml_id&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;postCode&#39;</span><span class="p">])</span>
+            <span class="n">address</span><span class="o">.</span><span class="n">reproject</span><span class="p">()</span>
+            <span class="n">address_osm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">osm_from_layer</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">translate</span><span class="o">.</span><span class="n">address_tags</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_osm</span><span class="p">(</span><span class="n">address_osm</span><span class="p">,</span> <span class="s2">&quot;address.osm&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">log</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">()</span> <span class="o">==</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">export_layer</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="s1">&#39;address.shp&#39;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Finished!&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;qgs&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">qgs</span><span class="o">.</span><span class="n">exitQgis</span><span class="p">()</span>
+        
+<div class="viewcode-block" id="CatAtom2Osm.read_gml_layer"><a class="viewcode-back" href="../api/catatom2osm.html#catatom2osm.CatAtom2Osm.read_gml_layer">[docs]</a>    <span class="k">def</span> <span class="nf">read_gml_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layername</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a qgis vector layer from a GML Cadastre file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            layername (str): Short name of the Cadastre layer. Any of </span>
+<span class="sd">                &#39;building&#39;, &#39;buildingpart&#39;, &#39;otherconstruction&#39;, </span>
+<span class="sd">                &#39;cadastralparcel&#39;, &#39;cadastralzoning&#39;, &#39;address&#39;, </span>
+<span class="sd">                &#39;thoroughfarename&#39;, &#39;postaldescriptor&#39;, &#39;adminunitname&#39;</span>
+<span class="sd">        Kwargs:</span>
+<span class="sd">            crs (QgsCoordinateReferenceSystem): Source Crs. It&#39;s necessary </span>
+<span class="sd">                because parcel and zoning layers don&#39;t have it defined.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            QgsVectorLayer: Vector layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">layername</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;building&#39;</span><span class="p">,</span> <span class="s1">&#39;buildingpart&#39;</span><span class="p">,</span> <span class="s1">&#39;otherconstruction&#39;</span><span class="p">]:</span>
+            <span class="n">group</span> <span class="o">=</span> <span class="s1">&#39;BU&#39;</span>
+        <span class="k">elif</span> <span class="n">layername</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;cadastralparcel&#39;</span><span class="p">,</span> <span class="s1">&#39;cadastralzoning&#39;</span><span class="p">]:</span>
+            <span class="n">group</span> <span class="o">=</span> <span class="s1">&#39;CP&#39;</span>
+        <span class="k">elif</span> <span class="n">layername</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">,</span> <span class="s1">&#39;thoroughfarename&#39;</span><span class="p">,</span> <span class="s1">&#39;postaldescriptor&#39;</span><span class="p">,</span> 
+                <span class="s1">&#39;adminunitname&#39;</span><span class="p">]:</span>
+            <span class="n">group</span> <span class="o">=</span> <span class="s1">&#39;AD&#39;</span> 
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">group</span> <span class="o">==</span> <span class="s1">&#39;AD&#39;</span><span class="p">:</span>    
+            <span class="n">gml_fn</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">setup</span><span class="o">.</span><span class="n">fn_prefix</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">zipCode</span><span class="p">,</span> 
+                <span class="s2">&quot;gml|layername=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">layername</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">gml_fn</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">setup</span><span class="o">.</span><span class="n">fn_prefix</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">zipCode</span><span class="p">,</span> <span class="n">layername</span><span class="p">,</span> <span class="s2">&quot;gml&quot;</span><span class="p">))</span>
+        <span class="n">zip_fn</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">setup</span><span class="o">.</span><span class="n">fn_prefix</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">zipCode</span><span class="p">,</span> <span class="s2">&quot;zip&quot;</span><span class="p">))</span>
+        <span class="n">gml_path</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">gml_fn</span><span class="p">))</span>
+        <span class="n">gml_layer</span> <span class="o">=</span> <span class="n">QgsVectorLayer</span><span class="p">(</span><span class="n">gml_path</span><span class="p">,</span> <span class="n">layername</span><span class="p">,</span> <span class="s2">&quot;ogr&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">gml_layer</span><span class="o">.</span><span class="n">isValid</span><span class="p">():</span>
+            <span class="n">gml_path</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="s1">&#39;/vsizip&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">zip_fn</span><span class="p">,</span> <span class="n">gml_fn</span><span class="p">))</span>
+            <span class="n">gml_layer</span> <span class="o">=</span> <span class="n">QgsVectorLayer</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">gml_path</span><span class="p">),</span> <span class="n">layername</span><span class="p">,</span> <span class="s2">&quot;ogr&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">gml_layer</span><span class="o">.</span><span class="n">isValid</span><span class="p">():</span>
+                <span class="c1"># TODO download zip and gives another try</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">gml_layer</span><span class="o">.</span><span class="n">isValid</span><span class="p">():</span>
+                    <span class="k">raise</span> <span class="n">LayerIOError</span><span class="p">(</span><span class="s2">&quot;Failed to load layer: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">gml_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">crs</span><span class="p">:</span>
+            <span class="n">gml_layer</span><span class="o">.</span><span class="n">setCrs</span><span class="p">(</span><span class="n">crs</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loaded </span><span class="si">%d</span><span class="s2"> features in </span><span class="si">%s</span><span class="s2"> layer&quot;</span><span class="p">,</span> <span class="n">gml_layer</span><span class="o">.</span><span class="n">featureCount</span><span class="p">(),</span> 
+            <span class="n">gml_layer</span><span class="o">.</span><span class="n">name</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">gml_layer</span></div>
+    
+<div class="viewcode-block" id="CatAtom2Osm.export_layer"><a class="viewcode-back" href="../api/catatom2osm.html#catatom2osm.CatAtom2Osm.export_layer">[docs]</a>    <span class="k">def</span> <span class="nf">export_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">driver_name</span><span class="o">=</span><span class="s1">&#39;ESRI Shapefile&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Export a vector layer.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            layer (QgsVectorLayer): Source layer.</span>
+<span class="sd">            filename (str): Output filename.</span>
+<span class="sd">        Kwargs:</span>
+<span class="sd">            driver_name (str): Defaults to ESRI Shapefile.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">out_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">layer</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">out_path</span><span class="p">,</span> <span class="n">driver_name</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">LayerIOError</span><span class="p">(</span><span class="s2">&quot;Failed to write layer: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span></div>
+        
+    
+<div class="viewcode-block" id="CatAtom2Osm.osm_from_layer"><a class="viewcode-back" href="../api/catatom2osm.html#catatom2osm.CatAtom2Osm.osm_from_layer">[docs]</a>    <span class="k">def</span> <span class="nf">osm_from_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">tags_translation</span><span class="o">=</span><span class="n">translate</span><span class="o">.</span><span class="n">all_tags</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a Osm data set from a vector layer.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            layer (QgsVectorLayer): Source layer.</span>
+<span class="sd">        Kwargs:</span>
+<span class="sd">            tags_translation (function): Function to translate fields to tags. </span>
+<span class="sd">                By defaults convert all fields.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Osm: OSM data set</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">osm</span><span class="o">.</span><span class="n">Osm</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">layer</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">():</span> 
+            <span class="n">geom</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">geom</span><span class="o">.</span><span class="n">wkbType</span><span class="p">()</span> <span class="o">==</span> <span class="n">QGis</span><span class="o">.</span><span class="n">WKBPolygon</span><span class="p">:</span>
+                <span class="n">pol</span> <span class="o">=</span> <span class="n">geom</span><span class="o">.</span><span class="n">asPolygon</span><span class="p">()</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pol</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">e</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">Way</span><span class="p">(</span><span class="n">pol</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">e</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">Polygon</span><span class="p">(</span><span class="n">pol</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">geom</span><span class="o">.</span><span class="n">wkbType</span><span class="p">()</span> <span class="o">==</span> <span class="n">QGis</span><span class="o">.</span><span class="n">WKBMultiPolygon</span><span class="p">:</span>
+                <span class="n">e</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">MultiPolygon</span><span class="p">(</span><span class="n">geom</span><span class="o">.</span><span class="n">asMultiPolygon</span><span class="p">())</span>
+            <span class="k">elif</span> <span class="n">geom</span><span class="o">.</span><span class="n">wkbType</span><span class="p">()</span> <span class="o">==</span> <span class="n">QGis</span><span class="o">.</span><span class="n">WKBPoint</span><span class="p">:</span>
+                <span class="n">e</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">geom</span><span class="o">.</span><span class="n">asPoint</span><span class="p">())</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Detected a </span><span class="si">%s</span><span class="s2"> geometry in </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">geom</span><span class="o">.</span><span class="n">wkbType</span><span class="p">(),</span> <span class="n">layer</span><span class="o">.</span><span class="n">name</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">tags_translation</span><span class="p">(</span><span class="n">feature</span><span class="p">))</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loaded </span><span class="si">%d</span><span class="s2"> nodes, </span><span class="si">%d</span><span class="s2"> ways, </span><span class="si">%d</span><span class="s2"> relations from </span><span class="si">%s</span><span class="s2"> layer&quot;</span><span class="p">,</span> 
+            <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">nodes</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">ways</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">relations</span><span class="p">),</span> <span class="n">layer</span><span class="o">.</span><span class="n">name</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+        
+<div class="viewcode-block" id="CatAtom2Osm.write_osm"><a class="viewcode-back" href="../api/catatom2osm.html#catatom2osm.CatAtom2Osm.write_osm">[docs]</a>    <span class="k">def</span> <span class="nf">write_osm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates a OSM XML file for a Osm data set.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data (Osm): OSM data set</span>
+<span class="sd">            filename (str): output filename</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Generating </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="n">osm_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">new_indexes</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">codecs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">osm_path</span><span class="p">,</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_obj</span><span class="p">:</span>
+            <span class="n">file_obj</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&lt;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39;?&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">file_obj</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">osmxml</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+            <span class="n">file_obj</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Javier Sánchez Portero.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2017-03-22',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
