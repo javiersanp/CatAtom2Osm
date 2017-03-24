@@ -6,6 +6,8 @@
 Welcome to CatAtom2Osm's documentation!
 =======================================
 
+Tool to convert INSPIRE data sets from the Spanish Cadastre ATOM Services to OSM files.
+
 Contents:
 
 .. toctree::
@@ -20,3 +22,9 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
+Repository
+==========
+
+Go back to the source code repository.
+
+https://github.com/javiersanp/CatAtom2Osm

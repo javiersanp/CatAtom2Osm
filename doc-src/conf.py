@@ -331,8 +331,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, meta.app_name, meta.app_name + ' Documentation',
-     author, meta.app_name, 'One line description of project.',
-     'Miscellaneous'),
+     author, meta.app_name, meta.app_desc, 'OSM'),
 ]
 
 # Documents to append as an appendix to all manuals.

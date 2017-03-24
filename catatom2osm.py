@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Tool to convert the data sets from the Spanish Cadastre ATOM Services to OSM files
+Tool to convert INSPIRE data sets from the Spanish Cadastre ATOM Services to OSM files
 """
 import os
 import math

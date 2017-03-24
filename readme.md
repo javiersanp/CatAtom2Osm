@@ -1,3 +1,5 @@
+Tool to convert INSPIRE data sets from the Spanish Cadastre ATOM Services to OSM files
+
 Conversion Tool of the data sets of the INSPIRE Services of the Spanish
 Cadastre (http://www.catastro.minhap.gob.es/webinspire/index.html) to
 OSM files.
@@ -13,6 +15,8 @@ Everything we need can be installed using the installers available on the QGIS
 website. http://qgis.org/
 
 The code has been tested in Ubuntu 16.04.2, QGIS 2.8.6wien, python 2.7.12. 
+
+## Usage
 
 To run tests:
 
@@ -33,35 +37,13 @@ Services of the Spanish Cadastre:
   * A.ES.SDGC.BU.GGMMM.zip (Buildings)
   * A.ES.SDGC.AD.GGMMM.zip (Addresses)
 
-Options:  
+Options:
   * -h, --help       show this help message and exit
   * --log=log_level  Select the log level between DEBUG, INFO, WARNING, ERROR or
                    CRITICAL.
 
-## Description
+## Documentation
 
-  * catatom2osm.py
-    CatAtom2Osm main application class.
+Browse the software documentation.
 
-  * layer.py
-    Classes derived from QgsVectorLayer for each type of element of the data
-    sets.
-    
-  * main.py
-    CatAtom2Osm command line entry point.
-
-  * osm.py
-    OpenStreetMap data model.
-
-  * osmxml.py
-    OSM XML format serializer.
-  
-  * setup.py
-    Application preferences.
-
-  * test/test_*.py
-    Testing
-  
-  * translate.py
-    Translations from source fields to OSM tags.
-
+https://javiersanp.github.io/CatAtom2Osm/
