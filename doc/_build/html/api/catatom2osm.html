@@ -1,0 +1,298 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>catatom2osm module &mdash; CatAtom2Osm 2017-03-22 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="CatAtom2Osm 2017-03-22 documentation" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> CatAtom2Osm
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2017-03-22
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <!-- Local TOC -->
+                <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">catatom2osm module</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">CatAtom2Osm</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+    <li>catatom2osm module</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api/catatom2osm.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-catatom2osm">
+<span id="catatom2osm-module"></span><h1>catatom2osm module<a class="headerlink" href="#module-catatom2osm" title="Permalink to this headline">¶</a></h1>
+<p>Tool to convert the data sets from the Spanish Cadastre ATOM Services to OSM files</p>
+<dl class="class">
+<dt id="catatom2osm.CatAtom2Osm">
+<em class="property">class </em><code class="descclassname">catatom2osm.</code><code class="descname">CatAtom2Osm</code><span class="sig-paren">(</span><em>aPath</em>, <em>options</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main application class for a tool to convert the data sets from the 
+Spanish Cadastre ATOM Services to OSM files.</p>
+<dl class="docutils">
+<dt>Attributes:</dt>
+<dd><p class="first">path (str): Directory where the source files are located.
+zipCode (str): Five digits (GGMMM) Zip Code matching Province (GG)</p>
+<blockquote>
+<div>and Municipality (MMM) codes.</div></blockquote>
+<p class="last">qgs (QgsApplication): Instance of qGis API.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="catatom2osm.CatAtom2Osm.export_layer">
+<code class="descname">export_layer</code><span class="sig-paren">(</span><em>layer</em>, <em>filename</em>, <em>driver_name='ESRI Shapefile'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.export_layer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.export_layer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export a vector layer.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>layer (QgsVectorLayer): Source layer.
+filename (str): Output filename.</dd>
+<dt>Kwargs:</dt>
+<dd>driver_name (str): Defaults to ESRI Shapefile.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="catatom2osm.CatAtom2Osm.osm_from_layer">
+<code class="descname">osm_from_layer</code><span class="sig-paren">(</span><em>layer</em>, <em>tags_translation=&lt;function all_tags&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.osm_from_layer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.osm_from_layer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a Osm data set from a vector layer.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>layer (QgsVectorLayer): Source layer.</dd>
+<dt>Kwargs:</dt>
+<dd><dl class="first last docutils">
+<dt>tags_translation (function): Function to translate fields to tags. </dt>
+<dd>By defaults convert all fields.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Osm: OSM data set</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="catatom2osm.CatAtom2Osm.read_gml_layer">
+<code class="descname">read_gml_layer</code><span class="sig-paren">(</span><em>layername</em>, <em>crs=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.read_gml_layer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.read_gml_layer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a qgis vector layer from a GML Cadastre file.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>layername (str): Short name of the Cadastre layer. Any of </dt>
+<dd>&#8216;building&#8217;, &#8216;buildingpart&#8217;, &#8216;otherconstruction&#8217;, 
+&#8216;cadastralparcel&#8217;, &#8216;cadastralzoning&#8217;, &#8216;address&#8217;, 
+&#8216;thoroughfarename&#8217;, &#8216;postaldescriptor&#8217;, &#8216;adminunitname&#8217;</dd>
+</dl>
+</dd>
+<dt>Kwargs:</dt>
+<dd><dl class="first last docutils">
+<dt>crs (QgsCoordinateReferenceSystem): Source Crs. It&#8217;s necessary </dt>
+<dd>because parcel and zoning layers don&#8217;t have it defined.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>QgsVectorLayer: Vector layer.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="catatom2osm.CatAtom2Osm.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Launches the app</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="catatom2osm.CatAtom2Osm.write_osm">
+<code class="descname">write_osm</code><span class="sig-paren">(</span><em>data</em>, <em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.write_osm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.write_osm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a OSM XML file for a Osm data set.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>data (Osm): OSM data set
+filename (str): output filename</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="catatom2osm.LayerIOError">
+<em class="property">exception </em><code class="descclassname">catatom2osm.</code><code class="descname">LayerIOError</code><a class="reference internal" href="../_modules/catatom2osm.html#LayerIOError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.LayerIOError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+<p>Exception for layer input/output errors</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="catatom2osm.ZipCodeError">
+<em class="property">exception </em><code class="descclassname">catatom2osm.</code><code class="descname">ZipCodeError</code><a class="reference internal" href="../_modules/catatom2osm.html#ZipCodeError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.ZipCodeError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+<p>Exception for malformed zip codes</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Javier Sánchez Portero.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2017-03-22',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

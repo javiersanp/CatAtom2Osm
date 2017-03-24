@@ -1,0 +1,443 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>osm &mdash; CatAtom2Osm 2017-03-22 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="CatAtom2Osm 2017-03-22 documentation" href="../index.html"/>
+        <link rel="up" title="Module code" href="index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> CatAtom2Osm
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2017-03-22
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <!-- Local TOC -->
+                <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">CatAtom2Osm</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Module code</a> &raquo;</li>
+      
+    <li>osm</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for osm</h1><div class="highlight"><pre>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;OpenStreetMap data model&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
+
+
+<div class="viewcode-block" id="Osm"><a class="viewcode-back" href="../api/osm.html#osm.Osm">[docs]</a><span class="k">class</span> <span class="nc">Osm</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class to implement a OSM data set.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">upload</span><span class="o">=</span><span class="s1">&#39;false&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">upload</span> <span class="o">=</span> <span class="s1">&#39;false&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="s1">&#39;0.6&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">Node</span><span class="p">)]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ways</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">Way</span><span class="p">)]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">relations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">Relation</span><span class="p">)]</span>
+
+<div class="viewcode-block" id="Osm.merge_duplicated"><a class="viewcode-back" href="../api/osm.html#osm.Osm.merge_duplicated">[docs]</a>    <span class="k">def</span> <span class="nf">merge_duplicated</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Merge elements with the same geometry.&quot;&quot;&quot;</span>
+        <span class="n">parents</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>  <span class="c1"># a dict of parents for each node</span>
+        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">:</span>
+            <span class="n">parents</span><span class="p">[</span><span class="n">el</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">Way</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">el</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+                    <span class="n">parents</span><span class="p">[</span><span class="n">node</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">Relation</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">el</span><span class="o">.</span><span class="n">members</span><span class="p">:</span>
+                    <span class="n">parents</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">element</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
+        <span class="n">geomdupes</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">:</span>
+             <span class="k">if</span> <span class="ow">not</span> <span class="n">el</span><span class="o">.</span><span class="n">is_uploaded</span><span class="p">():</span>
+                <span class="n">geomdupes</span><span class="p">[</span><span class="n">el</span><span class="o">.</span><span class="n">geometry</span><span class="p">()]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">geom</span><span class="p">,</span> <span class="n">dupes</span> <span class="ow">in</span> <span class="n">geomdupes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dupes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>   <span class="c1"># first element in dupes with tags or not uploaded</span>
+                <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">dupes</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">dupes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">geom</span><span class="p">:</span>
+                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>  <span class="c1"># see __eq__ methods of Node, Way, Relation</span>
+                <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">dupes</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">el</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">dupes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">and</span> <span class="n">el</span> <span class="o">==</span> <span class="n">dupes</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span> 
+                        <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">parents</span><span class="p">[</span><span class="n">el</span><span class="p">]:</span>
+                            <span class="n">parent</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">dupes</span><span class="p">[</span><span class="n">i</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="Osm.new_indexes"><a class="viewcode-back" href="../api/osm.html#osm.Osm.new_indexes">[docs]</a>    <span class="k">def</span> <span class="nf">new_indexes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">merge</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Assign new unique index to each element in the dataset&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">merge</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">merge_duplicated</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">way</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ways</span><span class="p">:</span>
+                <span class="n">way</span><span class="o">.</span><span class="n">clean_duplicated_nodes</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">:</span>
+            <span class="n">el</span><span class="o">.</span><span class="n">new_index</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Osm.replace"><a class="viewcode-back" href="../api/osm.html#osm.Osm.replace">[docs]</a>    <span class="k">def</span> <span class="nf">replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Replaces n1 witn n2 in elements.&quot;&quot;&quot;</span>
+        <span class="n">n1</span><span class="o">.</span><span class="n">container</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">n1</span><span class="p">)</span>
+        <span class="n">n2</span><span class="o">.</span><span class="n">container</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">n2</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper to create elements.</span>
+<span class="sd">        Example:</span>
+<span class="sd">        &gt;&gt;&gt; d = osm.Osm()</span>
+<span class="sd">        &gt;&gt;&gt; n = d.Node(1,1) # instead of</span>
+<span class="sd">        &gt;&gt;&gt; n = osm.Node(d, 1, 1)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Node&#39;</span><span class="p">,</span> <span class="s1">&#39;Way&#39;</span><span class="p">,</span> <span class="s1">&#39;Relation&#39;</span><span class="p">,</span> <span class="s1">&#39;Polygon&#39;</span><span class="p">,</span> <span class="s1">&#39;MultiPolygon&#39;</span><span class="p">]:</span>
+            <span class="n">cls</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()[</span><span class="n">name</span><span class="p">]</span>
+            <span class="k">return</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">cls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">AttributeError</span></div>
+
+
+<div class="viewcode-block" id="Element"><a class="viewcode-back" href="../api/osm.html#osm.Element">[docs]</a><span class="k">class</span> <span class="nc">Element</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for Osm elements&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">container</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">{},</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;modify&#39;</span><span class="p">,</span> <span class="n">visible</span><span class="o">=</span><span class="s1">&#39;true&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Each element must belong to a container OSM dataset&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">container</span> <span class="o">=</span> <span class="n">container</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="n">action</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">visible</span> <span class="o">=</span> <span class="n">visible</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tags</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">tags</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="n">container</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Used to determine if two elements could be merged.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">):</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">)</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">__dict__</span><span class="p">)</span>
+            <span class="n">a</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="s1">&#39;id&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">b</span> <span class="ow">or</span> <span class="n">b</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">a</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;id&#39;</span> <span class="ow">in</span> <span class="n">a</span> <span class="k">else</span> <span class="mi">0</span>
+            <span class="n">b</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="s1">&#39;id&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">a</span> <span class="ow">or</span> <span class="n">a</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">b</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;id&#39;</span> <span class="ow">in</span> <span class="n">b</span> <span class="k">else</span> <span class="mi">0</span>
+            <span class="n">a</span><span class="p">[</span><span class="s1">&#39;tags&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">b</span><span class="p">[</span><span class="s1">&#39;tags&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="p">{}</span> <span class="k">else</span> <span class="n">a</span><span class="p">[</span><span class="s1">&#39;tags&#39;</span><span class="p">]</span>
+            <span class="n">b</span><span class="p">[</span><span class="s1">&#39;tags&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">a</span><span class="p">[</span><span class="s1">&#39;tags&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="p">{}</span> <span class="k">else</span> <span class="n">b</span><span class="p">[</span><span class="s1">&#39;tags&#39;</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">a</span> <span class="o">==</span> <span class="n">b</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Element.new_index"><a class="viewcode-back" href="../api/osm.html#osm.Element.new_index">[docs]</a>    <span class="k">def</span> <span class="nf">new_index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Assign a new unique index if the element is not uploaded (id &lt; 0)&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">counter</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">counter</span></div>
+    
+<div class="viewcode-block" id="Element.is_uploaded"><a class="viewcode-back" href="../api/osm.html#osm.Element.is_uploaded">[docs]</a>    <span class="k">def</span> <span class="nf">is_uploaded</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">&gt;</span> <span class="mi">0</span></div></div>
+
+
+<div class="viewcode-block" id="Node"><a class="viewcode-back" href="../api/osm.html#osm.Node">[docs]</a><span class="k">class</span> <span class="nc">Node</span><span class="p">(</span><span class="n">Element</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A node is a pair of coordinates&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">container</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Use any of this:</span>
+<span class="sd">        &gt;&gt;&gt; d = osm.Osm()</span>
+<span class="sd">        &gt;&gt;&gt; n1 = d.Osm(1,1)</span>
+<span class="sd">        &gt;&gt;&gt; p = (1,1)</span>
+<span class="sd">        &gt;&gt;&gt; n2 = d.Osm(p)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Node</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> \
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s1">&#39;__getitem__&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+            
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;n[0], n[1] is equivalent to n.x, n.y&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">IndexError</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span>
+
+<div class="viewcode-block" id="Node.geometry"><a class="viewcode-back" href="../api/osm.html#osm.Node.geometry">[docs]</a>    <span class="k">def</span> <span class="nf">geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Way"><a class="viewcode-back" href="../api/osm.html#osm.Way">[docs]</a><span class="k">class</span> <span class="nc">Way</span><span class="p">(</span><span class="n">Element</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A way is a list of nodes&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">container</span><span class="p">,</span> <span class="n">nodes</span><span class="o">=</span><span class="p">[],</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Use any of this:</span>
+<span class="sd">        &gt;&gt;&gt; d = osm.Osm()</span>
+<span class="sd">        &gt;&gt;&gt; n1 = d.Node(1,1)</span>
+<span class="sd">        &gt;&gt;&gt; n2 = d.Node(2,2)</span>
+<span class="sd">        &gt;&gt;&gt; w = d.Way([n1, n2])</span>
+<span class="sd">        &gt;&gt;&gt; w = d.Way([(1,1), (2,2)])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Way</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">Node</span><span class="p">)</span> <span class="k">else</span> <span class="n">Node</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> 
+            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Way.replace"><a class="viewcode-back" href="../api/osm.html#osm.Way.replace">[docs]</a>    <span class="k">def</span> <span class="nf">replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Replaces first occurence of node n1 with n2&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="p">[</span><span class="n">n2</span> <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="n">n1</span> <span class="k">else</span> <span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Way.geometry"><a class="viewcode-back" href="../api/osm.html#osm.Way.geometry">[docs]</a>    <span class="k">def</span> <span class="nf">geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="Way.clean_duplicated_nodes"><a class="viewcode-back" href="../api/osm.html#osm.Way.clean_duplicated_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">clean_duplicated_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+            <span class="n">merged</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+                <span class="k">if</span> <span class="n">n</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                    <span class="n">merged</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="n">merged</span></div></div>
+
+<div class="viewcode-block" id="Relation"><a class="viewcode-back" href="../api/osm.html#osm.Relation">[docs]</a><span class="k">class</span> <span class="nc">Relation</span><span class="p">(</span><span class="n">Element</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A relation is a collection of nodes, ways or relations&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">container</span><span class="p">,</span> <span class="n">members</span><span class="o">=</span><span class="p">[],</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Relation</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">members</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">members</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">Relation</span><span class="o">.</span><span class="n">Member</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> 
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Relation.append"><a class="viewcode-back" href="../api/osm.html#osm.Relation.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">role</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Relation</span><span class="o">.</span><span class="n">Member</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">role</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Relation.replace"><a class="viewcode-back" href="../api/osm.html#osm.Relation.replace">[docs]</a>    <span class="k">def</span> <span class="nf">replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e1</span><span class="p">,</span> <span class="n">e2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Replaces first occurence of node n1 with n2&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">members</span> <span class="o">=</span> <span class="p">[</span><span class="n">Relation</span><span class="o">.</span><span class="n">Member</span><span class="p">(</span><span class="n">e2</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">role</span><span class="p">)</span> 
+            <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">element</span> <span class="o">==</span> <span class="n">e1</span> <span class="k">else</span> <span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Relation.geometry"><a class="viewcode-back" href="../api/osm.html#osm.Relation.geometry">[docs]</a>    <span class="k">def</span> <span class="nf">geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Relation.Member"><a class="viewcode-back" href="../api/osm.html#osm.Relation.Member">[docs]</a>    <span class="k">class</span> <span class="nc">Member</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A element is member of a relation with a role.&quot;&quot;&quot;</span>
+    
+        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">role</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">element</span> <span class="o">=</span> <span class="n">element</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">role</span> <span class="o">=</span> <span class="n">role</span>
+        
+        <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Used to determine if two elements could be merged.&quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">__dict__</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="kc">False</span>
+        
+        <span class="nd">@property</span>
+        <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">element</span> <span class="k">else</span> <span class="kc">None</span>
+        
+        <span class="nd">@property</span>
+        <span class="k">def</span> <span class="nf">ref</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">id</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">element</span> <span class="k">else</span> <span class="kc">None</span></div></div>
+
+
+<div class="viewcode-block" id="Polygon"><a class="viewcode-back" href="../api/osm.html#osm.Polygon">[docs]</a><span class="k">class</span> <span class="nc">Polygon</span><span class="p">(</span><span class="n">Relation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Helper to create a multipolygon type relation with one outer ring and</span>
+<span class="sd">       many inner rings.&quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">container</span><span class="p">,</span> <span class="n">rings</span><span class="o">=</span><span class="p">[],</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Polygon</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tags</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;multipolygon&#39;</span>
+        <span class="n">role</span> <span class="o">=</span> <span class="s1">&#39;outer&#39;</span>
+        <span class="k">for</span> <span class="n">ring</span> <span class="ow">in</span> <span class="n">rings</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ring</span><span class="p">,</span> <span class="n">Way</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ring</span><span class="p">,</span> <span class="n">role</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Way</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">ring</span><span class="p">),</span> <span class="n">role</span><span class="p">)</span>
+            <span class="n">role</span> <span class="o">=</span> <span class="s1">&#39;inner&#39;</span></div>
+
+
+<div class="viewcode-block" id="MultiPolygon"><a class="viewcode-back" href="../api/osm.html#osm.MultiPolygon">[docs]</a><span class="k">class</span> <span class="nc">MultiPolygon</span><span class="p">(</span><span class="n">Polygon</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Helper to create a multipolygon type relation with many outer ring and</span>
+<span class="sd">       many inner rings.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">container</span><span class="p">,</span> <span class="n">parts</span><span class="o">=</span><span class="p">[],</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MultiPolygon</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">:</span>
+            <span class="n">role</span> <span class="o">=</span> <span class="s1">&#39;outer&#39;</span>
+            <span class="k">for</span> <span class="n">ring</span> <span class="ow">in</span> <span class="n">part</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ring</span><span class="p">,</span> <span class="n">Way</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ring</span><span class="p">,</span> <span class="n">role</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Way</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">ring</span><span class="p">),</span> <span class="n">role</span><span class="p">)</span>
+                <span class="n">role</span> <span class="o">=</span> <span class="s1">&#39;inner&#39;</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Javier Sánchez Portero.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2017-03-22',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

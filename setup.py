@@ -1,5 +1,8 @@
+# -*- coding: utf-8 -*-
 app_name = 'CatAtom2Osm'
 app_version = '2017-03-22'
+app_author = u'Javier Sánchez Portero'
+app_copyright = u'2017, Javier Sánchez Portero'
 
 """Application preferences"""
 log_level = 'INFO' # Default console log level
