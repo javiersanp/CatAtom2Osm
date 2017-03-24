@@ -1,8 +1,4 @@
-Tool to convert INSPIRE data sets from the Spanish Cadastre ATOM Services to OSM files
-
-Conversion Tool of the data sets of the INSPIRE Services of the Spanish
-Cadastre (http://www.catastro.minhap.gob.es/webinspire/index.html) to
-OSM files.
+Tool to convert [INSPIRE data sets from the Spanish Cadastre ATOM Services](http://www.catastro.minhap.gob.es/webinspire/index.html) to OSM files
 
 ## Requeriments
 
