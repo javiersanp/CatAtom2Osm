@@ -35,9 +35,9 @@ class Point(QgsPoint):
             cath_thr (float): Cathetus threshold.
         
         Returns:
-            bool: True for a corner.
-            float: Angle between the vertex and their adjacents
-            float: Distance from the vertex to the segment formed by their adjacents
+            (bool) True for a corner, 
+            (float) Angle between the vertex and their adjacents,
+            (float) Distance from the vertex to the segment formed by their adjacents
         """
         (point, ndx, ndxa, ndxb, dist) = geom.closestVertex(self)
         va = geom.vertexAt(ndxa) # previous vertex
@@ -65,34 +65,35 @@ class BaseLayer(QgsVectorLayer):
 
         Args:
             feature (QgsFeature): Source feature
-        
-        Kwargs
-            rename (dict of dst_attr:src_attr): Translation of attributes names
-            resolve (dict of dst_attr:(src_attr, match)): xlink reference fields
+            rename (dict): Translation of attributes names
+            resolve (dict): xlink reference fields
 
-        Example:
+        Examples:
             With this:
-            rename = {'spec': 'specification'}
-            resolve = {
-                'PD_id': ('component_href', '[\w\.]+PD[\.0-9]+'), 
-                'TN_id': ('component_href', '[\w\.]+TN[\.0-9]+'), 
-                'AU_id': ('component_href', '[\w\.]+AU[\.0-9]+')
-            }
-            Yo get:
-            original_attributes = ['localId', 'specification', 'component_href']
-            original_values = [
-                '38.012.1.12.0295603CS6109N', 
-                'Parcel', 
-                '(3:#ES.SDGC.PD.38.012.38570,#ES.SDGC.TN.38.012.1,#ES.SDGC.AU.38.012)'
-            ]
-            final_attributes = ['localId', 'spec', 'PD_id', 'TN_id', 'AU_id']
-            final_values = [
-                '38.012.1.12.0295603CS6109N', 
-                'Parcel', 
-                'ES.SDGC.PD.38.012.38570',
-                'ES.SDGC.TN.38.012.1',
-                'ES.SDGC.AU.38.012'
-            ]
+            
+            >>> rename = {'spec': 'specification'}
+            >>> resolve = {
+            ...     'PD_id': ('component_href', '[\w\.]+PD[\.0-9]+'), 
+            ...     'TN_id': ('component_href', '[\w\.]+TN[\.0-9]+'), 
+            ...     'AU_id': ('component_href', '[\w\.]+AU[\.0-9]+')
+            ... }
+                
+            You get:
+            
+            >>> original_attributes = ['localId', 'specification', 'component_href']
+            >>> original_values = [
+            ...     '38.012.1.12.0295603CS6109N', 
+            ...     'Parcel', 
+            ...     '(3:#ES.SDGC.PD.38.012.38570,#ES.SDGC.TN.38.012.1,#ES.SDGC.AU.38.012)'
+            ... ]
+            >>> final_attributes = ['localId', 'spec', 'PD_id', 'TN_id', 'AU_id']
+            >>> final_values = [
+            ...     '38.012.1.12.0295603CS6109N', 
+            ...     'Parcel', 
+            ...     'ES.SDGC.PD.38.012.38570',
+            ...     'ES.SDGC.TN.38.012.1',
+            ...     'ES.SDGC.AU.38.012'
+            ... ]
         """
         rename = rename if rename is not None else self.rename
         resolve = resolve if resolve is not None else self.resolve
@@ -127,6 +128,7 @@ class BaseLayer(QgsVectorLayer):
 
     def reproject(self, target_crs=None):
         """Reproject all features in this layer to a new CRS.
+
         Args:
             target_crs (QgsCoordinateReferenceSystem): New CRS to apply.
         """
@@ -157,7 +159,6 @@ class BaseLayer(QgsVectorLayer):
             target_field_name (str): Join field in the target layer. 
             join_fieldsName (str): Join field in the source layer.
             field_names_subset (list): List of field name strings for the target layer.
-        Kwargs:
             prefix (str): An optional prefix 
         """
         self.startEditing()
@@ -190,9 +191,9 @@ class BaseLayer(QgsVectorLayer):
 
     def export(self, path, driver_name="ESRI Shapefile", overwrite=True):
         """Write layer to file
+
         Args:
             path (str): Path of the output file
-        Kwargs:
             driver_name (str): Defaults to ESRI Shapefile.
             overwrite (bool): Defaults to True
         """
@@ -236,7 +237,7 @@ class ZoningLayer(BaseLayer):
 
 
 class AddressLayer(BaseLayer):
-    """Clas for address"""
+    """Class for address"""
 
     def __init__(self, path="Point", baseName="address", 
             providerLib = "memory"):
@@ -260,7 +261,7 @@ class AddressLayer(BaseLayer):
 
 
 class ConsLayer(BaseLayer):
-    """Clas for constructions"""
+    """Class for constructions"""
 
     def __init__(self, path="Polygon", baseName="building", 
             providerLib = "memory"):
@@ -339,14 +340,18 @@ class ConsLayer(BaseLayer):
     def merge_greatest_part(self, footprint, parts):
         """
         Given a building footprint and its parts:
-        - Exclude parts not inside the footprint.
-        - If the area of the parts above ground is equal to the area of the 
+        
+        * Exclude parts not inside the footprint.
+        
+        * If the area of the parts above ground is equal to the area of the 
           footprint.
-            - Sum the area for all the parts with the same level. Level is the 
-              pair of values 'lev_above' and 'lev_below' (number of floors 
-              above, and below groud).
-            - For the level with greatest area, translate the number of floors 
-              values to the footprint and deletes all the parts in that level.
+          
+          * Sum the area for all the parts with the same level. Level is the 
+            pair of values 'lev_above' and 'lev_below' (number of floors 
+            above, and below groud).
+            
+          * For the level with greatest area, translate the number of floors 
+            values to the footprint and deletes all the parts in that level.
         """
         parts_inside_footprint = [part for part in parts 
             if footprint.geometry().contains(part.geometry())
@@ -413,9 +418,9 @@ class ConsLayer(BaseLayer):
     def create_dict_of_vertex_and_features(self):
         """
         Auxiliary method for simplify
+        
         Returns:
-            vertexs (dict): Dictionary of parent fids for each vertex.
-            features (dict): Dictionary of feature for fids.
+            (dict) parent fids for each vertex, (dict) feature for each fid.
         """
         vertexs = defaultdict(list)
         features = {}
@@ -566,10 +571,12 @@ class ConsLayer(BaseLayer):
     def simplify(self):
         """
         Reduces the number of vertexs in a polygon layer according to:
+
         * Delete vertex if the distance to the segment formed by its parents is
-            less than 'cath_thr' meters.
+          less than 'cath_thr' meters.
+
         * Delete vertex if the angle with its parent is near of the straight 
-            angle for less than 'angle_thr' degrees.
+          angle for less than 'angle_thr' degrees.
         """
         cath_thr = self.cath_thr
         angle_thr = self.angle_thr
@@ -621,7 +628,6 @@ class DebugWriter(QgsVectorFileWriter):
         Args:
             filename (str): File name of the layer
             crs (QgsCoordinateReferenceSystem): Crs of layer.
-        Kwargs:
             driver_name (str): Defaults to ESRI Shapefile.
         """
         self.fields = QgsFields()

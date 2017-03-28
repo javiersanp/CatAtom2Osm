@@ -14,7 +14,7 @@ class TestProgressBar(unittest.TestCase):
 
     @mock.patch('download.sys')
     def test_update(self, mock_sys):
-        progress = random.randint(0,10)
+        progress = random.randint(0, 9)
         pb = ProgressBar(1000)
         pb.update(100 * progress)
         self.assertEquals(pb.progress, 100 * progress)

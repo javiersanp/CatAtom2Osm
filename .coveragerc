@@ -1,7 +1,9 @@
 # .coveragerc to control coverage.py
 [run]
 branch = True
-omit = test/*
+omit = 
+    test/*
+    /usr/*
 
 [report]
 

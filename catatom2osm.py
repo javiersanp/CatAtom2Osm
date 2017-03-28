@@ -16,19 +16,11 @@ import layer
 import translate
 import osmxml
 import osm
+import download
 
 log = logging.getLogger(setup.app_name + ".catatom2osm")
 if setup.silence_gdal:
     gdal.PushErrorHandler('CPLQuietErrorHandler')
-
-
-class ZipCodeError(Exception):
-    """Exception for malformed zip codes"""
-    pass
-
-class LayerIOError(Exception):
-    """Exception for layer input/output errors"""
-    pass
 
 
 class CatAtom2Osm:
@@ -38,30 +30,33 @@ class CatAtom2Osm:
     
     Attributes:
         path (str): Directory where the source files are located.
-        zipCode (str): Five digits (GGMMM) Zip Code matching Province (GG) 
+        zip_code (str): Five digits (GGMMM) Zip Code matching Province (GG) 
                        and Municipality (MMM) codes.
         qgs (QgsApplication): Instance of qGis API.
     """
     
-    def __init__(self, aPath, options):
+    def __init__(self, a_path, options):
         """
         Constructor.
         
         Args:
-            aPath (str): Directory where the source files are located.
+            a_path (str): Directory where the source files are located.
             options (dict): Dictionary of options.
         """
         # Gets path of data directory and Zip Code value
         self.options = options
-        m = re.match("\d{5}", os.path.split(aPath)[-1])
+        m = re.match("\d{5}", os.path.split(a_path)[-1])
         if not m:
-            raise ZipCodeError("Directory name must begin with a 5 digits ZIP code")
-        self.path = aPath
-        self.zipCode = m.group()
-        if not os.path.exists(aPath):
-            raise IOError("Directory not exists: '%s'" % aPath)
-        if not os.path.isdir(aPath):
-            raise IOError("Not a directory: '%s'" % aPath)
+            raise ValueError("Directory name must begin with a 5 digits ZIP code")
+        self.path = a_path
+        self.zip_code = m.group()
+        self.prov_code = self.zip_code[0:2]
+        if self.prov_code not in setup.valid_provinces:
+            raise ValueError("Province code %s don't exists" % self.prov_code)
+        if not os.path.exists(a_path):
+            os.makedirs(a_path)
+        if not os.path.isdir(a_path):
+            raise IOError("Not a directory: '%s'" % a_path)
         # Init qGis API
         QgsApplication.setPrefixPath(setup.qgs_prefix_path, True)
         
@@ -150,12 +145,13 @@ class CatAtom2Osm:
             address_gml = self.read_gml_layer("address")
             address = layer.AddressLayer()
             address.append(address_gml)
-            addrstreet = self.read_gml_layer("thoroughfarename")
-            adminunit = self.read_gml_layer("adminunitname")
-            zipcode = self.read_gml_layer("postaldescriptor")
-            address.join_field(addrstreet, 'TN_id', 'gml_id', ['text'], 'TN_')
-            address.join_field(adminunit, 'AU_id', 'gml_id', ['text'], 'AU_')
-            address.join_field(zipcode, 'PD_id', 'gml_id', ['postCode'])
+            thoroughfarename = self.read_gml_layer("thoroughfarename")
+            adminunitname = self.read_gml_layer("adminunitname")
+            postaldescriptor = self.read_gml_layer("postaldescriptor")
+            address.join_field(thoroughfarename, 'TN_id', 'gml_id', ['text'], 'TN_')
+            address.join_field(adminunitname, 'AU_id', 'gml_id', ['text'], 'AU_')
+            address.join_field(postaldescriptor, 'PD_id', 'gml_id', ['postCode'])
+            del thoroughfarename, adminunitname, postaldescriptor
             address.reproject()
             address_osm = self.osm_from_layer(address, translate.address_tags)
             self.write_osm(address_osm, "address.osm")
@@ -167,16 +163,32 @@ class CatAtom2Osm:
         if hasattr(self, 'qgs'):
             self.qgs.exitQgis()
         
+    def get_atom_file(self, url):
+        """Given the url of a Cadastre ATOM service, tries to download the ZIP
+        file for self.zip_code"""
+        s = re.search('INSPIRE/(\w+)/', url)
+        log.info("Searching for %s %s url...", self.zip_code, s.group(1))
+        response = download.get_response(url)
+        s = re.search('http.+/%s.+zip' % self.zip_code, response.text)
+        if not s:
+            raise ValueError("Zip code %s don't exists" % self.zip_code)
+        url = s.group(0)
+        filename = url.split('/')[-1]
+        out_path = os.path.join(self.path, filename)
+        log.info("Downloading %s", out_path)
+        download.wget(url, out_path)
+
     def read_gml_layer(self, layername, crs=None):
         """
-        Create a qgis vector layer from a GML Cadastre file.
+        Create a qgis vector layer for a Cadastre layername. Derives the GML 
+        filename from layername. If it don't exists, try with the ZIP file, if
+        it don't exists, try to download it.
 
         Args:
             layername (str): Short name of the Cadastre layer. Any of 
                 'building', 'buildingpart', 'otherconstruction', 
                 'cadastralparcel', 'cadastralzoning', 'address', 
                 'thoroughfarename', 'postaldescriptor', 'adminunitname'
-        Kwargs:
             crs (QgsCoordinateReferenceSystem): Source Crs. It's necessary 
                 because parcel and zoning layers don't have it defined.
 
@@ -185,28 +197,33 @@ class CatAtom2Osm:
         """
         if layername in ['building', 'buildingpart', 'otherconstruction']:
             group = 'BU'
+            url = setup.url_bu % (self.prov_code, self.prov_code)
         elif layername in ['cadastralparcel', 'cadastralzoning']:
             group = 'CP'
+            url = setup.url_cp % (self.prov_code, self.prov_code)
         elif layername in ['address', 'thoroughfarename', 'postaldescriptor', 
                 'adminunitname']:
             group = 'AD' 
+            url = setup.url_ad % (self.prov_code, self.prov_code)
         else:
             return None
         if group == 'AD':    
-            gml_fn = ".".join((setup.fn_prefix, group, self.zipCode, 
+            gml_fn = ".".join((setup.fn_prefix, group, self.zip_code, 
                 "gml|layername=%s" % layername))
         else:
-            gml_fn = ".".join((setup.fn_prefix, group, self.zipCode, layername, "gml"))
-        zip_fn = ".".join((setup.fn_prefix, group, self.zipCode, "zip"))
-        gml_path = "/".join((self.path, gml_fn))
+            gml_fn = ".".join((setup.fn_prefix, group, self.zip_code, layername, "gml"))
+        zip_fn = ".".join((setup.fn_prefix, group, self.zip_code, "zip"))
+        gml_path = os.path.join(self.path, gml_fn)
+        zip_path = os.path.join(self.path, zip_fn)
+        if not os.path.exists(gml_path) and not os.path.exists(zip_path):
+            self.get_atom_file(url)
         gml_layer = QgsVectorLayer(gml_path, layername, "ogr")
         if not gml_layer.isValid():
             gml_path = "/".join(('/vsizip', self.path, zip_fn, gml_fn))
-            gml_layer = QgsVectorLayer(str(gml_path), layername, "ogr")
+            gml_layer = QgsVectorLayer(gml_path, layername, "ogr")
             if not gml_layer.isValid():
-                # TODO download zip and gives another try
                 if not gml_layer.isValid():
-                    raise LayerIOError("Failed to load layer: '%s'" % gml_path)
+                    raise IOError("Failed to load layer: '%s'" % gml_path)
         if crs:
             gml_layer.setCrs(crs)
         log.info("Loaded %d features in %s layer", gml_layer.featureCount(), 
@@ -220,12 +237,11 @@ class CatAtom2Osm:
         Args:
             layer (QgsVectorLayer): Source layer.
             filename (str): Output filename.
-        Kwargs:
             driver_name (str): Defaults to ESRI Shapefile.
         """
         out_path = os.path.join(self.path, filename)
         if not layer.export(out_path, driver_name):
-            raise LayerIOError("Failed to write layer: '%s'" % filename)
+            raise IOError("Failed to write layer: '%s'" % filename)
         
     
     def osm_from_layer(self, layer, tags_translation=translate.all_tags):
@@ -234,7 +250,6 @@ class CatAtom2Osm:
 
         Args:
             layer (QgsVectorLayer): Source layer.
-        Kwargs:
             tags_translation (function): Function to translate fields to tags. 
                 By defaults convert all fields.
 

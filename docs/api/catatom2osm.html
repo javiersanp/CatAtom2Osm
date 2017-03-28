@@ -130,7 +130,7 @@
 <p>Tool to convert INSPIRE data sets from the Spanish Cadastre ATOM Services to OSM files</p>
 <dl class="class">
 <dt id="catatom2osm.CatAtom2Osm">
-<em class="property">class </em><code class="descclassname">catatom2osm.</code><code class="descname">CatAtom2Osm</code><span class="sig-paren">(</span><em>aPath</em>, <em>options</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">catatom2osm.</code><code class="descname">CatAtom2Osm</code><span class="sig-paren">(</span><em>a_path</em>, <em>options</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Main application class for a tool to convert the data sets from the
 Spanish Cadastre ATOM Services to OSM files.</p>
 <dl class="attribute">
@@ -140,8 +140,8 @@ Spanish Cadastre ATOM Services to OSM files.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="catatom2osm.CatAtom2Osm.zipCode">
-<code class="descname">zipCode</code><a class="headerlink" href="#catatom2osm.CatAtom2Osm.zipCode" title="Permalink to this definition">¶</a></dt>
+<dt id="catatom2osm.CatAtom2Osm.zip_code">
+<code class="descname">zip_code</code><a class="headerlink" href="#catatom2osm.CatAtom2Osm.zip_code" title="Permalink to this definition">¶</a></dt>
 <dd><p><em>str</em> &#8211; Five digits (GGMMM) Zip Code matching Province (GG)
 and Municipality (MMM) codes.</p>
 </dd></dl>
@@ -163,15 +163,19 @@ and Municipality (MMM) codes.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>layer</strong> (<em>QgsVectorLayer</em>) &#8211; Source layer.</li>
 <li><strong>filename</strong> (<em>str</em>) &#8211; Output filename.</li>
+<li><strong>driver_name</strong> (<em>str</em>) &#8211; Defaults to ESRI Shapefile.</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
-<dl class="docutils">
-<dt>Kwargs:</dt>
-<dd>driver_name (str): Defaults to ESRI Shapefile.</dd>
-</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="catatom2osm.CatAtom2Osm.get_atom_file">
+<code class="descname">get_atom_file</code><span class="sig-paren">(</span><em>url</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.get_atom_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.get_atom_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given the url of a Cadastre ATOM service, tries to download the ZIP
+file for self.zip_code</p>
 </dd></dl>
 
 <dl class="method">
@@ -182,25 +186,18 @@ and Municipality (MMM) codes.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>layer</strong> (<em>QgsVectorLayer</em>) &#8211; Source layer.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>layer</strong> (<em>QgsVectorLayer</em>) &#8211; Source layer.</li>
+<li><strong>tags_translation</strong> (<em>function</em>) &#8211; Function to translate fields to tags.
+By defaults convert all fields.</li>
+</ul>
+</td>
 </tr>
-</tbody>
-</table>
-<dl class="docutils">
-<dt>Kwargs:</dt>
-<dd><dl class="first last docutils">
-<dt>tags_translation (function): Function to translate fields to tags.</dt>
-<dd>By defaults convert all fields.</dd>
-</dl>
-</dd>
-</dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">OSM data set</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">OSM data set</p>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="osm.html#osm.Osm" title="osm.Osm">Osm</a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="osm.html#osm.Osm" title="osm.Osm">Osm</a></p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -209,33 +206,28 @@ and Municipality (MMM) codes.</p>
 <dl class="method">
 <dt id="catatom2osm.CatAtom2Osm.read_gml_layer">
 <code class="descname">read_gml_layer</code><span class="sig-paren">(</span><em>layername</em>, <em>crs=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.read_gml_layer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.read_gml_layer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a qgis vector layer from a GML Cadastre file.</p>
+<dd><p>Create a qgis vector layer for a Cadastre layername. Derives the GML
+filename from layername. If it don&#8217;t exists, try with the ZIP file, if
+it don&#8217;t exists, try to download it.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>layername</strong> (<em>str</em>) &#8211; Short name of the Cadastre layer. Any of
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>layername</strong> (<em>str</em>) &#8211; Short name of the Cadastre layer. Any of
 &#8216;building&#8217;, &#8216;buildingpart&#8217;, &#8216;otherconstruction&#8217;,
 &#8216;cadastralparcel&#8217;, &#8216;cadastralzoning&#8217;, &#8216;address&#8217;,
-&#8216;thoroughfarename&#8217;, &#8216;postaldescriptor&#8217;, &#8216;adminunitname&#8217;</td>
+&#8216;thoroughfarename&#8217;, &#8216;postaldescriptor&#8217;, &#8216;adminunitname&#8217;</li>
+<li><strong>crs</strong> (<em>QgsCoordinateReferenceSystem</em>) &#8211; Source Crs. It&#8217;s necessary
+because parcel and zoning layers don&#8217;t have it defined.</li>
+</ul>
+</td>
 </tr>
-</tbody>
-</table>
-<dl class="docutils">
-<dt>Kwargs:</dt>
-<dd><dl class="first last docutils">
-<dt>crs (QgsCoordinateReferenceSystem): Source Crs. It&#8217;s necessary</dt>
-<dd>because parcel and zoning layers don&#8217;t have it defined.</dd>
-</dl>
-</dd>
-</dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Vector layer.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Vector layer.</p>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">QgsVectorLayer</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">QgsVectorLayer</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -265,20 +257,6 @@ and Municipality (MMM) codes.</p>
 </table>
 </dd></dl>
 
-</dd></dl>
-
-<dl class="exception">
-<dt id="catatom2osm.LayerIOError">
-<em class="property">exception </em><code class="descclassname">catatom2osm.</code><code class="descname">LayerIOError</code><a class="reference internal" href="../_modules/catatom2osm.html#LayerIOError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.LayerIOError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
-<p>Exception for layer input/output errors</p>
-</dd></dl>
-
-<dl class="exception">
-<dt id="catatom2osm.ZipCodeError">
-<em class="property">exception </em><code class="descclassname">catatom2osm.</code><code class="descname">ZipCodeError</code><a class="reference internal" href="../_modules/catatom2osm.html#ZipCodeError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.ZipCodeError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
-<p>Exception for malformed zip codes</p>
 </dd></dl>
 
 </div>

@@ -128,19 +128,11 @@
 <span class="kn">import</span> <span class="nn">translate</span>
 <span class="kn">import</span> <span class="nn">osmxml</span>
 <span class="kn">import</span> <span class="nn">osm</span>
+<span class="kn">import</span> <span class="nn">download</span>
 
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">setup</span><span class="o">.</span><span class="n">app_name</span> <span class="o">+</span> <span class="s2">&quot;.catatom2osm&quot;</span><span class="p">)</span>
 <span class="k">if</span> <span class="n">setup</span><span class="o">.</span><span class="n">silence_gdal</span><span class="p">:</span>
     <span class="n">gdal</span><span class="o">.</span><span class="n">PushErrorHandler</span><span class="p">(</span><span class="s1">&#39;CPLQuietErrorHandler&#39;</span><span class="p">)</span>
-
-
-<div class="viewcode-block" id="ZipCodeError"><a class="viewcode-back" href="../api/catatom2osm.html#catatom2osm.ZipCodeError">[docs]</a><span class="k">class</span> <span class="nc">ZipCodeError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Exception for malformed zip codes&quot;&quot;&quot;</span>
-    <span class="k">pass</span></div>
-
-<div class="viewcode-block" id="LayerIOError"><a class="viewcode-back" href="../api/catatom2osm.html#catatom2osm.LayerIOError">[docs]</a><span class="k">class</span> <span class="nc">LayerIOError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Exception for layer input/output errors&quot;&quot;&quot;</span>
-    <span class="k">pass</span></div>
 
 
 <div class="viewcode-block" id="CatAtom2Osm"><a class="viewcode-back" href="../api/catatom2osm.html#catatom2osm.CatAtom2Osm">[docs]</a><span class="k">class</span> <span class="nc">CatAtom2Osm</span><span class="p">:</span>
@@ -150,30 +142,33 @@
 <span class="sd">    </span>
 <span class="sd">    Attributes:</span>
 <span class="sd">        path (str): Directory where the source files are located.</span>
-<span class="sd">        zipCode (str): Five digits (GGMMM) Zip Code matching Province (GG) </span>
+<span class="sd">        zip_code (str): Five digits (GGMMM) Zip Code matching Province (GG) </span>
 <span class="sd">                       and Municipality (MMM) codes.</span>
 <span class="sd">        qgs (QgsApplication): Instance of qGis API.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">aPath</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a_path</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructor.</span>
 <span class="sd">        </span>
 <span class="sd">        Args:</span>
-<span class="sd">            aPath (str): Directory where the source files are located.</span>
+<span class="sd">            a_path (str): Directory where the source files are located.</span>
 <span class="sd">            options (dict): Dictionary of options.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Gets path of data directory and Zip Code value</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span>
-        <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;\d</span><span class="si">{5}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">aPath</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;\d</span><span class="si">{5}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">a_path</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">m</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ZipCodeError</span><span class="p">(</span><span class="s2">&quot;Directory name must begin with a 5 digits ZIP code&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">aPath</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">zipCode</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">aPath</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Directory not exists: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">aPath</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">aPath</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Not a directory: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">aPath</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Directory name must begin with a 5 digits ZIP code&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">a_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zip_code</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prov_code</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zip_code</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prov_code</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">setup</span><span class="o">.</span><span class="n">valid_provinces</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Province code </span><span class="si">%s</span><span class="s2"> don&#39;t exists&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">prov_code</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">a_path</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">a_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">a_path</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Not a directory: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">a_path</span><span class="p">)</span>
         <span class="c1"># Init qGis API</span>
         <span class="n">QgsApplication</span><span class="o">.</span><span class="n">setPrefixPath</span><span class="p">(</span><span class="n">setup</span><span class="o">.</span><span class="n">qgs_prefix_path</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         
@@ -262,12 +257,13 @@
             <span class="n">address_gml</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_gml_layer</span><span class="p">(</span><span class="s2">&quot;address&quot;</span><span class="p">)</span>
             <span class="n">address</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">AddressLayer</span><span class="p">()</span>
             <span class="n">address</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">address_gml</span><span class="p">)</span>
-            <span class="n">addrstreet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_gml_layer</span><span class="p">(</span><span class="s2">&quot;thoroughfarename&quot;</span><span class="p">)</span>
-            <span class="n">adminunit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_gml_layer</span><span class="p">(</span><span class="s2">&quot;adminunitname&quot;</span><span class="p">)</span>
-            <span class="n">zipcode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_gml_layer</span><span class="p">(</span><span class="s2">&quot;postaldescriptor&quot;</span><span class="p">)</span>
-            <span class="n">address</span><span class="o">.</span><span class="n">join_field</span><span class="p">(</span><span class="n">addrstreet</span><span class="p">,</span> <span class="s1">&#39;TN_id&#39;</span><span class="p">,</span> <span class="s1">&#39;gml_id&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">],</span> <span class="s1">&#39;TN_&#39;</span><span class="p">)</span>
-            <span class="n">address</span><span class="o">.</span><span class="n">join_field</span><span class="p">(</span><span class="n">adminunit</span><span class="p">,</span> <span class="s1">&#39;AU_id&#39;</span><span class="p">,</span> <span class="s1">&#39;gml_id&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">],</span> <span class="s1">&#39;AU_&#39;</span><span class="p">)</span>
-            <span class="n">address</span><span class="o">.</span><span class="n">join_field</span><span class="p">(</span><span class="n">zipcode</span><span class="p">,</span> <span class="s1">&#39;PD_id&#39;</span><span class="p">,</span> <span class="s1">&#39;gml_id&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;postCode&#39;</span><span class="p">])</span>
+            <span class="n">thoroughfarename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_gml_layer</span><span class="p">(</span><span class="s2">&quot;thoroughfarename&quot;</span><span class="p">)</span>
+            <span class="n">adminunitname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_gml_layer</span><span class="p">(</span><span class="s2">&quot;adminunitname&quot;</span><span class="p">)</span>
+            <span class="n">postaldescriptor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_gml_layer</span><span class="p">(</span><span class="s2">&quot;postaldescriptor&quot;</span><span class="p">)</span>
+            <span class="n">address</span><span class="o">.</span><span class="n">join_field</span><span class="p">(</span><span class="n">thoroughfarename</span><span class="p">,</span> <span class="s1">&#39;TN_id&#39;</span><span class="p">,</span> <span class="s1">&#39;gml_id&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">],</span> <span class="s1">&#39;TN_&#39;</span><span class="p">)</span>
+            <span class="n">address</span><span class="o">.</span><span class="n">join_field</span><span class="p">(</span><span class="n">adminunitname</span><span class="p">,</span> <span class="s1">&#39;AU_id&#39;</span><span class="p">,</span> <span class="s1">&#39;gml_id&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">],</span> <span class="s1">&#39;AU_&#39;</span><span class="p">)</span>
+            <span class="n">address</span><span class="o">.</span><span class="n">join_field</span><span class="p">(</span><span class="n">postaldescriptor</span><span class="p">,</span> <span class="s1">&#39;PD_id&#39;</span><span class="p">,</span> <span class="s1">&#39;gml_id&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;postCode&#39;</span><span class="p">])</span>
+            <span class="k">del</span> <span class="n">thoroughfarename</span><span class="p">,</span> <span class="n">adminunitname</span><span class="p">,</span> <span class="n">postaldescriptor</span>
             <span class="n">address</span><span class="o">.</span><span class="n">reproject</span><span class="p">()</span>
             <span class="n">address_osm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">osm_from_layer</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">translate</span><span class="o">.</span><span class="n">address_tags</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">write_osm</span><span class="p">(</span><span class="n">address_osm</span><span class="p">,</span> <span class="s2">&quot;address.osm&quot;</span><span class="p">)</span>
@@ -279,16 +275,32 @@
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;qgs&#39;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">qgs</span><span class="o">.</span><span class="n">exitQgis</span><span class="p">()</span>
         
+<div class="viewcode-block" id="CatAtom2Osm.get_atom_file"><a class="viewcode-back" href="../api/catatom2osm.html#catatom2osm.CatAtom2Osm.get_atom_file">[docs]</a>    <span class="k">def</span> <span class="nf">get_atom_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Given the url of a Cadastre ATOM service, tries to download the ZIP</span>
+<span class="sd">        file for self.zip_code&quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;INSPIRE/(\w+)/&#39;</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Searching for </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> url...&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">zip_code</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">download</span><span class="o">.</span><span class="n">get_response</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;http.+/</span><span class="si">%s</span><span class="s1">.+zip&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">zip_code</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">s</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Zip code </span><span class="si">%s</span><span class="s2"> don&#39;t exists&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">zip_code</span><span class="p">)</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">out_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Downloading </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">out_path</span><span class="p">)</span>
+        <span class="n">download</span><span class="o">.</span><span class="n">wget</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">out_path</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="CatAtom2Osm.read_gml_layer"><a class="viewcode-back" href="../api/catatom2osm.html#catatom2osm.CatAtom2Osm.read_gml_layer">[docs]</a>    <span class="k">def</span> <span class="nf">read_gml_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layername</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a qgis vector layer from a GML Cadastre file.</span>
+<span class="sd">        Create a qgis vector layer for a Cadastre layername. Derives the GML </span>
+<span class="sd">        filename from layername. If it don&#39;t exists, try with the ZIP file, if</span>
+<span class="sd">        it don&#39;t exists, try to download it.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            layername (str): Short name of the Cadastre layer. Any of </span>
 <span class="sd">                &#39;building&#39;, &#39;buildingpart&#39;, &#39;otherconstruction&#39;, </span>
 <span class="sd">                &#39;cadastralparcel&#39;, &#39;cadastralzoning&#39;, &#39;address&#39;, </span>
 <span class="sd">                &#39;thoroughfarename&#39;, &#39;postaldescriptor&#39;, &#39;adminunitname&#39;</span>
-<span class="sd">        Kwargs:</span>
 <span class="sd">            crs (QgsCoordinateReferenceSystem): Source Crs. It&#39;s necessary </span>
 <span class="sd">                because parcel and zoning layers don&#39;t have it defined.</span>
 
@@ -297,28 +309,33 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">layername</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;building&#39;</span><span class="p">,</span> <span class="s1">&#39;buildingpart&#39;</span><span class="p">,</span> <span class="s1">&#39;otherconstruction&#39;</span><span class="p">]:</span>
             <span class="n">group</span> <span class="o">=</span> <span class="s1">&#39;BU&#39;</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">setup</span><span class="o">.</span><span class="n">url_bu</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prov_code</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">prov_code</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">layername</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;cadastralparcel&#39;</span><span class="p">,</span> <span class="s1">&#39;cadastralzoning&#39;</span><span class="p">]:</span>
             <span class="n">group</span> <span class="o">=</span> <span class="s1">&#39;CP&#39;</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">setup</span><span class="o">.</span><span class="n">url_cp</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prov_code</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">prov_code</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">layername</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">,</span> <span class="s1">&#39;thoroughfarename&#39;</span><span class="p">,</span> <span class="s1">&#39;postaldescriptor&#39;</span><span class="p">,</span> 
                 <span class="s1">&#39;adminunitname&#39;</span><span class="p">]:</span>
             <span class="n">group</span> <span class="o">=</span> <span class="s1">&#39;AD&#39;</span> 
+            <span class="n">url</span> <span class="o">=</span> <span class="n">setup</span><span class="o">.</span><span class="n">url_ad</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prov_code</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">prov_code</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">group</span> <span class="o">==</span> <span class="s1">&#39;AD&#39;</span><span class="p">:</span>    
-            <span class="n">gml_fn</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">setup</span><span class="o">.</span><span class="n">fn_prefix</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">zipCode</span><span class="p">,</span> 
+            <span class="n">gml_fn</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">setup</span><span class="o">.</span><span class="n">fn_prefix</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">zip_code</span><span class="p">,</span> 
                 <span class="s2">&quot;gml|layername=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">layername</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">gml_fn</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">setup</span><span class="o">.</span><span class="n">fn_prefix</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">zipCode</span><span class="p">,</span> <span class="n">layername</span><span class="p">,</span> <span class="s2">&quot;gml&quot;</span><span class="p">))</span>
-        <span class="n">zip_fn</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">setup</span><span class="o">.</span><span class="n">fn_prefix</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">zipCode</span><span class="p">,</span> <span class="s2">&quot;zip&quot;</span><span class="p">))</span>
-        <span class="n">gml_path</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">gml_fn</span><span class="p">))</span>
+            <span class="n">gml_fn</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">setup</span><span class="o">.</span><span class="n">fn_prefix</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">zip_code</span><span class="p">,</span> <span class="n">layername</span><span class="p">,</span> <span class="s2">&quot;gml&quot;</span><span class="p">))</span>
+        <span class="n">zip_fn</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">setup</span><span class="o">.</span><span class="n">fn_prefix</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">zip_code</span><span class="p">,</span> <span class="s2">&quot;zip&quot;</span><span class="p">))</span>
+        <span class="n">gml_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">gml_fn</span><span class="p">)</span>
+        <span class="n">zip_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">zip_fn</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">gml_path</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">zip_path</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_atom_file</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
         <span class="n">gml_layer</span> <span class="o">=</span> <span class="n">QgsVectorLayer</span><span class="p">(</span><span class="n">gml_path</span><span class="p">,</span> <span class="n">layername</span><span class="p">,</span> <span class="s2">&quot;ogr&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">gml_layer</span><span class="o">.</span><span class="n">isValid</span><span class="p">():</span>
             <span class="n">gml_path</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="s1">&#39;/vsizip&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">zip_fn</span><span class="p">,</span> <span class="n">gml_fn</span><span class="p">))</span>
-            <span class="n">gml_layer</span> <span class="o">=</span> <span class="n">QgsVectorLayer</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">gml_path</span><span class="p">),</span> <span class="n">layername</span><span class="p">,</span> <span class="s2">&quot;ogr&quot;</span><span class="p">)</span>
+            <span class="n">gml_layer</span> <span class="o">=</span> <span class="n">QgsVectorLayer</span><span class="p">(</span><span class="n">gml_path</span><span class="p">,</span> <span class="n">layername</span><span class="p">,</span> <span class="s2">&quot;ogr&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">gml_layer</span><span class="o">.</span><span class="n">isValid</span><span class="p">():</span>
-                <span class="c1"># TODO download zip and gives another try</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">gml_layer</span><span class="o">.</span><span class="n">isValid</span><span class="p">():</span>
-                    <span class="k">raise</span> <span class="n">LayerIOError</span><span class="p">(</span><span class="s2">&quot;Failed to load layer: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">gml_path</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Failed to load layer: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">gml_path</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">crs</span><span class="p">:</span>
             <span class="n">gml_layer</span><span class="o">.</span><span class="n">setCrs</span><span class="p">(</span><span class="n">crs</span><span class="p">)</span>
         <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loaded </span><span class="si">%d</span><span class="s2"> features in </span><span class="si">%s</span><span class="s2"> layer&quot;</span><span class="p">,</span> <span class="n">gml_layer</span><span class="o">.</span><span class="n">featureCount</span><span class="p">(),</span> 
@@ -332,12 +349,11 @@
 <span class="sd">        Args:</span>
 <span class="sd">            layer (QgsVectorLayer): Source layer.</span>
 <span class="sd">            filename (str): Output filename.</span>
-<span class="sd">        Kwargs:</span>
 <span class="sd">            driver_name (str): Defaults to ESRI Shapefile.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">out_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">layer</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">out_path</span><span class="p">,</span> <span class="n">driver_name</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">LayerIOError</span><span class="p">(</span><span class="s2">&quot;Failed to write layer: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span></div>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Failed to write layer: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span></div>
         
     
 <div class="viewcode-block" id="CatAtom2Osm.osm_from_layer"><a class="viewcode-back" href="../api/catatom2osm.html#catatom2osm.CatAtom2Osm.osm_from_layer">[docs]</a>    <span class="k">def</span> <span class="nf">osm_from_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">tags_translation</span><span class="o">=</span><span class="n">translate</span><span class="o">.</span><span class="n">all_tags</span><span class="p">):</span>
@@ -346,7 +362,6 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            layer (QgsVectorLayer): Source layer.</span>
-<span class="sd">        Kwargs:</span>
 <span class="sd">            tags_translation (function): Function to translate fields to tags. </span>
 <span class="sd">                By defaults convert all fields.</span>
 

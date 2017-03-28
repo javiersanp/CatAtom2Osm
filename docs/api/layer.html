@@ -132,7 +132,7 @@
 <dt id="layer.AddressLayer">
 <em class="property">class </em><code class="descclassname">layer.</code><code class="descname">AddressLayer</code><span class="sig-paren">(</span><em>path='Point'</em>, <em>baseName='address'</em>, <em>providerLib='memory'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#AddressLayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.AddressLayer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#layer.BaseLayer" title="layer.BaseLayer"><code class="xref py py-class docutils literal"><span class="pre">layer.BaseLayer</span></code></a></p>
-<p>Clas for address</p>
+<p>Class for address</p>
 </dd></dl>
 
 <dl class="class">
@@ -154,54 +154,61 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>feature</strong> (<em>QgsFeature</em>) &#8211; Source feature</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>feature</strong> (<em>QgsFeature</em>) &#8211; Source feature</li>
+<li><strong>rename</strong> (<em>dict</em>) &#8211; Translation of attributes names</li>
+<li><strong>resolve</strong> (<em>dict</em>) &#8211; xlink reference fields</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
-<dl class="docutils">
-<dt>Kwargs</dt>
-<dd>rename (dict of dst_attr:src_attr): Translation of attributes names
-resolve (dict of dst_attr:(src_attr, match)): xlink reference fields</dd>
-</dl>
-<p class="rubric">Example</p>
-<p>With this:
-rename = {&#8216;spec&#8217;: &#8216;specification&#8217;}
-resolve = {</p>
-<blockquote>
-<div>&#8216;PD_id&#8217;: (&#8216;component_href&#8217;, &#8216;[w.]+PD[.0-9]+&#8217;),
-&#8216;TN_id&#8217;: (&#8216;component_href&#8217;, &#8216;[w.]+TN[.0-9]+&#8217;),
-&#8216;AU_id&#8217;: (&#8216;component_href&#8217;, &#8216;[w.]+AU[.0-9]+&#8217;)</div></blockquote>
-<p>}
-Yo get:
-original_attributes = [&#8216;localId&#8217;, &#8216;specification&#8217;, &#8216;component_href&#8217;]
-original_values = [</p>
-<blockquote>
-<div>&#8216;38.012.1.12.0295603CS6109N&#8217;,
-&#8216;Parcel&#8217;,
-&#8216;(3:#ES.SDGC.PD.38.012.38570,#ES.SDGC.TN.38.012.1,#ES.SDGC.AU.38.012)&#8217;</div></blockquote>
-<p>]
-final_attributes = [&#8216;localId&#8217;, &#8216;spec&#8217;, &#8216;PD_id&#8217;, &#8216;TN_id&#8217;, &#8216;AU_id&#8217;]
-final_values = [</p>
-<blockquote>
-<div>&#8216;38.012.1.12.0295603CS6109N&#8217;,
-&#8216;Parcel&#8217;,
-&#8216;ES.SDGC.PD.38.012.38570&#8217;,
-&#8216;ES.SDGC.TN.38.012.1&#8217;,
-&#8216;ES.SDGC.AU.38.012&#8217;</div></blockquote>
-<p>]</p>
+<p class="rubric">Examples</p>
+<p>With this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rename</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;spec&#39;</span><span class="p">:</span> <span class="s1">&#39;specification&#39;</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resolve</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s1">&#39;PD_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;component_href&#39;</span><span class="p">,</span> <span class="s1">&#39;[\w\.]+PD[\.0-9]+&#39;</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="s1">&#39;TN_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;component_href&#39;</span><span class="p">,</span> <span class="s1">&#39;[\w\.]+TN[\.0-9]+&#39;</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="s1">&#39;AU_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;component_href&#39;</span><span class="p">,</span> <span class="s1">&#39;[\w\.]+AU[\.0-9]+&#39;</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">}</span>
+</pre></div>
+</div>
+<p>You get:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">original_attributes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;localId&#39;</span><span class="p">,</span> <span class="s1">&#39;specification&#39;</span><span class="p">,</span> <span class="s1">&#39;component_href&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">original_values</span> <span class="o">=</span> <span class="p">[</span>
+<span class="gp">... </span>    <span class="s1">&#39;38.012.1.12.0295603CS6109N&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;Parcel&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;(3:#ES.SDGC.PD.38.012.38570,#ES.SDGC.TN.38.012.1,#ES.SDGC.AU.38.012)&#39;</span>
+<span class="gp">... </span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">final_attributes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;localId&#39;</span><span class="p">,</span> <span class="s1">&#39;spec&#39;</span><span class="p">,</span> <span class="s1">&#39;PD_id&#39;</span><span class="p">,</span> <span class="s1">&#39;TN_id&#39;</span><span class="p">,</span> <span class="s1">&#39;AU_id&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">final_values</span> <span class="o">=</span> <span class="p">[</span>
+<span class="gp">... </span>    <span class="s1">&#39;38.012.1.12.0295603CS6109N&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;Parcel&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;ES.SDGC.PD.38.012.38570&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;ES.SDGC.TN.38.012.1&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;ES.SDGC.AU.38.012&#39;</span>
+<span class="gp">... </span><span class="p">]</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">
 <dt id="layer.BaseLayer.export">
 <code class="descname">export</code><span class="sig-paren">(</span><em>path</em>, <em>driver_name='ESRI Shapefile'</em>, <em>overwrite=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#BaseLayer.export"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.BaseLayer.export" title="Permalink to this definition">¶</a></dt>
-<dd><p>Write layer to file
-:param path: Path of the output file
-:type path: str</p>
-<dl class="docutils">
-<dt>Kwargs:</dt>
-<dd>driver_name (str): Defaults to ESRI Shapefile.
-overwrite (bool): Defaults to True</dd>
-</dl>
+<dd><p>Write layer to file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>path</strong> (<em>str</em>) &#8211; Path of the output file</li>
+<li><strong>driver_name</strong> (<em>str</em>) &#8211; Defaults to ESRI Shapefile.</li>
+<li><strong>overwrite</strong> (<em>bool</em>) &#8211; Defaults to True</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -218,23 +225,26 @@ in standalone script mode (without GUI).</p>
 <li><strong>target_field_name</strong> (<em>str</em>) &#8211; Join field in the target layer.</li>
 <li><strong>join_fieldsName</strong> (<em>str</em>) &#8211; Join field in the source layer.</li>
 <li><strong>field_names_subset</strong> (<em>list</em>) &#8211; List of field name strings for the target layer.</li>
+<li><strong>prefix</strong> (<em>str</em>) &#8211; An optional prefix</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
-<dl class="docutils">
-<dt>Kwargs:</dt>
-<dd>prefix (str): An optional prefix</dd>
-</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="layer.BaseLayer.reproject">
 <code class="descname">reproject</code><span class="sig-paren">(</span><em>target_crs=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#BaseLayer.reproject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.BaseLayer.reproject" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reproject all features in this layer to a new CRS.
-:param target_crs: New CRS to apply.
-:type target_crs: QgsCoordinateReferenceSystem</p>
+<dd><p>Reproject all features in this layer to a new CRS.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>target_crs</strong> (<em>QgsCoordinateReferenceSystem</em>) &#8211; New CRS to apply.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -243,7 +253,7 @@ in standalone script mode (without GUI).</p>
 <dt id="layer.ConsLayer">
 <em class="property">class </em><code class="descclassname">layer.</code><code class="descname">ConsLayer</code><span class="sig-paren">(</span><em>path='Polygon'</em>, <em>baseName='building'</em>, <em>providerLib='memory'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#layer.BaseLayer" title="layer.BaseLayer"><code class="xref py py-class docutils literal"><span class="pre">layer.BaseLayer</span></code></a></p>
-<p>Clas for constructions</p>
+<p>Class for constructions</p>
 <dl class="method">
 <dt id="layer.ConsLayer.add_topological_points">
 <code class="descname">add_topological_points</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.add_topological_points"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.add_topological_points" title="Permalink to this definition">¶</a></dt>
@@ -260,15 +270,12 @@ polygon.</p>
 <dl class="method">
 <dt id="layer.ConsLayer.create_dict_of_vertex_and_features">
 <code class="descname">create_dict_of_vertex_and_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.create_dict_of_vertex_and_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.create_dict_of_vertex_and_features" title="Permalink to this definition">¶</a></dt>
-<dd><p>Auxiliary method for simplify
-:returns: Dictionary of parent fids for each vertex.</p>
-<blockquote>
-<div>features (dict): Dictionary of feature for fids.</div></blockquote>
+<dd><p>Auxiliary method for simplify</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">vertexs (dict)</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(dict) parent fids for each vertex, (dict) feature for each fid.</td>
 </tr>
 </tbody>
 </table>
@@ -333,22 +340,19 @@ than &#8216;dup_thr&#8217; meters.</p>
 <dl class="method">
 <dt id="layer.ConsLayer.merge_greatest_part">
 <code class="descname">merge_greatest_part</code><span class="sig-paren">(</span><em>footprint</em>, <em>parts</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.merge_greatest_part"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.merge_greatest_part" title="Permalink to this definition">¶</a></dt>
-<dd><p>Given a building footprint and its parts:
-- Exclude parts not inside the footprint.
-- If the area of the parts above ground is equal to the area of the</p>
-<blockquote>
-<div><dl class="docutils">
-<dt>footprint.</dt>
-<dd><ul class="first last simple">
+<dd><p>Given a building footprint and its parts:</p>
+<ul class="simple">
+<li>Exclude parts not inside the footprint.</li>
+<li>If the area of the parts above ground is equal to the area of the
+footprint.<ul>
 <li>Sum the area for all the parts with the same level. Level is the
 pair of values &#8216;lev_above&#8217; and &#8216;lev_below&#8217; (number of floors
 above, and below groud).</li>
 <li>For the level with greatest area, translate the number of floors
 values to the footprint and deletes all the parts in that level.</li>
 </ul>
-</dd>
-</dl>
-</div></blockquote>
+</li>
+</ul>
 </dd></dl>
 
 <dl class="method">
@@ -360,16 +364,12 @@ values to the footprint and deletes all the parts in that level.</li>
 <dl class="method">
 <dt id="layer.ConsLayer.simplify">
 <code class="descname">simplify</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.simplify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.simplify" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reduces the number of vertexs in a polygon layer according to:
-* Delete vertex if the distance to the segment formed by its parents is</p>
-<blockquote>
-<div>less than &#8216;cath_thr&#8217; meters.</div></blockquote>
+<dd><p>Reduces the number of vertexs in a polygon layer according to:</p>
 <ul class="simple">
-<li><dl class="first docutils">
-<dt>Delete vertex if the angle with its parent is near of the straight</dt>
-<dd>angle for less than &#8216;angle_thr&#8217; degrees.</dd>
-</dl>
-</li>
+<li>Delete vertex if the distance to the segment formed by its parents is
+less than &#8216;cath_thr&#8217; meters.</li>
+<li>Delete vertex if the angle with its parent is near of the straight
+angle for less than &#8216;angle_thr&#8217; degrees.</li>
 </ul>
 </dd></dl>
 
@@ -425,12 +425,9 @@ greater than cath_thr.</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">True for a corner.
-float: Angle between the vertex and their adjacents
-float: Distance from the vertex to the segment formed by their adjacents</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">bool</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(bool) True for a corner,
+(float) Angle between the vertex and their adjacents,
+(float) Distance from the vertex to the segment formed by their adjacents</p>
 </td>
 </tr>
 </tbody>
