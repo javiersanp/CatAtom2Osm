@@ -1,0 +1,382 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>test.test_osm module &#8212; CatAtom2Osm 2017-03-22 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2017-03-22',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="test.unittest_main module" href="test.unittest_main.html" />
+    <link rel="prev" title="test.test_layer module" href="test.test_layer.html" />
+  
+   
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="test.unittest_main.html" title="test.unittest_main module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="test.test_layer.html" title="test.test_layer module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 2017-03-22 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../api.html" >API reference</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="modules.html" >CatAtom2Osm</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="test.html" accesskey="U">test package</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+        <a href="
+    ../index.html" class="text-logo">CatAtom2Osm</a>
+        
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <h2>Table Of Contents</h2>
+  </div>
+  <div class="sidebar-toc">
+    
+    
+      <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../readme.html">Read me</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changes.html">Change log</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="modules.html">CatAtom2Osm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../coverage.html">Code coverage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../genindex.html">Index</a></li>
+</ul>
+</li>
+</ul>
+
+    
+  </div>
+</div>
+        
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../index.html">Docs</a></li>
+              
+                <li><a href="../api.html">API reference</a></li>
+              
+                <li><a href="modules.html">CatAtom2Osm</a></li>
+              
+                <li><a href="test.html">test package</a></li>
+              
+              <li>test.test_osm module</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <div class="section" id="module-test.test_osm">
+<span id="test-test-osm-module"></span><h1>test.test_osm module<a class="headerlink" href="#module-test.test_osm" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="test.test_osm.OsmTestCase">
+<em class="property">class </em><code class="descclassname">test.test_osm.</code><code class="descname">OsmTestCase</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#OsmTestCase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.OsmTestCase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">unittest.case.TestCase</span></code></p>
+<dl class="method">
+<dt id="test.test_osm.OsmTestCase.setUp">
+<code class="descname">setUp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#OsmTestCase.setUp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.OsmTestCase.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="test.test_osm.TestOsm">
+<em class="property">class </em><code class="descclassname">test.test_osm.</code><code class="descname">TestOsm</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#test.test_osm.OsmTestCase" title="test.test_osm.OsmTestCase"><code class="xref py py-class docutils literal"><span class="pre">test.test_osm.OsmTestCase</span></code></a></p>
+<dl class="method">
+<dt id="test.test_osm.TestOsm.replace">
+<code class="descname">replace</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsm.replace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsm.replace" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.test_osm.TestOsm.test_getattr">
+<code class="descname">test_getattr</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsm.test_getattr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsm.test_getattr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.test_osm.TestOsm.test_init">
+<code class="descname">test_init</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsm.test_init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsm.test_init" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.test_osm.TestOsm.test_merge_duplicated">
+<code class="descname">test_merge_duplicated</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsm.test_merge_duplicated"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsm.test_merge_duplicated" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.test_osm.TestOsm.test_new_indexes">
+<code class="descname">test_new_indexes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsm.test_new_indexes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsm.test_new_indexes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.test_osm.TestOsm.test_properties">
+<code class="descname">test_properties</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsm.test_properties"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsm.test_properties" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="test.test_osm.TestOsmElement">
+<em class="property">class </em><code class="descclassname">test.test_osm.</code><code class="descname">TestOsmElement</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsmElement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsmElement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#test.test_osm.OsmTestCase" title="test.test_osm.OsmTestCase"><code class="xref py py-class docutils literal"><span class="pre">test.test_osm.OsmTestCase</span></code></a></p>
+<dl class="method">
+<dt id="test.test_osm.TestOsmElement.test_init">
+<code class="descname">test_init</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsmElement.test_init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsmElement.test_init" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.test_osm.TestOsmElement.test_is_uploaded">
+<code class="descname">test_is_uploaded</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsmElement.test_is_uploaded"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsmElement.test_is_uploaded" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.test_osm.TestOsmElement.test_new_index">
+<code class="descname">test_new_index</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsmElement.test_new_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsmElement.test_new_index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="test.test_osm.TestOsmMultiPolygon">
+<em class="property">class </em><code class="descclassname">test.test_osm.</code><code class="descname">TestOsmMultiPolygon</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsmMultiPolygon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsmMultiPolygon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#test.test_osm.OsmTestCase" title="test.test_osm.OsmTestCase"><code class="xref py py-class docutils literal"><span class="pre">test.test_osm.OsmTestCase</span></code></a></p>
+<dl class="method">
+<dt id="test.test_osm.TestOsmMultiPolygon.test_init">
+<code class="descname">test_init</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsmMultiPolygon.test_init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsmMultiPolygon.test_init" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="test.test_osm.TestOsmNode">
+<em class="property">class </em><code class="descclassname">test.test_osm.</code><code class="descname">TestOsmNode</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsmNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsmNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#test.test_osm.OsmTestCase" title="test.test_osm.OsmTestCase"><code class="xref py py-class docutils literal"><span class="pre">test.test_osm.OsmTestCase</span></code></a></p>
+<dl class="method">
+<dt id="test.test_osm.TestOsmNode.ccc_test_ne">
+<code class="descname">ccc_test_ne</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsmNode.ccc_test_ne"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsmNode.ccc_test_ne" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.test_osm.TestOsmNode.test_eq">
+<code class="descname">test_eq</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsmNode.test_eq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsmNode.test_eq" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.test_osm.TestOsmNode.test_geometry">
+<code class="descname">test_geometry</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsmNode.test_geometry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsmNode.test_geometry" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.test_osm.TestOsmNode.test_getitem">
+<code class="descname">test_getitem</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsmNode.test_getitem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsmNode.test_getitem" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.test_osm.TestOsmNode.test_init">
+<code class="descname">test_init</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsmNode.test_init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsmNode.test_init" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.test_osm.TestOsmNode.test_str">
+<code class="descname">test_str</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsmNode.test_str"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsmNode.test_str" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="test.test_osm.TestOsmPolygon">
+<em class="property">class </em><code class="descclassname">test.test_osm.</code><code class="descname">TestOsmPolygon</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsmPolygon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsmPolygon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#test.test_osm.OsmTestCase" title="test.test_osm.OsmTestCase"><code class="xref py py-class docutils literal"><span class="pre">test.test_osm.OsmTestCase</span></code></a></p>
+<dl class="method">
+<dt id="test.test_osm.TestOsmPolygon.test_init">
+<code class="descname">test_init</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsmPolygon.test_init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsmPolygon.test_init" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="test.test_osm.TestOsmRelation">
+<em class="property">class </em><code class="descclassname">test.test_osm.</code><code class="descname">TestOsmRelation</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsmRelation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsmRelation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#test.test_osm.OsmTestCase" title="test.test_osm.OsmTestCase"><code class="xref py py-class docutils literal"><span class="pre">test.test_osm.OsmTestCase</span></code></a></p>
+<dl class="method">
+<dt id="test.test_osm.TestOsmRelation.test_eq">
+<code class="descname">test_eq</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsmRelation.test_eq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsmRelation.test_eq" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.test_osm.TestOsmRelation.test_geometry">
+<code class="descname">test_geometry</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsmRelation.test_geometry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsmRelation.test_geometry" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.test_osm.TestOsmRelation.test_init">
+<code class="descname">test_init</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsmRelation.test_init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsmRelation.test_init" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.test_osm.TestOsmRelation.test_member_eq">
+<code class="descname">test_member_eq</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsmRelation.test_member_eq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsmRelation.test_member_eq" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.test_osm.TestOsmRelation.test_member_ne">
+<code class="descname">test_member_ne</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsmRelation.test_member_ne"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsmRelation.test_member_ne" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.test_osm.TestOsmRelation.test_ne">
+<code class="descname">test_ne</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsmRelation.test_ne"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsmRelation.test_ne" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.test_osm.TestOsmRelation.test_replace">
+<code class="descname">test_replace</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsmRelation.test_replace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsmRelation.test_replace" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="test.test_osm.TestOsmWay">
+<em class="property">class </em><code class="descclassname">test.test_osm.</code><code class="descname">TestOsmWay</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsmWay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsmWay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#test.test_osm.OsmTestCase" title="test.test_osm.OsmTestCase"><code class="xref py py-class docutils literal"><span class="pre">test.test_osm.OsmTestCase</span></code></a></p>
+<dl class="method">
+<dt id="test.test_osm.TestOsmWay.test_clean_duplicated_nodes">
+<code class="descname">test_clean_duplicated_nodes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsmWay.test_clean_duplicated_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsmWay.test_clean_duplicated_nodes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.test_osm.TestOsmWay.test_eq">
+<code class="descname">test_eq</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsmWay.test_eq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsmWay.test_eq" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.test_osm.TestOsmWay.test_geometry">
+<code class="descname">test_geometry</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsmWay.test_geometry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsmWay.test_geometry" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.test_osm.TestOsmWay.test_init">
+<code class="descname">test_init</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsmWay.test_init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsmWay.test_init" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="test.test_osm.TestOsmWay.test_replace">
+<code class="descname">test_replace</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/test/test_osm.html#TestOsmWay.test_replace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test.test_osm.TestOsmWay.test_replace" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+            
+  <div class="footer-relations">
+    
+      <div class="pull-left">
+        <a class="btn btn-default" href="test.test_layer.html" title="previous chapter (use the left arrow)">test.test_layer module</a>
+      </div>
+    
+      <div class="pull-right">
+        <a class="btn btn-default" href="test.unittest_main.html" title="next chapter (use the right arrow)">test.unittest_main module</a>
+      </div>
+    </div>
+    <div class="clearer"></div>
+  
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="test.unittest_main.html" title="test.unittest_main module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="test.test_layer.html" title="test.test_layer module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 2017-03-22 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../api.html" >API reference</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="modules.html" >CatAtom2Osm</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="test.html" >test package</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2017, Javier Sánchez Portero. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>
