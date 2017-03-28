@@ -1,5 +1,6 @@
 import unittest
 import random
+from collections import Counter
 
 import osm
 
@@ -18,6 +19,9 @@ class TestOsm(OsmTestCase):
     def test_getattr(self):
         n = self.d.Node(1,1)
         self.assertEquals((n.x, n.y), (1,1))
+        with self.assertRaises(AttributeError):
+            self.d.node
+        
 
     def test_properties(self):
         n1 = self.d.Node(1,1)
@@ -28,7 +32,7 @@ class TestOsm(OsmTestCase):
         self.assertEquals(self.d.ways, [w])
         self.assertEquals(self.d.relations, [r])
 
-    def replace(self):
+    def test_replace(self):
         n1 = self.d.Node(1,1)
         d2 = osm.Osm()
         n2 = d2.Node(2,2)
@@ -36,25 +40,39 @@ class TestOsm(OsmTestCase):
         self.assertNotIn(n1, self.d.elements)
         self.assertIn(n2, self.d.elements)
         self.assertEquals(n2.container, self.d)
-    
+
     def test_merge_duplicated(self):
         n1 = self.d.Node(1,1)
         n2 = self.d.Node(2,2)
         n3 = self.d.Node(3,3, {'a': 'b'})
         n4 = self.d.Node(4,4)
+        n4.id = 1
+        n5 = self.d.Node(4,4)
+        n6 = self.d.Node(4,4)
+        n6.id = 2
+        n7 = self.d.Node(3,3)
+        n8 = self.d.Node(5,5, {'a': '1'})
+        n9 = self.d.Node(5,5, {'b': '2'})
+        n10 = self.d.Node(5,5)
         w = self.d.Way([(1,1), (1,0), (2,2), (3,2), (3,3)])
         r = self.d.Relation([w, n3])
         self.assertFalse(w.nodes[0] is n1)
         self.assertFalse(w.nodes[2] is n2)
         self.d.merge_duplicated()
-        duped = set()
+        duped = Counter()
         for n in self.d.nodes:
-            if not n is n3:
-                self.assertNotIn((n.x, n.y), duped)
-            duped.add((n.x, n.y))
+            duped[(n.x, n.y)] += 1
+        for position, count in duped.items():
+            if position in ((4,4), (5,5)):
+                self.assertEquals(count, 2)
+            else:
+                self.assertEquals(count, 1)
         self.assertIn(w.nodes[0], self.d.elements)
         self.assertIn(w.nodes[2], self.d.elements)
-        
+        self.assertEquals(w.nodes[4].tags['a'], 'b')
+        self.assertIn(n8, self.d.elements)
+        self.assertIn(n9, self.d.elements)
+
     def test_new_indexes(self):
         w = self.d.Way([(1,1), (1,0), (2,2), (3,2)])
         self.d.new_indexes()
@@ -63,7 +81,7 @@ class TestOsm(OsmTestCase):
             self.assertNotIn(e.id, indexes)
             self.assertLess(e.id, 0)
             indexes.append(e.id)
-            
+
 
 class TestOsmElement(OsmTestCase):
 
@@ -103,29 +121,34 @@ class TestOsmNode(OsmTestCase):
 
     def test_eq(self):
         n1 = self.d.Node(1, 2)
+        self.assertEquals(n1, (1, 2))
         n2 = self.d.Node(1, 2)
-        #self.assertEquals(n1, n2)
-        #self.assertEquals(n2, n1)
+        self.assertEquals(n1, n2)
+        self.assertEquals(n2, n1)
         n1.tags['a'] = '1'
         n2.tags['a'] = '1'
-        #self.assertEquals(n1, n2)
+        self.assertEquals(n1, n2)
         n1.tags = {}
         n2.id = 2
         self.assertEquals(n1, n2)
         
-    def ccc_test_ne(self):
-        n1 = self.d.Node(1, 2)
+    def test_ne(self):
+        n1 = self.d.Node(1, 2, {'c': 'd'})
         n2 = self.d.Node(1, 2, {'a': 'b'})
         self.assertNotEquals(n1, n2)
         self.assertNotEquals(n2, n1)
         n1.tags['a'] = 'b'
-        n2.id = 2
+        n1.id = 1
         self.assertNotEquals(n1, n2)
+        n1.tags = {}
+        self.assertNotEquals(n1, (1, 2))
         
     def test_getitem(self):
         n = self.d.Node(1, 2)
         self.assertEquals(n[0], 1)
         self.assertEquals(n[1], 2)
+        with self.assertRaises(IndexError):
+            n[2]
 
     def test_geometry(self):
         n = self.d.Node(1,2)
@@ -171,6 +194,9 @@ class TestOsmWay(OsmTestCase):
         w = self.d.Way([(0,0), (1,1), (1,1), (2,2)])
         w.clean_duplicated_nodes()
         self.assertEquals(len(w.nodes), 3)
+        w = self.d.Way()
+        w.clean_duplicated_nodes()
+        self.assertEquals(len(w.nodes), 0)
         
 
 class TestOsmRelation(OsmTestCase):
@@ -179,14 +205,19 @@ class TestOsmRelation(OsmTestCase):
         n1 = self.d.Node(1,1)
         n2 = self.d.Node(0,0)
         w = self.d.Way([(1,2), (2,3), (3,2), (1,2)])
-        r = self.d.Relation([n1, w])
-        r.append(n2, 'foobar')
+        r = self.d.Relation([n1, w, osm.Relation.Member(n2)])
         self.assertEquals(r.members[0].element, n1)
         self.assertEquals(r.members[1].element, w)
         self.assertEquals(r.members[2].element, n2)
-        self.assertEquals(r.members[2].role, 'foobar')
         self.assertEquals(r.container, self.d)
         
+    def test_append(self):
+        n1 = self.d.Node(1,1)
+        r = self.d.Relation()
+        r.append(n1, 'foobar')
+        self.assertEquals(r.members[0].element, n1)
+        self.assertEquals(r.members[0].role, 'foobar')
+    
     def test_member_eq(self):
         n1 = self.d.Node(1,1)
         n2 = self.d.Node(1,1)
@@ -203,6 +234,7 @@ class TestOsmRelation(OsmTestCase):
         self.assertNotEquals(m1, m2)
         n1.id = 1
         self.assertNotEquals(m1, m3)
+        self.assertNotEquals(m1, 'foobar')
 
     def test_eq(self):
         n = self.d.Node(1,1)
@@ -240,6 +272,18 @@ class TestOsmRelation(OsmTestCase):
         r = self.d.Relation([n1, n2, n4])
         r.replace(n2, n3)
         self.assertEquals([m.element for m in r.members], [n1, n3, n4])
+
+    def test_type(self):
+        n1 = self.d.Node(1,1)
+        m = osm.Relation.Member(n1)
+        self.assertEquals(m.type, 'node')
+    
+    def test_ref(self):
+        n1 = self.d.Node(1,1)
+        m = osm.Relation.Member(n1)
+        self.assertEquals(m.ref, None)
+        n1.id = 100
+        self.assertEquals(m.ref, 100)
 
 
 class TestOsmPolygon(OsmTestCase):

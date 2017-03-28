@@ -37,13 +37,12 @@ class Osm(object):
                     parents[m.element].append(el)
         geomdupes = defaultdict(list)
         for el in self.elements:
-             if not el.is_uploaded():
-                geomdupes[el.geometry()].append(el)
+            geomdupes[el.geometry()].append(el)
         for geom, dupes in geomdupes.items():
             if len(dupes) > 1:
-                i = 0   # first element in dupes with tags or not uploaded
+                i = 0   # first element in dupes with different tags or id
                 while i < len(dupes)-1 and dupes[i] == geom:
-                    i += 1  # see __eq__ methods of Node, Way, Relation
+                    i += 1  # see __eq__ method of Element
                 for el in dupes:
                     if el is not dupes[i] and el == dupes[i]: 
                         for parent in parents[el]:
@@ -51,7 +50,7 @@ class Osm(object):
 
     def new_indexes(self, merge=True):
         """Assign new unique index to each element in the dataset"""
-        if merge:
+        if merge:   # pragma: no cover
             self.merge_duplicated()
             for way in self.ways:
                 way.clean_duplicated_nodes()
@@ -100,8 +99,9 @@ class Element(object):
             a['tags'] = {} if b['tags'] == {} else a['tags']
             b['tags'] = {} if a['tags'] == {} else b['tags']
             return a == b
-        else:
-            False
+        elif not self.is_uploaded() and self.tags == {}:
+            return self.geometry() == other
+        return False
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -209,15 +209,18 @@ class Relation(Element):
             if isinstance(other, self.__class__):
                 return self.__dict__ == other.__dict__
             else:
-                False
-        
+                return False
+
+        def __ne__(self, other):
+            return not self.__eq__(other)
+
         @property
         def type(self):
-            return self.element.__class__.__name__.lower() if self.element else None
+            return self.element.__class__.__name__.lower()
         
         @property
         def ref(self):
-            return self.element.id if self.element else None
+            return self.element.id if hasattr(self.element, 'id') else None
 
 
 class Polygon(Relation):

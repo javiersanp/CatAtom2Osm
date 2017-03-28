@@ -32,14 +32,12 @@ Cadastre.
 
 **Options**:
 
-=================  ============================================================
-\-h, --help        Show this help message and exit
-\--log=log_level   Select the log level between DEBUG, INFO, WARNING, ERROR or 
-                   CRITICAL.
-\-a, --address     Process the address dataset.
-\-p, --parcel      Process the Cadastral parcel dataset.
-\-z, --zoning      Process the Cadastral zoning dataset.
-=================  ============================================================
+* \-h, --help        Show this help message and exit
+* \--log=log_level   Select the log level between DEBUG, INFO, WARNING, ERROR or 
+  CRITICAL.
+* \-a, --address     Process the address dataset.
+* \-p, --parcel      Process the Cadastral parcel dataset.
+* \-z, --zoning      Process the Cadastral zoning dataset.
 
 Documentation
 -------------

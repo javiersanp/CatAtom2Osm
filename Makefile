@@ -23,6 +23,7 @@ help:
 .PHONY: clean
 clean:
 	rm -rf $(BUILDDIR)/*
+	touch $(BUILDDIR)/.nojekyll
 
 .PHONY: html
 html:
@@ -43,3 +44,6 @@ api:
 	$(APIBUILD) -f -e -o $(APIDIR) .
 	@echo
 	@echo "API autodoc finished. The HTML pages are in $(APIDIR)."
+
+all: clean api coverage html
+.PHONY: all

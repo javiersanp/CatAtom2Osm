@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 app_name = 'CatAtom2Osm'
-app_version = '2017-03-22'
+app_version = '2017-03-28'
 app_author = u'Javier Sánchez Portero'
 app_copyright = u'2017, Javier Sánchez Portero'
 app_desc = 'Tool to convert INSPIRE data sets from the Spanish Cadastre ATOM Services to OSM files'

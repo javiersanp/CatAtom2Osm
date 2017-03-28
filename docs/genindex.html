@@ -16,7 +16,7 @@
   <link rel="stylesheet" type="text/css" href="_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>Index &#8212; CatAtom2Osm 2017-03-22 documentation</title>
+    <title>Index &#8212; CatAtom2Osm 2017-03-28 documentation</title>
     
     <link rel="stylesheet" href="_static/guzzle.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,7 +24,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017-03-22',
+        VERSION:     '2017-03-28',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -50,7 +50,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">CatAtom2Osm 2017-03-22 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">CatAtom2Osm 2017-03-28 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="container-wrapper">
@@ -184,8 +184,6 @@
       <li><a href="api/catatom2osm.html#catatom2osm.CatAtom2Osm">CatAtom2Osm (class in catatom2osm)</a>
 </li>
       <li><a href="api/catatom2osm.html#module-catatom2osm">catatom2osm (module)</a>
-</li>
-      <li><a href="api/test.test_osm.html#test.test_osm.TestOsmNode.ccc_test_ne">ccc_test_ne() (test.test_osm.TestOsmNode method)</a>
 </li>
       <li><a href="api/osm.html#osm.Way.clean_duplicated_nodes">clean_duplicated_nodes() (osm.Way method)</a>
 </li>
@@ -381,18 +379,16 @@
 </li>
       <li><a href="api/osm.html#osm.Osm.relations">relations (osm.Osm attribute)</a>
 </li>
-      <li><a href="api/layer.html#layer.ConsLayer.remove_parts_below_ground">remove_parts_below_ground() (layer.ConsLayer method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/layer.html#layer.ConsLayer.remove_parts_below_ground">remove_parts_below_ground() (layer.ConsLayer method)</a>
+</li>
       <li><a href="api/osm.html#osm.Osm.replace">replace() (osm.Osm method)</a>
 
       <ul>
         <li><a href="api/osm.html#osm.Relation.replace">(osm.Relation method)</a>
 </li>
         <li><a href="api/osm.html#osm.Way.replace">(osm.Way method)</a>
-</li>
-        <li><a href="api/test.test_osm.html#test.test_osm.TestOsm.replace">(test.test_osm.TestOsm method)</a>
 </li>
       </ul></li>
       <li><a href="api/layer.html#layer.BaseLayer.reproject">reproject() (layer.BaseLayer method)</a>
@@ -444,7 +440,11 @@
       <li><a href="api/test.unittest_main.html#module-test.unittest_main">test.unittest_main (module)</a>
 </li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestAddressLayer.test_append">test_append() (test.test_layer.TestAddressLayer method)</a>
+
+      <ul>
+        <li><a href="api/test.test_osm.html#test.test_osm.TestOsmRelation.test_append">(test.test_osm.TestOsmRelation method)</a>
 </li>
+      </ul></li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestBaseLayer.test_append_all_fields">test_append_all_fields() (test.test_layer.TestBaseLayer method)</a>
 </li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestConsLayer.test_append_building">test_append_building() (test.test_layer.TestConsLayer method)</a>
@@ -517,10 +517,10 @@
         <li><a href="api/test.test_osm.html#test.test_osm.TestOsmWay.test_init">(test.test_osm.TestOsmWay method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/test.test_layer.html#test.test_layer.TestConsLayer.test_is_building">test_is_building() (test.test_layer.TestConsLayer method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/test.test_layer.html#test.test_layer.TestPoint.test_is_corner_with_context">test_is_corner_with_context() (test.test_layer.TestPoint method)</a>
 </li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestConsLayer.test_is_part">test_is_part() (test.test_layer.TestConsLayer method)</a>
@@ -541,25 +541,35 @@
 </li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestConsLayer.test_merge_greatest_part">test_merge_greatest_part() (test.test_layer.TestConsLayer method)</a>
 </li>
-      <li><a href="api/test.test_osm.html#test.test_osm.TestOsmRelation.test_ne">test_ne() (test.test_osm.TestOsmRelation method)</a>
+      <li><a href="api/test.test_osm.html#test.test_osm.TestOsmNode.test_ne">test_ne() (test.test_osm.TestOsmNode method)</a>
+
+      <ul>
+        <li><a href="api/test.test_osm.html#test.test_osm.TestOsmRelation.test_ne">(test.test_osm.TestOsmRelation method)</a>
 </li>
+      </ul></li>
       <li><a href="api/test.test_osm.html#test.test_osm.TestOsmElement.test_new_index">test_new_index() (test.test_osm.TestOsmElement method)</a>
 </li>
       <li><a href="api/test.test_osm.html#test.test_osm.TestOsm.test_new_indexes">test_new_indexes() (test.test_osm.TestOsm method)</a>
 </li>
       <li><a href="api/test.test_osm.html#test.test_osm.TestOsm.test_properties">test_properties() (test.test_osm.TestOsm method)</a>
 </li>
+      <li><a href="api/test.test_osm.html#test.test_osm.TestOsmRelation.test_ref">test_ref() (test.test_osm.TestOsmRelation method)</a>
+</li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestConsLayer.test_remove_parts_below_ground">test_remove_parts_below_ground() (test.test_layer.TestConsLayer method)</a>
 </li>
-      <li><a href="api/test.test_osm.html#test.test_osm.TestOsmRelation.test_replace">test_replace() (test.test_osm.TestOsmRelation method)</a>
+      <li><a href="api/test.test_osm.html#test.test_osm.TestOsm.test_replace">test_replace() (test.test_osm.TestOsm method)</a>
 
       <ul>
+        <li><a href="api/test.test_osm.html#test.test_osm.TestOsmRelation.test_replace">(test.test_osm.TestOsmRelation method)</a>
+</li>
         <li><a href="api/test.test_osm.html#test.test_osm.TestOsmWay.test_replace">(test.test_osm.TestOsmWay method)</a>
 </li>
       </ul></li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestBaseLayer.test_reproject">test_reproject() (test.test_layer.TestBaseLayer method)</a>
 </li>
       <li><a href="api/test.test_osm.html#test.test_osm.TestOsmNode.test_str">test_str() (test.test_osm.TestOsmNode method)</a>
+</li>
+      <li><a href="api/test.test_osm.html#test.test_osm.TestOsmRelation.test_type">test_type() (test.test_osm.TestOsmRelation method)</a>
 </li>
       <li><a href="api/test.test_download.html#test.test_download.TestProgressBar.test_update">test_update() (test.test_download.TestProgressBar method)</a>
 </li>
@@ -654,7 +664,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">CatAtom2Osm 2017-03-22 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">CatAtom2Osm 2017-03-28 documentation</a> &#187;</li> 
       </ul>
     </div>
 <script type="text/javascript">
