@@ -5,6 +5,10 @@ DOCSRCDIR     = doc-src
 BUILDDIR      = docs
 COVERAGEDIR   = $(BUILDDIR)/coverage
 APIDIR        = $(DOCSRCDIR)/api
+GETTEXT       = pygettext
+MSGMERGE      = msgmerge
+MSGFMT        = msgfmt
+LOCALE_DIR    = locale/po
 
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
@@ -45,5 +49,13 @@ api:
 	@echo
 	@echo "API autodoc finished. The HTML pages are in $(APIDIR)."
 
-all: clean api coverage html
+.PHONY: msg
+msg:
+	$(GETTEXT) -o $(LOCALE_DIR)/messages.pot *.py
+	$(MSGMERGE) -U $(LOCALE_DIR)/es/LC_MESSAGES/catatom2osm.po $(LOCALE_DIR)/messages.pot
+	$(MSGFMT) $(LOCALE_DIR)/es/LC_MESSAGES/catatom2osm.po -o $(LOCALE_DIR)/es/LC_MESSAGES/catatom2osm.mo
+	@echo
+	@echo "Translation finished. The language files are in $(LOCALE_DIR)."
+
+all: clean api coverage html msg
 .PHONY: all

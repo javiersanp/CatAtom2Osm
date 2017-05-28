@@ -95,3 +95,6 @@ ENV/
 
 # Test fixtures auxiliar files
 *.gfs
+
+# Backup of text files
+*~

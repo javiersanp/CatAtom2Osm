@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 app_name = 'CatAtom2Osm'
-app_version = '2017-03-28'
+app_version = '2017-05-28'
 app_author = u'Javier Sánchez Portero'
 app_copyright = u'2017, Javier Sánchez Portero'
 app_desc = 'Tool to convert INSPIRE data sets from the Spanish Cadastre ATOM Services to OSM files'
@@ -25,3 +25,13 @@ url_ad = "http://www.catastro.minhap.es/INSPIRE/addresses/%s/ES.SDGC.ad.atom_%s.
 url_cp = "http://www.catastro.minhap.es/INSPIRE/CadastralParcels/%s/ES.SDGC.CP.atom_%s.xml"
 
 valid_provinces = ["%02d" % i for i in range(2,57)]
+
+import gettext, sys
+
+if sys.platform.startswith('win'):
+    import os
+    import locale
+    if os.getenv('LANG') is None:
+        lang, enc = locale.getdefaultlocale()
+        os.environ['LANG'] = lang
+gettext.install('catatom2osm', localedir='locale/po')

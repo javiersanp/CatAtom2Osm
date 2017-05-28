@@ -47,16 +47,16 @@ class CatAtom2Osm:
         self.options = options
         m = re.match("\d{5}", os.path.split(a_path)[-1])
         if not m:
-            raise ValueError("Directory name must begin with a 5 digits ZIP code")
+            raise ValueError(_("Directory name must begin with a 5 digits ZIP code"))
         self.path = a_path
         self.zip_code = m.group()
         self.prov_code = self.zip_code[0:2]
         if self.prov_code not in setup.valid_provinces:
-            raise ValueError("Province code %s don't exists" % self.prov_code)
+            raise ValueError(_("Province code %s don't exists") % self.prov_code)
         if not os.path.exists(a_path):
             os.makedirs(a_path)
         if not os.path.isdir(a_path):
-            raise IOError("Not a directory: '%s'" % a_path)
+            raise IOError(_("Not a directory: '%s'") % a_path)
         # Init qGis API
         QgsApplication.setPrefixPath(setup.qgs_prefix_path, True)
         
@@ -65,7 +65,7 @@ class CatAtom2Osm:
         # sets GDAL to convert xlink references to fields but not resolve
         gdal.SetConfigOption('GML_ATTRIBUTES_TO_OGR_FIELDS', 'YES')
         gdal.SetConfigOption('GML_SKIP_RESOLVE_ELEMS', 'ALL')
-        log.debug("Initialized qGis API")
+        log.debug(_("Initialized qGis API"))
 
     def run(self):
         """Launches the app"""
@@ -84,34 +84,34 @@ class CatAtom2Osm:
 
         (mp, np) = building.explode_multi_parts()
         if mp:
-            log.info("%d multipart buildings splited in %d parts", mp, np)
+            log.info(_("%d multipart buildings splited in %d parts"), mp, np)
 
         tc = building.remove_parts_below_ground()
         if tc:
-            log.info("Deleted %d building parts with no floors above ground", tc)
+            log.info(_("Deleted %d building parts with no floors above ground"), tc)
         
         if log.getEffectiveLevel() == logging.DEBUG:
             self.export_layer(building, 'building.shp')
 
         dupes = building.merge_duplicates()
         if dupes:
-            log.info("Merged %d duplicated vertexs in building", dupes)
+            log.info(_("Merged %d duplicated vertexs in building"), dupes)
 
         consecutives = building.clean_duplicated_nodes_in_polygons()
         if consecutives:
-            log.info("Merged %d duplicated vertexs in polygons", dupes)
+            log.info(_("Merged %d duplicated vertexs in polygons"), dupes)
 
         tp = building.add_topological_points()
         if tp:
-            log.info ("Created %d topological points in building", tp)
+            log.info (_("Created %d topological points in building"), tp)
         
         killed = building.simplify()
         if killed:
-            log.info("Simplified %d vertexs in building", killed)
+            log.info(_("Simplified %d vertexs in building"), killed)
 
         pm = building.merge_building_parts()
         if pm:
-            log.info("Merged %d building parts to footprint", pm)
+            log.info(_("Merged %d building parts to footprint"), pm)
 
         building.reproject()
         building_osm = self.osm_from_layer(building, translate.building_tags)
@@ -159,7 +159,7 @@ class CatAtom2Osm:
                 self.export_layer(address, 'address.shp')
 
     def __del__(self):
-        log.info("Finished!")
+        log.info(_("Finished!"))
         if hasattr(self, 'qgs'):
             self.qgs.exitQgis()
         
@@ -167,15 +167,15 @@ class CatAtom2Osm:
         """Given the url of a Cadastre ATOM service, tries to download the ZIP
         file for self.zip_code"""
         s = re.search('INSPIRE/(\w+)/', url)
-        log.info("Searching for %s %s url...", self.zip_code, s.group(1))
+        log.info(_("Searching for %s %s url..."), self.zip_code, s.group(1))
         response = download.get_response(url)
         s = re.search('http.+/%s.+zip' % self.zip_code, response.text)
         if not s:
-            raise ValueError("Zip code %s don't exists" % self.zip_code)
+            raise ValueError(_("Zip code %s don't exists") % self.zip_code)
         url = s.group(0)
         filename = url.split('/')[-1]
         out_path = os.path.join(self.path, filename)
-        log.info("Downloading %s", out_path)
+        log.info(_("Downloading %s"), out_path)
         download.wget(url, out_path)
 
     def read_gml_layer(self, layername, crs=None):
@@ -223,10 +223,10 @@ class CatAtom2Osm:
             gml_layer = QgsVectorLayer(gml_path, layername, "ogr")
             if not gml_layer.isValid():
                 if not gml_layer.isValid():
-                    raise IOError("Failed to load layer: '%s'" % gml_path)
+                    raise IOError(_("Failed to load layer: '%s'") % gml_path)
         if crs:
             gml_layer.setCrs(crs)
-        log.info("Loaded %d features in %s layer", gml_layer.featureCount(), 
+        log.info(_("Loaded %d features in %s layer"), gml_layer.featureCount(), 
             gml_layer.name())
         return gml_layer
     
@@ -241,7 +241,7 @@ class CatAtom2Osm:
         """
         out_path = os.path.join(self.path, filename)
         if not layer.export(out_path, driver_name):
-            raise IOError("Failed to write layer: '%s'" % filename)
+            raise IOError(_("Failed to write layer: '%s'") % filename)
         
     
     def osm_from_layer(self, layer, tags_translation=translate.all_tags):
@@ -271,9 +271,13 @@ class CatAtom2Osm:
             elif geom.wkbType() == QGis.WKBPoint:
                 e = data.Node(geom.asPoint())
             else:
-                log.warning("Detected a %s geometry in %s", geom.wkbType(), layer.name())
+                log.warning(_("Detected a %s geometry in %s"), geom.wkbType(), layer.name())
             if e: e.tags.update(tags_translation(feature))
-        log.info("Loaded %d nodes, %d ways, %d relations from %s layer", 
+        log.info(_("Loaded %d nodes, %d ways, %d relations from %s layer"), 
+            len(data.nodes), len(data.ways), len(data.relations), 'abc')
+        print layer.name()
+        log.info(layer.name())
+        log.info(_("Loaded %d nodes, %d ways, %d relations from %s layer"), 
             len(data.nodes), len(data.ways), len(data.relations), layer.name())
         return data
         
@@ -285,7 +289,7 @@ class CatAtom2Osm:
             data (Osm): OSM data set
             filename (str): output filename
         """
-        log.debug("Generating %s", filename)
+        log.debug(_("Generating %s"), filename)
         osm_path = os.path.join(self.path, filename)
         data.new_indexes()
         with codecs.open(osm_path,"w", "utf-8") as file_obj:
