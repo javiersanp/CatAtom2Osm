@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-05-28 19:52+WEST\n"
+"POT-Creation-Date: 2017-05-28 22:09+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -94,11 +94,11 @@ msgstr "Fallo al cargar la capa: '%s'"
 msgid "Detected a %s geometry in %s"
 msgstr "Detectada una geometría %s en %s"
 
-#: catatom2osm.py:276
+#: catatom2osm.py:276 catatom2osm.py:280
 msgid "Loaded %d nodes, %d ways, %d relations from %s layer"
 msgstr "Cargados %d nodos, %d vías, %d relaciones de la capa %s"
 
-#: catatom2osm.py:288
+#: catatom2osm.py:292
 msgid "Generating %s"
 msgstr "Generando %s"
 
@@ -128,8 +128,7 @@ msgstr ""
 #: main.py:32
 msgid "Select the log level between DEBUG, INFO, WARNING, ERROR or CRITICAL."
 msgstr ""
-"Selecciona el nivel de registro entre DEBUG, INFO, WARNING, ERROR o "
-"CRITICAL."
+"Selecciona el nivel de registro entre DEBUG, INFO, WARNING, ERROR o CRITICAL."
 
 #: main.py:35
 msgid "Process the address dataset."
