@@ -223,13 +223,10 @@ class TestConsLayer(unittest.TestCase):
         self.assertEquals(feature['localId'], new_fet['localId'])
 
     def test_remove_parts_below_ground(self):
-        exp = QgsExpression("lev_above=0")
-        request = QgsFeatureRequest(exp)
-        to_clean = [f.id() for f in self.layer.getFeatures(request)]
+        to_clean = [f.id() for f in self.layer.search('lev_above=0')]
         self.assertGreater(len(to_clean), 0, 'There are parts below ground')
         self.layer.remove_parts_below_ground()
-        request = QgsFeatureRequest(exp)
-        to_clean = [f.id() for f in self.layer.getFeatures(request)]
+        to_clean = [f.id() for f in self.layer.search('lev_above=0')]
         self.assertEquals(len(to_clean), 0, 'There are not parts below ground')
 
     def test_explode_multi_parts(self):
@@ -261,16 +258,12 @@ class TestConsLayer(unittest.TestCase):
         }
         self.layer.explode_multi_parts()
         for ref in refs.keys():
-            exp = QgsExpression("localId = '%s'" % ref)
-            request = QgsFeatureRequest(exp)
-            building = self.layer.getFeatures(request).next()
+            building = self.layer.search("localId = '%s'" % ref).next()
             self.assertEquals(building['localId'], ref, "Find building")
-            exp = QgsExpression("localId LIKE '%%%s_part%%'" % ref)
-            request = QgsFeatureRequest(exp)
-            parts = [f for f in self.layer.getFeatures(request)]
+            parts = [f for f in self.layer.search("localId LIKE '%%%s_part%%'" % ref)]
             self.assertTrue(self.layer.startEditing())
             self.layer.merge_greatest_part(building, parts)
-            oparts = [f for f in self.layer.getFeatures(request)]
+            oparts = [f for f in self.layer.search("localId LIKE '%%%s_part%%'" % ref)]
             self.assertTrue(self.layer.commitChanges())
             m = "Number of parts"
             self.assertEquals(refs[building['localId']], len(oparts), m)
@@ -358,7 +351,23 @@ class TestConsLayer(unittest.TestCase):
         new_feat = self.layer.getFeatures().next()
         clean_geom = new_feat.geometry()
         self.assertEquals(geom.asPolygon(), clean_geom.asPolygon())
-    
+
+    def test_add_topological_points(self):
+        refs = [
+            ('8842708CS5284S', QgsPoint(358821.08, 3124205.68)),
+            ('8842708CS5284S_part1', QgsPoint(358821.08, 3124205.68)),
+            ('8942325CS5284S', QgsPoint(358789.2925, 3124247.643)),
+            ('8942325CS5284S_part1', QgsPoint(358789.2925, 3124247.643))
+        ]
+        self.layer.explode_multi_parts()
+        for ref in refs:
+            building = self.layer.search("localId = '%s'" % ref[0]).next()
+            self.assertNotIn(ref[1], building.geometry().asPolygon()[0])
+        self.layer.add_topological_points()
+        for ref in refs:
+            building = self.layer.search("localId = '%s'" % ref[0]).next()
+            self.assertIn(ref[1], building.geometry().asPolygon()[0])
+            
 
 class TestAddressLayer(unittest.TestCase):
 
