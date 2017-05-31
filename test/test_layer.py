@@ -393,3 +393,17 @@ class TestAddressLayer(unittest.TestCase):
         values = ['MC ABASTOS (RESTO)', 'FASNIA', 38570]
         for (attr, value) in zip(attrs, values):
             self.assertEquals(feat[attr], value)
+
+
+class TestDebugWriter(unittest.TestCase):
+
+    def test_init(self):
+        writer = DebugWriter('test', QgsCoordinateReferenceSystem(4326), 'memory')
+        self.assertEquals(writer.fields[0].name(), 'note')
+        self.assertEquals(writer.hasError(), 0)
+        
+    def test_add_point(self):
+        writer = DebugWriter('test', QgsCoordinateReferenceSystem(4326), 'memory')
+        writer.add_point(QgsPoint(0, 0), 'foobar')
+        writer.add_point(QgsPoint(0, 0))
+    
