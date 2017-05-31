@@ -367,6 +367,18 @@ class TestConsLayer(unittest.TestCase):
         for ref in refs:
             building = self.layer.search("localId = '%s'" % ref[0]).next()
             self.assertIn(ref[1], building.geometry().asPolygon()[0])
+
+    def test_simplify(self):
+        refs = [
+            ('8643326CS5284S', QgsPoint(358684.62, 3124377.54), True),
+            ('8643326CS5284S', QgsPoint(358686.29, 3124376.11), True),
+            ('8643324CS5284S', QgsPoint(358677.29, 3124366.64), False),
+        ]
+        self.layer.explode_multi_parts()
+        self.layer.simplify()
+        for ref in refs:
+            building = self.layer.search("localId = '%s'" % ref[0]).next()
+            self.assertEquals(ref[1] in building.geometry().asPolygon()[0], ref[2])
             
 
 class TestAddressLayer(unittest.TestCase):

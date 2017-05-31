@@ -204,7 +204,14 @@ class BaseLayer(QgsVectorLayer):
                 os.remove(path)
         return QgsVectorFileWriter.writeAsVectorFormat(self, path, "utf-8", 
                 self.crs(), driver_name) == QgsVectorFileWriter.NoError
-            
+
+    def search(self, expression):
+        """Returns a features list for this search expression
+        """
+        exp = QgsExpression(expression)
+        request = QgsFeatureRequest(exp)
+        return self.getFeatures(request)
+
 
 class ParcelLayer(BaseLayer):
     """Class for cadastral parcels"""
@@ -329,9 +336,7 @@ class ConsLayer(BaseLayer):
     def remove_parts_below_ground(self):
         """Remove all parts with 'lev_above' field equal 0."""
         self.startEditing()
-        exp = QgsExpression("lev_above=0")
-        request = QgsFeatureRequest(exp)
-        to_clean = [f.id() for f in self.getFeatures(request)]
+        to_clean = [f.id() for f in self.search('lev_above=0')]
         if to_clean:
             self.writer.deleteFeatures(to_clean)
         self.commitChanges()
