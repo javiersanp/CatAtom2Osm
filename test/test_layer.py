@@ -142,6 +142,34 @@ class TestBaseLayer(unittest.TestCase):
         mock_os.remove.assert_called_once_with('foobar')
 
 
+class TestParcelLayer(unittest.TestCase):
+
+    def test_init(self):
+        layer = ParcelLayer()
+        self.assertEquals(layer.pendingFields()[0].name(), 'localId')
+        self.assertEquals(layer.pendingFields()[1].name(), 'label')
+        self.assertEquals(layer.rename['localId'], 'inspireId_localId')
+
+    def test_not_empty(self):
+        layer = ParcelLayer('test/building.gml', 'building', 'ogr')
+        self.assertEquals(len(layer.pendingFields().toList()), 23)
+
+
+class TestZoningLayer(unittest.TestCase):
+
+    def test_init(self):
+        layer = ZoningLayer()
+        self.assertEquals(layer.pendingFields()[0].name(), 'localId')
+        self.assertEquals(layer.pendingFields()[1].name(), 'label')
+        self.assertEquals(layer.pendingFields()[2].name(), 'level')
+        self.assertEquals(layer.pendingFields()[3].name(), 'levelName')
+        self.assertEquals(layer.rename['localId'], 'inspireId_localId')
+
+    def test_not_empty(self):
+        layer = ZoningLayer('test/building.gml', 'building', 'ogr')
+        self.assertEquals(len(layer.pendingFields().toList()), 23)
+
+
 class TestConsLayer(unittest.TestCase):
 
     def setUp(self):
