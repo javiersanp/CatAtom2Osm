@@ -1,4 +1,5 @@
 import unittest
+import mock
 import random
 
 import gdal
@@ -120,6 +121,26 @@ class TestBaseLayer(unittest.TestCase):
         self.assertNotEquals(feature_in.geometry(), feature_out.geometry())
         self.assertEquals(feature_in.attributes(), feature_out.attributes())
     
+    @mock.patch('layer.QgsVectorFileWriter')
+    @mock.patch('layer.os')
+    def test_export_default(self, mock_os, mock_fw):
+        mock_os.path.exists.side_effect = lambda arg: arg=='foobar'
+        mock_fw.writeAsVectorFormat.return_value = QgsVectorFileWriter.NoError
+        mock_fw.NoError = QgsVectorFileWriter.NoError
+        self.assertTrue(self.layer.export('foobar'))
+        mock_fw.deleteShapeFile.assert_called_once_with('foobar')
+        mock_fw.writeAsVectorFormat.assert_called_once_with(self.layer, 'foobar', 
+            'utf-8', self.layer.crs(), 'ESRI Shapefile')
+    
+    @mock.patch('layer.QgsVectorFileWriter')
+    @mock.patch('layer.os')
+    def test_export_other(self, mock_os, mock_fw):
+        mock_os.path.exists.side_effect = lambda arg: arg=='foobar'
+        self.layer.export('foobar', 'foo')
+        mock_os.remove.assert_called_once_with('foobar')
+        self.layer.export('foobar', 'foo', overwrite=False)
+        mock_os.remove.assert_called_once_with('foobar')
+
 
 class TestConsLayer(unittest.TestCase):
 
