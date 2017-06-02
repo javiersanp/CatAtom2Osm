@@ -155,6 +155,37 @@ class TestParcelLayer(unittest.TestCase):
         self.assertEquals(len(layer.pendingFields().toList()), 23)
 
 
+class TestPolygonLayer(unittest.TestCase):
+
+    def setUp(self):
+        self.layer = PolygonLayer('Polygon', 'cadastralparcel', 'memory')
+        self.assertTrue(self.layer.isValid(), "Init QGIS")
+        self.fixture = QgsVectorLayer('test/zoning.gml', 'zoning', 'ogr')
+        self.assertTrue(self.fixture.isValid(), "Loading fixture")
+        self.layer.append(self.fixture, rename={})
+        self.assertEquals(self.layer.featureCount(), self.fixture.featureCount())
+        self.writer = self.layer.dataProvider()
+
+    def test_explode_multi_parts(self):
+        mp = [f for f in self.layer.getFeatures() 
+            if f.geometry().isMultipart()]
+        self.assertGreater(len(mp), 0, "There are multipart features")
+        nparts = sum([len(f.geometry().asMultiPolygon()) for f in mp])
+        self.assertGreater(nparts, len(mp), "With more than one part")
+        features_before = self.layer.featureCount()
+        self.assertTrue(nparts > 1, "Find a multipart feature")
+        self.layer.explode_multi_parts()
+        m = "After exploding there must be more features than before"
+        self.assertGreater(self.layer.featureCount(), features_before, m)
+        m = "Number of features before plus number of parts minus multiparts " \
+            "equals actual number of features"
+        self.assertEquals(features_before + nparts - len(mp), 
+            self.layer.featureCount(), m)
+        m = "Parts must be single polygons"
+        self.assertTrue(all([not f.geometry().isMultipart() 
+            for f in self.layer.getFeatures()]), m)
+        
+
 class TestZoningLayer(unittest.TestCase):
 
     def test_init(self):
@@ -166,7 +197,7 @@ class TestZoningLayer(unittest.TestCase):
         self.assertEquals(layer.rename['localId'], 'inspireId_localId')
 
     def test_not_empty(self):
-        layer = ZoningLayer('test/building.gml', 'building', 'ogr')
+        layer = ZoningLayer('test/zoning.gml', 'building', 'ogr')
         self.assertEquals(len(layer.pendingFields().toList()), 23)
 
 
@@ -229,25 +260,6 @@ class TestConsLayer(unittest.TestCase):
         to_clean = [f.id() for f in self.layer.search('lev_above=0')]
         self.assertEquals(len(to_clean), 0, 'There are not parts below ground')
 
-    def test_explode_multi_parts(self):
-        mp = [f for f in self.layer.getFeatures() 
-            if f.geometry().isMultipart()]
-        self.assertGreater(len(mp), 0, "There are multipart features")
-        nparts = sum([len(f.geometry().asMultiPolygon()) for f in mp])
-        self.assertGreater(nparts, len(mp), "With more than one part")
-        features_before = self.layer.featureCount()
-        self.assertTrue(nparts > 1, "Find a multipart feature")
-        self.layer.explode_multi_parts()
-        m = "After exploding there must be more features than before"
-        self.assertGreater(self.layer.featureCount(), features_before, m)
-        m = "Number of features before plus number of parts minus multiparts " \
-            "equals actual number of features"
-        self.assertEquals(features_before + nparts - len(mp), 
-            self.layer.featureCount(), m)
-        m = "Parts must be single polygons"
-        self.assertTrue(all([not f.geometry().isMultipart() 
-            for f in self.layer.getFeatures()]), m)
-        
     def test_merge_greatest_part(self):
         refs = {'9042901CS5294S': 2, # 2 parts inside with a hole, 1 outside
                 '8646414CS5284N': 0, '8442825CS5284S': 0,  # single part 

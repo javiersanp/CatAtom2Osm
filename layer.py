@@ -213,6 +213,36 @@ class BaseLayer(QgsVectorLayer):
         return self.getFeatures(request)
 
 
+class PolygonLayer(BaseLayer):
+    """Base class for polygon layers"""
+
+    def __init__(self, path, baseName, providerLib = "ogr"):
+        super(PolygonLayer, self).__init__(path, baseName, providerLib)
+
+    def explode_multi_parts(self):
+        """
+        Creates a new WKBPolygon feature for each part of any WKBMultiPolygon 
+        feature in the layer. This avoid relations with may 'outer' members in
+        OSM data set. From this moment, localId will not be a unique identifier
+        for buildings.
+        """
+        self.startEditing()
+        to_clean = []
+        to_add = []
+        for feature in self.getFeatures():
+            geom = feature.geometry()
+            if geom.wkbType() == QGis.WKBMultiPolygon:
+                for part in geom.asMultiPolygon():
+                    feat = QgsFeature(feature)
+                    feat.setGeometry(QgsGeometry.fromPolygon(part))
+                    to_add.append(feat)
+                to_clean.append(feature.id())
+        self.writer.deleteFeatures(to_clean)
+        self.writer.addFeatures(to_add)
+        self.commitChanges()
+        return (len(to_clean), len(to_add))
+
+
 class ParcelLayer(BaseLayer):
     """Class for cadastral parcels"""
 
@@ -267,7 +297,7 @@ class AddressLayer(BaseLayer):
         }
 
 
-class ConsLayer(BaseLayer):
+class ConsLayer(PolygonLayer):
     """Class for constructions"""
 
     def __init__(self, path="Polygon", baseName="building", 
@@ -299,29 +329,6 @@ class ConsLayer(BaseLayer):
         self.cath_thr = setup.dist_thr # Threshold in meters for cathetus reduction
         self.angle_thr = setup.angle_thr # Threshold in degrees from straight angle to delete a vertex
         self.dist_thr = setup.dist_thr # Threshold for topological points.
-
-    def explode_multi_parts(self):
-        """
-        Creates a new WKBPolygon feature for each part of any WKBMultiPolygon 
-        feature in the layer. This avoid relations with may 'outer' members in
-        OSM data set. From this moment, localId will not be a unique identifier
-        for buildings.
-        """
-        self.startEditing()
-        to_clean = []
-        to_add = []
-        for feature in self.getFeatures():
-            geom = feature.geometry()
-            if geom.wkbType() == QGis.WKBMultiPolygon:
-                for part in geom.asMultiPolygon():
-                    feat = QgsFeature(feature)
-                    feat.setGeometry(QgsGeometry.fromPolygon(part))
-                    to_add.append(feat)
-                to_clean.append(feature.id())
-        self.writer.deleteFeatures(to_clean)
-        self.writer.addFeatures(to_add)
-        self.commitChanges()
-        return (len(to_clean), len(to_add))
 
     @staticmethod
     def is_building(localId):
