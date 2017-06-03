@@ -142,25 +142,12 @@ class TestBaseLayer(unittest.TestCase):
         mock_os.remove.assert_called_once_with('foobar')
 
 
-class TestParcelLayer(unittest.TestCase):
-
-    def test_init(self):
-        layer = ParcelLayer()
-        self.assertEquals(layer.pendingFields()[0].name(), 'localId')
-        self.assertEquals(layer.pendingFields()[1].name(), 'label')
-        self.assertEquals(layer.rename['localId'], 'inspireId_localId')
-
-    def test_not_empty(self):
-        layer = ParcelLayer('test/building.gml', 'building', 'ogr')
-        self.assertEquals(len(layer.pendingFields().toList()), 23)
-
-
 class TestPolygonLayer(unittest.TestCase):
 
     def setUp(self):
         self.layer = PolygonLayer('Polygon', 'cadastralparcel', 'memory')
         self.assertTrue(self.layer.isValid(), "Init QGIS")
-        self.fixture = QgsVectorLayer('test/zoning.gml', 'zoning', 'ogr')
+        self.fixture = QgsVectorLayer('test/cons.shp', 'building', 'ogr')
         self.assertTrue(self.fixture.isValid(), "Loading fixture")
         self.layer.append(self.fixture, rename={})
         self.assertEquals(self.layer.featureCount(), self.fixture.featureCount())
@@ -185,6 +172,72 @@ class TestPolygonLayer(unittest.TestCase):
         self.assertTrue(all([not f.geometry().isMultipart() 
             for f in self.layer.getFeatures()]), m)
         
+    def test_create_dict_of_vertex_and_features(self):
+        (vertexs, features) = self.layer.create_dict_of_vertex_and_features()
+        self.assertEquals(len(features), self.layer.featureCount())
+        self.assertTrue(all([features[fid].id() == fid for fid in features]))
+        self.assertGreater(len(vertexs), 0)
+        self.assertTrue(all([QgsGeometry().fromPoint(vertex) \
+            .intersects(features[fid].geometry()) 
+                for (vertex, fids) in vertexs.items() for fid in fids]))
+
+    def test_get_vertexs(self):
+        vertexs = self.layer.get_vertexs()
+        vcount = 0
+        for feature in self.layer.getFeatures(): 
+            for ring in feature.geometry().asPolygon():
+                for point in ring[0:-1]:
+                    vcount += 1
+        self.assertEquals(vcount, vertexs.featureCount())
+        
+    def test_get_duplicates(self):
+        duplicates = self.layer.get_duplicates()
+        self.assertGreater(len(duplicates), 0)
+        distances = [point.sqrDist(dup) for point, dupes in duplicates.items() 
+            for dup in dupes]
+        self.assertTrue(all([dist < setup.dup_thr for dist in distances]))
+
+    def test_merge_duplicates(self):
+        duplicates = self.layer.get_duplicates()
+        self.assertGreater(len(duplicates), 0)
+        self.layer.merge_duplicates()
+        duplicates = self.layer.get_duplicates()
+        self.assertEquals(len(duplicates), 0)
+        
+    def test_clean_duplicated_nodes_in_polygons(self):
+        feat = self.layer.getFeatures().next()
+        geom = feat.geometry()
+        new_geom = QgsGeometry(geom)
+        l = len(new_geom.asPolygon()[0])
+        self.assertGreater(l, 3)
+        v = new_geom.vertexAt(l-1)
+        self.assertTrue(new_geom.insertVertex(v.x(), v.y(), l-1))
+        v = new_geom.vertexAt(0)
+        self.assertTrue(new_geom.insertVertex(v.x(), v.y(), 0))
+        v = new_geom.vertexAt(l/2)
+        self.assertTrue(new_geom.insertVertex(v.x(), v.y(), l/2))
+        self.assertTrue(new_geom.insertVertex(v.x(), v.y(), l/2))
+        self.layer.startEditing()
+        self.writer.changeGeometryValues({feat.id(): new_geom})
+        self.layer.commitChanges()
+        self.layer.clean_duplicated_nodes_in_polygons()
+        new_feat = self.layer.getFeatures().next()
+        clean_geom = new_feat.geometry()
+        self.assertEquals(geom.asPolygon(), clean_geom.asPolygon())
+
+
+class TestParcelLayer(unittest.TestCase):
+
+    def test_init(self):
+        layer = ParcelLayer()
+        self.assertEquals(layer.pendingFields()[0].name(), 'localId')
+        self.assertEquals(layer.pendingFields()[1].name(), 'label')
+        self.assertEquals(layer.rename['localId'], 'inspireId_localId')
+
+    def test_not_empty(self):
+        layer = ParcelLayer('test/building.gml', 'building', 'ogr')
+        self.assertEquals(len(layer.pendingFields().toList()), 23)
+
 
 class TestZoningLayer(unittest.TestCase):
 
@@ -198,7 +251,7 @@ class TestZoningLayer(unittest.TestCase):
 
     def test_not_empty(self):
         layer = ZoningLayer('test/zoning.gml', 'building', 'ogr')
-        self.assertEquals(len(layer.pendingFields().toList()), 23)
+        self.assertEquals(len(layer.pendingFields().toList()), 22)
 
 
 class TestConsLayer(unittest.TestCase):
@@ -311,59 +364,6 @@ class TestConsLayer(unittest.TestCase):
                         feat = self.layer.getFeatures(request).next()
                         self.assertTrue(feat['lev_above'])
 
-    def test_create_dict_of_vertex_and_features(self):
-        (vertexs, features) = self.layer.create_dict_of_vertex_and_features()
-        self.assertEquals(len(features), self.layer.featureCount())
-        self.assertTrue(all([features[fid].id() == fid for fid in features]))
-        self.assertGreater(len(vertexs), 0)
-        self.assertTrue(all([QgsGeometry().fromPoint(vertex) \
-            .intersects(features[fid].geometry()) 
-                for (vertex, fids) in vertexs.items() for fid in fids]))
-
-    def test_get_vertexs(self):
-        vertexs = self.layer.get_vertexs()
-        vcount = 0
-        for feature in self.layer.getFeatures(): 
-            for ring in feature.geometry().asPolygon():
-                for point in ring[0:-1]:
-                    vcount += 1
-        self.assertEquals(vcount, vertexs.featureCount())
-        
-    def test_get_duplicates(self):
-        duplicates = self.layer.get_duplicates()
-        self.assertGreater(len(duplicates), 0)
-        distances = [point.sqrDist(dup) for point, dupes in duplicates.items() 
-            for dup in dupes]
-        self.assertTrue(all([dist < setup.dup_thr for dist in distances]))
-
-    def test_merge_duplicates(self):
-        duplicates = self.layer.get_duplicates()
-        self.assertGreater(len(duplicates), 0)
-        self.layer.merge_duplicates()
-        duplicates = self.layer.get_duplicates()
-        self.assertEquals(len(duplicates), 0)
-        
-    def test_clean_duplicated_nodes_in_polygons(self):
-        feat = self.layer.getFeatures().next()
-        geom = feat.geometry()
-        new_geom = QgsGeometry(geom)
-        l = len(new_geom.asPolygon()[0])
-        self.assertGreater(l, 3)
-        v = new_geom.vertexAt(l-1)
-        self.assertTrue(new_geom.insertVertex(v.x(), v.y(), l-1))
-        v = new_geom.vertexAt(0)
-        self.assertTrue(new_geom.insertVertex(v.x(), v.y(), 0))
-        v = new_geom.vertexAt(l/2)
-        self.assertTrue(new_geom.insertVertex(v.x(), v.y(), l/2))
-        self.assertTrue(new_geom.insertVertex(v.x(), v.y(), l/2))
-        self.layer.startEditing()
-        self.writer.changeGeometryValues({feat.id(): new_geom})
-        self.layer.commitChanges()
-        self.layer.clean_duplicated_nodes_in_polygons()
-        new_feat = self.layer.getFeatures().next()
-        clean_geom = new_feat.geometry()
-        self.assertEquals(geom.asPolygon(), clean_geom.asPolygon())
-
     def test_add_topological_points(self):
         refs = [
             ('8842708CS5284S', QgsPoint(358821.08, 3124205.68)),
@@ -439,4 +439,4 @@ class TestDebugWriter(unittest.TestCase):
         writer = DebugWriter('test', QgsCoordinateReferenceSystem(4326), 'memory')
         writer.add_point(QgsPoint(0, 0), 'foobar')
         writer.add_point(QgsPoint(0, 0))
-    
+        

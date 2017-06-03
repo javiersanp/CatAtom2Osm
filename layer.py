@@ -218,6 +218,10 @@ class PolygonLayer(BaseLayer):
 
     def __init__(self, path, baseName, providerLib = "ogr"):
         super(PolygonLayer, self).__init__(path, baseName, providerLib)
+        self.dup_thr = setup.dup_thr # Distance in meters to merge nearest vertexs.
+        self.cath_thr = setup.dist_thr # Threshold in meters for cathetus reduction
+        self.angle_thr = setup.angle_thr # Threshold in degrees from straight angle to delete a vertex
+        self.dist_thr = setup.dist_thr # Threshold for topological points.
 
     def explode_multi_parts(self):
         """
@@ -241,191 +245,6 @@ class PolygonLayer(BaseLayer):
         self.writer.addFeatures(to_add)
         self.commitChanges()
         return (len(to_clean), len(to_add))
-
-
-class ParcelLayer(BaseLayer):
-    """Class for cadastral parcels"""
-
-    def __init__(self, path="Polygon", baseName="cadastralparcel", providerLib="memory"):
-        super(ParcelLayer, self).__init__(path, baseName, providerLib)
-        if self.pendingFields().isEmpty():
-            self.dataProvider().addAttributes([
-                QgsField('localId', QVariant.String, len=254),
-                QgsField('label', QVariant.String, len=254),
-            ])
-            self.updateFields()
-        self.rename = {'localId': 'inspireId_localId'}
-
-
-class ZoningLayer(BaseLayer):
-    """Class for cadastral zoning"""
-
-    def __init__(self, path="Polygon", baseName="cadastralzoning", providerLib="memory"):
-        super(ZoningLayer, self).__init__(path, baseName, providerLib)
-        if self.pendingFields().isEmpty():
-            self.dataProvider().addAttributes([
-                QgsField('localId', QVariant.String, len=254),
-                QgsField('label', QVariant.String, len=254),
-                QgsField('level', QVariant.String, len=254),
-                QgsField('levelName', QVariant.String, len=254),
-            ])
-            self.updateFields()
-        self.rename = {'localId': 'inspireId_localId'}
-
-
-class AddressLayer(BaseLayer):
-    """Class for address"""
-
-    def __init__(self, path="Point", baseName="address", 
-            providerLib = "memory"):
-        super(AddressLayer, self).__init__(path, baseName, providerLib)
-        if self.pendingFields().isEmpty():
-            self.dataProvider().addAttributes([
-                QgsField('localId', QVariant.String, len=254),
-                QgsField('spec', QVariant.String, len=254),
-                QgsField('designator', QVariant.String, len=254),
-                QgsField('PD_id', QVariant.String, len=254),
-                QgsField('TN_id', QVariant.String, len=254),
-                QgsField('AU_id', QVariant.String, len=254)
-            ])
-            self.updateFields()
-        self.rename = {'spec': 'specification'}
-        self.resolve = {
-            'PD_id': ('component_href', '[\w\.]+PD[\.0-9]+'), 
-            'TN_id': ('component_href', '[\w\.]+TN[\.0-9]+'), 
-            'AU_id': ('component_href', '[\w\.]+AU[\.0-9]+')
-        }
-
-
-class ConsLayer(PolygonLayer):
-    """Class for constructions"""
-
-    def __init__(self, path="Polygon", baseName="building", 
-            providerLib = "memory"):
-        super(ConsLayer, self).__init__(path, baseName, providerLib)
-        if self.pendingFields().isEmpty():
-            self.dataProvider().addAttributes([
-                QgsField('localId', QVariant.String, len=254),
-                QgsField('condition', QVariant.String, len=254),
-                QgsField('link', QVariant.String, len=254),
-                QgsField('currentUse', QVariant.String, len=254),
-                QgsField('bu_units', QVariant.Int),
-                QgsField('dwellings', QVariant.Int),
-                QgsField('lev_above', QVariant.Int),
-                QgsField('lev_below', QVariant.Int),
-                QgsField('nature', QVariant.String, len=254)
-            ])
-            self.updateFields()
-        self.rename = {
-            'condition': 'conditionOfConstruction', 
-            'link': 'documentLink' ,
-            'bu_units': 'numberOfBuildingUnits', 
-            'dwellings': 'numberOfDwellings',
-            'lev_above': 'numberOfFloorsAboveGround',
-            'lev_below': 'numberOfFloorsBelowGround',
-            'nature': 'constructionNature'
-        }
-        self.dup_thr = setup.dup_thr # Distance in meters to merge nearest vertexs.
-        self.cath_thr = setup.dist_thr # Threshold in meters for cathetus reduction
-        self.angle_thr = setup.angle_thr # Threshold in degrees from straight angle to delete a vertex
-        self.dist_thr = setup.dist_thr # Threshold for topological points.
-
-    @staticmethod
-    def is_building(localId):
-        """Building features have not any underscore in its localId field"""
-        return '_' not in localId
-
-    @staticmethod
-    def is_part(localId):
-        """Part features have '_part' in its localId field"""
-        return '_part' in localId
-
-    def remove_parts_below_ground(self):
-        """Remove all parts with 'lev_above' field equal 0."""
-        self.startEditing()
-        to_clean = [f.id() for f in self.search('lev_above=0')]
-        if to_clean:
-            self.writer.deleteFeatures(to_clean)
-        self.commitChanges()
-        return len(to_clean)
-        
-    def merge_greatest_part(self, footprint, parts):
-        """
-        Given a building footprint and its parts:
-        
-        * Exclude parts not inside the footprint.
-        
-        * If the area of the parts above ground is equal to the area of the 
-          footprint.
-          
-          * Sum the area for all the parts with the same level. Level is the 
-            pair of values 'lev_above' and 'lev_below' (number of floors 
-            above, and below groud).
-            
-          * For the level with greatest area, translate the number of floors 
-            values to the footprint and deletes all the parts in that level.
-        """
-        parts_inside_footprint = [part for part in parts 
-            if footprint.geometry().contains(part.geometry())
-                or footprint.geometry().overlaps(part.geometry())]
-        area_for_level = defaultdict(list)
-        for part in parts_inside_footprint:
-            level = (part['lev_above'], part['lev_below'])
-            area = part.geometry().area()
-            if level[0] > 0:
-                area_for_level[level].append(area)
-        parts_merged = 0
-        if area_for_level:
-            footprint_area = round(footprint.geometry().area()*100)
-            parts_area = round(sum(sum(v) for v in area_for_level.values())*100)
-            if footprint_area == parts_area:
-                level_with_greatest_area = max(area_for_level.iterkeys(), key=(lambda level: sum(area_for_level[level])))
-                to_clean = []
-                for part in parts_inside_footprint:
-                    if (part['lev_above'], part['lev_below']) == level_with_greatest_area:
-                        to_clean.append(part.id())
-                if to_clean:
-                    self.changeAttributeValue(footprint.id(), 
-                        self.fieldNameIndex('lev_above'), level_with_greatest_area[0])
-                    self.changeAttributeValue(footprint.id(), 
-                        self.fieldNameIndex('lev_below'), level_with_greatest_area[1])
-                    self.writer.deleteFeatures(to_clean)
-                parts_merged = len(to_clean)
-        return parts_merged
-
-    def index_of_building_and_parts(self):
-        """
-        Constructs some utility dicts.
-        features index feature by fid.
-        buildings index building by localid (many if it was a multipart building).
-        parts index parts of building by building localid.
-        """
-        features = {}
-        buildings = defaultdict(list)
-        parts = defaultdict(list)
-        for feature in self.getFeatures():
-            features[feature.id()] = feature
-            if self.is_building(feature['localId']):
-                buildings[feature['localId']].append(feature.id())
-            elif self.is_part(feature['localId']):
-                localId = feature['localId'].split('_')[0]
-                parts[localId].append(feature.id())
-        return (features, buildings, parts)
-    
-    def merge_building_parts(self):
-        """Apply merge_greatest_part to each set of building and its parts"""
-        parts_merged = 0
-        (features, buildings, parts) = self.index_of_building_and_parts()
-        self.startEditing()
-        for (localId, fids) in buildings.items():
-            if localId in parts:
-                for fid in fids:
-                    building = features[fid]
-                    parts_for_building = [features[i] for i in parts[localId]]
-                    parts_merged += \
-                        self.merge_greatest_part(building, parts_for_building)
-        self.commitChanges()
-        return parts_merged
 
     def create_dict_of_vertex_and_features(self):
         """
@@ -630,6 +449,187 @@ class ConsLayer(PolygonLayer):
                 debshp.add_point(point, "Keep. %s" % msg)
         self.commitChanges()
         return killed
+
+
+class ParcelLayer(BaseLayer):
+    """Class for cadastral parcels"""
+
+    def __init__(self, path="Polygon", baseName="cadastralparcel", providerLib="memory"):
+        super(ParcelLayer, self).__init__(path, baseName, providerLib)
+        if self.pendingFields().isEmpty():
+            self.dataProvider().addAttributes([
+                QgsField('localId', QVariant.String, len=254),
+                QgsField('label', QVariant.String, len=254),
+            ])
+            self.updateFields()
+        self.rename = {'localId': 'inspireId_localId'}
+
+
+class ZoningLayer(BaseLayer):
+    """Class for cadastral zoning"""
+
+    def __init__(self, path="Polygon", baseName="cadastralzoning", providerLib="memory"):
+        super(ZoningLayer, self).__init__(path, baseName, providerLib)
+        if self.pendingFields().isEmpty():
+            self.dataProvider().addAttributes([
+                QgsField('localId', QVariant.String, len=254),
+                QgsField('label', QVariant.String, len=254),
+                QgsField('level', QVariant.String, len=254),
+                QgsField('levelName', QVariant.String, len=254),
+            ])
+            self.updateFields()
+        self.rename = {'localId': 'inspireId_localId'}
+
+
+class AddressLayer(BaseLayer):
+    """Class for address"""
+
+    def __init__(self, path="Point", baseName="address", 
+            providerLib = "memory"):
+        super(AddressLayer, self).__init__(path, baseName, providerLib)
+        if self.pendingFields().isEmpty():
+            self.dataProvider().addAttributes([
+                QgsField('localId', QVariant.String, len=254),
+                QgsField('spec', QVariant.String, len=254),
+                QgsField('designator', QVariant.String, len=254),
+                QgsField('PD_id', QVariant.String, len=254),
+                QgsField('TN_id', QVariant.String, len=254),
+                QgsField('AU_id', QVariant.String, len=254)
+            ])
+            self.updateFields()
+        self.rename = {'spec': 'specification'}
+        self.resolve = {
+            'PD_id': ('component_href', '[\w\.]+PD[\.0-9]+'), 
+            'TN_id': ('component_href', '[\w\.]+TN[\.0-9]+'), 
+            'AU_id': ('component_href', '[\w\.]+AU[\.0-9]+')
+        }
+
+
+class ConsLayer(PolygonLayer):
+    """Class for constructions"""
+
+    def __init__(self, path="Polygon", baseName="building", 
+            providerLib = "memory"):
+        super(ConsLayer, self).__init__(path, baseName, providerLib)
+        if self.pendingFields().isEmpty():
+            self.dataProvider().addAttributes([
+                QgsField('localId', QVariant.String, len=254),
+                QgsField('condition', QVariant.String, len=254),
+                QgsField('link', QVariant.String, len=254),
+                QgsField('currentUse', QVariant.String, len=254),
+                QgsField('bu_units', QVariant.Int),
+                QgsField('dwellings', QVariant.Int),
+                QgsField('lev_above', QVariant.Int),
+                QgsField('lev_below', QVariant.Int),
+                QgsField('nature', QVariant.String, len=254)
+            ])
+            self.updateFields()
+        self.rename = {
+            'condition': 'conditionOfConstruction', 
+            'link': 'documentLink' ,
+            'bu_units': 'numberOfBuildingUnits', 
+            'dwellings': 'numberOfDwellings',
+            'lev_above': 'numberOfFloorsAboveGround',
+            'lev_below': 'numberOfFloorsBelowGround',
+            'nature': 'constructionNature'
+        }
+
+    @staticmethod
+    def is_building(localId):
+        """Building features have not any underscore in its localId field"""
+        return '_' not in localId
+
+    @staticmethod
+    def is_part(localId):
+        """Part features have '_part' in its localId field"""
+        return '_part' in localId
+
+    def remove_parts_below_ground(self):
+        """Remove all parts with 'lev_above' field equal 0."""
+        self.startEditing()
+        to_clean = [f.id() for f in self.search('lev_above=0')]
+        if to_clean:
+            self.writer.deleteFeatures(to_clean)
+        self.commitChanges()
+        return len(to_clean)
+        
+    def merge_greatest_part(self, footprint, parts):
+        """
+        Given a building footprint and its parts:
+        
+        * Exclude parts not inside the footprint.
+        
+        * If the area of the parts above ground is equal to the area of the 
+          footprint.
+          
+          * Sum the area for all the parts with the same level. Level is the 
+            pair of values 'lev_above' and 'lev_below' (number of floors 
+            above, and below groud).
+            
+          * For the level with greatest area, translate the number of floors 
+            values to the footprint and deletes all the parts in that level.
+        """
+        parts_inside_footprint = [part for part in parts 
+            if footprint.geometry().contains(part.geometry())
+                or footprint.geometry().overlaps(part.geometry())]
+        area_for_level = defaultdict(list)
+        for part in parts_inside_footprint:
+            level = (part['lev_above'], part['lev_below'])
+            area = part.geometry().area()
+            if level[0] > 0:
+                area_for_level[level].append(area)
+        parts_merged = 0
+        if area_for_level:
+            footprint_area = round(footprint.geometry().area()*100)
+            parts_area = round(sum(sum(v) for v in area_for_level.values())*100)
+            if footprint_area == parts_area:
+                level_with_greatest_area = max(area_for_level.iterkeys(), key=(lambda level: sum(area_for_level[level])))
+                to_clean = []
+                for part in parts_inside_footprint:
+                    if (part['lev_above'], part['lev_below']) == level_with_greatest_area:
+                        to_clean.append(part.id())
+                if to_clean:
+                    self.changeAttributeValue(footprint.id(), 
+                        self.fieldNameIndex('lev_above'), level_with_greatest_area[0])
+                    self.changeAttributeValue(footprint.id(), 
+                        self.fieldNameIndex('lev_below'), level_with_greatest_area[1])
+                    self.writer.deleteFeatures(to_clean)
+                parts_merged = len(to_clean)
+        return parts_merged
+
+    def index_of_building_and_parts(self):
+        """
+        Constructs some utility dicts.
+        features index feature by fid.
+        buildings index building by localid (many if it was a multipart building).
+        parts index parts of building by building localid.
+        """
+        features = {}
+        buildings = defaultdict(list)
+        parts = defaultdict(list)
+        for feature in self.getFeatures():
+            features[feature.id()] = feature
+            if self.is_building(feature['localId']):
+                buildings[feature['localId']].append(feature.id())
+            elif self.is_part(feature['localId']):
+                localId = feature['localId'].split('_')[0]
+                parts[localId].append(feature.id())
+        return (features, buildings, parts)
+    
+    def merge_building_parts(self):
+        """Apply merge_greatest_part to each set of building and its parts"""
+        parts_merged = 0
+        (features, buildings, parts) = self.index_of_building_and_parts()
+        self.startEditing()
+        for (localId, fids) in buildings.items():
+            if localId in parts:
+                for fid in fids:
+                    building = features[fid]
+                    parts_for_building = [features[i] for i in parts[localId]]
+                    parts_merged += \
+                        self.merge_greatest_part(building, parts_for_building)
+        self.commitChanges()
+        return parts_merged
 
 
 class DebugWriter(QgsVectorFileWriter):
