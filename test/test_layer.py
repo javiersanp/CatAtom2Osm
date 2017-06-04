@@ -149,7 +149,7 @@ class TestPolygonLayer(unittest.TestCase):
         self.assertTrue(self.layer.isValid(), "Init QGIS")
         self.fixture = QgsVectorLayer('test/cons.shp', 'building', 'ogr')
         self.assertTrue(self.fixture.isValid(), "Loading fixture")
-        self.layer.append(self.fixture, rename={})
+        self.layer.append(self.fixture, rename='')
         self.assertEquals(self.layer.featureCount(), self.fixture.featureCount())
         self.writer = self.layer.dataProvider()
 
@@ -172,8 +172,8 @@ class TestPolygonLayer(unittest.TestCase):
         self.assertTrue(all([not f.geometry().isMultipart() 
             for f in self.layer.getFeatures()]), m)
         
-    def test_create_dict_of_vertex_and_features(self):
-        (vertexs, features) = self.layer.create_dict_of_vertex_and_features()
+    def test_get_vertexs_and_features(self):
+        (vertexs, features) = self.layer.get_vertexs_and_features()
         self.assertEquals(len(features), self.layer.featureCount())
         self.assertTrue(all([features[fid].id() == fid for fid in features]))
         self.assertGreater(len(vertexs), 0)
@@ -241,17 +241,31 @@ class TestParcelLayer(unittest.TestCase):
 
 class TestZoningLayer(unittest.TestCase):
 
-    def test_init(self):
-        layer = ZoningLayer()
-        self.assertEquals(layer.pendingFields()[0].name(), 'localId')
-        self.assertEquals(layer.pendingFields()[1].name(), 'label')
-        self.assertEquals(layer.pendingFields()[2].name(), 'level')
-        self.assertEquals(layer.pendingFields()[3].name(), 'levelName')
-        self.assertEquals(layer.rename['localId'], 'inspireId_localId')
+    def setUp(self):
+        self.layer = ZoningLayer()
+        self.assertTrue(self.layer.isValid(), "Init QGIS")
+        self.fixture = QgsVectorLayer('test/zoning.gml', 'zoning', 'ogr')
+        self.assertTrue(self.fixture.isValid(), "Loading fixture")
+        self.layer.append(self.fixture)
+        self.assertEquals(self.layer.featureCount(), self.fixture.featureCount())
+        self.writer = self.layer.dataProvider()
+        self.layer.explode_multi_parts()
 
-    def test_not_empty(self):
-        layer = ZoningLayer('test/zoning.gml', 'building', 'ogr')
-        self.assertEquals(len(layer.pendingFields().toList()), 22)
+    def test_get_adjacents_and_features(self):
+        (vertexs, features) = self.layer.get_vertexs_and_features()
+        (groups, features) = self.layer.get_adjacents_and_features()
+        for parents in vertexs.values():
+            for parent in parents:
+                recuento  = len([g for g in groups if parent in g])
+                if len(parents) > 1:
+                    self.assertEquals(recuento, 1, str(parents))
+        self.assertTrue(all([len(g) > 1 for g in groups]))
+
+    def test_merge_adjacents(self):
+        self.layer.merge_adjacents()
+        (vertexs, features) = self.layer.get_vertexs_and_features()
+        self.assertTrue(all([len(p) == 1 for p in vertexs.values()]))
+        #self.layer.export('zoning.geojson', 'GeoJSON')
 
 
 class TestConsLayer(unittest.TestCase):
@@ -261,7 +275,7 @@ class TestConsLayer(unittest.TestCase):
         self.assertTrue(self.layer.isValid(), "Init QGIS")
         self.fixture = QgsVectorLayer('test/cons.shp', 'building', 'ogr')
         self.assertTrue(self.fixture.isValid(), "Loading fixture")
-        self.layer.append(self.fixture, rename={})
+        self.layer.append(self.fixture, rename='')
         self.assertEquals(self.layer.featureCount(), self.fixture.featureCount())
         self.writer = self.layer.dataProvider()
 

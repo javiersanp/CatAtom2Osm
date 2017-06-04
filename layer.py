@@ -246,10 +246,8 @@ class PolygonLayer(BaseLayer):
         self.commitChanges()
         return (len(to_clean), len(to_add))
 
-    def create_dict_of_vertex_and_features(self):
+    def get_vertexs_and_features(self):
         """
-        Auxiliary method for simplify
-        
         Returns:
             (dict) parent fids for each vertex, (dict) feature for each fid.
         """
@@ -262,6 +260,26 @@ class PolygonLayer(BaseLayer):
                 for point in ring[0:-1]:
                     vertexs[point].append(feature.id())
         return (vertexs, features)
+    
+    def get_adjacents_and_features(self):
+        """
+        Returns:
+            (list) groups of fids of adjacent polygons, (dict) feature for each fid.
+        """
+        (vertexs, features) = self.get_vertexs_and_features()
+        groups = []
+        adjs = [set(parents) for parents in vertexs.values() if len(parents) > 1]
+        while adjs:
+            group = set(adjs.pop())
+            lastlen = -1
+            while len(group) > lastlen:
+                lastlen = len(group)
+                for adj in adjs[:]:
+                    if len({p for p in adj if p in group}) > 0:
+                        group |= adj
+                        adjs.remove(adj)
+            groups.append(group)
+        return (groups, features)
     
     def get_vertexs(self):
         """Returns a in memory layer with the coordinates of each vertex"""
@@ -307,7 +325,7 @@ class PolygonLayer(BaseLayer):
         dup_thr = self.dup_thr
         if log.getEffectiveLevel() <= logging.DEBUG:
             debshp = DebugWriter("debug_duplicated.shp", self.crs())
-        (parents_per_vertex, features) = self.create_dict_of_vertex_and_features()
+        (parents_per_vertex, features) = self.get_vertexs_and_features()
         dupes = 0
         duplicates = self.get_duplicates()
         self.startEditing()
@@ -415,7 +433,7 @@ class PolygonLayer(BaseLayer):
             debshp = DebugWriter("debug_simplify.shp", self.crs())
         index = QgsSpatialIndex()
         index = QgsSpatialIndex(self.getFeatures())
-        (parents_per_vertex, features) = self.create_dict_of_vertex_and_features()
+        (parents_per_vertex, features) = self.get_vertexs_and_features()
         killed = 0
         dupes = 0
         self.startEditing()
@@ -450,6 +468,21 @@ class PolygonLayer(BaseLayer):
         self.commitChanges()
         return killed
 
+    def merge_adjacents(self):
+        """
+        Merge polygons with shared vertexs
+        """
+        (groups, features) = self.get_adjacents_and_features()
+        self.startEditing()
+        for group in groups:
+            group = list(group)
+            geom = features[group[0]].geometry()
+            for fid in group[1:]:
+                geom = geom.combine(features[fid].geometry())
+            self.writer.deleteFeatures(group[1:])
+            self.writer.changeGeometryValues({group[0]: geom})
+        self.commitChanges()
+
 
 class ParcelLayer(BaseLayer):
     """Class for cadastral parcels"""
@@ -465,7 +498,7 @@ class ParcelLayer(BaseLayer):
         self.rename = {'localId': 'inspireId_localId'}
 
 
-class ZoningLayer(BaseLayer):
+class ZoningLayer(PolygonLayer):
     """Class for cadastral zoning"""
 
     def __init__(self, path="Polygon", baseName="cadastralzoning", providerLib="memory"):
