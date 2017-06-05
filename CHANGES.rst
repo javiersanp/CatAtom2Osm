@@ -1,6 +1,10 @@
 Change log
 ==========
 
+**2017-06-05**
+
+* Adds creation of task boundaries (issue #4).
+
 **2017-05-28**
 
 * Adds support to translations and translation to Spanish.

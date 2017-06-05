@@ -132,32 +132,32 @@ class CatAtom2Osm:
                 self.export_layer(parcel, 'parcel.shp')
 
         if self.options.zoning:
-            urbana_zoning = layer.ZoningLayer()
-            rustica_zoning = layer.ZoningLayer()
+            urban_zoning = layer.ZoningLayer()
+            rustic_zoning = layer.ZoningLayer()
             zoning_gml = self.read_gml_layer("cadastralzoning", cat_crs)
-            urbana_query = lambda feat: feat['levelName'][3] == 'M' # "(1:MANZANA )"
-            rustica_query = lambda feat: feat['levelName'][3] == 'P' # "(1:POLIGONO )"
-            urbana_zoning.append(zoning_gml, query=urbana_query)
-            rustica_zoning.append(zoning_gml, query=rustica_query)
-            uc = urbana_zoning.featureCount()
-            rc = rustica_zoning.featureCount()
-            log.info(_("Loaded %d features in %s layer"), uc, "urbana_zoning")
-            log.info(_("Loaded %d features in %s layer"), rc, "rustica_zoning")
+            urban_query = lambda feat: feat['levelName'][3] == 'M' # "(1:MANZANA )"
+            rustic_query = lambda feat: feat['levelName'][3] == 'P' # "(1:POLIGONO )"
+            urban_zoning.append(zoning_gml, query=urban_query)
+            rustic_zoning.append(zoning_gml, query=rustic_query)
+            uc = urban_zoning.featureCount()
+            rc = rustic_zoning.featureCount()
+            log.info(_("Loaded %d features in %s layer"), uc, "urban_zoning")
+            log.info(_("Loaded %d features in %s layer"), rc, "rustic_zoning")
             del zoning_gml
-            urbana_zoning.explode_multi_parts()
-            urbana_zoning.merge_adjacents()
-            urbana_zoning.merge_duplicates()
-            urbana_zoning.simplify()
-            urbana_zoning.reproject()
-            rustica_zoning.explode_multi_parts()
-            rustica_zoning.merge_duplicates()
-            rustica_zoning.simplify()
-            rustica_zoning.reproject()
-            self.export_layer(urbana_zoning, 'urbana_zoning.geojson', 'GeoJSON')
-            self.export_layer(rustica_zoning, 'rustica_zoning.geojson', 'GeoJSON')
+            urban_zoning.explode_multi_parts()
+            urban_zoning.merge_adjacents()
+            urban_zoning.merge_duplicates()
+            urban_zoning.simplify()
+            urban_zoning.reproject()
+            rustic_zoning.explode_multi_parts()
+            rustic_zoning.merge_duplicates()
+            rustic_zoning.simplify()
+            rustic_zoning.reproject()
+            self.export_layer(urban_zoning, 'urban_zoning.geojson', 'GeoJSON')
+            self.export_layer(rustic_zoning, 'rustic_zoning.geojson', 'GeoJSON')
             if log.getEffectiveLevel() == logging.DEBUG:
-                self.export_layer(urbana_zoning, 'urbana_zoning.shp')
-                self.export_layer(urbana_zoning, 'rustica_zoning.shp')
+                self.export_layer(urban_zoning, 'urban_zoning.shp')
+                self.export_layer(urban_zoning, 'rustic_zoning.shp')
         
         if self.options.address:
             address_gml = self.read_gml_layer("address")

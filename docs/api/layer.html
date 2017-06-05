@@ -142,8 +142,28 @@
 <p>Base class for application layers</p>
 <dl class="method">
 <dt id="layer.BaseLayer.append">
-<code class="descname">append</code><span class="sig-paren">(</span><em>layer</em>, <em>rename=None</em>, <em>resolve=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#BaseLayer.append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.BaseLayer.append" title="Permalink to this definition">¶</a></dt>
-<dd><p>Copy all features from layer. See copy_feature()</p>
+<code class="descname">append</code><span class="sig-paren">(</span><em>layer</em>, <em>rename=None</em>, <em>resolve=None</em>, <em>query=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#BaseLayer.append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.BaseLayer.append" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy all features from layer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>layer</strong> (<em>QgsVectorLayer</em>) &#8211; Source layer</li>
+<li><strong>rename</strong> (<em>dict</em>) &#8211; Translation of attributes names</li>
+<li><strong>resolve</strong> (<em>dict</em>) &#8211; xlink reference fields</li>
+<li><strong>query</strong> (<em>func</em>) &#8211; </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">feat</span><span class="p">:</span> <span class="n">feat</span><span class="p">[</span><span class="s1">&#39;foo&#39;</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;bar&#39;</span>
+</pre></div>
+</div>
+<p>Will copy only features with a value &#8216;bar&#8217; in the field &#8216;foo&#8217;.</p>
+<p>See also copy_feature().</p>
 </dd></dl>
 
 <dl class="method">
@@ -247,62 +267,19 @@ in standalone script mode (without GUI).</p>
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="layer.BaseLayer.search">
+<code class="descname">search</code><span class="sig-paren">(</span><em>expression</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#BaseLayer.search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.BaseLayer.search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a features list for this search expression</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="layer.ConsLayer">
 <em class="property">class </em><code class="descclassname">layer.</code><code class="descname">ConsLayer</code><span class="sig-paren">(</span><em>path='Polygon'</em>, <em>baseName='building'</em>, <em>providerLib='memory'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#layer.BaseLayer" title="layer.BaseLayer"><code class="xref py py-class docutils literal"><span class="pre">layer.BaseLayer</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#layer.PolygonLayer" title="layer.PolygonLayer"><code class="xref py py-class docutils literal"><span class="pre">layer.PolygonLayer</span></code></a></p>
 <p>Class for constructions</p>
-<dl class="method">
-<dt id="layer.ConsLayer.add_topological_points">
-<code class="descname">add_topological_points</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.add_topological_points"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.add_topological_points" title="Permalink to this definition">¶</a></dt>
-<dd><p>For each vertex in a polygon layer, adds it to nearest segments.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="layer.ConsLayer.clean_duplicated_nodes_in_polygons">
-<code class="descname">clean_duplicated_nodes_in_polygons</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.clean_duplicated_nodes_in_polygons"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.clean_duplicated_nodes_in_polygons" title="Permalink to this definition">¶</a></dt>
-<dd><p>Cleans consecutives nodes with the same coordinates in any ring of a
-polygon.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="layer.ConsLayer.create_dict_of_vertex_and_features">
-<code class="descname">create_dict_of_vertex_and_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.create_dict_of_vertex_and_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.create_dict_of_vertex_and_features" title="Permalink to this definition">¶</a></dt>
-<dd><p>Auxiliary method for simplify</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(dict) parent fids for each vertex, (dict) feature for each fid.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="layer.ConsLayer.explode_multi_parts">
-<code class="descname">explode_multi_parts</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.explode_multi_parts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.explode_multi_parts" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates a new WKBPolygon feature for each part of any WKBMultiPolygon
-feature in the layer. This avoid relations with may &#8216;outer&#8217; members in
-OSM data set. From this moment, localId will not be a unique identifier
-for buildings.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="layer.ConsLayer.get_duplicates">
-<code class="descname">get_duplicates</code><span class="sig-paren">(</span><em>dup_thr=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.get_duplicates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.get_duplicates" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a dict of duplicated vertexs for each coordinate.
-Two vertexs are duplicated if they are nearest than dup_thr.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="layer.ConsLayer.get_vertexs">
-<code class="descname">get_vertexs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.get_vertexs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.get_vertexs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a in memory layer with the coordinates of each vertex</p>
-</dd></dl>
-
 <dl class="method">
 <dt id="layer.ConsLayer.index_of_building_and_parts">
 <code class="descname">index_of_building_and_parts</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.index_of_building_and_parts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.index_of_building_and_parts" title="Permalink to this definition">¶</a></dt>
@@ -331,13 +308,6 @@ parts index parts of building by building localid.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="layer.ConsLayer.merge_duplicates">
-<code class="descname">merge_duplicates</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.merge_duplicates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.merge_duplicates" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reduces the number of vertexs in a polygon layer merging vertexs nearest
-than &#8216;dup_thr&#8217; meters.</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="layer.ConsLayer.merge_greatest_part">
 <code class="descname">merge_greatest_part</code><span class="sig-paren">(</span><em>footprint</em>, <em>parts</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.merge_greatest_part"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.merge_greatest_part" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a building footprint and its parts:</p>
@@ -359,18 +329,6 @@ values to the footprint and deletes all the parts in that level.</li>
 <dt id="layer.ConsLayer.remove_parts_below_ground">
 <code class="descname">remove_parts_below_ground</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.remove_parts_below_ground"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.remove_parts_below_ground" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove all parts with &#8216;lev_above&#8217; field equal 0.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="layer.ConsLayer.simplify">
-<code class="descname">simplify</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.simplify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.simplify" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reduces the number of vertexs in a polygon layer according to:</p>
-<ul class="simple">
-<li>Delete vertex if the distance to the segment formed by its parents is
-less than &#8216;cath_thr&#8217; meters.</li>
-<li>Delete vertex if the angle with its parent is near of the straight
-angle for less than &#8216;angle_thr&#8217; degrees.</li>
-</ul>
 </dd></dl>
 
 </dd></dl>
@@ -437,9 +395,102 @@ greater than cath_thr.</p>
 </dd></dl>
 
 <dl class="class">
+<dt id="layer.PolygonLayer">
+<em class="property">class </em><code class="descclassname">layer.</code><code class="descname">PolygonLayer</code><span class="sig-paren">(</span><em>path</em>, <em>baseName</em>, <em>providerLib='ogr'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#PolygonLayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.PolygonLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#layer.BaseLayer" title="layer.BaseLayer"><code class="xref py py-class docutils literal"><span class="pre">layer.BaseLayer</span></code></a></p>
+<p>Base class for polygon layers</p>
+<dl class="method">
+<dt id="layer.PolygonLayer.add_topological_points">
+<code class="descname">add_topological_points</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#PolygonLayer.add_topological_points"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.PolygonLayer.add_topological_points" title="Permalink to this definition">¶</a></dt>
+<dd><p>For each vertex in a polygon layer, adds it to nearest segments.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="layer.PolygonLayer.clean_duplicated_nodes_in_polygons">
+<code class="descname">clean_duplicated_nodes_in_polygons</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#PolygonLayer.clean_duplicated_nodes_in_polygons"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.PolygonLayer.clean_duplicated_nodes_in_polygons" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cleans consecutives nodes with the same coordinates in any ring of a
+polygon.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="layer.PolygonLayer.explode_multi_parts">
+<code class="descname">explode_multi_parts</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#PolygonLayer.explode_multi_parts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.PolygonLayer.explode_multi_parts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a new WKBPolygon feature for each part of any WKBMultiPolygon
+feature in the layer. This avoid relations with may &#8216;outer&#8217; members in
+OSM data set. From this moment, localId will not be a unique identifier
+for buildings.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="layer.PolygonLayer.get_adjacents_and_features">
+<code class="descname">get_adjacents_and_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#PolygonLayer.get_adjacents_and_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.PolygonLayer.get_adjacents_and_features" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(list) groups of fids of adjacent polygons, (dict) feature for each fid.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="layer.PolygonLayer.get_duplicates">
+<code class="descname">get_duplicates</code><span class="sig-paren">(</span><em>dup_thr=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#PolygonLayer.get_duplicates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.PolygonLayer.get_duplicates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dict of duplicated vertices for each coordinate.
+Two vertices are duplicated if they are nearest than dup_thr.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="layer.PolygonLayer.get_parents_per_vertex_and_features">
+<code class="descname">get_parents_per_vertex_and_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#PolygonLayer.get_parents_per_vertex_and_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.PolygonLayer.get_parents_per_vertex_and_features" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(dict) parent fids for each vertex, (dict) feature for each fid.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="layer.PolygonLayer.get_vertices">
+<code class="descname">get_vertices</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#PolygonLayer.get_vertices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.PolygonLayer.get_vertices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a in memory layer with the coordinates of each vertex</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="layer.PolygonLayer.merge_adjacents">
+<code class="descname">merge_adjacents</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#PolygonLayer.merge_adjacents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.PolygonLayer.merge_adjacents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge polygons with shared vertices</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="layer.PolygonLayer.merge_duplicates">
+<code class="descname">merge_duplicates</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#PolygonLayer.merge_duplicates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.PolygonLayer.merge_duplicates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reduces the number of vertices in a polygon layer merging vertices nearest
+than &#8216;dup_thr&#8217; meters.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="layer.PolygonLayer.simplify">
+<code class="descname">simplify</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#PolygonLayer.simplify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.PolygonLayer.simplify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reduces the number of vertices in a polygon layer according to:</p>
+<ul class="simple">
+<li>Delete vertex if the distance to the segment formed by its parents is
+less than &#8216;cath_thr&#8217; meters.</li>
+<li>Delete vertex if the angle with its parent is near of the straight
+angle for less than &#8216;angle_thr&#8217; degrees.</li>
+</ul>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="layer.ZoningLayer">
 <em class="property">class </em><code class="descclassname">layer.</code><code class="descname">ZoningLayer</code><span class="sig-paren">(</span><em>path='Polygon'</em>, <em>baseName='cadastralzoning'</em>, <em>providerLib='memory'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ZoningLayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ZoningLayer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#layer.BaseLayer" title="layer.BaseLayer"><code class="xref py py-class docutils literal"><span class="pre">layer.BaseLayer</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#layer.PolygonLayer" title="layer.PolygonLayer"><code class="xref py py-class docutils literal"><span class="pre">layer.PolygonLayer</span></code></a></p>
 <p>Class for cadastral zoning</p>
 </dd></dl>
 

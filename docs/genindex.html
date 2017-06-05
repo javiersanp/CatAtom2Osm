@@ -143,7 +143,7 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/layer.html#layer.DebugWriter.add_point">add_point() (layer.DebugWriter method)</a>
 </li>
-      <li><a href="api/layer.html#layer.ConsLayer.add_topological_points">add_topological_points() (layer.ConsLayer method)</a>
+      <li><a href="api/layer.html#layer.PolygonLayer.add_topological_points">add_topological_points() (layer.PolygonLayer method)</a>
 </li>
       <li><a href="api/translate.html#translate.address_tags">address_tags() (in module translate)</a>
 </li>
@@ -189,13 +189,11 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/layer.html#layer.ConsLayer.clean_duplicated_nodes_in_polygons">clean_duplicated_nodes_in_polygons() (layer.ConsLayer method)</a>
+      <li><a href="api/layer.html#layer.PolygonLayer.clean_duplicated_nodes_in_polygons">clean_duplicated_nodes_in_polygons() (layer.PolygonLayer method)</a>
 </li>
       <li><a href="api/layer.html#layer.ConsLayer">ConsLayer (class in layer)</a>
 </li>
       <li><a href="api/layer.html#layer.BaseLayer.copy_feature">copy_feature() (layer.BaseLayer method)</a>
-</li>
-      <li><a href="api/layer.html#layer.ConsLayer.create_dict_of_vertex_and_features">create_dict_of_vertex_and_features() (layer.ConsLayer method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -217,7 +215,7 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/osm.html#osm.Element">Element (class in osm)</a>
 </li>
-      <li><a href="api/layer.html#layer.ConsLayer.explode_multi_parts">explode_multi_parts() (layer.ConsLayer method)</a>
+      <li><a href="api/layer.html#layer.PolygonLayer.explode_multi_parts">explode_multi_parts() (layer.PolygonLayer method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -239,15 +237,19 @@
         <li><a href="api/osm.html#osm.Way.geometry">(osm.Way method)</a>
 </li>
       </ul></li>
+      <li><a href="api/layer.html#layer.PolygonLayer.get_adjacents_and_features">get_adjacents_and_features() (layer.PolygonLayer method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/catatom2osm.html#catatom2osm.CatAtom2Osm.get_atom_file">get_atom_file() (catatom2osm.CatAtom2Osm method)</a>
 </li>
-      <li><a href="api/layer.html#layer.ConsLayer.get_duplicates">get_duplicates() (layer.ConsLayer method)</a>
+      <li><a href="api/layer.html#layer.PolygonLayer.get_duplicates">get_duplicates() (layer.PolygonLayer method)</a>
+</li>
+      <li><a href="api/layer.html#layer.PolygonLayer.get_parents_per_vertex_and_features">get_parents_per_vertex_and_features() (layer.PolygonLayer method)</a>
 </li>
       <li><a href="api/download.html#download.get_response">get_response() (in module download)</a>
 </li>
-      <li><a href="api/layer.html#layer.ConsLayer.get_vertexs">get_vertexs() (layer.ConsLayer method)</a>
+      <li><a href="api/layer.html#layer.PolygonLayer.get_vertices">get_vertices() (layer.PolygonLayer method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -291,13 +293,15 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/main.html#module-main">main (module)</a>
 </li>
-      <li><a href="api/layer.html#layer.ConsLayer.merge_building_parts">merge_building_parts() (layer.ConsLayer method)</a>
+      <li><a href="api/layer.html#layer.PolygonLayer.merge_adjacents">merge_adjacents() (layer.PolygonLayer method)</a>
 </li>
-      <li><a href="api/osm.html#osm.Osm.merge_duplicated">merge_duplicated() (osm.Osm method)</a>
+      <li><a href="api/layer.html#layer.ConsLayer.merge_building_parts">merge_building_parts() (layer.ConsLayer method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/layer.html#layer.ConsLayer.merge_duplicates">merge_duplicates() (layer.ConsLayer method)</a>
+      <li><a href="api/osm.html#osm.Osm.merge_duplicated">merge_duplicated() (osm.Osm method)</a>
+</li>
+      <li><a href="api/layer.html#layer.PolygonLayer.merge_duplicates">merge_duplicates() (layer.PolygonLayer method)</a>
 </li>
       <li><a href="api/layer.html#layer.ConsLayer.merge_greatest_part">merge_greatest_part() (layer.ConsLayer method)</a>
 </li>
@@ -347,11 +351,13 @@
 </li>
       <li><a href="api/catatom2osm.html#catatom2osm.CatAtom2Osm.path">path (catatom2osm.CatAtom2Osm attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/layer.html#layer.Point">Point (class in layer)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/osm.html#osm.Polygon">Polygon (class in osm)</a>
+</li>
+      <li><a href="api/layer.html#layer.PolygonLayer">PolygonLayer (class in layer)</a>
 </li>
       <li><a href="api/download.html#download.ProgressBar">ProgressBar (class in download)</a>
 </li>
@@ -401,6 +407,8 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/layer.html#layer.BaseLayer.search">search() (layer.BaseLayer method)</a>
+</li>
       <li><a href="api/osmxml.html#osmxml.serialize">serialize() (in module osmxml)</a>
 </li>
       <li><a href="api/setup.html#module-setup">setup (module)</a>
@@ -412,6 +420,10 @@
 </li>
         <li><a href="api/test.test_layer.html#test.test_layer.TestConsLayer.setUp">(test.test_layer.TestConsLayer method)</a>
 </li>
+        <li><a href="api/test.test_layer.html#test.test_layer.TestPolygonLayer.setUp">(test.test_layer.TestPolygonLayer method)</a>
+</li>
+        <li><a href="api/test.test_layer.html#test.test_layer.TestZoningLayer.setUp">(test.test_layer.TestZoningLayer method)</a>
+</li>
         <li><a href="api/test.test_osm.html#test.test_osm.OsmTestCase.setUp">(test.test_osm.OsmTestCase method)</a>
 </li>
       </ul></li>
@@ -419,7 +431,7 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/test.test_layer.html#test.test_layer.setUpModule">setUpModule() (in module test.test_layer)</a>
 </li>
-      <li><a href="api/layer.html#layer.ConsLayer.simplify">simplify() (layer.ConsLayer method)</a>
+      <li><a href="api/layer.html#layer.PolygonLayer.simplify">simplify() (layer.PolygonLayer method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -439,6 +451,10 @@
 </li>
       <li><a href="api/test.unittest_main.html#module-test.unittest_main">test.unittest_main (module)</a>
 </li>
+      <li><a href="api/test.test_layer.html#test.test_layer.TestDebugWriter.test_add_point">test_add_point() (test.test_layer.TestDebugWriter method)</a>
+</li>
+      <li><a href="api/test.test_layer.html#test.test_layer.TestConsLayer.test_add_topological_points">test_add_topological_points() (test.test_layer.TestConsLayer method)</a>
+</li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestAddressLayer.test_append">test_append() (test.test_layer.TestAddressLayer method)</a>
 
       <ul>
@@ -453,21 +469,19 @@
 </li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestConsLayer.test_append_othercons">test_append_othercons() (test.test_layer.TestConsLayer method)</a>
 </li>
+      <li><a href="api/test.test_layer.html#test.test_layer.TestBaseLayer.test_append_with_query">test_append_with_query() (test.test_layer.TestBaseLayer method)</a>
+</li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestBaseLayer.test_append_with_rename">test_append_with_rename() (test.test_layer.TestBaseLayer method)</a>
 </li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestPoint.test_boundigBox">test_boundigBox() (test.test_layer.TestPoint method)</a>
 </li>
       <li><a href="api/test.test_osm.html#test.test_osm.TestOsmWay.test_clean_duplicated_nodes">test_clean_duplicated_nodes() (test.test_osm.TestOsmWay method)</a>
 </li>
-      <li><a href="api/test.test_layer.html#test.test_layer.TestConsLayer.test_clean_duplicated_nodes_in_polygons">test_clean_duplicated_nodes_in_polygons() (test.test_layer.TestConsLayer method)</a>
+      <li><a href="api/test.test_layer.html#test.test_layer.TestPolygonLayer.test_clean_duplicated_nodes_in_polygons">test_clean_duplicated_nodes_in_polygons() (test.test_layer.TestPolygonLayer method)</a>
 </li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestBaseLayer.test_copy_feature_all_fields">test_copy_feature_all_fields() (test.test_layer.TestBaseLayer method)</a>
 </li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestBaseLayer.test_copy_feature_with_rename">test_copy_feature_with_rename() (test.test_layer.TestBaseLayer method)</a>
-</li>
-      <li><a href="api/test.test_layer.html#test.test_layer.TestBaseLayer.test_copy_feature_with_resolve">test_copy_feature_with_resolve() (test.test_layer.TestBaseLayer method)</a>
-</li>
-      <li><a href="api/test.test_layer.html#test.test_layer.TestConsLayer.test_create_dict_of_vertex_and_features">test_create_dict_of_vertex_and_features() (test.test_layer.TestConsLayer method)</a>
 </li>
       <li><a href="api/test.test_osm.html#test.test_osm.TestOsmNode.test_eq">test_eq() (test.test_osm.TestOsmNode method)</a>
 
@@ -477,7 +491,11 @@
         <li><a href="api/test.test_osm.html#test.test_osm.TestOsmWay.test_eq">(test.test_osm.TestOsmWay method)</a>
 </li>
       </ul></li>
-      <li><a href="api/test.test_layer.html#test.test_layer.TestConsLayer.test_explode_multi_parts">test_explode_multi_parts() (test.test_layer.TestConsLayer method)</a>
+      <li><a href="api/test.test_layer.html#test.test_layer.TestPolygonLayer.test_explode_multi_parts">test_explode_multi_parts() (test.test_layer.TestPolygonLayer method)</a>
+</li>
+      <li><a href="api/test.test_layer.html#test.test_layer.TestBaseLayer.test_export_default">test_export_default() (test.test_layer.TestBaseLayer method)</a>
+</li>
+      <li><a href="api/test.test_layer.html#test.test_layer.TestBaseLayer.test_export_other">test_export_other() (test.test_layer.TestBaseLayer method)</a>
 </li>
       <li><a href="api/test.test_osm.html#test.test_osm.TestOsmNode.test_geometry">test_geometry() (test.test_osm.TestOsmNode method)</a>
 
@@ -487,13 +505,17 @@
         <li><a href="api/test.test_osm.html#test.test_osm.TestOsmWay.test_geometry">(test.test_osm.TestOsmWay method)</a>
 </li>
       </ul></li>
-      <li><a href="api/test.test_layer.html#test.test_layer.TestConsLayer.test_get_duplicates">test_get_duplicates() (test.test_layer.TestConsLayer method)</a>
+      <li><a href="api/test.test_layer.html#test.test_layer.TestZoningLayer.test_get_adjacents_and_features">test_get_adjacents_and_features() (test.test_layer.TestZoningLayer method)</a>
+</li>
+      <li><a href="api/test.test_layer.html#test.test_layer.TestPolygonLayer.test_get_duplicates">test_get_duplicates() (test.test_layer.TestPolygonLayer method)</a>
+</li>
+      <li><a href="api/test.test_layer.html#test.test_layer.TestPolygonLayer.test_get_parents_per_vertex_and_features">test_get_parents_per_vertex_and_features() (test.test_layer.TestPolygonLayer method)</a>
 </li>
       <li><a href="api/test.test_download.html#test.test_download.TestGetResponse.test_get_response_bad">test_get_response_bad() (test.test_download.TestGetResponse method)</a>
 </li>
       <li><a href="api/test.test_download.html#test.test_download.TestGetResponse.test_get_response_ok">test_get_response_ok() (test.test_download.TestGetResponse method)</a>
 </li>
-      <li><a href="api/test.test_layer.html#test.test_layer.TestConsLayer.test_get_vertexs">test_get_vertexs() (test.test_layer.TestConsLayer method)</a>
+      <li><a href="api/test.test_layer.html#test.test_layer.TestPolygonLayer.test_get_vertices">test_get_vertices() (test.test_layer.TestPolygonLayer method)</a>
 </li>
       <li><a href="api/test.test_osm.html#test.test_osm.TestOsm.test_getattr">test_getattr() (test.test_osm.TestOsm method)</a>
 </li>
@@ -504,6 +526,10 @@
       <li><a href="api/test.test_download.html#test.test_download.TestProgressBar.test_init">test_init() (test.test_download.TestProgressBar method)</a>
 
       <ul>
+        <li><a href="api/test.test_layer.html#test.test_layer.TestDebugWriter.test_init">(test.test_layer.TestDebugWriter method)</a>
+</li>
+        <li><a href="api/test.test_layer.html#test.test_layer.TestParcelLayer.test_init">(test.test_layer.TestParcelLayer method)</a>
+</li>
         <li><a href="api/test.test_osm.html#test.test_osm.TestOsm.test_init">(test.test_osm.TestOsm method)</a>
 </li>
         <li><a href="api/test.test_osm.html#test.test_osm.TestOsmElement.test_init">(test.test_osm.TestOsmElement method)</a>
@@ -535,11 +561,13 @@
 </li>
       <li><a href="api/test.test_osm.html#test.test_osm.TestOsmRelation.test_member_ne">test_member_ne() (test.test_osm.TestOsmRelation method)</a>
 </li>
+      <li><a href="api/test.test_layer.html#test.test_layer.TestZoningLayer.test_merge_adjacents">test_merge_adjacents() (test.test_layer.TestZoningLayer method)</a>
+</li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestConsLayer.test_merge_building_parts">test_merge_building_parts() (test.test_layer.TestConsLayer method)</a>
 </li>
       <li><a href="api/test.test_osm.html#test.test_osm.TestOsm.test_merge_duplicated">test_merge_duplicated() (test.test_osm.TestOsm method)</a>
 </li>
-      <li><a href="api/test.test_layer.html#test.test_layer.TestConsLayer.test_merge_duplicates">test_merge_duplicates() (test.test_layer.TestConsLayer method)</a>
+      <li><a href="api/test.test_layer.html#test.test_layer.TestPolygonLayer.test_merge_duplicates">test_merge_duplicates() (test.test_layer.TestPolygonLayer method)</a>
 </li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestConsLayer.test_merge_greatest_part">test_merge_greatest_part() (test.test_layer.TestConsLayer method)</a>
 </li>
@@ -552,6 +580,8 @@
       <li><a href="api/test.test_osm.html#test.test_osm.TestOsmElement.test_new_index">test_new_index() (test.test_osm.TestOsmElement method)</a>
 </li>
       <li><a href="api/test.test_osm.html#test.test_osm.TestOsm.test_new_indexes">test_new_indexes() (test.test_osm.TestOsm method)</a>
+</li>
+      <li><a href="api/test.test_layer.html#test.test_layer.TestParcelLayer.test_not_empty">test_not_empty() (test.test_layer.TestParcelLayer method)</a>
 </li>
       <li><a href="api/test.test_osm.html#test.test_osm.TestOsm.test_properties">test_properties() (test.test_osm.TestOsm method)</a>
 </li>
@@ -569,6 +599,8 @@
       </ul></li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestBaseLayer.test_reproject">test_reproject() (test.test_layer.TestBaseLayer method)</a>
 </li>
+      <li><a href="api/test.test_layer.html#test.test_layer.TestConsLayer.test_simplify">test_simplify() (test.test_layer.TestConsLayer method)</a>
+</li>
       <li><a href="api/test.test_osm.html#test.test_osm.TestOsmNode.test_str">test_str() (test.test_osm.TestOsmNode method)</a>
 </li>
       <li><a href="api/test.test_osm.html#test.test_osm.TestOsmRelation.test_type">test_type() (test.test_osm.TestOsmRelation method)</a>
@@ -584,6 +616,8 @@
       <li><a href="api/test.test_layer.html#test.test_layer.TestBaseLayer">TestBaseLayer (class in test.test_layer)</a>
 </li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestConsLayer">TestConsLayer (class in test.test_layer)</a>
+</li>
+      <li><a href="api/test.test_layer.html#test.test_layer.TestDebugWriter">TestDebugWriter (class in test.test_layer)</a>
 </li>
       <li><a href="api/test.test_download.html#test.test_download.TestGetResponse">TestGetResponse (class in test.test_download)</a>
 </li>
@@ -601,11 +635,17 @@
 </li>
       <li><a href="api/test.test_osm.html#test.test_osm.TestOsmWay">TestOsmWay (class in test.test_osm)</a>
 </li>
+      <li><a href="api/test.test_layer.html#test.test_layer.TestParcelLayer">TestParcelLayer (class in test.test_layer)</a>
+</li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestPoint">TestPoint (class in test.test_layer)</a>
+</li>
+      <li><a href="api/test.test_layer.html#test.test_layer.TestPolygonLayer">TestPolygonLayer (class in test.test_layer)</a>
 </li>
       <li><a href="api/test.test_download.html#test.test_download.TestProgressBar">TestProgressBar (class in test.test_download)</a>
 </li>
       <li><a href="api/test.test_download.html#test.test_download.TestWget">TestWget (class in test.test_download)</a>
+</li>
+      <li><a href="api/test.test_layer.html#test.test_layer.TestZoningLayer">TestZoningLayer (class in test.test_layer)</a>
 </li>
       <li><a href="api/translate.html#module-translate">translate (module)</a>
 </li>
