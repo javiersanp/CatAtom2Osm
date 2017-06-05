@@ -218,7 +218,7 @@ class PolygonLayer(BaseLayer):
 
     def __init__(self, path, baseName, providerLib = "ogr"):
         super(PolygonLayer, self).__init__(path, baseName, providerLib)
-        self.dup_thr = setup.dup_thr # Distance in meters to merge nearest vertexs.
+        self.dup_thr = setup.dup_thr # Distance in meters to merge nearest vertex.
         self.cath_thr = setup.dist_thr # Threshold in meters for cathetus reduction
         self.angle_thr = setup.angle_thr # Threshold in degrees from straight angle to delete a vertex
         self.dist_thr = setup.dist_thr # Threshold for topological points.
@@ -246,29 +246,40 @@ class PolygonLayer(BaseLayer):
         self.commitChanges()
         return (len(to_clean), len(to_add))
 
-    def get_vertexs_and_features(self):
+    def get_parents_per_vertex_and_features(self):
         """
         Returns:
             (dict) parent fids for each vertex, (dict) feature for each fid.
         """
-        vertexs = defaultdict(list)
+        parents_per_vertex = defaultdict(list)
         features = {}
         for feature in self.getFeatures(): 
             features[feature.id()] = feature
             geom = feature.geometry()
             for ring in geom.asPolygon():
                 for point in ring[0:-1]:
-                    vertexs[point].append(feature.id())
-        return (vertexs, features)
+                    parents_per_vertex[point].append(feature.id())
+        return (parents_per_vertex, features)
     
     def get_adjacents_and_features(self):
         """
         Returns:
             (list) groups of fids of adjacent polygons, (dict) feature for each fid.
         """
-        (vertexs, features) = self.get_vertexs_and_features()
+        (parents_per_vertex, features) = self.get_parents_per_vertex_and_features()
+        adjs = []
+        for (point, parents) in parents_per_vertex.items():
+            if len(parents) > 1:
+                for fid in parents:
+                    geom = features[fid].geometry()
+                    (point, ndx, ndxa, ndxb, dist) = geom.closestVertex(point)
+                    next = geom.vertexAt(ndxb)
+                    parents_next = parents_per_vertex[next]
+                    common = set(x for x in parents if x in parents_next)
+                    if len(common) > 1:
+                        adjs.append(common)
+        adjs = list(adjs) #[set(parents) for parents in vertices.values() if len(parents) > 1]
         groups = []
-        adjs = [set(parents) for parents in vertexs.values() if len(parents) > 1]
         while adjs:
             group = set(adjs.pop())
             lastlen = -1
@@ -281,37 +292,37 @@ class PolygonLayer(BaseLayer):
             groups.append(group)
         return (groups, features)
     
-    def get_vertexs(self):
+    def get_vertices(self):
         """Returns a in memory layer with the coordinates of each vertex"""
-        vertexs = QgsVectorLayer("Point", "vertexs", "memory")
-        vertexs.startEditing() # layer with the coordinates of each vertex
+        vertices = QgsVectorLayer("Point", "vertices", "memory")
+        vertices.startEditing() # layer with the coordinates of each vertex
         for feature in self.getFeatures(): 
             for ring in feature.geometry().asPolygon():
                 for point in ring[0:-1]:
                     feat = QgsFeature(QgsFields())
                     geom = QgsGeometry.fromPoint(point)
                     feat.setGeometry(geom)
-                    vertexs.addFeature(feat)
-        vertexs.commitChanges()
-        return vertexs
+                    vertices.addFeature(feat)
+        vertices.commitChanges()
+        return vertices
     
     def get_duplicates(self, dup_thr=None):
         """
-        Returns a dict of duplicated vertexs for each coordinate.
-        Two vertexs are duplicated if they are nearest than dup_thr.
+        Returns a dict of duplicated vertices for each coordinate.
+        Two vertices are duplicated if they are nearest than dup_thr.
         """
-        vertexs = self.get_vertexs()
-        vertexs_by_fid = {feat.id(): feat for feat in vertexs.getFeatures()}
+        vertices = self.get_vertices()
+        vertices_by_fid = {feat.id(): feat for feat in vertices.getFeatures()}
         index = QgsSpatialIndex()
-        index = QgsSpatialIndex(vertexs.getFeatures())
+        index = QgsSpatialIndex(vertices.getFeatures())
         dup_thr = self.dup_thr if dup_thr is None else dup_thr
         duplicates = defaultdict(list)
-        for vertex in vertexs.getFeatures():
+        for vertex in vertices.getFeatures():
             point = Point(vertex.geometry().asPoint())
             area_of_candidates = point.boundingBox(dup_thr)
             fids = index.intersects(area_of_candidates)
             for fid in fids:
-                dup = vertexs_by_fid[fid].geometry().asPoint()
+                dup = vertices_by_fid[fid].geometry().asPoint()
                 dist = point.sqrDist(dup)
                 if dup != point and dist < dup_thr**2:
                     duplicates[point].append(dup)
@@ -319,13 +330,13 @@ class PolygonLayer(BaseLayer):
         
     def merge_duplicates(self):
         """
-        Reduces the number of vertexs in a polygon layer merging vertexs nearest 
+        Reduces the number of vertices in a polygon layer merging vertices nearest 
         than 'dup_thr' meters.
         """
         dup_thr = self.dup_thr
         if log.getEffectiveLevel() <= logging.DEBUG:
             debshp = DebugWriter("debug_duplicated.shp", self.crs())
-        (parents_per_vertex, features) = self.get_vertexs_and_features()
+        (parents_per_vertex, features) = self.get_parents_per_vertex_and_features()
         dupes = 0
         duplicates = self.get_duplicates()
         self.startEditing()
@@ -419,7 +430,7 @@ class PolygonLayer(BaseLayer):
 
     def simplify(self):
         """
-        Reduces the number of vertexs in a polygon layer according to:
+        Reduces the number of vertices in a polygon layer according to:
 
         * Delete vertex if the distance to the segment formed by its parents is
           less than 'cath_thr' meters.
@@ -433,7 +444,7 @@ class PolygonLayer(BaseLayer):
             debshp = DebugWriter("debug_simplify.shp", self.crs())
         index = QgsSpatialIndex()
         index = QgsSpatialIndex(self.getFeatures())
-        (parents_per_vertex, features) = self.get_vertexs_and_features()
+        (parents_per_vertex, features) = self.get_parents_per_vertex_and_features()
         killed = 0
         dupes = 0
         self.startEditing()
@@ -470,7 +481,7 @@ class PolygonLayer(BaseLayer):
 
     def merge_adjacents(self):
         """
-        Merge polygons with shared vertexs
+        Merge polygons with shared vertices
         """
         (groups, features) = self.get_adjacents_and_features()
         self.startEditing()

@@ -172,23 +172,23 @@ class TestPolygonLayer(unittest.TestCase):
         self.assertTrue(all([not f.geometry().isMultipart() 
             for f in self.layer.getFeatures()]), m)
         
-    def test_get_vertexs_and_features(self):
-        (vertexs, features) = self.layer.get_vertexs_and_features()
+    def test_get_parents_per_vertex_and_features(self):
+        (parents_per_vertex, features) = self.layer.get_parents_per_vertex_and_features()
         self.assertEquals(len(features), self.layer.featureCount())
         self.assertTrue(all([features[fid].id() == fid for fid in features]))
-        self.assertGreater(len(vertexs), 0)
+        self.assertGreater(len(parents_per_vertex), 0)
         self.assertTrue(all([QgsGeometry().fromPoint(vertex) \
             .intersects(features[fid].geometry()) 
-                for (vertex, fids) in vertexs.items() for fid in fids]))
+                for (vertex, fids) in parents_per_vertex.items() for fid in fids]))
 
-    def test_get_vertexs(self):
-        vertexs = self.layer.get_vertexs()
+    def test_get_vertices(self):
+        vertices = self.layer.get_vertices()
         vcount = 0
         for feature in self.layer.getFeatures(): 
             for ring in feature.geometry().asPolygon():
                 for point in ring[0:-1]:
                     vcount += 1
-        self.assertEquals(vcount, vertexs.featureCount())
+        self.assertEquals(vcount, vertices.featureCount())
         
     def test_get_duplicates(self):
         duplicates = self.layer.get_duplicates()
@@ -252,19 +252,19 @@ class TestZoningLayer(unittest.TestCase):
         self.layer.explode_multi_parts()
 
     def test_get_adjacents_and_features(self):
-        (vertexs, features) = self.layer.get_vertexs_and_features()
         (groups, features) = self.layer.get_adjacents_and_features()
-        for parents in vertexs.values():
-            for parent in parents:
-                recuento  = len([g for g in groups if parent in g])
-                if len(parents) > 1:
-                    self.assertEquals(recuento, 1, str(parents))
         self.assertTrue(all([len(g) > 1 for g in groups]))
+        for group in groups:
+            for other in groups:
+                if group != other:
+                    self.assertTrue(all(p not in other for p in group))
 
     def test_merge_adjacents(self):
         self.layer.merge_adjacents()
-        (vertexs, features) = self.layer.get_vertexs_and_features()
-        self.assertTrue(all([len(p) == 1 for p in vertexs.values()]))
+        (groups, features) = self.layer.get_adjacents_and_features()
+        self.assertEquals(len(groups), 0)
+        #self.layer.setCrs(QgsCoordinateReferenceSystem(32628))
+        #self.layer.reproject()
         #self.layer.export('zoning.geojson', 'GeoJSON')
 
 
