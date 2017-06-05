@@ -107,6 +107,13 @@ class TestBaseLayer(unittest.TestCase):
         self.assertEquals(feature['gml_id'], new_fet['gml_id'])
         self.assertEquals(feature['localId'], new_fet['localId'])
 
+    def test_append_with_query(self):
+        layer = BaseLayer("Polygon", "test", "memory")
+        self.assertTrue(layer.isValid())
+        declined_filter = lambda feat: feat['conditionOfConstruction'] == 'declined'
+        layer.append(self.fixture, query=declined_filter)
+        self.assertTrue(layer.featureCount(), 2)
+    
     def test_reproject(self):
         layer = BaseLayer("Polygon", "test", "memory")
         self.assertTrue(layer.isValid())

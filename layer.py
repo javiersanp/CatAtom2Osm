@@ -118,12 +118,28 @@ class BaseLayer(QgsVectorLayer):
                     dst_ft[dst_attr] = feature[src_attr]
         return dst_ft
     
-    def append(self, layer, rename=None, resolve=None):
-        """Copy all features from layer. See copy_feature()"""
+    def append(self, layer, rename=None, resolve=None, query=None):
+        """Copy all features from layer.
+
+        Args:
+            layer (QgsVectorLayer): Source layer
+            rename (dict): Translation of attributes names
+            resolve (dict): xlink reference fields
+            query (func):
+
+        Examples:
+
+            >>> query = lambda feat: feat['foo']=='bar'
+            
+            Will copy only features with a value 'bar' in the field 'foo'.
+            
+            See also copy_feature().
+        """
         self.setCrs(layer.crs())
         self.startEditing()
         for feature in layer.getFeatures():
-            self.addFeature(self.copy_feature(feature, rename, resolve))
+            if not query or query(feature):
+                self.addFeature(self.copy_feature(feature, rename, resolve))
         self.commitChanges()
 
     def reproject(self, target_crs=None):
