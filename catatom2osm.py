@@ -72,6 +72,7 @@ class CatAtom2Osm:
         building = layer.ConsLayer()
         building_gml = self.read_gml_layer("building")
         building.append(building_gml)
+        cat_crs = building.crs()
         del building_gml
 
         part_gml = self.read_gml_layer("buildingpart")
@@ -114,12 +115,13 @@ class CatAtom2Osm:
             log.info(_("Merged %d building parts to footprint"), pm)
 
         building.reproject()
+        self.export_layer(building, 'building.geojson', 'GeoJSON')
         building_osm = self.osm_from_layer(building, translate.building_tags)
         self.write_osm(building_osm, "building.osm")
         
         if self.options.parcel:
             parcel = layer.ParcelLayer()
-            parcel_gml = self.read_gml_layer("cadastralparcel", building.crs())
+            parcel_gml = self.read_gml_layer("cadastralparcel", cat_crs)
             parcel.append(parcel_gml)
             del parcel_gml
             parcel.reproject()
@@ -131,7 +133,7 @@ class CatAtom2Osm:
 
         if self.options.zoning:
             zoning = layer.ZoningLayer()
-            zoning_gml = self.read_gml_layer("cadastralzoning", building.crs())
+            zoning_gml = self.read_gml_layer("cadastralzoning", cat_crs)
             zoning.append(zoning_gml)
             del zoning_gml
             zoning.reproject()
@@ -275,10 +277,8 @@ class CatAtom2Osm:
             if e: e.tags.update(tags_translation(feature))
         log.info(_("Loaded %d nodes, %d ways, %d relations from %s layer"), 
             len(data.nodes), len(data.ways), len(data.relations), 'abc')
-        print layer.name()
-        log.info(layer.name())
         log.info(_("Loaded %d nodes, %d ways, %d relations from %s layer"), 
-            len(data.nodes), len(data.ways), len(data.relations), layer.name())
+            len(data.nodes), len(data.ways), len(data.relations), layer.name().encode('utf-8'))
         return data
         
     def write_osm(self, data, filename):
