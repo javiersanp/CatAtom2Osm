@@ -132,16 +132,32 @@ class CatAtom2Osm:
                 self.export_layer(parcel, 'parcel.shp')
 
         if self.options.zoning:
-            zoning = layer.ZoningLayer()
+            urbana_zoning = layer.ZoningLayer()
+            rustica_zoning = layer.ZoningLayer()
             zoning_gml = self.read_gml_layer("cadastralzoning", cat_crs)
-            zoning.append(zoning_gml)
+            urbana_query = lambda feat: feat['levelName'][3] == 'M' # "(1:MANZANA )"
+            rustica_query = lambda feat: feat['levelName'][3] == 'P' # "(1:POLIGONO )"
+            urbana_zoning.append(zoning_gml, query=urbana_query)
+            rustica_zoning.append(zoning_gml, query=rustica_query)
+            uc = urbana_zoning.featureCount()
+            rc = rustica_zoning.featureCount()
+            log.info(_("Loaded %d features in %s layer"), uc, "urbana_zoning")
+            log.info(_("Loaded %d features in %s layer"), rc, "rustica_zoning")
             del zoning_gml
-            zoning.reproject()
-            self.export_layer(zoning, 'zoning.geojson', 'GeoJSON')
-            zoning_osm = self.osm_from_layer(zoning)
-            self.write_osm(zoning_osm, "zoning.osm")
+            urbana_zoning.explode_multi_parts()
+            urbana_zoning.merge_adjacents()
+            urbana_zoning.merge_duplicates()
+            urbana_zoning.simplify()
+            urbana_zoning.reproject()
+            rustica_zoning.explode_multi_parts()
+            rustica_zoning.merge_duplicates()
+            rustica_zoning.simplify()
+            rustica_zoning.reproject()
+            self.export_layer(urbana_zoning, 'urbana_zoning.geojson', 'GeoJSON')
+            self.export_layer(rustica_zoning, 'rustica_zoning.geojson', 'GeoJSON')
             if log.getEffectiveLevel() == logging.DEBUG:
-                self.export_layer(zoning, 'zoning.shp')
+                self.export_layer(urbana_zoning, 'urbana_zoning.shp')
+                self.export_layer(urbana_zoning, 'rustica_zoning.shp')
         
         if self.options.address:
             address_gml = self.read_gml_layer("address")
@@ -275,8 +291,6 @@ class CatAtom2Osm:
             else:
                 log.warning(_("Detected a %s geometry in %s"), geom.wkbType(), layer.name())
             if e: e.tags.update(tags_translation(feature))
-        log.info(_("Loaded %d nodes, %d ways, %d relations from %s layer"), 
-            len(data.nodes), len(data.ways), len(data.relations), 'abc')
         log.info(_("Loaded %d nodes, %d ways, %d relations from %s layer"), 
             len(data.nodes), len(data.ways), len(data.relations), layer.name().encode('utf-8'))
         return data

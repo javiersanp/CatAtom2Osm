@@ -294,7 +294,7 @@ class PolygonLayer(BaseLayer):
                     common = set(x for x in parents if x in parents_next)
                     if len(common) > 1:
                         adjs.append(common)
-        adjs = list(adjs) #[set(parents) for parents in vertices.values() if len(parents) > 1]
+        adjs = list(adjs)
         groups = []
         while adjs:
             group = set(adjs.pop())
