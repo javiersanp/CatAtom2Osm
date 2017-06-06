@@ -266,6 +266,16 @@ class TestZoningLayer(unittest.TestCase):
                 if group != other:
                     self.assertTrue(all(p not in other for p in group))
 
+    def test_clasify_zoning(self):
+        (urban_zoning, rustic_zoning) = ZoningLayer.clasify_zoning(self.fixture)
+        tc = urban_zoning.featureCount() + rustic_zoning.featureCount()
+        self.assertGreaterEqual(self.fixture.featureCount(), tc)
+        self.assertTrue(all([f['levelName'][3] == 'P' 
+            for f in rustic_zoning.getFeatures()]))
+        self.assertTrue(all([f['levelName'][3] == 'M' 
+            for f in urban_zoning.getFeatures()]))
+        
+        
     def test_merge_adjacents(self):
         self.layer.merge_adjacents()
         (groups, features) = self.layer.get_adjacents_and_features()

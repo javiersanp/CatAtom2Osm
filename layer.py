@@ -329,7 +329,7 @@ class PolygonLayer(BaseLayer):
         """
         vertices = self.get_vertices()
         vertices_by_fid = {feat.id(): feat for feat in vertices.getFeatures()}
-        index = QgsSpatialIndex()
+        #index = QgsSpatialIndex()
         index = QgsSpatialIndex(vertices.getFeatures())
         dup_thr = self.dup_thr if dup_thr is None else dup_thr
         duplicates = defaultdict(list)
@@ -407,7 +407,7 @@ class PolygonLayer(BaseLayer):
         tp = 0
         if log.getEffectiveLevel() <= logging.DEBUG:
             debshp = DebugWriter("debug_topology.shp", self.crs())
-        index = QgsSpatialIndex()
+        #index = QgsSpatialIndex()
         index = QgsSpatialIndex(self.getFeatures())
         features = {feat.id(): feat for feat in self.getFeatures()}
 
@@ -518,7 +518,7 @@ class ParcelLayer(BaseLayer):
         super(ParcelLayer, self).__init__(path, baseName, providerLib)
         if self.pendingFields().isEmpty():
             self.dataProvider().addAttributes([
-                QgsField('localId', QVariant.String, len=254),
+                    QgsField('localId', QVariant.String, len=254),
                 QgsField('label', QVariant.String, len=254),
             ])
             self.updateFields()
@@ -545,17 +545,36 @@ class ZoningLayer(PolygonLayer):
 
         Args:
             str_format (string): Text format for the label field.
-
-        See: 
-            Parent method
         """
         self.startEditing()
         i = 1
         for feat in self.getFeatures():
-            feat['label'] = str_format % i
+            self.changeAttributeValue(feat.id(), self.fieldNameIndex('label'), 
+                str_format % i)
             i += 1
-            self.updateFeature(feat)
         self.commitChanges()
+
+    @staticmethod
+    def clasify_zoning(zoning):
+        """Splits zones acording to levelName. 'MANZANA' zones corresponds to 
+        Urban Cadastre and 'POLIGONO' zones to Rustic Cadastre.
+
+        Args:
+            zoning (QgsVectorLayer): CadastralZoning data set
+        
+        Returns:
+            (ZoningLayer) Urban zoning, (ZoningLayer) Rustic zoning
+        """
+        urban_zoning = ZoningLayer(baseName='urbanzoning')
+        rustic_zoning = ZoningLayer(baseName='rusticzoning')
+        urban_query = lambda feat: feat['levelName'][3] == 'M' # "(1:MANZANA )"
+        rustic_query = lambda feat: feat['levelName'][3] == 'P' # "(1:POLIGONO )"
+        urban_zoning.append(zoning, query=urban_query)
+        rustic_zoning.append(zoning, query=rustic_query)
+        urban_zoning.explode_multi_parts()
+        urban_zoning.merge_adjacents()
+        rustic_zoning.explode_multi_parts()
+        return urban_zoning, rustic_zoning
 
 
 class AddressLayer(BaseLayer):
@@ -598,7 +617,8 @@ class ConsLayer(PolygonLayer):
                 QgsField('dwellings', QVariant.Int),
                 QgsField('lev_above', QVariant.Int),
                 QgsField('lev_below', QVariant.Int),
-                QgsField('nature', QVariant.String, len=254)
+                QgsField('nature', QVariant.String, len=254),
+                QgsField('task', QVariant.String, len=254)
             ])
             self.updateFields()
         self.rename = {
