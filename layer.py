@@ -728,6 +728,40 @@ class ConsLayer(PolygonLayer):
         self.commitChanges()
         return parts_merged
 
+    def set_tasks(self, urban_zoning, rustic_zoning):
+        """Assings to the 'task' field a reference to the zone label it's 
+        contained. Buildings within or adjacent to an urban zone receives an 
+        urban zone label, buildings within an rustic zone that have not been
+        previously labeled receives a rustic zone label. Building task label
+        is propagated to its parts.
+        """
+        (features, buildings, parts) = self.index_of_building_and_parts()
+        index = QgsSpatialIndex(self.getFeatures())
+        self.startEditing()
+        prefix = urban_zoning.name()[0].upper()
+        for task in urban_zoning.getFeatures():
+            zone = task.geometry()
+            for fid in index.intersects(zone.boundingBox()):
+                candidate = features[fid]
+                if not candidate['task'] and (zone.overlaps(candidate.geometry()) 
+                        or zone.contains(candidate.geometry())):
+                    features[fid]['task'] = prefix + task['label']
+                    self.updateFeature(features[fid])
+                    localId = candidate['localId']
+                    if self.is_building(localId):
+                        for i in parts[localId]:
+                            features[i]['task'] = prefix + task['label']
+                            self.updateFeature(features[i])
+        prefix = rustic_zoning.name()[0].upper()
+        for task in rustic_zoning.getFeatures():
+            zone = task.geometry()
+            for fid in index.intersects(zone.boundingBox()):
+                candidate = features[fid]
+                if not candidate['task'] and zone.contains(candidate.geometry()):
+                    features[fid]['task'] = prefix + task['label']
+                    self.updateFeature(features[fid])
+        self.commitChanges()
+
 
 class DebugWriter(QgsVectorFileWriter):
     """A QgsVectorFileWriter for debugging purposess."""

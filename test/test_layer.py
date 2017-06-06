@@ -429,6 +429,12 @@ class TestConsLayer(unittest.TestCase):
             building = self.layer.search("localId = '%s'" % ref[0]).next()
             self.assertEquals(ref[1] in building.geometry().asPolygon()[0], ref[2])
             
+    def test_set_tasks(self):
+        zoning = QgsVectorLayer('test/zoning.gml', 'zoning', 'ogr')
+        (urban_zoning, rustic_zoning) = ZoningLayer.clasify_zoning(zoning)
+        self.layer.set_tasks(urban_zoning, rustic_zoning)
+        self.assertTrue(all([f['task'] != 'NULL' for f in self.layer.getFeatures()]))
+
 
 class TestAddressLayer(unittest.TestCase):
 

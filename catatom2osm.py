@@ -96,7 +96,7 @@ class CatAtom2Osm:
 
         if self.options.zoning:
             zoning_gml = self.read_gml_layer("cadastralzoning", cat_crs)
-            (urban_zoning, rustic_zoning) = ZoningLayer.clasify_zoning(zoning_gml)
+            (urban_zoning, rustic_zoning) = layer.ZoningLayer.clasify_zoning(zoning_gml)
             uc = urban_zoning.featureCount()
             rc = rustic_zoning.featureCount()
             log.info(_("Loaded %d features in %s layer"), uc, urban_zoning.name())
@@ -106,6 +106,7 @@ class CatAtom2Osm:
         if self.options.tasks:
             urban_zoning.set_labels('%05d')
             rustic_zoning.set_labels('%03d')
+            building.set_tasks(urban_zoning, rustic_zoning)
 
         dupes = building.merge_duplicates()
         if dupes:
