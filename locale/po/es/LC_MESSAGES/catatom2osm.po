@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-06-05 14:36+WEST\n"
+"POT-Creation-Date: 2017-06-06 10:01+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -42,63 +42,63 @@ msgstr "%d edificios multiparte separados en %d partes"
 msgid "Deleted %d building parts with no floors above ground"
 msgstr "Eliminadas %d partes de edificio sin pisos sobre el nivel del suelo"
 
-#: catatom2osm.py:99
-msgid "Merged %d duplicated vertexs in building"
-msgstr "Fusionados %d vértices duplicados en 'building'"
-
-#: catatom2osm.py:103
-msgid "Merged %d duplicated vertexs in polygons"
-msgstr "Fusionados %d vértices duplicados en polígonos"
-
-#: catatom2osm.py:107
-msgid "Created %d topological points in building"
-msgstr "Creados %d puntos topológicos en 'building'"
-
-#: catatom2osm.py:111
-msgid "Simplified %d vertexs in building"
-msgstr "Simplificados %d vértices en 'building'"
-
-#: catatom2osm.py:115
-msgid "Merged %d building parts to footprint"
-msgstr "Fusionados %d partes de edificios al contorno"
-
-#: catatom2osm.py:144 catatom2osm.py:145 catatom2osm.py:247
+#: catatom2osm.py:107 catatom2osm.py:108 catatom2osm.py:253
 msgid "Loaded %d features in %s layer"
 msgstr "Cargados %d elementos en la capa '%s'"
 
-#: catatom2osm.py:180
+#: catatom2osm.py:120
+msgid "Merged %d duplicated vertexs in building"
+msgstr "Fusionados %d vértices duplicados en 'building'"
+
+#: catatom2osm.py:124
+msgid "Merged %d duplicated vertexs in polygons"
+msgstr "Fusionados %d vértices duplicados en polígonos"
+
+#: catatom2osm.py:128
+msgid "Created %d topological points in building"
+msgstr "Creados %d puntos topológicos en 'building'"
+
+#: catatom2osm.py:132
+msgid "Simplified %d vertexs in building"
+msgstr "Simplificados %d vértices en 'building'"
+
+#: catatom2osm.py:136
+msgid "Merged %d building parts to footprint"
+msgstr "Fusionados %d partes de edificios al contorno"
+
+#: catatom2osm.py:186
 msgid "Finished!"
 msgstr "¡Terminado!"
 
-#: catatom2osm.py:188
+#: catatom2osm.py:194
 msgid "Searching for %s %s url..."
 msgstr "Buscando la url para %s %s..."
 
-#: catatom2osm.py:192
+#: catatom2osm.py:198
 msgid "Zip code %s don't exists"
 msgstr "El Código Postal %s no existe"
 
-#: catatom2osm.py:196
+#: catatom2osm.py:202
 msgid "Downloading %s"
 msgstr "Descargando %s"
 
-#: catatom2osm.py:244
+#: catatom2osm.py:250
 msgid "Failed to load layer: '%s'"
 msgstr "Fallo al cargar la capa: '%s'"
 
-#: catatom2osm.py:262
+#: catatom2osm.py:268
 msgid "Failed to write layer: '%s'"
 msgstr "Fallo al cargar la capa: '%s'"
 
-#: catatom2osm.py:292
+#: catatom2osm.py:298
 msgid "Detected a %s geometry in %s"
 msgstr "Detectada una geometría %s en %s"
 
-#: catatom2osm.py:294
+#: catatom2osm.py:300
 msgid "Loaded %d nodes, %d ways, %d relations from %s layer"
 msgstr "Cargados %d nodos, %d vías, %d relaciones de la capa %s"
 
-#: catatom2osm.py:306
+#: catatom2osm.py:312
 msgid "Generating %s"
 msgstr "Generando %s"
 
@@ -142,10 +142,18 @@ msgstr "Procesa el conjunto de datos de parcelas catastrales"
 msgid "Process the cadastral zoning dataset."
 msgstr "Procesa el conjunto de datos de zonas catastrales"
 
+#: main.py:41
+msgid "Splits results for the tasking manager."
+msgstr "Divide los resultados para el gestor de tareas."
+
 #: main.py:43
+msgid "Process all datasets (equivalent to -dpt)."
+msgstr "Procesa todos los conjuntos de datos (equivalente a -dpt)"
+
+#: main.py:53
 msgid "Invalid log level: %s"
 msgstr "Nivel de registro no válido: %s"
 
-#: main.py:49
+#: main.py:59
 msgid "Too many arguments, supply only a directory path."
 msgstr "Demasiados argumentos, proporcione sólo la ruta de un directorio."
