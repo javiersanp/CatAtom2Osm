@@ -303,12 +303,12 @@ class TestConsLayer(unittest.TestCase):
         self.writer = self.layer.dataProvider()
 
     def test_is_building(self):
-        self.assertTrue(ConsLayer.is_building('foobar'))
-        self.assertFalse(ConsLayer.is_building('foo_bar'))
+        self.assertTrue(ConsLayer.is_building({'localId': 'foobar'}))
+        self.assertFalse(ConsLayer.is_building({'localId': 'foo_bar'}))
     
     def test_is_part(self):
-        self.assertTrue(ConsLayer.is_part('foo_part1'))
-        self.assertFalse(ConsLayer.is_part('foo_P1.1'))
+        self.assertTrue(ConsLayer.is_part({'localId': 'foo_part1'}))
+        self.assertFalse(ConsLayer.is_part({'localId': 'foo_P1.1'}))
 
     def test_append_building(self):
         layer = ConsLayer()

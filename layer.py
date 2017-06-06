@@ -632,14 +632,14 @@ class ConsLayer(PolygonLayer):
         }
 
     @staticmethod
-    def is_building(localId):
+    def is_building(feature):
         """Building features have not any underscore in its localId field"""
-        return '_' not in localId
+        return '_' not in feature['localId']
 
     @staticmethod
-    def is_part(localId):
+    def is_part(feature):
         """Part features have '_part' in its localId field"""
-        return '_part' in localId
+        return '_part' in feature['localId']
 
     def remove_parts_below_ground(self):
         """Remove all parts with 'lev_above' field equal 0."""
@@ -706,9 +706,9 @@ class ConsLayer(PolygonLayer):
         parts = defaultdict(list)
         for feature in self.getFeatures():
             features[feature.id()] = feature
-            if self.is_building(feature['localId']):
+            if self.is_building(feature):
                 buildings[feature['localId']].append(feature.id())
-            elif self.is_part(feature['localId']):
+            elif self.is_part(feature):
                 localId = feature['localId'].split('_')[0]
                 parts[localId].append(feature.id())
         return (features, buildings, parts)
@@ -747,9 +747,8 @@ class ConsLayer(PolygonLayer):
                         or zone.contains(candidate.geometry())):
                     features[fid]['task'] = prefix + task['label']
                     self.updateFeature(features[fid])
-                    localId = candidate['localId']
-                    if self.is_building(localId):
-                        for i in parts[localId]:
+                    if self.is_building(candidate):
+                        for i in parts[candidate['localId']]:
                             features[i]['task'] = prefix + task['label']
                             self.updateFeature(features[i])
         prefix = rustic_zoning.name()[0].upper()
