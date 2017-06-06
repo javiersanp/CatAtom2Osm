@@ -110,6 +110,8 @@ class CatAtom2Osm:
             urban_zoning.explode_multi_parts()
             urban_zoning.merge_adjacents()
             rustic_zoning.explode_multi_parts()
+        
+        if self.options.tasks:
             urban_zoning.set_labels('%05d')
             rustic_zoning.set_labels('%03d')
 
