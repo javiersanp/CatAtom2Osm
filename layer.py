@@ -738,6 +738,7 @@ class ConsLayer(PolygonLayer):
         (features, buildings, parts) = self.index_of_building_and_parts()
         index = QgsSpatialIndex(self.getFeatures())
         self.startEditing()
+        to_update = set()
         prefix = urban_zoning.name()[0].upper()
         for task in urban_zoning.getFeatures():
             zone = task.geometry()
@@ -746,11 +747,11 @@ class ConsLayer(PolygonLayer):
                 if not candidate['task'] and (zone.overlaps(candidate.geometry()) 
                         or zone.contains(candidate.geometry())):
                     features[fid]['task'] = prefix + task['label']
-                    self.updateFeature(features[fid])
+                    to_update.add(fid)
                     if self.is_building(candidate):
                         for i in parts[candidate['localId']]:
                             features[i]['task'] = prefix + task['label']
-                            self.updateFeature(features[i])
+                            to_update.add(i)
         prefix = rustic_zoning.name()[0].upper()
         for task in rustic_zoning.getFeatures():
             zone = task.geometry()
@@ -758,7 +759,9 @@ class ConsLayer(PolygonLayer):
                 candidate = features[fid]
                 if not candidate['task'] and zone.contains(candidate.geometry()):
                     features[fid]['task'] = prefix + task['label']
-                    self.updateFeature(features[fid])
+                    to_update.add(fid)
+        for fid in to_update:
+            self.updateFeature(features[fid])
         self.commitChanges()
 
 

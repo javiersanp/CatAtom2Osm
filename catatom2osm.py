@@ -104,17 +104,19 @@ class CatAtom2Osm:
             del zoning_gml
         
         if self.options.tasks:
+            log.info (_("Setting labels"))
             urban_zoning.set_labels('%05d')
             rustic_zoning.set_labels('%03d')
+            log.info (_("Setting tasks"))
             building.set_tasks(urban_zoning, rustic_zoning)
-
+        """
         dupes = building.merge_duplicates()
         if dupes:
             log.info(_("Merged %d duplicated vertexs in building"), dupes)
 
         consecutives = building.clean_duplicated_nodes_in_polygons()
         if consecutives:
-            log.info(_("Merged %d duplicated vertexs in polygons"), dupes)
+            log.info(_("Merged %d duplicated vertexs in polygons"), consecutives)
 
         tp = building.add_topological_points()
         if tp:
@@ -132,19 +134,36 @@ class CatAtom2Osm:
         self.export_layer(building, 'building.geojson', 'GeoJSON')
         building_osm = self.osm_from_layer(building, translate.building_tags)
         self.write_osm(building_osm, "building.osm")
-        
-        if self.options.parcel:
-            parcel = layer.ParcelLayer()
-            parcel_gml = self.read_gml_layer("cadastralparcel", cat_crs)
-            parcel.append(parcel_gml)
-            del parcel_gml
-            parcel.reproject()
-            self.export_layer(parcel, 'parcel.geojson', 'GeoJSON')
-            parcel_osm = self.osm_from_layer(parcel)
-            self.write_osm(parcel_osm, "parcel.osm")
-            if log.getEffectiveLevel() == logging.DEBUG:
-                self.export_layer(parcel, 'parcel.shp')
+        del building_osm
+        """
 
+        if self.options.tasks:
+            path = os.path.join(self.path, 'task')
+            if not os.path.exists(path):
+                os.makedirs(path)
+            for zoning in (urban_zoning, rustic_zoning):
+                log.info(zoning)
+                to_clean = []
+                for zone in zoning.getFeatures():
+                    log.info(zone['label'])
+                    task = layer.ConsLayer(baseName=zone['label'])
+                    label = zoning.name()[0].upper() + zone['label']
+                    query = lambda feat: feat['task'] == label
+                    task.append(building, query=query)
+                    if task.featureCount() > 0:
+                        log.info(task.featureCount())
+                        task_osm = self.osm_from_layer(task, translate.building_tags)
+                        task_path = os.path.join('task', label + '.osm')
+                        self.write_osm(task_osm, task_path)
+                    else:
+                        to_clean.append(zone.id())
+                if to_clean:
+                    log.info(to_clean)
+                    zoning.startEditing()
+                    zoning.writer.deleteFeatures(to_clean)
+                    zoning.commitChanges()
+
+        """
         if self.options.zoning:
             urban_zoning.merge_duplicates()
             urban_zoning.simplify()
@@ -157,7 +176,20 @@ class CatAtom2Osm:
             if log.getEffectiveLevel() == logging.DEBUG:
                 self.export_layer(urban_zoning, 'urban_zoning.shp')
                 self.export_layer(urban_zoning, 'rustic_zoning.shp')
-        
+        """
+
+        if self.options.parcel:
+            parcel = layer.ParcelLayer()
+            parcel_gml = self.read_gml_layer("cadastralparcel", cat_crs)
+            parcel.append(parcel_gml)
+            del parcel_gml
+            parcel.reproject()
+            self.export_layer(parcel, 'parcel.geojson', 'GeoJSON')
+            parcel_osm = self.osm_from_layer(parcel)
+            self.write_osm(parcel_osm, "parcel.osm")
+            if log.getEffectiveLevel() == logging.DEBUG:
+                self.export_layer(parcel, 'parcel.shp')
+
         if self.options.address:
             address_gml = self.read_gml_layer("address")
             address = layer.AddressLayer()
