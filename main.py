@@ -31,7 +31,7 @@ if __name__ == "__main__":
     parser.add_option("", "--log", dest="log_level", metavar="log_level",
         default=setup.log_level, help=_("Select the log level between " \
         "DEBUG, INFO, WARNING, ERROR or CRITICAL."))
-    parser.add_option("-a", "--address", dest="address", default=False,
+    parser.add_option("-d", "--address", dest="address", default=False,
         action="store_true", help=_("Process the address dataset."))
     parser.add_option("-p", "--parcel", dest="parcel", default=False,
         action="store_true", help=_("Process the cadastral parcel dataset."))
@@ -39,7 +39,13 @@ if __name__ == "__main__":
         action="store_true", help=_("Process the cadastral zoning dataset."))
     parser.add_option("-t", "--tasks", dest="tasks", default=False,
         action="store_true", help=_("Splits results for the tasking manager."))
+    parser.add_option("-a", "--all", dest="all", default=False,
+        action="store_true", help=_("Process all datasets (equivalent to -dpt)."))
     (options, args) = parser.parse_args()
+    if options.all:
+        options.address = True
+        options.parcel = True
+        options.tasks = True
     if options.tasks:
         options.zoning = True
     log_level = getattr(logging, options.log_level.upper(), None)
