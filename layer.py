@@ -540,6 +540,23 @@ class ZoningLayer(PolygonLayer):
             self.updateFields()
         self.rename = {'localId': 'inspireId_localId'}
 
+    def set_labels(self, str_format):
+        """Asigns a sequence of integers to the label field.
+
+        Args:
+            str_format (string): Text format for the label field.
+
+        See: 
+            Parent method
+        """
+        self.startEditing()
+        i = 1
+        for feat in self.getFeatures():
+            feat['label'] = str_format % i
+            i += 1
+            self.updateFeature(feat)
+        self.commitChanges()
+
 
 class AddressLayer(BaseLayer):
     """Class for address"""

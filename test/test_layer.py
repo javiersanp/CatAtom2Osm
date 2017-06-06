@@ -274,6 +274,12 @@ class TestZoningLayer(unittest.TestCase):
         #self.layer.reproject()
         #self.layer.export('zoning.geojson', 'GeoJSON')
 
+    def test_set_labels(self):
+        self.layer.set_labels('%05d')
+        i = 1
+        for feat in self.layer.getFeatures():
+            self.assertEquals(feat['label'], '%05d' % i)
+            i += 1
 
 class TestConsLayer(unittest.TestCase):
 
