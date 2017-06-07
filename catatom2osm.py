@@ -52,7 +52,7 @@ class CatAtom2Osm:
         self.zip_code = m.group()
         self.prov_code = self.zip_code[0:2]
         if self.prov_code not in setup.valid_provinces:
-            raise ValueError(_("Province code %s don't exists") % self.prov_code)
+            raise ValueError(_("Province code '%s' don't exists") % self.prov_code)
         if not os.path.exists(a_path):
             os.makedirs(a_path)
         if not os.path.isdir(a_path):
@@ -85,71 +85,99 @@ class CatAtom2Osm:
 
         (mp, np) = building.explode_multi_parts()
         if mp:
-            log.info(_("%d multipart buildings splited in %d parts"), mp, np)
+            log.info(_("%d multi-polygons splited into %d polygons in "
+                    "the '%s' layer"), mp, np, building.name().encode('utf-8'))
 
         tc = building.remove_parts_below_ground()
         if tc:
             log.info(_("Deleted %d building parts with no floors above ground"), tc)
         
+        zoning_gml = self.read_gml_layer("cadastralzoning", cat_crs)
+        (urban_zoning, rustic_zoning) = layer.ZoningLayer.clasify_zoning(zoning_gml)
+        log.info(_("Loaded %d features in the '%s' layer"), 
+            urban_zoning.featureCount(), urban_zoning.name().encode('utf-8'))
+        log.info(_("Loaded %d features in the '%s' layer"), 
+            rustic_zoning.featureCount(), rustic_zoning.name().encode('utf-8'))
+        (mp, np) = urban_zoning.explode_multi_parts()
+        if mp:
+            log.info(_("%d multi-polygons splited into %d polygons in "
+                "the '%s' layer"), mp, np, urban_zoning.name().encode('utf-8'))
+        (ap, mp) = urban_zoning.merge_adjacents()
+        if ap:
+            log.info(_("%d adjacent polygons merged into %d polygons in "
+                "the '%s' layer"), ap, mp, urban_zoning.name().encode('utf-8'))
+        (mp, np) = rustic_zoning.explode_multi_parts()
+        if mp:
+            log.info(_("%d multi-polygons splited into %d polygons in "
+                "the '%s' layer"), mp, np, rustic_zoning.name().encode('utf-8'))
+        del zoning_gml
+        
+        urban_zoning.set_labels('%05d')
+        rustic_zoning.set_labels('%03d')
+        log.info (_("Assigning zone label to each construction"))
+        building.set_tasks(urban_zoning, rustic_zoning)
+
         if log.getEffectiveLevel() == logging.DEBUG:
             self.export_layer(building, 'building.shp')
 
-        if self.options.zoning:
-            zoning_gml = self.read_gml_layer("cadastralzoning", cat_crs)
-            (urban_zoning, rustic_zoning) = layer.ZoningLayer.clasify_zoning(zoning_gml)
-            uc = urban_zoning.featureCount()
-            rc = rustic_zoning.featureCount()
-            log.info(_("Loaded %d features in %s layer"), uc, urban_zoning.name())
-            log.info(_("Loaded %d features in %s layer"), rc, rustic_zoning.name())
-            del zoning_gml
-        
-        if self.options.tasks:
-            urban_zoning.set_labels('%05d')
-            rustic_zoning.set_labels('%03d')
-            log.info (_("Assigning zone label to each construction"))
-            building.set_tasks(urban_zoning, rustic_zoning)
-
         dupes = building.merge_duplicates()
         if dupes:
-            log.info(_("Merged %d duplicated vertexs in building"), dupes)
+            log.info(_("Merged %d close vertexs in the '%s' layer"), dupes, 
+                building.name().encode('utf-8'))
 
         consecutives = building.clean_duplicated_nodes_in_polygons()
         if consecutives:
-            log.info(_("Merged %d duplicated vertexs in polygons"), consecutives)
+            log.info(_("Merged %d duplicated vertexs of polygons in "
+                "the '%s' layer"), consecutives, building.name().encode('utf-8'))
 
         tp = building.add_topological_points()
         if tp:
-            log.info (_("Created %d topological points in building"), tp)
+            log.info (_("Created %d topological points in the '%s' layer"), 
+                tp, building.name().encode('utf-8'))
         
         killed = building.simplify()
         if killed:
-            log.info(_("Simplified %d vertexs in building"), killed)
+            log.info(_("Simplified %d vertexs in the '%s' layer"), killed, 
+                building.name().encode('utf-8'))
 
         pm = building.merge_building_parts()
         if pm:
             log.info(_("Merged %d building parts to footprint"), pm)
 
         building.reproject()
-        self.export_layer(building, 'building.geojson', 'GeoJSON')
-        building_osm = self.osm_from_layer(building, translate.building_tags)
-        self.write_osm(building_osm, "building.osm")
-        del building_osm
+        if log.getEffectiveLevel() == logging.DEBUG:
+            self.export_layer(building, 'building.geojson', 'GeoJSON')
 
-        if self.options.tasks:
+        if self.options.building: 
+            building_osm = self.osm_from_layer(building, translate.building_tags)
+            self.write_osm(building_osm, "building.osm")
+            del building_osm
+        else:
             self.split_building_in_tasks(building, urban_zoning, rustic_zoning)
 
-        if self.options.zoning:
-            urban_zoning.merge_duplicates()
-            urban_zoning.simplify()
-            urban_zoning.reproject()
-            rustic_zoning.merge_duplicates()
-            rustic_zoning.simplify()
-            rustic_zoning.reproject()
-            self.export_layer(urban_zoning, 'urban_zoning.geojson', 'GeoJSON')
-            self.export_layer(rustic_zoning, 'rustic_zoning.geojson', 'GeoJSON')
-            if log.getEffectiveLevel() == logging.DEBUG:
-                self.export_layer(urban_zoning, 'urban_zoning.shp')
-                self.export_layer(urban_zoning, 'rustic_zoning.shp')
+        dupes = urban_zoning.merge_duplicates()
+        if dupes:
+            log.info(_("Merged %d close vertexs in the '%s' layer"), dupes, 
+                    urban_zoning.name().encode('utf-8'))
+        killed = urban_zoning.simplify()
+        if killed:
+            log.info(_("Simplified %d vertexs in the '%s' layer"), killed, 
+                    urban_zoning.name().encode('utf-8'))
+        urban_zoning.reproject()
+        dupes = rustic_zoning.merge_duplicates()
+        if dupes:
+            log.info(_("Merged %d close vertexs in the '%s' layer"), dupes, 
+                    rustic_zoning.name().encode('utf-8'))
+        killed = rustic_zoning.simplify()
+        if killed:
+            log.info(_("Simplified %d vertexs in the '%s' layer"), killed, 
+                    rustic_zoning.name().encode('utf-8'))
+        rustic_zoning.reproject()
+        self.export_layer(urban_zoning, 'urban_zoning.geojson', 'GeoJSON')
+        self.export_layer(rustic_zoning, 'rustic_zoning.geojson', 'GeoJSON')
+        if log.getEffectiveLevel() == logging.DEBUG:
+            self.export_layer(urban_zoning, 'urban_zoning.shp')
+            self.export_layer(urban_zoning, 'rustic_zoning.shp')
 
         if self.options.parcel:
             parcel = layer.ParcelLayer()
@@ -157,10 +185,10 @@ class CatAtom2Osm:
             parcel.append(parcel_gml)
             del parcel_gml
             parcel.reproject()
-            self.export_layer(parcel, 'parcel.geojson', 'GeoJSON')
             parcel_osm = self.osm_from_layer(parcel)
             self.write_osm(parcel_osm, "parcel.osm")
             if log.getEffectiveLevel() == logging.DEBUG:
+                self.export_layer(parcel, 'parcel.geojson', 'GeoJSON')
                 self.export_layer(parcel, 'parcel.shp')
 
         if self.options.address:
@@ -178,6 +206,7 @@ class CatAtom2Osm:
             address_osm = self.osm_from_layer(address, translate.address_tags)
             self.write_osm(address_osm, "address.osm")
             if log.getEffectiveLevel() == logging.DEBUG:
+                self.export_layer(address, 'address.geojson', 'GeoJSON')
                 self.export_layer(address, 'address.shp')
 
     def __del__(self):
@@ -193,11 +222,11 @@ class CatAtom2Osm:
         response = download.get_response(url)
         s = re.search('http.+/%s.+zip' % self.zip_code, response.text)
         if not s:
-            raise ValueError(_("Zip code %s don't exists") % self.zip_code)
+            raise ValueError(_("Zip code '%s' don't exists") % self.zip_code)
         url = s.group(0)
         filename = url.split('/')[-1]
         out_path = os.path.join(self.path, filename)
-        log.info(_("Downloading %s"), out_path)
+        log.info(_("Downloading '%s'"), out_path)
         download.wget(url, out_path)
 
     def read_gml_layer(self, layername, crs=None):
@@ -248,8 +277,8 @@ class CatAtom2Osm:
                     raise IOError(_("Failed to load layer: '%s'") % gml_path)
         if crs:
             gml_layer.setCrs(crs)
-        log.info(_("Loaded %d features in %s layer"), gml_layer.featureCount(), 
-            gml_layer.name())
+        log.info(_("Loaded %d features in the '%s' layer"), gml_layer.featureCount(), 
+            gml_layer.name().encode('utf-8'))
         return gml_layer
     
     def export_layer(self, layer, filename, driver_name='ESRI Shapefile'):
@@ -293,10 +322,12 @@ class CatAtom2Osm:
             elif geom.wkbType() == QGis.WKBPoint:
                 e = data.Node(geom.asPoint())
             else:
-                log.warning(_("Detected a %s geometry in %s"), geom.wkbType(), layer.name())
+                log.warning(_("Detected a %s geometry in the '%s' layer"), 
+                    geom.wkbType(), layer.name().encode('utf-8'))
             if e: e.tags.update(tags_translation(feature))
-        log.info(_("Loaded %d nodes, %d ways, %d relations from %s layer"), 
-            len(data.nodes), len(data.ways), len(data.relations), layer.name().encode('utf-8'))
+        log.info(_("Loaded %d nodes, %d ways, %d relations from '%s' layer"), 
+            len(data.nodes), len(data.ways), len(data.relations), 
+            layer.name().encode('utf-8'))
         return data
         
     def write_osm(self, data, filename):
@@ -307,7 +338,7 @@ class CatAtom2Osm:
             data (Osm): OSM data set
             filename (str): output filename
         """
-        log.debug(_("Generating %s"), filename)
+        log.debug(_("Generating '%s'"), filename)
         osm_path = os.path.join(self.path, filename)
         data.new_indexes()
         with codecs.open(osm_path,"w", "utf-8") as file_obj:
@@ -333,7 +364,7 @@ class CatAtom2Osm:
                     task_path = os.path.join('tasks', label + '.osm')
                     self.write_osm(task_osm, task_path)
                 else:
-                    log.info(_("Zone %s is empty"), label.encode('utf-8'))
+                    log.info(_("Zone '%s' is empty"), label.encode('utf-8'))
                     to_clean.append(zone.id())
             if to_clean:
                 zoning.startEditing()

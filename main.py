@@ -35,19 +35,14 @@ if __name__ == "__main__":
         action="store_true", help=_("Process the address dataset."))
     parser.add_option("-p", "--parcel", dest="parcel", default=False,
         action="store_true", help=_("Process the cadastral parcel dataset."))
-    parser.add_option("-z", "--zoning", dest="zoning", default=False,
-        action="store_true", help=_("Process the cadastral zoning dataset."))
-    parser.add_option("-t", "--tasks", dest="tasks", default=False,
-        action="store_true", help=_("Splits results for the tasking manager."))
+    parser.add_option("-b", "--building", dest="building", default=False,
+        action="store_true", help=_("Process constructions to a single file instead of tasks"))
     parser.add_option("-a", "--all", dest="all", default=False,
-        action="store_true", help=_("Process all datasets (equivalent to -dpt)."))
+        action="store_true", help=_("Process all datasets (equivalent to -dp)."))
     (options, args) = parser.parse_args()
     if options.all:
         options.address = True
         options.parcel = True
-        options.tasks = True
-    if options.tasks:
-        options.zoning = True
     log_level = getattr(logging, options.log_level.upper(), None)
     if log_level == None:
         log.error(_('Invalid log level: %s') % options.log_level)

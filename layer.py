@@ -245,6 +245,9 @@ class PolygonLayer(BaseLayer):
         feature in the layer. This avoid relations with may 'outer' members in
         OSM data set. From this moment, localId will not be a unique identifier
         for buildings.
+
+        Returns:
+            (int) count of multi-polygons, (int) count of parts
         """
         self.startEditing()
         to_clean = []
@@ -348,6 +351,9 @@ class PolygonLayer(BaseLayer):
         """
         Reduces the number of vertices in a polygon layer merging vertices nearest 
         than 'dup_thr' meters.
+
+        Returns:
+            (int) count of duplicated vertices
         """
         dup_thr = self.dup_thr
         if log.getEffectiveLevel() <= logging.DEBUG:
@@ -377,6 +383,9 @@ class PolygonLayer(BaseLayer):
         """
         Cleans consecutives nodes with the same coordinates in any ring of a 
         polygon.
+
+        Returns:
+            (int) count of duplicated vertices
         """
         dupes = 0
         self.startEditing()
@@ -401,7 +410,12 @@ class PolygonLayer(BaseLayer):
         return dupes
 
     def add_topological_points(self):
-        """For each vertex in a polygon layer, adds it to nearest segments."""
+        """
+        For each vertex in a polygon layer, adds it to nearest segments.
+
+        Returns:
+            (int) count of topological points added
+        """
         threshold = self.dist_thr # Distance threshold to create nodes
         angle_thr = self.angle_thr
         tp = 0
@@ -453,6 +467,9 @@ class PolygonLayer(BaseLayer):
 
         * Delete vertex if the angle with its parent is near of the straight 
           angle for less than 'angle_thr' degrees.
+
+        Returns:
+            (int) count of simplified vertices
         """
         cath_thr = self.cath_thr
         angle_thr = self.angle_thr
@@ -498,9 +515,13 @@ class PolygonLayer(BaseLayer):
     def merge_adjacents(self):
         """
         Merge polygons with shared vertices
+
+        Returns:
+            (int) count of adjacent polygons, (int) count of merged polygons
         """
         (groups, features) = self.get_adjacents_and_features()
         self.startEditing()
+        cleaned = added = 0
         for group in groups:
             group = list(group)
             geom = features[group[0]].geometry()
@@ -508,7 +529,10 @@ class PolygonLayer(BaseLayer):
                 geom = geom.combine(features[fid].geometry())
             self.writer.deleteFeatures(group[1:])
             self.writer.changeGeometryValues({group[0]: geom})
+            added += 1
+            cleaned += len(group)
         self.commitChanges()
+        return (cleaned, added)
 
 
 class ParcelLayer(BaseLayer):
@@ -571,9 +595,6 @@ class ZoningLayer(PolygonLayer):
         rustic_query = lambda feat: feat['levelName'][3] == 'P' # "(1:POLIGONO )"
         urban_zoning.append(zoning, query=urban_query)
         rustic_zoning.append(zoning, query=rustic_query)
-        urban_zoning.explode_multi_parts()
-        urban_zoning.merge_adjacents()
-        rustic_zoning.explode_multi_parts()
         return urban_zoning, rustic_zoning
 
 

@@ -432,6 +432,9 @@ class TestConsLayer(unittest.TestCase):
     def test_set_tasks(self):
         zoning = QgsVectorLayer('test/zoning.gml', 'zoning', 'ogr')
         (urban_zoning, rustic_zoning) = ZoningLayer.clasify_zoning(zoning)
+        urban_zoning.explode_multi_parts()
+        urban_zoning.merge_adjacents()
+        rustic_zoning.explode_multi_parts()
         self.layer.set_tasks(urban_zoning, rustic_zoning)
         self.assertTrue(all([f['task'] != 'NULL' for f in self.layer.getFeatures()]))
 
