@@ -60,7 +60,7 @@ msgstr "%d elementos sin asignar a tarea en la capa '%s'"
 
 #: catatom2osm.py:124
 msgid "All features assigned to tasks in the '%s' layer"
-msgstr "%d elementos asignados a tareas en la capa '%s'"
+msgstr "Todos los elementos asignados a tareas en la capa '%s'"
 
 #: catatom2osm.py:132 catatom2osm.py:167 catatom2osm.py:176
 msgid "Merged %d close vertexs in the '%s' layer"

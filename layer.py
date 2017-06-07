@@ -349,8 +349,8 @@ class PolygonLayer(BaseLayer):
         
     def merge_duplicates(self):
         """
-        Reduces the number of vertices in a polygon layer merging vertices nearest 
-        than 'dup_thr' meters.
+        Reduces the number of distinct vertices in a polygon layer moving to the
+        same position vertices nearest than 'dup_thr' meters.
 
         Returns:
             (int) count of duplicated vertices
