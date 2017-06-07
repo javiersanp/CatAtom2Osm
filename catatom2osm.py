@@ -209,7 +209,7 @@ class CatAtom2Osm:
                 self.export_layer(address, 'address.geojson', 'GeoJSON')
                 self.export_layer(address, 'address.shp')
 
-    def __del__(self):
+    def exit(self):
         log.info(_("Finished!"))
         if hasattr(self, 'qgs'):
             self.qgs.exitQgis()
@@ -218,7 +218,7 @@ class CatAtom2Osm:
         """Given the url of a Cadastre ATOM service, tries to download the ZIP
         file for self.zip_code"""
         s = re.search('INSPIRE/(\w+)/', url)
-        log.info(_("Searching for %s %s url..."), self.zip_code, s.group(1))
+        log.info(_("Searching the url for the '%s' layer of '%s'..."), s.group(1), self.zip_code)
         response = download.get_response(url)
         s = re.search('http.+/%s.+zip' % self.zip_code, response.text)
         if not s:
@@ -228,6 +228,7 @@ class CatAtom2Osm:
         out_path = os.path.join(self.path, filename)
         log.info(_("Downloading '%s'"), out_path)
         download.wget(url, out_path)
+        log.info("afterwget")
 
     def read_gml_layer(self, layername, crs=None):
         """

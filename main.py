@@ -56,7 +56,6 @@ if __name__ == "__main__":
         try:
             app = CatAtom2Osm(args[0], options)
             app.run()
-            del app
+            app.exit()
         except (IOError, OSError, ValueError) as e:
             log.error(e)
-
