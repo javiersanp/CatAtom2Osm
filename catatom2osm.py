@@ -104,12 +104,11 @@ class CatAtom2Osm:
             del zoning_gml
         
         if self.options.tasks:
-            log.info (_("Setting labels"))
             urban_zoning.set_labels('%05d')
             rustic_zoning.set_labels('%03d')
-            log.info (_("Setting tasks"))
+            log.info (_("Assigning zone label to each construction"))
             building.set_tasks(urban_zoning, rustic_zoning)
-        """
+
         dupes = building.merge_duplicates()
         if dupes:
             log.info(_("Merged %d duplicated vertexs in building"), dupes)
@@ -135,35 +134,10 @@ class CatAtom2Osm:
         building_osm = self.osm_from_layer(building, translate.building_tags)
         self.write_osm(building_osm, "building.osm")
         del building_osm
-        """
 
         if self.options.tasks:
-            path = os.path.join(self.path, 'task')
-            if not os.path.exists(path):
-                os.makedirs(path)
-            for zoning in (urban_zoning, rustic_zoning):
-                log.info(zoning)
-                to_clean = []
-                for zone in zoning.getFeatures():
-                    log.info(zone['label'])
-                    task = layer.ConsLayer(baseName=zone['label'])
-                    label = zoning.name()[0].upper() + zone['label']
-                    query = lambda feat: feat['task'] == label
-                    task.append(building, query=query)
-                    if task.featureCount() > 0:
-                        log.info(task.featureCount())
-                        task_osm = self.osm_from_layer(task, translate.building_tags)
-                        task_path = os.path.join('task', label + '.osm')
-                        self.write_osm(task_osm, task_path)
-                    else:
-                        to_clean.append(zone.id())
-                if to_clean:
-                    log.info(to_clean)
-                    zoning.startEditing()
-                    zoning.writer.deleteFeatures(to_clean)
-                    zoning.commitChanges()
+            self.split_building_in_tasks(building, urban_zoning, rustic_zoning)
 
-        """
         if self.options.zoning:
             urban_zoning.merge_duplicates()
             urban_zoning.simplify()
@@ -176,7 +150,6 @@ class CatAtom2Osm:
             if log.getEffectiveLevel() == logging.DEBUG:
                 self.export_layer(urban_zoning, 'urban_zoning.shp')
                 self.export_layer(urban_zoning, 'rustic_zoning.shp')
-        """
 
         if self.options.parcel:
             parcel = layer.ParcelLayer()
@@ -341,4 +314,29 @@ class CatAtom2Osm:
             file_obj.write("<?xml version='1.0' encoding='UTF-8'?>\n")
             file_obj.write(osmxml.serialize(data))
             file_obj.close()
+
+    def split_building_in_tasks(self, building, urban_zoning, rustic_zoning):
+        """Generates osm files to import with the task manager"""
+        base_path = os.path.join(self.path, 'tasks')
+        if not os.path.exists(base_path):
+            os.makedirs(base_path)
+        for zoning in (urban_zoning, rustic_zoning):
+            to_clean = []
+            for zone in zoning.getFeatures():
+                label = zoning.name()[0].upper() + zone['label']
+                task = layer.ConsLayer(baseName=label)
+                query = lambda feat: feat['task'] == label
+                task.append(building, query=query)
+                if task.featureCount() > 0:
+                    task.reproject()
+                    task_osm = self.osm_from_layer(task, translate.building_tags)
+                    task_path = os.path.join('tasks', label + '.osm')
+                    self.write_osm(task_osm, task_path)
+                else:
+                    log.info(_("Zone %s is empty"), label.encode('utf-8'))
+                    to_clean.append(zone.id())
+            if to_clean:
+                zoning.startEditing()
+                zoning.writer.deleteFeatures(to_clean)
+                zoning.commitChanges()
 

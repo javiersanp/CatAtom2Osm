@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-06-06 10:01+WEST\n"
+"POT-Creation-Date: 2017-06-07 09:33+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -42,65 +42,73 @@ msgstr "%d edificios multiparte separados en %d partes"
 msgid "Deleted %d building parts with no floors above ground"
 msgstr "Eliminadas %d partes de edificio sin pisos sobre el nivel del suelo"
 
-#: catatom2osm.py:107 catatom2osm.py:108 catatom2osm.py:253
+#: catatom2osm.py:102 catatom2osm.py:103 catatom2osm.py:251
 msgid "Loaded %d features in %s layer"
 msgstr "Cargados %d elementos en la capa '%s'"
 
-#: catatom2osm.py:120
+#: catatom2osm.py:109
+msgid "Assigning zone label to each construction"
+msgstr "Asignando etiqueta de zona a cada construcción"
+
+#: catatom2osm.py:114
 msgid "Merged %d duplicated vertexs in building"
 msgstr "Fusionados %d vértices duplicados en 'building'"
 
-#: catatom2osm.py:124
+#: catatom2osm.py:118
 msgid "Merged %d duplicated vertexs in polygons"
 msgstr "Fusionados %d vértices duplicados en polígonos"
 
-#: catatom2osm.py:128
+#: catatom2osm.py:122
 msgid "Created %d topological points in building"
 msgstr "Creados %d puntos topológicos en 'building'"
 
-#: catatom2osm.py:132
+#: catatom2osm.py:126
 msgid "Simplified %d vertexs in building"
 msgstr "Simplificados %d vértices en 'building'"
 
-#: catatom2osm.py:136
+#: catatom2osm.py:130
 msgid "Merged %d building parts to footprint"
 msgstr "Fusionados %d partes de edificios al contorno"
 
-#: catatom2osm.py:186
+#: catatom2osm.py:184
 msgid "Finished!"
 msgstr "¡Terminado!"
 
-#: catatom2osm.py:194
+#: catatom2osm.py:192
 msgid "Searching for %s %s url..."
 msgstr "Buscando la url para %s %s..."
 
-#: catatom2osm.py:198
+#: catatom2osm.py:196
 msgid "Zip code %s don't exists"
 msgstr "El Código Postal %s no existe"
 
-#: catatom2osm.py:202
+#: catatom2osm.py:200
 msgid "Downloading %s"
 msgstr "Descargando %s"
 
-#: catatom2osm.py:250
+#: catatom2osm.py:248
 msgid "Failed to load layer: '%s'"
 msgstr "Fallo al cargar la capa: '%s'"
 
-#: catatom2osm.py:268
+#: catatom2osm.py:266
 msgid "Failed to write layer: '%s'"
 msgstr "Fallo al cargar la capa: '%s'"
 
-#: catatom2osm.py:298
+#: catatom2osm.py:296
 msgid "Detected a %s geometry in %s"
 msgstr "Detectada una geometría %s en %s"
 
-#: catatom2osm.py:300
+#: catatom2osm.py:298
 msgid "Loaded %d nodes, %d ways, %d relations from %s layer"
 msgstr "Cargados %d nodos, %d vías, %d relaciones de la capa %s"
 
-#: catatom2osm.py:312
+#: catatom2osm.py:310
 msgid "Generating %s"
 msgstr "Generando %s"
+
+#: catatom2osm.py:336
+msgid "Zone %s is empty"
+msgstr "La zona %s está vacía"
 
 #: main.py:22
 msgid ""
