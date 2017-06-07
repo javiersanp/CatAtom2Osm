@@ -1,6 +1,9 @@
 Change log
 ==========
 
+**2017-06-07**
+* Adds creation of tasks files (issue #5).
+
 **2017-06-05**
 
 * Adds creation of task boundaries (issue #4).
