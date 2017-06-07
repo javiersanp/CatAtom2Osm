@@ -114,8 +114,15 @@ class CatAtom2Osm:
         
         urban_zoning.set_labels('%05d')
         rustic_zoning.set_labels('%03d')
-        log.info (_("Assigning zone label to each construction"))
-        building.set_tasks(urban_zoning, rustic_zoning)
+        log.info (_("Assigning task number to each construction"))
+        nt = building.featureCount() - \
+            building.set_tasks(urban_zoning, rustic_zoning)
+        if nt:
+            log.warning(_("%d features unassigned to a task in "
+                "the '%s' layer"), nt, building.name().decode('utf-8'))
+        else:
+            log.info(_("All features assigned to tasks in "
+                "the '%s' layer"), building.name().decode('utf-8'))
 
         if log.getEffectiveLevel() == logging.DEBUG:
             self.export_layer(building, 'building.shp')
@@ -228,7 +235,6 @@ class CatAtom2Osm:
         out_path = os.path.join(self.path, filename)
         log.info(_("Downloading '%s'"), out_path)
         download.wget(url, out_path)
-        log.info("afterwget")
 
     def read_gml_layer(self, layername, crs=None):
         """

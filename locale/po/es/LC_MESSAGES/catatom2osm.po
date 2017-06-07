@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-06-07 12:33+WEST\n"
+"POT-Creation-Date: 2017-06-07 14:25+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -42,7 +42,7 @@ msgstr "%d multipolígonos divididos a %d poligonos en la capa '%s'"
 msgid "Deleted %d building parts with no floors above ground"
 msgstr "Eliminadas %d partes de edificio sin pisos sobre el nivel del suelo"
 
-#: catatom2osm.py:97 catatom2osm.py:99 catatom2osm.py:280
+#: catatom2osm.py:97 catatom2osm.py:99 catatom2osm.py:287
 msgid "Loaded %d features in the '%s' layer"
 msgstr "Cargados %d elementos en la capa '%s'"
 
@@ -51,66 +51,74 @@ msgid "%d adjacent polygons merged into %d polygons in the '%s' layer"
 msgstr "%d polígonos adyacentes fusionados a %d polígonos en la capa '%s'"
 
 #: catatom2osm.py:117
-msgid "Assigning zone label to each construction"
-msgstr "Asignando etiqueta de zona a cada construcción"
+msgid "Assigning task number to each construction"
+msgstr "Asignando número de tarea a cada construcción"
 
-#: catatom2osm.py:125 catatom2osm.py:160 catatom2osm.py:169
+#: catatom2osm.py:121
+msgid "%d features unassigned to a task in the '%s' layer"
+msgstr "%d elementos sin asignar a tarea en la capa '%s'"
+
+#: catatom2osm.py:124
+msgid "All features assigned to tasks in the '%s' layer"
+msgstr "%d elementos asignados a tareas en la capa '%s'"
+
+#: catatom2osm.py:132 catatom2osm.py:167 catatom2osm.py:176
 msgid "Merged %d close vertexs in the '%s' layer"
 msgstr "Fusionados %d vértices próximos en la capa '%s'"
 
-#: catatom2osm.py:130
+#: catatom2osm.py:137
 msgid "Merged %d duplicated vertexs of polygons in the '%s' layer"
 msgstr "Fusionados %d vértices de polígono en la capa '%s'"
 
-#: catatom2osm.py:135
+#: catatom2osm.py:142
 msgid "Created %d topological points in the '%s' layer"
 msgstr "Creados %d puntos topológicos en la capa '%s'"
 
-#: catatom2osm.py:140 catatom2osm.py:164 catatom2osm.py:173
+#: catatom2osm.py:147 catatom2osm.py:171 catatom2osm.py:180
 msgid "Simplified %d vertexs in the '%s' layer"
 msgstr "Simplificados %d vértices en la capa '%s'"
 
-#: catatom2osm.py:145
+#: catatom2osm.py:152
 msgid "Merged %d building parts to footprint"
 msgstr "Fusionados %d partes de edificios al contorno"
 
-#: catatom2osm.py:213
+#: catatom2osm.py:220
 msgid "Finished!"
 msgstr "¡Terminado!"
 
-#: catatom2osm.py:221
-msgid "Searching for %s %s url..."
-msgstr "Buscando la url para %s %s..."
+#: catatom2osm.py:228
+msgid "Searching the url for the '%s' layer of '%s'..."
+msgstr "Buscando la url para la capa '%s' de '%s'..."
 
-#: catatom2osm.py:225
+#: catatom2osm.py:232
 msgid "Zip code '%s' don't exists"
 msgstr "El Código Postal '%s' no existe"
 
-#: catatom2osm.py:229
+#: catatom2osm.py:236
 msgid "Downloading '%s'"
 msgstr "Descargando '%s'"
 
-#: catatom2osm.py:277
+#: catatom2osm.py:284
 msgid "Failed to load layer: '%s'"
 msgstr "Fallo al cargar la capa: '%s'"
 
-#: catatom2osm.py:295
+#: catatom2osm.py:302
 msgid "Failed to write layer: '%s'"
 msgstr "Fallo al escribir la capa: '%s'"
 
-#: catatom2osm.py:325
+#: catatom2osm.py:332
 msgid "Detected a %s geometry in the '%s' layer"
 msgstr "Detectada una geometría %s en la capa '%s'"
 
-#: catatom2osm.py:328
+#: catatom2osm.py:335
 msgid "Loaded %d nodes, %d ways, %d relations from '%s' layer"
 msgstr "Cargados %d nodos, %d vías, %d relaciones de la capa '%s'"
 
-#: catatom2osm.py:341
+#: catatom2osm.py:348
 msgid "Generating '%s'"
 msgstr "Generando '%s'"
 
-#: catatom2osm.py:367
+#: catatom2osm.py:374
 msgid "Zone '%s' is empty"
 msgstr "La zona '%s' está vacía"
 
@@ -118,9 +126,12 @@ msgstr "La zona '%s' está vacía"
 msgid ""
 "%prog <path>\n"
 "The argument path states the directory for input and output files. \n"
-"The directory name shall start with 5 digits (GGMMM) matching the Cadastral \n"
-"Provincial Office and Municipality Code. If the program don't find the input \n"
-"files it will download them for you from the INSPIRE Services of the Spanish \n"
+"The directory name shall start with 5 digits (GGMMM) matching the "
+"Cadastral \n"
+"Provincial Office and Municipality Code. If the program don't find the "
+"input \n"
+"files it will download them for you from the INSPIRE Services of the "
+"Spanish \n"
 "Cadastre."
 msgstr ""
 "%prog <ruta>\n"

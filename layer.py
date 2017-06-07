@@ -750,8 +750,8 @@ class ConsLayer(PolygonLayer):
         return parts_merged
 
     def set_tasks(self, urban_zoning, rustic_zoning):
-        """Assings to the 'task' field a reference to the zone label it's 
-        contained. Buildings within or adjacent to an urban zone receives an 
+        """Assings to the 'task' field the label of the zone that each feature 
+        is contained. Buildings within or adjacent to an urban zone receives an 
         urban zone label, buildings within an rustic zone that have not been
         previously labeled receives a rustic zone label. Building task label
         is propagated to its parts.
@@ -759,8 +759,9 @@ class ConsLayer(PolygonLayer):
         (features, buildings, parts) = self.index_of_building_and_parts()
         index = QgsSpatialIndex(self.getFeatures())
         self.startEditing()
-        to_update = set()
+        updated = set()
         prefix = urban_zoning.name()[0].upper()
+        tf = self.fieldNameIndex('task')
         for task in urban_zoning.getFeatures():
             zone = task.geometry()
             for fid in index.intersects(zone.boundingBox()):
@@ -768,11 +769,13 @@ class ConsLayer(PolygonLayer):
                 if not candidate['task'] and (zone.overlaps(candidate.geometry()) 
                         or zone.contains(candidate.geometry())):
                     features[fid]['task'] = prefix + task['label']
-                    to_update.add(fid)
+                    self.changeAttributeValue(fid, tf, prefix + task['label'])
+                    updated.add(fid)
                     if self.is_building(candidate):
                         for i in parts[candidate['localId']]:
                             features[i]['task'] = prefix + task['label']
-                            to_update.add(i)
+                            self.changeAttributeValue(i, tf, prefix + task['label'])
+                            updated.add(i)
         prefix = rustic_zoning.name()[0].upper()
         for task in rustic_zoning.getFeatures():
             zone = task.geometry()
@@ -780,10 +783,10 @@ class ConsLayer(PolygonLayer):
                 candidate = features[fid]
                 if not candidate['task'] and zone.contains(candidate.geometry()):
                     features[fid]['task'] = prefix + task['label']
-                    to_update.add(fid)
-        for fid in to_update:
-            self.updateFeature(features[fid])
+                    self.changeAttributeValue(fid, tf, prefix + task['label'])
+                    updated.add(fid)
         self.commitChanges()
+        return len(updated)
 
 
 class DebugWriter(QgsVectorFileWriter):
