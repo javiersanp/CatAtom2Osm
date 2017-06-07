@@ -7,11 +7,11 @@ Change log
 
 **2017-05-28**
 
-* Adds support to translations and translation to Spanish.
+* Adds support to translations and translation to Spanish (issue #3).
 
 **2017-03-28**
 
-* Adds support to download source Cadastre ATOM files.
+* Adds support to download source Cadastre ATOM files (issue #1).
 
 **2017-03-22**
 

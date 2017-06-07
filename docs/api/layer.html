@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>layer module &#8212; CatAtom2Osm 2017-05-28 documentation</title>
+    <title>layer module &#8212; CatAtom2Osm 2017-06-05 documentation</title>
     
     <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -23,7 +23,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '2017-05-28',
+        VERSION:     '2017-06-05',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -57,7 +57,7 @@
         <li class="right" >
           <a href="download.html" title="download module"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 2017-05-28 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 2017-06-05 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../api.html" >API reference</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="modules.html" accesskey="U">CatAtom2Osm</a> &#187;</li> 
       </ul>
@@ -291,13 +291,13 @@ parts index parts of building by building localid.</p>
 
 <dl class="staticmethod">
 <dt id="layer.ConsLayer.is_building">
-<em class="property">static </em><code class="descname">is_building</code><span class="sig-paren">(</span><em>localId</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.is_building"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.is_building" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">is_building</code><span class="sig-paren">(</span><em>feature</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.is_building"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.is_building" title="Permalink to this definition">¶</a></dt>
 <dd><p>Building features have not any underscore in its localId field</p>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="layer.ConsLayer.is_part">
-<em class="property">static </em><code class="descname">is_part</code><span class="sig-paren">(</span><em>localId</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.is_part"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.is_part" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">is_part</code><span class="sig-paren">(</span><em>feature</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.is_part"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.is_part" title="Permalink to this definition">¶</a></dt>
 <dd><p>Part features have &#8216;_part&#8217; in its localId field</p>
 </dd></dl>
 
@@ -329,6 +329,16 @@ values to the footprint and deletes all the parts in that level.</li>
 <dt id="layer.ConsLayer.remove_parts_below_ground">
 <code class="descname">remove_parts_below_ground</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.remove_parts_below_ground"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.remove_parts_below_ground" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove all parts with &#8216;lev_above&#8217; field equal 0.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="layer.ConsLayer.set_tasks">
+<code class="descname">set_tasks</code><span class="sig-paren">(</span><em>urban_zoning</em>, <em>rustic_zoning</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.set_tasks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.set_tasks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assings to the &#8216;task&#8217; field a reference to the zone label it&#8217;s
+contained. Buildings within or adjacent to an urban zone receives an
+urban zone label, buildings within an rustic zone that have not been
+previously labeled receives a rustic zone label. Building task label
+is propagated to its parts.</p>
 </dd></dl>
 
 </dd></dl>
@@ -403,6 +413,14 @@ greater than cath_thr.</p>
 <dt id="layer.PolygonLayer.add_topological_points">
 <code class="descname">add_topological_points</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#PolygonLayer.add_topological_points"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.PolygonLayer.add_topological_points" title="Permalink to this definition">¶</a></dt>
 <dd><p>For each vertex in a polygon layer, adds it to nearest segments.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) count of topological points added</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -410,6 +428,14 @@ greater than cath_thr.</p>
 <code class="descname">clean_duplicated_nodes_in_polygons</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#PolygonLayer.clean_duplicated_nodes_in_polygons"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.PolygonLayer.clean_duplicated_nodes_in_polygons" title="Permalink to this definition">¶</a></dt>
 <dd><p>Cleans consecutives nodes with the same coordinates in any ring of a
 polygon.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) count of duplicated vertices</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -419,6 +445,14 @@ polygon.</p>
 feature in the layer. This avoid relations with may &#8216;outer&#8217; members in
 OSM data set. From this moment, localId will not be a unique identifier
 for buildings.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) count of multi-polygons, (int) count of parts</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -464,6 +498,14 @@ Two vertices are duplicated if they are nearest than dup_thr.</p>
 <dt id="layer.PolygonLayer.merge_adjacents">
 <code class="descname">merge_adjacents</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#PolygonLayer.merge_adjacents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.PolygonLayer.merge_adjacents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Merge polygons with shared vertices</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) count of adjacent polygons, (int) count of merged polygons</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -471,6 +513,14 @@ Two vertices are duplicated if they are nearest than dup_thr.</p>
 <code class="descname">merge_duplicates</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#PolygonLayer.merge_duplicates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.PolygonLayer.merge_duplicates" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reduces the number of vertices in a polygon layer merging vertices nearest
 than &#8216;dup_thr&#8217; meters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) count of duplicated vertices</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -483,6 +533,14 @@ less than &#8216;cath_thr&#8217; meters.</li>
 <li>Delete vertex if the angle with its parent is near of the straight
 angle for less than &#8216;angle_thr&#8217; degrees.</li>
 </ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) count of simplified vertices</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -492,6 +550,37 @@ angle for less than &#8216;angle_thr&#8217; degrees.</li>
 <em class="property">class </em><code class="descclassname">layer.</code><code class="descname">ZoningLayer</code><span class="sig-paren">(</span><em>path='Polygon'</em>, <em>baseName='cadastralzoning'</em>, <em>providerLib='memory'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ZoningLayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ZoningLayer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#layer.PolygonLayer" title="layer.PolygonLayer"><code class="xref py py-class docutils literal"><span class="pre">layer.PolygonLayer</span></code></a></p>
 <p>Class for cadastral zoning</p>
+<dl class="staticmethod">
+<dt id="layer.ZoningLayer.clasify_zoning">
+<em class="property">static </em><code class="descname">clasify_zoning</code><span class="sig-paren">(</span><em>zoning</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ZoningLayer.clasify_zoning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ZoningLayer.clasify_zoning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Splits zones acording to levelName. &#8216;MANZANA&#8217; zones corresponds to
+Urban Cadastre and &#8216;POLIGONO&#8217; zones to Rustic Cadastre.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>zoning</strong> (<em>QgsVectorLayer</em>) &#8211; CadastralZoning data set</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(ZoningLayer) Urban zoning, (ZoningLayer) Rustic zoning</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="layer.ZoningLayer.set_labels">
+<code class="descname">set_labels</code><span class="sig-paren">(</span><em>str_format</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ZoningLayer.set_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ZoningLayer.set_labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Asigns a sequence of integers to the label field.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>str_format</strong> (<em>string</em>) &#8211; Text format for the label field.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -529,7 +618,7 @@ angle for less than &#8216;angle_thr&#8217; degrees.</li>
         <li class="right" >
           <a href="download.html" title="download module"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 2017-05-28 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 2017-06-05 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../api.html" >API reference</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="modules.html" >CatAtom2Osm</a> &#187;</li> 
       </ul>
