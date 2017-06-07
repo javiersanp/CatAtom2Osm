@@ -110,7 +110,7 @@
           <div class="document clearer body">
             
   <h1>Source code for catatom2osm</h1><div class="highlight"><pre>
-<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Tool to convert INSPIRE data sets from the Spanish Cadastre ATOM Services to OSM files</span>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -157,7 +157,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Gets path of data directory and Zip Code value</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span>
-        <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;\d</span><span class="si">{5}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">a_path</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;\d{5}&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">a_path</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">m</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Directory name must begin with a 5 digits ZIP code&quot;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">a_path</span>
@@ -226,8 +226,15 @@
         
         <span class="n">urban_zoning</span><span class="o">.</span><span class="n">set_labels</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%05d</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="n">rustic_zoning</span><span class="o">.</span><span class="n">set_labels</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%03d</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="n">log</span><span class="o">.</span><span class="n">info</span> <span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Assigning zone label to each construction&quot;</span><span class="p">))</span>
-        <span class="n">building</span><span class="o">.</span><span class="n">set_tasks</span><span class="p">(</span><span class="n">urban_zoning</span><span class="p">,</span> <span class="n">rustic_zoning</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span> <span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Assigning task number to each construction&quot;</span><span class="p">))</span>
+        <span class="n">nt</span> <span class="o">=</span> <span class="n">building</span><span class="o">.</span><span class="n">featureCount</span><span class="p">()</span> <span class="o">-</span> \
+            <span class="n">building</span><span class="o">.</span><span class="n">set_tasks</span><span class="p">(</span><span class="n">urban_zoning</span><span class="p">,</span> <span class="n">rustic_zoning</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nt</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> features unassigned to a task in &quot;</span>
+                <span class="s2">&quot;the &#39;</span><span class="si">%s</span><span class="s2">&#39; layer&quot;</span><span class="p">),</span> <span class="n">nt</span><span class="p">,</span> <span class="n">building</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;All features assigned to tasks in &quot;</span>
+                <span class="s2">&quot;the &#39;</span><span class="si">%s</span><span class="s2">&#39; layer&quot;</span><span class="p">),</span> <span class="n">building</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="n">log</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">()</span> <span class="o">==</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">export_layer</span><span class="p">(</span><span class="n">building</span><span class="p">,</span> <span class="s1">&#39;building.shp&#39;</span><span class="p">)</span>
@@ -237,10 +244,13 @@
             <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Merged </span><span class="si">%d</span><span class="s2"> close vertexs in the &#39;</span><span class="si">%s</span><span class="s2">&#39; layer&quot;</span><span class="p">),</span> <span class="n">dupes</span><span class="p">,</span> 
                 <span class="n">building</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
 
-        <span class="n">consecutives</span> <span class="o">=</span> <span class="n">building</span><span class="o">.</span><span class="n">clean_duplicated_nodes_in_polygons</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">consecutives</span><span class="p">:</span>
+        <span class="p">(</span><span class="n">dv</span><span class="p">,</span> <span class="n">bg</span><span class="p">)</span> <span class="o">=</span> <span class="n">building</span><span class="o">.</span><span class="n">clean_duplicated_nodes_in_polygons</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">dv</span><span class="p">:</span>
             <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Merged </span><span class="si">%d</span><span class="s2"> duplicated vertexs of polygons in &quot;</span>
-                <span class="s2">&quot;the &#39;</span><span class="si">%s</span><span class="s2">&#39; layer&quot;</span><span class="p">),</span> <span class="n">consecutives</span><span class="p">,</span> <span class="n">building</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+                <span class="s2">&quot;the &#39;</span><span class="si">%s</span><span class="s2">&#39; layer&quot;</span><span class="p">),</span> <span class="n">dv</span><span class="p">,</span> <span class="n">building</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">bg</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Deleted </span><span class="si">%d</span><span class="s2"> invalid geometries in the &#39;</span><span class="si">%s</span><span class="s2">&#39; layer&quot;</span><span class="p">),</span>
+                <span class="n">bg</span><span class="p">,</span> <span class="n">building</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
 
         <span class="n">tp</span> <span class="o">=</span> <span class="n">building</span><span class="o">.</span><span class="n">add_topological_points</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">tp</span><span class="p">:</span>
@@ -321,16 +331,16 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">export_layer</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="s1">&#39;address.geojson&#39;</span><span class="p">,</span> <span class="s1">&#39;GeoJSON&#39;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">export_layer</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="s1">&#39;address.shp&#39;</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="CatAtom2Osm.exit"><a class="viewcode-back" href="../api/catatom2osm.html#catatom2osm.CatAtom2Osm.exit">[docs]</a>    <span class="k">def</span> <span class="nf">exit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Finished!&quot;</span><span class="p">))</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;qgs&#39;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">qgs</span><span class="o">.</span><span class="n">exitQgis</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">qgs</span><span class="o">.</span><span class="n">exitQgis</span><span class="p">()</span></div>
         
 <div class="viewcode-block" id="CatAtom2Osm.get_atom_file"><a class="viewcode-back" href="../api/catatom2osm.html#catatom2osm.CatAtom2Osm.get_atom_file">[docs]</a>    <span class="k">def</span> <span class="nf">get_atom_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Given the url of a Cadastre ATOM service, tries to download the ZIP</span>
 <span class="sd">        file for self.zip_code&quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;INSPIRE/(\w+)/&#39;</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
-        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Searching for </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> url...&quot;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">zip_code</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Searching the url for the &#39;</span><span class="si">%s</span><span class="s2">&#39; layer of &#39;</span><span class="si">%s</span><span class="s2">&#39;...&quot;</span><span class="p">),</span> <span class="n">s</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">zip_code</span><span class="p">)</span>
         <span class="n">response</span> <span class="o">=</span> <span class="n">download</span><span class="o">.</span><span class="n">get_response</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
         <span class="n">s</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;http.+/</span><span class="si">%s</span><span class="s1">.+zip&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">zip_code</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">s</span><span class="p">:</span>

@@ -159,7 +159,7 @@
 </tbody>
 </table>
 <p class="rubric">Examples</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">feat</span><span class="p">:</span> <span class="n">feat</span><span class="p">[</span><span class="s1">&#39;foo&#39;</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;bar&#39;</span>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">feat</span><span class="p">:</span> <span class="n">feat</span><span class="p">[</span><span class="s1">&#39;foo&#39;</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;bar&#39;</span>
 </pre></div>
 </div>
 <p>Will copy only features with a value &#8216;bar&#8217; in the field &#8216;foo&#8217;.</p>
@@ -185,7 +185,7 @@
 </table>
 <p class="rubric">Examples</p>
 <p>With this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rename</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;spec&#39;</span><span class="p">:</span> <span class="s1">&#39;specification&#39;</span><span class="p">}</span>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">rename</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;spec&#39;</span><span class="p">:</span> <span class="s1">&#39;specification&#39;</span><span class="p">}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">resolve</span> <span class="o">=</span> <span class="p">{</span>
 <span class="gp">... </span>    <span class="s1">&#39;PD_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;component_href&#39;</span><span class="p">,</span> <span class="s1">&#39;[\w\.]+PD[\.0-9]+&#39;</span><span class="p">),</span>
 <span class="gp">... </span>    <span class="s1">&#39;TN_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;component_href&#39;</span><span class="p">,</span> <span class="s1">&#39;[\w\.]+TN[\.0-9]+&#39;</span><span class="p">),</span>
@@ -194,7 +194,7 @@
 </pre></div>
 </div>
 <p>You get:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">original_attributes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;localId&#39;</span><span class="p">,</span> <span class="s1">&#39;specification&#39;</span><span class="p">,</span> <span class="s1">&#39;component_href&#39;</span><span class="p">]</span>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">original_attributes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;localId&#39;</span><span class="p">,</span> <span class="s1">&#39;specification&#39;</span><span class="p">,</span> <span class="s1">&#39;component_href&#39;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">original_values</span> <span class="o">=</span> <span class="p">[</span>
 <span class="gp">... </span>    <span class="s1">&#39;38.012.1.12.0295603CS6109N&#39;</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="s1">&#39;Parcel&#39;</span><span class="p">,</span>
@@ -334,8 +334,8 @@ values to the footprint and deletes all the parts in that level.</li>
 <dl class="method">
 <dt id="layer.ConsLayer.set_tasks">
 <code class="descname">set_tasks</code><span class="sig-paren">(</span><em>urban_zoning</em>, <em>rustic_zoning</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.set_tasks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.set_tasks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Assings to the &#8216;task&#8217; field a reference to the zone label it&#8217;s
-contained. Buildings within or adjacent to an urban zone receives an
+<dd><p>Assings to the &#8216;task&#8217; field the label of the zone that each feature
+is contained. Buildings within or adjacent to an urban zone receives an
 urban zone label, buildings within an rustic zone that have not been
 previously labeled receives a rustic zone label. Building task label
 is propagated to its parts.</p>
@@ -432,7 +432,7 @@ polygon.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) count of duplicated vertices</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(int) count of duplicated vertices, (int) count of invalid geometries</td>
 </tr>
 </tbody>
 </table>
@@ -511,8 +511,8 @@ Two vertices are duplicated if they are nearest than dup_thr.</p>
 <dl class="method">
 <dt id="layer.PolygonLayer.merge_duplicates">
 <code class="descname">merge_duplicates</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#PolygonLayer.merge_duplicates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.PolygonLayer.merge_duplicates" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reduces the number of vertices in a polygon layer merging vertices nearest
-than &#8216;dup_thr&#8217; meters.</p>
+<dd><p>Reduces the number of distinct vertices in a polygon layer moving to the
+same position vertices nearest than &#8216;dup_thr&#8217; meters.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
