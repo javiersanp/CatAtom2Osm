@@ -35,9 +35,10 @@ Cadastre.
 * \-h, --help        Show this help message and exit
 * \--log=log_level   Select the log level between DEBUG, INFO, WARNING, ERROR or 
   CRITICAL.
-* \-a, --address     Process the address dataset.
+* \-d, --address     Process the address dataset.
 * \-p, --parcel      Process the Cadastral parcel dataset.
-* \-z, --zoning      Process the Cadastral zoning dataset.
+* \-b, --building    Process constructions to a single file instead of tasks.
+* \-a, --all         Process all datasets (equivalent to -dp).
 
 Documentation
 -------------
