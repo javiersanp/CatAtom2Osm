@@ -132,10 +132,13 @@ class CatAtom2Osm:
             log.info(_("Merged %d close vertexs in the '%s' layer"), dupes, 
                 building.name().encode('utf-8'))
 
-        consecutives = building.clean_duplicated_nodes_in_polygons()
-        if consecutives:
+        (dv, bg) = building.clean_duplicated_nodes_in_polygons()
+        if dv:
             log.info(_("Merged %d duplicated vertexs of polygons in "
-                "the '%s' layer"), consecutives, building.name().encode('utf-8'))
+                "the '%s' layer"), dv, building.name().encode('utf-8'))
+        if bg:
+            log.info(_("Deleted %d invalid geometries in the '%s' layer"),
+                bg, building.name().encode('utf-8'))
 
         tp = building.add_topological_points()
         if tp:

@@ -370,10 +370,13 @@ class PolygonLayer(BaseLayer):
                     geom = feat.geometry()
                     (p, ndx, ndxa, ndxb, dist) = geom.closestVertex(dup)
                     if geom.moveVertex(point.x(), point.y(), ndx):
-                        dupes += 1
+                        note = "refused by isGeosValid"
+                        if geom.isGeosValid():
+                            note = "Merge. %s" % feat['localId']
+                            dupes += 1
+                            self.writer.changeGeometryValues({fid: geom})
                         if log.getEffectiveLevel() <= logging.DEBUG:
-                            debshp.add_point(p, "Merge. %s" % feat['localId'])
-                        self.writer.changeGeometryValues({fid: geom})
+                            debshp.add_point(p, note)
                 if dup in duplist:
                     duplist.remove(dup)
         self.commitChanges()
@@ -385,9 +388,10 @@ class PolygonLayer(BaseLayer):
         polygon.
 
         Returns:
-            (int) count of duplicated vertices
+            (int) count of duplicated vertices, (int) count of invalid geometries
         """
         dupes = 0
+        to_clean = []
         self.startEditing()
         for feature in self.getFeatures(): 
             geom = feature.geometry()
@@ -405,9 +409,14 @@ class PolygonLayer(BaseLayer):
                     new_polygon.append(merged)
             if replace:
                 new_geom = QgsGeometry().fromPolygon(new_polygon)
-                self.writer.changeGeometryValues({feature.id(): new_geom})
+                if new_geom and new_geom.isGeosValid():
+                    self.writer.changeGeometryValues({feature.id(): new_geom})
+                else:
+                    to_clean.append(feature.id())
+        if to_clean:
+            self.writer.deleteFeatures(to_clean)
         self.commitChanges()
-        return dupes
+        return dupes, len(to_clean)
 
     def add_topological_points(self):
         """
