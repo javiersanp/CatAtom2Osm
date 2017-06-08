@@ -29,12 +29,12 @@ url = {
 
 valid_provinces = ["%02d" % i for i in range(2,57)]
 
-import gettext, sys
+import gettext, sys, os
 
 if sys.platform.startswith('win'):
-    import os
     import locale
     if os.getenv('LANG') is None:
         lang, enc = locale.getdefaultlocale()
         os.environ['LANG'] = lang
-gettext.install('catatom2osm', localedir='locale/po')
+localedir = os.path.join(os.path.dirname(__file__), 'locale', 'po')
+gettext.install('catatom2osm', localedir=localedir)
