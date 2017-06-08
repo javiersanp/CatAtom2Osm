@@ -298,11 +298,10 @@ class CatAtom2Osm:
                 label = zoning.name()[0].upper() + zone['label']
                 task = layer.ConsLayer(baseName=label)
                 query = lambda feat: feat['task'] == label
-                task.append(building, query=query)
+                task.append(building, rename={}, query=query)
                 if task.featureCount() > 0:
-                    task.reproject()
-                    task_osm = self.osm_from_layer(task, translate.building_tags)
                     task_path = os.path.join('tasks', label + '.osm')
+                    task_osm = self.osm_from_layer(task, translate.building_tags)
                     self.write_osm(task_osm, task_path)
                 else:
                     log.info(_("Zone '%s' is empty"), label.encode('utf-8'))
