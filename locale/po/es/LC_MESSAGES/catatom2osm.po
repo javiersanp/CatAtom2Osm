@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-06-07 23:15+WEST\n"
+"POT-Creation-Date: 2017-06-08 09:35+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -34,95 +34,95 @@ msgstr "No es un directorio: '%s'"
 msgid "Initialized qGis API"
 msgstr "Inicializada la API de qGis"
 
-#: catatom2osm.py:88 catatom2osm.py:103 catatom2osm.py:111
-msgid "%d multi-polygons splited into %d polygons in the '%s' layer"
-msgstr "%d multipolígonos divididos a %d poligonos en la capa '%s'"
-
-#: catatom2osm.py:93
-msgid "Deleted %d building parts with no floors above ground"
-msgstr "Eliminadas %d partes de edificio sin pisos sobre el nivel del suelo"
-
-#: catatom2osm.py:97 catatom2osm.py:99 catatom2osm.py:290
+#: catatom2osm.py:75 catatom2osm.py:77 catatom2osm.py:286
 msgid "Loaded %d features in the '%s' layer"
 msgstr "Cargados %d elementos en la capa '%s'"
 
-#: catatom2osm.py:107
+#: catatom2osm.py:81 catatom2osm.py:89 catatom2osm.py:109
+msgid "%d multi-polygons splited into %d polygons in the '%s' layer"
+msgstr "%d multipolígonos divididos a %d poligonos en la capa '%s'"
+
+#: catatom2osm.py:85
 msgid "%d adjacent polygons merged into %d polygons in the '%s' layer"
 msgstr "%d polígonos adyacentes fusionados a %d polígonos en la capa '%s'"
 
-#: catatom2osm.py:117
+#: catatom2osm.py:113
+msgid "Deleted %d building parts with no floors above ground"
+msgstr "Eliminadas %d partes de edificio sin pisos sobre el nivel del suelo"
+
+#: catatom2osm.py:116
 msgid "Assigning task number to each construction"
 msgstr "Asignando número de tarea a cada construcción"
 
-#: catatom2osm.py:121
+#: catatom2osm.py:120
 msgid "%d features unassigned to a task in the '%s' layer"
 msgstr "%d elementos sin asignar a tarea en la capa '%s'"
 
-#: catatom2osm.py:124
+#: catatom2osm.py:123
 msgid "All features assigned to tasks in the '%s' layer"
 msgstr "Todos los elementos asignados a tareas en la capa '%s'"
 
-#: catatom2osm.py:132 catatom2osm.py:170 catatom2osm.py:179
-msgid "Merged %d close vertexs in the '%s' layer"
+#: catatom2osm.py:131 catatom2osm.py:166 catatom2osm.py:175
+msgid "Merged %d close vertices in the '%s' layer"
 msgstr "Fusionados %d vértices próximos en la capa '%s'"
 
-#: catatom2osm.py:137
-msgid "Merged %d duplicated vertexs of polygons in the '%s' layer"
-msgstr "Fusionados %d vértices de polígono en la capa '%s'"
+#: catatom2osm.py:135
+msgid "Merged %d duplicated vertices of polygons in the '%s' layer"
+msgstr "Fusionados %d vértices de polígono duplicados en la capa '%s'"
 
-#: catatom2osm.py:140
+#: catatom2osm.py:138
 msgid "Deleted %d invalid geometries in the '%s' layer"
 msgstr "Eliminadas %d geometrías en la capa '%s'"
 
-#: catatom2osm.py:145
+#: catatom2osm.py:142
 msgid "Created %d topological points in the '%s' layer"
 msgstr "Creados %d puntos topológicos en la capa '%s'"
 
-#: catatom2osm.py:150 catatom2osm.py:174 catatom2osm.py:183
-msgid "Simplified %d vertexs in the '%s' layer"
+#: catatom2osm.py:147 catatom2osm.py:170 catatom2osm.py:179
+msgid "Simplified %d vertices in the '%s' layer"
 msgstr "Simplificados %d vértices en la capa '%s'"
 
-#: catatom2osm.py:155
+#: catatom2osm.py:151
 msgid "Merged %d building parts to footprint"
 msgstr "Fusionados %d partes de edificios al contorno"
 
-#: catatom2osm.py:223
+#: catatom2osm.py:219
 msgid "Finished!"
 msgstr "¡Terminado!"
 
-#: catatom2osm.py:231
+#: catatom2osm.py:227
 msgid "Searching the url for the '%s' layer of '%s'..."
 msgstr "Buscando la url para la capa '%s' de '%s'..."
 
-#: catatom2osm.py:235
+#: catatom2osm.py:231
 msgid "Zip code '%s' don't exists"
 msgstr "El Código Postal '%s' no existe"
 
-#: catatom2osm.py:239
+#: catatom2osm.py:235
 msgid "Downloading '%s'"
 msgstr "Descargando '%s'"
 
-#: catatom2osm.py:287
+#: catatom2osm.py:283
 msgid "Failed to load layer: '%s'"
 msgstr "Fallo al cargar la capa: '%s'"
 
-#: catatom2osm.py:305
+#: catatom2osm.py:301
 msgid "Failed to write layer: '%s'"
 msgstr "Fallo al escribir la capa: '%s'"
 
-#: catatom2osm.py:335
+#: catatom2osm.py:331
 msgid "Detected a %s geometry in the '%s' layer"
 msgstr "Detectada una geometría %s en la capa '%s'"
 
-#: catatom2osm.py:338
+#: catatom2osm.py:334
 msgid "Loaded %d nodes, %d ways, %d relations from '%s' layer"
 msgstr "Cargados %d nodos, %d vías, %d relaciones de la capa '%s'"
 
-#: catatom2osm.py:351
+#: catatom2osm.py:347
 msgid "Generating '%s'"
 msgstr "Generando '%s'"
 
-#: catatom2osm.py:377
+#: catatom2osm.py:373
 msgid "Zone '%s' is empty"
 msgstr "La zona '%s' está vacía"
 
@@ -155,25 +155,34 @@ msgstr ""
 "Selecciona el nivel de registro entre DEBUG, INFO, WARNING, ERROR o CRITICAL."
 
 #: main.py:35
-msgid "Process the address dataset."
-msgstr "Procesa el conjunto de datos de direcciones"
+msgid "Splits constructions into tasks files (default, implies -z)"
+msgstr ""
+"Reparte las construcciones en archivos de tareas (predeterminada, implica -z)"
 
 #: main.py:37
-msgid "Process the cadastral parcel dataset."
-msgstr "Procesa el conjunto de datos de parcelas catastrales"
+msgid "Process the cadastral zoning dataset"
+msgstr "Procesa el conjunto de datos de zonificación catastral"
 
 #: main.py:39
 msgid "Process constructions to a single file instead of tasks"
 msgstr "Procesa las construcciones a un archivo individual en lugar de tareas"
 
 #: main.py:41
-msgid "Process all datasets (equivalent to -dp)."
-msgstr "Procesa todos los conjuntos de datos (equivalente a -dp)"
+msgid "Process the address dataset"
+msgstr "Procesa el conjunto de datos de direcciones"
 
-#: main.py:48
+#: main.py:43
+msgid "Process the cadastral parcel dataset"
+msgstr "Procesa el conjunto de datos de parcelas catastrales"
+
+#: main.py:45
+msgid "Process all datasets (equivalent to -bdptz)"
+msgstr "Procesa todos los conjuntos de datos (equivalente a -bdptz)"
+
+#: main.py:59
 msgid "Invalid log level: %s"
 msgstr "Nivel de registro no válido: %s"
 
-#: main.py:54
+#: main.py:65
 msgid "Too many arguments, supply only a directory path."
 msgstr "Demasiados argumentos, proporcione sólo la ruta de un directorio."

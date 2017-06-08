@@ -69,125 +69,86 @@ class CatAtom2Osm:
 
     def run(self):
         """Launches the app"""
-        building = layer.ConsLayer()
         building_gml = self.read_gml_layer("building")
-        building.append(building_gml)
-        cat_crs = building.crs()
+        cat_crs = building_gml.crs()
+        if self.options.zoning:        
+            zoning_gml = self.read_gml_layer("cadastralzoning", cat_crs)
+            (urban_zoning, rustic_zoning) = layer.ZoningLayer.clasify_zoning(zoning_gml)
+            log.info(_("Loaded %d features in the '%s' layer"), 
+                urban_zoning.featureCount(), urban_zoning.name().encode('utf-8'))
+            log.info(_("Loaded %d features in the '%s' layer"), 
+                rustic_zoning.featureCount(), rustic_zoning.name().encode('utf-8'))
+            (mp, np) = urban_zoning.explode_multi_parts()
+            if mp:
+                log.info(_("%d multi-polygons splited into %d polygons in "
+                    "the '%s' layer"), mp, np, urban_zoning.name().encode('utf-8'))
+            (ap, mp) = urban_zoning.merge_adjacents()
+            if ap:
+                log.info(_("%d adjacent polygons merged into %d polygons in "
+                    "the '%s' layer"), ap, mp, urban_zoning.name().encode('utf-8'))
+            (mp, np) = rustic_zoning.explode_multi_parts()
+            if mp:
+                log.info(_("%d multi-polygons splited into %d polygons in "
+                    "the '%s' layer"), mp, np, rustic_zoning.name().encode('utf-8'))
+            del zoning_gml
+            urban_zoning.set_labels('%05d')
+            rustic_zoning.set_labels('%03d')
+        
+        if self.options.building or self.options.tasks:
+            building = layer.ConsLayer()
+            building.append(building_gml)
+            part_gml = self.read_gml_layer("buildingpart")
+            building.append(part_gml)
+            del part_gml
+            other_gml = self.read_gml_layer("otherconstruction")
+            building.append(other_gml)
+            del other_gml
+            (mp, np) = building.explode_multi_parts()
+            if mp:
+                log.info(_("%d multi-polygons splited into %d polygons in "
+                        "the '%s' layer"), mp, np, building.name().encode('utf-8'))
+            tc = building.remove_parts_below_ground()
+            if tc:
+                log.info(_("Deleted %d building parts with no floors above ground"), tc)
+
+            if self.options.tasks:
+                log.info (_("Assigning task number to each construction"))
+                nt = building.featureCount() - \
+                    building.set_tasks(urban_zoning, rustic_zoning)
+                if nt:
+                    log.warning(_("%d features unassigned to a task in "
+                        "the '%s' layer"), nt, building.name().decode('utf-8'))
+                else:
+                    log.info(_("All features assigned to tasks in "
+                        "the '%s' layer"), building.name().decode('utf-8'))
+            if log.getEffectiveLevel() == logging.DEBUG:
+                self.export_layer(building, 'building.shp')
+            self.clean_layer(building, add_topological_points=True)
+            pm = building.merge_building_parts()
+            if pm:
+                log.info(_("Merged %d building parts to footprint"), pm)
+            building.reproject()
+            if log.getEffectiveLevel() == logging.DEBUG:
+                self.export_layer(building, 'building.geojson', 'GeoJSON')
         del building_gml
-
-        part_gml = self.read_gml_layer("buildingpart")
-        building.append(part_gml)
-        del part_gml
-        
-        other_gml = self.read_gml_layer("otherconstruction")
-        building.append(other_gml)
-        del other_gml
-
-        (mp, np) = building.explode_multi_parts()
-        if mp:
-            log.info(_("%d multi-polygons splited into %d polygons in "
-                    "the '%s' layer"), mp, np, building.name().encode('utf-8'))
-
-        tc = building.remove_parts_below_ground()
-        if tc:
-            log.info(_("Deleted %d building parts with no floors above ground"), tc)
-        
-        zoning_gml = self.read_gml_layer("cadastralzoning", cat_crs)
-        (urban_zoning, rustic_zoning) = layer.ZoningLayer.clasify_zoning(zoning_gml)
-        log.info(_("Loaded %d features in the '%s' layer"), 
-            urban_zoning.featureCount(), urban_zoning.name().encode('utf-8'))
-        log.info(_("Loaded %d features in the '%s' layer"), 
-            rustic_zoning.featureCount(), rustic_zoning.name().encode('utf-8'))
-        (mp, np) = urban_zoning.explode_multi_parts()
-        if mp:
-            log.info(_("%d multi-polygons splited into %d polygons in "
-                "the '%s' layer"), mp, np, urban_zoning.name().encode('utf-8'))
-        (ap, mp) = urban_zoning.merge_adjacents()
-        if ap:
-            log.info(_("%d adjacent polygons merged into %d polygons in "
-                "the '%s' layer"), ap, mp, urban_zoning.name().encode('utf-8'))
-        (mp, np) = rustic_zoning.explode_multi_parts()
-        if mp:
-            log.info(_("%d multi-polygons splited into %d polygons in "
-                "the '%s' layer"), mp, np, rustic_zoning.name().encode('utf-8'))
-        del zoning_gml
-        
-        urban_zoning.set_labels('%05d')
-        rustic_zoning.set_labels('%03d')
-        log.info (_("Assigning task number to each construction"))
-        nt = building.featureCount() - \
-            building.set_tasks(urban_zoning, rustic_zoning)
-        if nt:
-            log.warning(_("%d features unassigned to a task in "
-                "the '%s' layer"), nt, building.name().decode('utf-8'))
-        else:
-            log.info(_("All features assigned to tasks in "
-                "the '%s' layer"), building.name().decode('utf-8'))
-
-        if log.getEffectiveLevel() == logging.DEBUG:
-            self.export_layer(building, 'building.shp')
-
-        dupes = building.merge_duplicates()
-        if dupes:
-            log.info(_("Merged %d close vertexs in the '%s' layer"), dupes, 
-                building.name().encode('utf-8'))
-
-        (dv, bg) = building.clean_duplicated_nodes_in_polygons()
-        if dv:
-            log.info(_("Merged %d duplicated vertexs of polygons in "
-                "the '%s' layer"), dv, building.name().encode('utf-8'))
-        if bg:
-            log.info(_("Deleted %d invalid geometries in the '%s' layer"),
-                bg, building.name().encode('utf-8'))
-
-        tp = building.add_topological_points()
-        if tp:
-            log.info (_("Created %d topological points in the '%s' layer"), 
-                tp, building.name().encode('utf-8'))
-        
-        killed = building.simplify()
-        if killed:
-            log.info(_("Simplified %d vertexs in the '%s' layer"), killed, 
-                building.name().encode('utf-8'))
-
-        pm = building.merge_building_parts()
-        if pm:
-            log.info(_("Merged %d building parts to footprint"), pm)
-
-        building.reproject()
-        if log.getEffectiveLevel() == logging.DEBUG:
-            self.export_layer(building, 'building.geojson', 'GeoJSON')
 
         if self.options.building: 
             building_osm = self.osm_from_layer(building, translate.building_tags)
             self.write_osm(building_osm, "building.osm")
             del building_osm
-        else:
+        elif self.options.tasks:
             self.split_building_in_tasks(building, urban_zoning, rustic_zoning)
 
-        dupes = urban_zoning.merge_duplicates()
-        if dupes:
-            log.info(_("Merged %d close vertexs in the '%s' layer"), dupes, 
-                    urban_zoning.name().encode('utf-8'))
-        killed = urban_zoning.simplify()
-        if killed:
-            log.info(_("Simplified %d vertexs in the '%s' layer"), killed, 
-                    urban_zoning.name().encode('utf-8'))
-        urban_zoning.reproject()
-        dupes = rustic_zoning.merge_duplicates()
-        if dupes:
-            log.info(_("Merged %d close vertexs in the '%s' layer"), dupes, 
-                    rustic_zoning.name().encode('utf-8'))
-        killed = rustic_zoning.simplify()
-        if killed:
-            log.info(_("Simplified %d vertexs in the '%s' layer"), killed, 
-                    rustic_zoning.name().encode('utf-8'))
-        rustic_zoning.reproject()
-        self.export_layer(urban_zoning, 'urban_zoning.geojson', 'GeoJSON')
-        self.export_layer(rustic_zoning, 'rustic_zoning.geojson', 'GeoJSON')
-        if log.getEffectiveLevel() == logging.DEBUG:
-            self.export_layer(urban_zoning, 'urban_zoning.shp')
-            self.export_layer(urban_zoning, 'rustic_zoning.shp')
+        if self.options.zoning:
+            self.clean_layer(urban_zoning)
+            self.clean_layer(rustic_zoning)
+            urban_zoning.reproject()
+            rustic_zoning.reproject()
+            self.export_layer(urban_zoning, 'urban_zoning.geojson', 'GeoJSON')
+            self.export_layer(rustic_zoning, 'rustic_zoning.geojson', 'GeoJSON')
+            if log.getEffectiveLevel() == logging.DEBUG:
+                self.export_layer(urban_zoning, 'urban_zoning.shp')
+                self.export_layer(urban_zoning, 'rustic_zoning.shp')
 
         if self.options.parcel:
             parcel = layer.ParcelLayer()
@@ -381,3 +342,31 @@ class CatAtom2Osm:
                 zoning.writer.deleteFeatures(to_clean)
                 zoning.commitChanges()
 
+    def clean_layer(self, layer, add_topological_points=False):
+        """Merge duplicated vertices and simplify layer
+        
+        Args:
+            layer(PolygonLayer): Layer to simplify
+            add_topological_points(bool): True (default) to add topological points
+        """
+        dupes = layer.merge_duplicates()
+        if dupes:
+            log.info(_("Merged %d close vertices in the '%s' layer"), dupes, 
+                layer.name().encode('utf-8'))
+        (dv, bg) = layer.clean_duplicated_nodes_in_polygons()
+        if dv:
+            log.info(_("Merged %d duplicated vertices of polygons in "
+                "the '%s' layer"), dv, layer.name().encode('utf-8'))
+        if bg:
+            log.info(_("Deleted %d invalid geometries in the '%s' layer"),
+                bg, layer.name().encode('utf-8'))
+        if add_topological_points:
+            tp = layer.add_topological_points()
+            if tp:
+                log.info (_("Created %d topological points in the '%s' layer"), 
+                    tp, layer.name().encode('utf-8'))
+        killed = layer.simplify()
+        if killed:
+            log.info(_("Simplified %d vertices in the '%s' layer"), killed, 
+                layer.name().encode('utf-8'))
+    
