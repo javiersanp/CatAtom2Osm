@@ -179,7 +179,8 @@ class CatAtom2Osm:
         """Given the url of a Cadastre ATOM service, tries to download the ZIP
         file for self.zip_code"""
         s = re.search('INSPIRE/(\w+)/', url)
-        log.info(_("Searching the url for the '%s' layer of '%s'..."), s.group(1), self.zip_code)
+        log.info(_("Searching the url for the '%s' layer of '%s'..."), 
+            s.group(1), self.zip_code)
         response = download.get_response(url)
         s = re.search('http.+/%s.+zip' % self.zip_code, response.text)
         if not s:
