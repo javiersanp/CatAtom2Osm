@@ -4,7 +4,7 @@
 # See http://lxml.de/tutorial.html for the source of the includes
 import setup
 import logging
-log = logging.getLogger(setup.app_name + ".osmxml")
+log = logging.getLogger(setup.app_name + "." + __name__)
 
 try:
     from lxml import etree

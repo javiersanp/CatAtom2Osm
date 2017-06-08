@@ -18,7 +18,7 @@ import osmxml
 import osm
 import download
 
-log = logging.getLogger(setup.app_name + ".catatom2osm")
+log = logging.getLogger(setup.app_name + "." + __name__)
 if setup.silence_gdal:
     gdal.PushErrorHandler('CPLQuietErrorHandler')
 

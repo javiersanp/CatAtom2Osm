@@ -10,7 +10,7 @@ from PyQt4.QtCore import QVariant
 
 import setup
 import logging
-log = logging.getLogger(setup.app_name + ".layer")
+log = logging.getLogger(setup.app_name + "." + __name__)
 
 
 class Point(QgsPoint):
