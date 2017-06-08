@@ -30,19 +30,24 @@ if __name__ == "__main__":
     parser = OptionParser(usage=usage.decode('utf-8'))
     parser.add_option("", "--log", dest="log_level", metavar="log_level",
         default=setup.log_level, help=_("Select the log level between " \
-        "DEBUG, INFO, WARNING, ERROR or CRITICAL."))
+        "DEBUG, INFO, WARNING, ERROR or CRITICAL.").decode('utf-8'))
     parser.add_option("-t", "--tasks", dest="tasks", default=False,
-        action="store_true", help=_("Splits constructions into tasks files (default, implies -z)"))
+        action="store_true", help=_("Splits constructions into tasks files " \
+        "(default, implies -z)").decode('utf-8'))
     parser.add_option("-z", "--zoning", dest="zoning", default=False,
-        action="store_true", help=_("Process the cadastral zoning dataset"))
+        action="store_true", help=_("Process the cadastral zoning dataset") \
+        .decode('utf-8'))
     parser.add_option("-b", "--building", dest="building", default=False,
-        action="store_true", help=_("Process constructions to a single file instead of tasks"))
+        action="store_true", help=_("Process constructions to a single file " \
+        "instead of tasks").decode('utf-8'))
     parser.add_option("-d", "--address", dest="address", default=False,
-        action="store_true", help=_("Process the address dataset"))
+        action="store_true", help=_("Process the address dataset").decode('utf-8'))
     parser.add_option("-p", "--parcel", dest="parcel", default=False,
-        action="store_true", help=_("Process the cadastral parcel dataset"))
+        action="store_true", help=_("Process the cadastral parcel dataset") \
+        .decode('utf-8'))
     parser.add_option("-a", "--all", dest="all", default=False,
-        action="store_true", help=_("Process all datasets (equivalent to -bdptz)"))
+        action="store_true", help=_("Process all datasets (equivalent " \
+        "to -bdptz)").decode('utf-8'))
     (options, args) = parser.parse_args()
     if options.all:
         options.building = True
