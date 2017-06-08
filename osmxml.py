@@ -8,22 +8,21 @@ log = logging.getLogger(setup.app_name + "." + __name__)
 
 try:
     from lxml import etree
-    log.debug("Running with lxml.etree")
+    log.debug(_("Running with lxml.etree"))
 except ImportError:
     try:
         import xml.etree.ElementTree as etree
-        log.debug("Running with ElementTree on Python 2.5+")
+        log.debug(_("Running with ElementTree on Python 2.5+"))
     except ImportError:
         try:
             import cElementTree as etree
-            log.debug("Running with cElementTree")
+            log.debug(_("Running with cElementTree"))
         except ImportError:
             try:
                 import elementtree.ElementTree as etree
-                log.debug("Running with ElementTree")
+                log.debug(_("Running with ElementTree"))
             except ImportError:
-                log.error("Failed to import ElementTree from any known place")
-                raise
+                raise ImportError(_("Failed to import ElementTree from any known place"))
 
 def serialize(data):
     """Output XML for an OSM data set"""

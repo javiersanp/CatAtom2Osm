@@ -7,8 +7,10 @@ import math
 import re
 import codecs
 import logging
+import zipfile
 
-from qgis.core import (QGis, QgsApplication, QgsVectorLayer)
+from qgis.core import (QGis, QgsApplication, QgsVectorLayer, 
+    QgsCoordinateReferenceSystem)
 from osgeo import gdal
 
 import setup
@@ -21,6 +23,24 @@ import download
 log = logging.getLogger(setup.app_name + "." + __name__)
 if setup.silence_gdal:
     gdal.PushErrorHandler('CPLQuietErrorHandler')
+
+try:
+    from lxml import etree
+    log.debug(_("Running with lxml.etree"))
+except ImportError:
+    try:
+        import xml.etree.ElementTree as etree
+        log.debug(_("Running with ElementTree on Python 2.5+"))
+    except ImportError:
+        try:
+            import cElementTree as etree
+            log.debug(_("Running with cElementTree"))
+        except ImportError:
+            try:
+                import elementtree.ElementTree as etree
+                log.debug(_("Running with ElementTree"))
+            except ImportError:
+                raise ImportError(_("Failed to import ElementTree from any known place"))
 
 
 class CatAtom2Osm:
@@ -170,6 +190,21 @@ class CatAtom2Osm:
         log.info(_("Downloading '%s'"), out_path)
         download.wget(url, out_path)
 
+    def get_crs_from_gml(self, zip_path, gml_path):
+        print gml_path
+        if os.path.exists(gml_path):
+            text = open(gml_path, 'r').read()
+            print "gml"
+        else:
+            zip = zipfile.ZipFile(zip_path)
+            text = zip.read(os.path.basename(gml_path))
+            print "zip"
+        root = etree.fromstring(text)
+        is_empty = len(root) == 0 or len(root[0]) == 0
+        crs_ref = int(root.find('.//*[@srsName]').get('srsName').split(':')[-1])
+        crs = QgsCoordinateReferenceSystem(crs_ref)
+        return (is_empty, crs)
+        
     def read_gml_layer(self, layername, crs=None):
         """
         Create a qgis vector layer for a Cadastre layername. Derives the GML 
@@ -207,6 +242,9 @@ class CatAtom2Osm:
         zip_path = os.path.join(self.path, zip_fn)
         if not os.path.exists(gml_path) and not os.path.exists(zip_path):
             self.get_atom_file(url)
+        crs = self.get_crs_from_gml(zip_path, gml_path)
+        print crs
+        raise IOError()
         gml_layer = QgsVectorLayer(gml_path, layername, "ogr")
         if not gml_layer.isValid():
             gml_path = "/".join(('/vsizip', self.path, zip_fn, gml_fn))
