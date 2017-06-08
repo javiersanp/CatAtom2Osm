@@ -245,9 +245,6 @@ class PolygonLayer(BaseLayer):
         feature in the layer. This avoid relations with may 'outer' members in
         OSM data set. From this moment, localId will not be a unique identifier
         for buildings.
-
-        Returns:
-            (int) count of multi-polygons, (int) count of parts
         """
         self.startEditing()
         to_clean = []
@@ -263,7 +260,10 @@ class PolygonLayer(BaseLayer):
         self.writer.deleteFeatures(to_clean)
         self.writer.addFeatures(to_add)
         self.commitChanges()
-        return (len(to_clean), len(to_add))
+        if len(to_clean):
+            log.info(_("%d multi-polygons splited into %d polygons in "
+                "the '%s' layer"), len(to_clean), len(to_add), 
+                self.name().encode('utf-8'))
 
     def get_parents_per_vertex_and_features(self):
         """
@@ -351,9 +351,6 @@ class PolygonLayer(BaseLayer):
         """
         Reduces the number of distinct vertices in a polygon layer moving to the
         same position vertices nearest than 'dup_thr' meters.
-
-        Returns:
-            (int) count of duplicated vertices
         """
         dup_thr = self.dup_thr
         if log.getEffectiveLevel() <= logging.DEBUG:
@@ -380,15 +377,14 @@ class PolygonLayer(BaseLayer):
                 if dup in duplist:
                     duplist.remove(dup)
         self.commitChanges()
-        return dupes
+        if dupes:
+            log.info(_("Merged %d close vertices in the '%s' layer"), dupes, 
+                self.name().encode('utf-8'))
 
     def clean_duplicated_nodes_in_polygons(self):
         """
         Cleans consecutives nodes with the same coordinates in any ring of a 
         polygon.
-
-        Returns:
-            (int) count of duplicated vertices, (int) count of invalid geometries
         """
         dupes = 0
         to_clean = []
@@ -416,15 +412,15 @@ class PolygonLayer(BaseLayer):
         if to_clean:
             self.writer.deleteFeatures(to_clean)
         self.commitChanges()
-        return dupes, len(to_clean)
+        if dupes:
+            log.info(_("Merged %d duplicated vertices of polygons in "
+                "the '%s' layer"), dupes, self.name().encode('utf-8'))
+        if len(to_clean):
+            log.info(_("Deleted %d invalid geometries in the '%s' layer"),
+                len(to_clean), self.name().encode('utf-8'))
 
     def add_topological_points(self):
-        """
-        For each vertex in a polygon layer, adds it to nearest segments.
-
-        Returns:
-            (int) count of topological points added
-        """
+        """For each vertex in a polygon layer, adds it to nearest segments."""
         threshold = self.dist_thr # Distance threshold to create nodes
         angle_thr = self.angle_thr
         tp = 0
@@ -461,10 +457,11 @@ class PolygonLayer(BaseLayer):
                             if log.getEffectiveLevel() <= logging.DEBUG:
                                 debshp.add_point(point, note)
         self.commitChanges()
-
         if log.getEffectiveLevel() <= logging.DEBUG:
             del debshp
-        return tp
+        if tp:
+            log.info (_("Created %d topological points in the '%s' layer"), 
+                tp, self.name().encode('utf-8'))
 
 
     def simplify(self):
@@ -476,9 +473,6 @@ class PolygonLayer(BaseLayer):
 
         * Delete vertex if the angle with its parent is near of the straight 
           angle for less than 'angle_thr' degrees.
-
-        Returns:
-            (int) count of simplified vertices
         """
         cath_thr = self.cath_thr
         angle_thr = self.angle_thr
@@ -519,15 +513,12 @@ class PolygonLayer(BaseLayer):
                 msg = str(["%s angle=%.1f, cath=%.4f" % v for v in deb_values])
                 debshp.add_point(point, "Keep. %s" % msg)
         self.commitChanges()
-        return killed
+        if killed:
+            log.info(_("Simplified %d vertices in the '%s' layer"), killed, 
+                self.name().encode('utf-8'))
 
     def merge_adjacents(self):
-        """
-        Merge polygons with shared vertices
-
-        Returns:
-            (int) count of adjacent polygons, (int) count of merged polygons
-        """
+        """Merge polygons with shared segments"""
         (groups, features) = self.get_adjacents_and_features()
         self.startEditing()
         cleaned = added = 0
@@ -541,7 +532,15 @@ class PolygonLayer(BaseLayer):
             added += 1
             cleaned += len(group)
         self.commitChanges()
-        return (cleaned, added)
+        if cleaned:
+            log.info(_("%d adjacent polygons merged into %d polygons in the '%s'"
+                " layer"), cleaned, added, self.name().encode('utf-8'))
+
+    def clean(self):
+        """Merge duplicated vertices and simplify layer"""
+        self.merge_duplicates()
+        self.clean_duplicated_nodes_in_polygons()
+        self.simplify()
 
 
 class ParcelLayer(BaseLayer):
@@ -604,6 +603,10 @@ class ZoningLayer(PolygonLayer):
         rustic_query = lambda feat: feat['levelName'][3] == 'P' # "(1:POLIGONO )"
         urban_zoning.append(zoning, query=urban_query)
         rustic_zoning.append(zoning, query=rustic_query)
+        log.info(_("Loaded %d features in the '%s' layer"), 
+            urban_zoning.featureCount(), urban_zoning.name().encode('utf-8'))
+        log.info(_("Loaded %d features in the '%s' layer"), 
+            rustic_zoning.featureCount(), rustic_zoning.name().encode('utf-8'))
         return urban_zoning, rustic_zoning
 
 
@@ -677,8 +680,9 @@ class ConsLayer(PolygonLayer):
         to_clean = [f.id() for f in self.search('lev_above=0')]
         if to_clean:
             self.writer.deleteFeatures(to_clean)
+            log.info(_("Deleted %d building parts with no floors above ground"), 
+                len(to_clean))
         self.commitChanges()
-        return len(to_clean)
         
     def merge_greatest_part(self, footprint, parts):
         """
@@ -756,7 +760,19 @@ class ConsLayer(PolygonLayer):
                     parts_merged += \
                         self.merge_greatest_part(building, parts_for_building)
         self.commitChanges()
-        return parts_merged
+        if parts_merged:
+            log.info(_("Merged %d building parts to footprint"), parts_merged)
+
+    def clean(self):
+        """
+        Merge duplicated vertices, add topological points, simplify layer
+        and merge building parts.
+        """
+        self.merge_duplicates()
+        self.clean_duplicated_nodes_in_polygons()
+        self.add_topological_points()
+        self.simplify()
+        self.merge_building_parts()
 
     def set_tasks(self, urban_zoning, rustic_zoning):
         """Assings to the 'task' field the label of the zone that each feature 
@@ -765,6 +781,7 @@ class ConsLayer(PolygonLayer):
         previously labeled receives a rustic zone label. Building task label
         is propagated to its parts.
         """
+        log.info (_("Assigning task number to each construction"))
         (features, buildings, parts) = self.index_of_building_and_parts()
         index = QgsSpatialIndex(self.getFeatures())
         self.startEditing()
@@ -795,7 +812,13 @@ class ConsLayer(PolygonLayer):
                     self.changeAttributeValue(fid, tf, prefix + task['label'])
                     updated.add(fid)
         self.commitChanges()
-        return len(updated)
+        nt = self.featureCount() - len(updated)
+        if nt:
+            log.warning(_("%d features unassigned to a task in the '%s' layer"),
+                nt, self.name().decode('utf-8'))
+        else:
+            log.info(_("All features assigned to tasks in the '%s' layer"), 
+                self.name().decode('utf-8'))
 
 
 class DebugWriter(QgsVectorFileWriter):
