@@ -189,16 +189,14 @@ class CatAtom2Osm:
         """
         if layername in ['building', 'buildingpart', 'otherconstruction']:
             group = 'BU'
-            url = setup.url_bu % (self.prov_code, self.prov_code)
         elif layername in ['cadastralparcel', 'cadastralzoning']:
             group = 'CP'
-            url = setup.url_cp % (self.prov_code, self.prov_code)
         elif layername in ['address', 'thoroughfarename', 'postaldescriptor', 
                 'adminunitname']:
             group = 'AD' 
-            url = setup.url_ad % (self.prov_code, self.prov_code)
         else:
             return None
+        url = setup.url[group] % (self.prov_code, self.prov_code)
         if group == 'AD':    
             gml_fn = ".".join((setup.fn_prefix, group, self.zip_code, 
                 "gml|layername=%s" % layername))

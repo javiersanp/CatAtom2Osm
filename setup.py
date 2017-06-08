@@ -20,9 +20,12 @@ dup_thr = 0.01 # Distance in meters to merge nearest vertexs.
 dist_thr = 0.05 # Threshold in meters for vertex simplification and topological points.
 angle_thr = 2 # Threshold in degrees from straight angle to delete a vertex
 
-url_bu = "http://www.catastro.minhap.es/INSPIRE/buildings/%s/ES.SDGC.bu.atom_%s.xml"
-url_ad = "http://www.catastro.minhap.es/INSPIRE/addresses/%s/ES.SDGC.ad.atom_%s.xml"
-url_cp = "http://www.catastro.minhap.es/INSPIRE/CadastralParcels/%s/ES.SDGC.CP.atom_%s.xml"
+
+url = {
+    "BU": "http://www.catastro.minhap.es/INSPIRE/buildings/%s/ES.SDGC.bu.atom_%s.xml",
+    "AD": "http://www.catastro.minhap.es/INSPIRE/addresses/%s/ES.SDGC.ad.atom_%s.xml",
+    "CP": "http://www.catastro.minhap.es/INSPIRE/CadastralParcels/%s/ES.SDGC.CP.atom_%s.xml"
+}
 
 valid_provinces = ["%02d" % i for i in range(2,57)]
 
