@@ -21,7 +21,8 @@ class Point(QgsPoint):
         return QgsRectangle(self.x() - radius, self.y() - radius,
                         self.x() + radius, self.y() + radius)
 
-    def is_corner_with_context(self, geom, angle_thr=setup.angle_thr, cath_thr=setup.dist_thr): 
+    def is_corner_with_context(self, geom, angle_thr=setup.angle_thr,
+            cath_thr=setup.dist_thr): 
         """
         Test if the nearest vertex in a geometry is a 'corner': if the angle between
         the vertex and their adjacents difers by more than angle_thr of 180 and if 

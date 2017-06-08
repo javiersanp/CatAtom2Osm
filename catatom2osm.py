@@ -89,10 +89,8 @@ class CatAtom2Osm:
 
     def run(self):
         """Launches the app"""
-        building_gml = self.read_gml_layer("building")
-        cat_crs = building_gml.crs()
         if self.options.zoning:        
-            zoning_gml = self.read_gml_layer("cadastralzoning", cat_crs)
+            zoning_gml = self.read_gml_layer("cadastralzoning")
             (urban_zoning, rustic_zoning) = layer.ZoningLayer.clasify_zoning(zoning_gml)
             urban_zoning.explode_multi_parts()
             rustic_zoning.explode_multi_parts()
@@ -102,14 +100,19 @@ class CatAtom2Osm:
             rustic_zoning.set_labels('%03d')
         
         if self.options.building or self.options.tasks:
+            building_gml = self.read_gml_layer("building")
             building = layer.ConsLayer()
             building.append(building_gml)
+            del building_gml
             part_gml = self.read_gml_layer("buildingpart")
             building.append(part_gml)
             del part_gml
-            other_gml = self.read_gml_layer("otherconstruction")
-            building.append(other_gml)
-            del other_gml
+            other_gml = self.read_gml_layer("otherconstruction", True)
+            if other_gml:
+                building.append(other_gml)
+                del other_gml
+            else:
+                log.info(_("The layer '%s' is empty"), u'otherconstruction')
             building.explode_multi_parts()
             building.remove_parts_below_ground()
             if self.options.tasks:
@@ -120,7 +123,6 @@ class CatAtom2Osm:
             building.reproject()
             if log.getEffectiveLevel() == logging.DEBUG:
                 self.export_layer(building, 'building.geojson', 'GeoJSON')
-        del building_gml
 
         if self.options.building: 
             building_osm = self.osm_from_layer(building, translate.building_tags)
@@ -142,7 +144,7 @@ class CatAtom2Osm:
 
         if self.options.parcel:
             parcel = layer.ParcelLayer()
-            parcel_gml = self.read_gml_layer("cadastralparcel", cat_crs)
+            parcel_gml = self.read_gml_layer("cadastralparcel")
             parcel.append(parcel_gml)
             del parcel_gml
             parcel.reproject()
@@ -176,8 +178,10 @@ class CatAtom2Osm:
             self.qgs.exitQgis()
         
     def get_atom_file(self, url):
-        """Given the url of a Cadastre ATOM service, tries to download the ZIP
-        file for self.zip_code"""
+        """
+        Given the url of a Cadastre ATOM service, tries to download the ZIP
+        file for self.zip_code
+        """
         s = re.search('INSPIRE/(\w+)/', url)
         log.info(_("Searching the url for the '%s' layer of '%s'..."), 
             s.group(1), self.zip_code)
@@ -191,22 +195,33 @@ class CatAtom2Osm:
         log.info(_("Downloading '%s'"), out_path)
         download.wget(url, out_path)
 
-    def get_crs_from_gml(self, zip_path, gml_path):
-        print gml_path
+    def get_crs_from_gml(self, gml_path, zip_path=""):
+        """
+        Determines the CRS of a GML file. This is necessary because QGIS don't
+            detect correctly the CRS of the parcel and zoning layers.
+                    
+        Args:
+            gml_path (str): path to the file
+            zip_path (str): optionally zip file that contains the gml
+
+        Returns:
+            is_empty (bool): True if the GML file contains no feature
+            crs (QgsCoordinateReferenceSystem): CRS of the file
+        """
         if os.path.exists(gml_path):
             text = open(gml_path, 'r').read()
-            print "gml"
         else:
             zip = zipfile.ZipFile(zip_path)
             text = zip.read(os.path.basename(gml_path))
-            print "zip"
         root = etree.fromstring(text)
         is_empty = len(root) == 0 or len(root[0]) == 0
-        crs_ref = int(root.find('.//*[@srsName]').get('srsName').split(':')[-1])
+        crs_ref = None
+        if not is_empty:
+            crs_ref = int(root.find('.//*[@srsName]').get('srsName').split(':')[-1])
         crs = QgsCoordinateReferenceSystem(crs_ref)
         return (is_empty, crs)
         
-    def read_gml_layer(self, layername, crs=None):
+    def read_gml_layer(self, layername, allow_empty=False):
         """
         Create a qgis vector layer for a Cadastre layername. Derives the GML 
         filename from layername. If it don't exists, try with the ZIP file, if
@@ -217,9 +232,8 @@ class CatAtom2Osm:
                 'building', 'buildingpart', 'otherconstruction', 
                 'cadastralparcel', 'cadastralzoning', 'address', 
                 'thoroughfarename', 'postaldescriptor', 'adminunitname'
-            crs (QgsCoordinateReferenceSystem): Source Crs. It's necessary 
-                because parcel and zoning layers don't have it defined.
-
+            allow_empty (bool): If False (default), raise a exception for empty
+                layer, else returns None
         Returns:
             QgsVectorLayer: Vector layer.
         """
@@ -231,7 +245,7 @@ class CatAtom2Osm:
                 'adminunitname']:
             group = 'AD' 
         else:
-            return None
+            raise ValueError(_("Unknow layer name '%s'") % layername)
         url = setup.url[group] % (self.prov_code, self.prov_code)
         if group == 'AD':    
             gml_fn = ".".join((setup.fn_prefix, group, self.zip_code, 
@@ -243,21 +257,25 @@ class CatAtom2Osm:
         zip_path = os.path.join(self.path, zip_fn)
         if not os.path.exists(gml_path) and not os.path.exists(zip_path):
             self.get_atom_file(url)
-        crs = self.get_crs_from_gml(zip_path, gml_path)
-        print crs
-        raise IOError()
-        gml_layer = QgsVectorLayer(gml_path, layername, "ogr")
-        if not gml_layer.isValid():
+        (is_empty, crs) = self.get_crs_from_gml(gml_path, zip_path)
+        if is_empty:
+            if not allow_empty:
+                raise IOError(_("The layer '%s' is empty") % gml_path)
+            else:
+                return None
+        if not crs.isValid():
+            raise IOError(_("Could not determine the CRS of '%s'") % gml_path)
+        layer = QgsVectorLayer(gml_path, layername, "ogr")
+        if not layer.isValid():
             gml_path = "/".join(('/vsizip', self.path, zip_fn, gml_fn))
-            gml_layer = QgsVectorLayer(gml_path, layername, "ogr")
-            if not gml_layer.isValid():
-                if not gml_layer.isValid():
-                    raise IOError(_("Failed to load layer: '%s'") % gml_path)
-        if crs:
-            gml_layer.setCrs(crs)
-        log.info(_("Loaded %d features in the '%s' layer"), gml_layer.featureCount(), 
-            gml_layer.name().encode('utf-8'))
-        return gml_layer
+            layer = QgsVectorLayer(gml_path, layername, "ogr")
+            if not layer.isValid():
+                if not layer.isValid():
+                    raise IOError(_("Failed to load layer '%s'") % gml_path)
+        layer.setCrs(crs)
+        log.info(_("Loaded %d features in the '%s' layer"), layer.featureCount(), 
+            layer.name().encode('utf-8'))
+        return layer
     
     def export_layer(self, layer, filename, driver_name='ESRI Shapefile'):
         """

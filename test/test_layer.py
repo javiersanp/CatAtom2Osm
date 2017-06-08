@@ -1,6 +1,8 @@
 import unittest
 import mock
 import random
+import logging
+logging.disable(logging.WARNING)
 
 import gdal
 from qgis.core import *
