@@ -34,8 +34,6 @@ def serialize(data):
         nodexml = etree.Element('node', attrs)
         for key, value in node.tags.items():
             nodexml.append(etree.Element('tag', dict(k=key, v=value)))
-        for key, value in node.tags.items():
-            nodexml.append(etree.Element('tag', dict(k=key, v=value)))
         root.append(nodexml)
     for way in data.ways:
         attrs = dict(id=str(way.id), action=way.action, visible=way.visible)
