@@ -156,21 +156,26 @@ class CatAtom2Osm:
 
         if self.options.address:
             address_gml = self.read_gml_layer("address")
-            address = layer.AddressLayer()
-            address.append(address_gml)
-            thoroughfarename = self.read_gml_layer("thoroughfarename")
-            adminunitname = self.read_gml_layer("adminunitname")
-            postaldescriptor = self.read_gml_layer("postaldescriptor")
-            address.join_field(thoroughfarename, 'TN_id', 'gml_id', ['text'], 'TN_')
-            address.join_field(adminunitname, 'AU_id', 'gml_id', ['text'], 'AU_')
-            address.join_field(postaldescriptor, 'PD_id', 'gml_id', ['postCode'])
-            del thoroughfarename, adminunitname, postaldescriptor
-            address.reproject()
-            address_osm = self.osm_from_layer(address, translate.address_tags)
-            self.write_osm(address_osm, "address.osm")
-            if log.getEffectiveLevel() == logging.DEBUG:
-                self.export_layer(address, 'address.geojson', 'GeoJSON')
-                self.export_layer(address, 'address.shp')
+            if address_gml.fieldNameIndex('component_href') == -1:
+                log.error(_("Could not resolve joined tables for the '%s' "
+                    "layer, please try again with the zip file"), 
+                    address_gml.name().encode('utf-8'))
+            else:
+                address = layer.AddressLayer()
+                address.append(address_gml)
+                thoroughfarename = self.read_gml_layer("thoroughfarename")
+                adminunitname = self.read_gml_layer("adminunitname")
+                postaldescriptor = self.read_gml_layer("postaldescriptor")
+                address.join_field(thoroughfarename, 'TN_id', 'gml_id', ['text'], 'TN_')
+                address.join_field(adminunitname, 'AU_id', 'gml_id', ['text'], 'AU_')
+                address.join_field(postaldescriptor, 'PD_id', 'gml_id', ['postCode'])
+                del thoroughfarename, adminunitname, postaldescriptor
+                address.reproject()
+                address_osm = self.osm_from_layer(address, translate.address_tags)
+                self.write_osm(address_osm, "address.osm")
+                if log.getEffectiveLevel() == logging.DEBUG:
+                    self.export_layer(address, 'address.geojson', 'GeoJSON')
+                    self.export_layer(address, 'address.shp')
 
     def exit(self):
         log.info(_("Finished!"))
@@ -256,6 +261,7 @@ class CatAtom2Osm:
         zip_fn = ".".join((setup.fn_prefix, group, self.zip_code, "zip"))
         gml_path = os.path.join(self.path, gml_fn)
         zip_path = os.path.join(self.path, zip_fn)
+        vsizip_path = "/".join(('/vsizip', self.path, zip_fn, gml_fn))
         if not os.path.exists(gml_path) and not os.path.exists(zip_path):
             self.get_atom_file(url)
         (is_empty, crs) = self.get_crs_from_gml(gml_path, zip_path)
@@ -266,13 +272,11 @@ class CatAtom2Osm:
                 return None
         if not crs.isValid():
             raise IOError(_("Could not determine the CRS of '%s'") % gml_path)
-        layer = QgsVectorLayer(gml_path, layername, "ogr")
+        layer = QgsVectorLayer(vsizip_path, layername, "ogr")
         if not layer.isValid():
-            gml_path = "/".join(('/vsizip', self.path, zip_fn, gml_fn))
             layer = QgsVectorLayer(gml_path, layername, "ogr")
             if not layer.isValid():
-                if not layer.isValid():
-                    raise IOError(_("Failed to load layer '%s'") % gml_path)
+                raise IOError(_("Failed to load layer '%s'") % gml_path)
         layer.setCrs(crs)
         log.info(_("Loaded %d features in the '%s' layer"), layer.featureCount(), 
             layer.name().encode('utf-8'))
