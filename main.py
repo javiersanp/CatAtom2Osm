@@ -4,7 +4,7 @@ from optparse import OptionParser
 import logging
 import gettext
 import sys
-
+from zipfile import BadZipfile
 import setup
 from catatom2osm import CatAtom2Osm
 
@@ -73,5 +73,5 @@ if __name__ == "__main__":
             app = CatAtom2Osm(args[0], options)
             app.run()
             app.exit()
-        except (IOError, OSError, ValueError) as e:
+        except (IOError, OSError, ValueError, BadZipfile) as e:
             log.error(e)
