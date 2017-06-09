@@ -208,6 +208,7 @@ class CatAtom2Osm:
             is_empty (bool): True if the GML file contains no feature
             crs (QgsCoordinateReferenceSystem): CRS of the file
         """
+        gml_path = gml_path.split('|')[0]
         if os.path.exists(gml_path):
             text = open(gml_path, 'r').read()
         else:
