@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-06-09 10:26+WEST\n"
+"POT-Creation-Date: 2017-06-12 11:42+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -54,7 +54,7 @@ msgstr "No es un directorio: '%s'"
 msgid "Initialized qGis API"
 msgstr "Inicializada la API de qGis"
 
-#: catatom2osm.py:115 catatom2osm.py:268
+#: catatom2osm.py:115 catatom2osm.py:270
 msgid "The layer '%s' is empty"
 msgstr "La capa '%s' está vacía"
 
@@ -66,27 +66,27 @@ msgstr ""
 "No se pudieron resolver las tablas combinadas para la capa '%s', inténtalo "
 "de nuevo con el archivo zip"
 
-#: catatom2osm.py:180
+#: catatom2osm.py:181
 msgid "Finished!"
 msgstr "¡Terminado!"
 
-#: catatom2osm.py:190
+#: catatom2osm.py:191
 msgid "Searching the url for the '%s' layer of '%s'..."
 msgstr "Buscando la url para la capa '%s' de '%s'..."
 
-#: catatom2osm.py:195
+#: catatom2osm.py:196
 msgid "Zip code '%s' don't exists"
 msgstr "El Código Postal '%s' no existe"
 
-#: catatom2osm.py:199
+#: catatom2osm.py:200
 msgid "Downloading '%s'"
 msgstr "Descargando '%s'"
 
-#: catatom2osm.py:253
+#: catatom2osm.py:254
 msgid "Unknow layer name '%s'"
 msgstr "El nombre de capa '%s' es desconocido"
 
-#: catatom2osm.py:272
+#: catatom2osm.py:274
 msgid "Could not determine the CRS of '%s'"
 msgstr "No se puede determinar el CRS de '%s'"
 
@@ -166,7 +166,7 @@ msgstr "%d elementos sin asignar a tarea en la capa '%s'"
 msgid "All features assigned to tasks in the '%s' layer"
 msgstr "Todos los elementos asignados a tareas en la capa '%s'"
 
-#: main.py:22
+#: main.py:21
 msgid ""
 "%prog <path>\n"
 "The argument path states the directory for input and output files. \n"
@@ -189,40 +189,44 @@ msgstr ""
 "del \n"
 "Catastro Español."
 
-#: main.py:32
+#: main.py:31
 msgid "Select the log level between DEBUG, INFO, WARNING, ERROR or CRITICAL."
 msgstr ""
 "Selecciona el nivel de registro entre DEBUG, INFO, WARNING, ERROR o CRITICAL."
 
-#: main.py:35
+#: main.py:34
 msgid "Splits constructions into tasks files (default, implies -z)"
 msgstr ""
 "Reparte las construcciones en archivos de tareas (predeterminada, implica -z)"
 
-#: main.py:38
+#: main.py:37
 msgid "Process the cadastral zoning dataset"
 msgstr "Procesa el conjunto de datos de zonificación catastral"
 
-#: main.py:41
+#: main.py:40
 msgid "Process constructions to a single file instead of tasks"
 msgstr "Procesa las construcciones a un archivo individual en lugar de tareas"
 
-#: main.py:44
+#: main.py:43
 msgid "Process the address dataset"
 msgstr "Procesa el conjunto de datos de direcciones"
 
-#: main.py:46
+#: main.py:45
 msgid "Process the cadastral parcel dataset"
 msgstr "Procesa el conjunto de datos de parcelas catastrales"
 
-#: main.py:49
+#: main.py:48
 msgid "Process all datasets (equivalent to -bdptz)"
 msgstr "Procesa todos los conjuntos de datos (equivalente a -bdptz)"
 
-#: main.py:64
+#: main.py:63
 msgid "Invalid log level: %s"
 msgstr "Nivel de registro no válido: %s"
 
-#: main.py:70
+#: main.py:69
 msgid "Too many arguments, supply only a directory path."
 msgstr "Demasiados argumentos, proporcione sólo la ruta de un directorio."
+
+#: main.py:81
+msgid "Please, install QGIS"
+msgstr "Por favor, instala QGIS"

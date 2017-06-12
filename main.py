@@ -6,7 +6,6 @@ import gettext
 import sys
 from zipfile import BadZipfile
 import setup
-from catatom2osm import CatAtom2Osm
 
 log = logging.getLogger(setup.app_name)
 fh = logging.FileHandler(setup.log_file)
@@ -70,8 +69,14 @@ if __name__ == "__main__":
         log.error(_("Too many arguments, supply only a directory path."))
     else:
         try:
+            from catatom2osm import CatAtom2Osm
             app = CatAtom2Osm(args[0], options)
             app.run()
             app.exit()
         except (IOError, OSError, ValueError, BadZipfile) as e:
             log.error(e)
+        except ImportError as e:
+            log.error(e)
+            if 'qgis' in e.message or 'core' in e.message or 'osgeo' in e.message:
+                log.error(_("Please, install QGIS"))
+
