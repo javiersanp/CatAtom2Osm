@@ -304,6 +304,7 @@ class TestZoningLayer(unittest.TestCase):
             self.assertEquals(feat['label'], '%05d' % i)
             i += 1
 
+
 class TestConsLayer(unittest.TestCase):
 
     def setUp(self):
@@ -430,7 +431,7 @@ class TestConsLayer(unittest.TestCase):
             building = self.layer.search("localId = '%s'" % ref[0]).next()
             self.assertIn(ref[1], building.geometry().asPolygon()[0])
 
-    def test_simplify(self):
+    def test_simplify1(self):
         refs = [
             ('8643326CS5284S', QgsPoint(358684.62, 3124377.54), True),
             ('8643326CS5284S', QgsPoint(358686.29, 3124376.11), True),
@@ -442,6 +443,28 @@ class TestConsLayer(unittest.TestCase):
             building = self.layer.search("localId = '%s'" % ref[0]).next()
             self.assertEquals(ref[1] in building.geometry().asPolygon()[0], ref[2])
             
+    def test_simplify2(self):
+        layer = ConsLayer()
+        writer = layer.dataProvider()
+        fixture1 = QgsVectorLayer('test/38023.buildingpart.gml', 'building', 'ogr')
+        self.assertTrue(fixture1.isValid(), "Loading fixture")
+        layer.append(fixture1, rename='')
+        self.assertEquals(layer.featureCount(), fixture1.featureCount())
+        fixture2 = QgsVectorLayer('test/38023.buildingpart.gml', 'buildingpart', 'ogr')
+        self.assertTrue(fixture2.isValid(), "Loading fixture")
+        layer.append(fixture2, rename='')
+        self.assertEquals(layer.featureCount(), fixture1.featureCount() + fixture2.featureCount())
+        layer.explode_multi_parts()
+        layer.remove_parts_below_ground()
+        layer.merge_duplicates()
+        layer.clean_duplicated_nodes_in_polygons()
+        layer.add_topological_points()
+        layer.simplify()
+        for feat in layer.getFeatures():
+            geom = feat.geometry()
+            self.assertTrue(geom.isGeosValid())
+        layer.merge_building_parts()
+
     def test_set_tasks(self):
         zoning = QgsVectorLayer('test/zoning.gml', 'zoning', 'ogr')
         (urban_zoning, rustic_zoning) = ZoningLayer.clasify_zoning(zoning)

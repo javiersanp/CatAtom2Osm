@@ -504,9 +504,10 @@ class PolygonLayer(BaseLayer):
                     feat = features[fid]
                     geom = feat.geometry()
                     (point, ndx, ndxa, ndxb, dist) = geom.closestVertex(point)
-                    if (geom.deleteVertex(ndx)):
-                        parents.remove(fid)
-                        self.writer.changeGeometryValues({fid: geom})
+                    if geom.deleteVertex(ndx):
+                        if geom.isGeosValid():
+                            parents.remove(fid)
+                            self.writer.changeGeometryValues({fid: geom})
                 if log.getEffectiveLevel() <= logging.DEBUG:
                     msg = str(["%s angle=%.1f, cath=%.4f" % v for v in deb_values])
                     debshp.add_point(point, "Deleted. %s" % msg)
