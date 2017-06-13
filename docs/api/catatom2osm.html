@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>catatom2osm module &#8212; CatAtom2Osm 2017-06-05 documentation</title>
+    <title>catatom2osm module &#8212; CatAtom2Osm 2017-06-13 documentation</title>
     
     <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -23,7 +23,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '2017-06-05',
+        VERSION:     '2017-06-13',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -57,7 +57,7 @@
         <li class="right" >
           <a href="modules.html" title="CatAtom2Osm"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 2017-06-05 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 2017-06-13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../api.html" >API reference</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="modules.html" accesskey="U">CatAtom2Osm</a> &#187;</li> 
       </ul>
@@ -184,6 +184,34 @@ file for self.zip_code</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="catatom2osm.CatAtom2Osm.get_crs_from_gml">
+<code class="descname">get_crs_from_gml</code><span class="sig-paren">(</span><em>gml_path</em>, <em>zip_path=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.get_crs_from_gml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.get_crs_from_gml" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Determines the CRS of a GML file. This is necessary because QGIS don&#8217;t</dt>
+<dd>detect correctly the CRS of the parcel and zoning layers.</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>gml_path</strong> (<em>str</em>) &#8211; path to the file</li>
+<li><strong>zip_path</strong> (<em>str</em>) &#8211; optionally zip file that contains the gml</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">True if the GML file contains no feature
+crs (QgsCoordinateReferenceSystem): CRS of the file</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">is_empty (bool)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="catatom2osm.CatAtom2Osm.osm_from_layer">
 <code class="descname">osm_from_layer</code><span class="sig-paren">(</span><em>layer</em>, <em>tags_translation=&lt;function all_tags&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.osm_from_layer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.osm_from_layer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a Osm data set from a vector layer.</p>
@@ -210,7 +238,7 @@ By defaults convert all fields.</li>
 
 <dl class="method">
 <dt id="catatom2osm.CatAtom2Osm.read_gml_layer">
-<code class="descname">read_gml_layer</code><span class="sig-paren">(</span><em>layername</em>, <em>crs=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.read_gml_layer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.read_gml_layer" title="Permalink to this definition">¶</a></dt>
+<code class="descname">read_gml_layer</code><span class="sig-paren">(</span><em>layername</em>, <em>allow_empty=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.read_gml_layer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.read_gml_layer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a qgis vector layer for a Cadastre layername. Derives the GML
 filename from layername. If it don&#8217;t exists, try with the ZIP file, if
 it don&#8217;t exists, try to download it.</p>
@@ -223,8 +251,8 @@ it don&#8217;t exists, try to download it.</p>
 &#8216;building&#8217;, &#8216;buildingpart&#8217;, &#8216;otherconstruction&#8217;,
 &#8216;cadastralparcel&#8217;, &#8216;cadastralzoning&#8217;, &#8216;address&#8217;,
 &#8216;thoroughfarename&#8217;, &#8216;postaldescriptor&#8217;, &#8216;adminunitname&#8217;</li>
-<li><strong>crs</strong> (<em>QgsCoordinateReferenceSystem</em>) &#8211; Source Crs. It&#8217;s necessary
-because parcel and zoning layers don&#8217;t have it defined.</li>
+<li><strong>allow_empty</strong> (<em>bool</em>) &#8211; If False (default), raise a exception for empty
+layer, else returns None</li>
 </ul>
 </td>
 </tr>
@@ -305,7 +333,7 @@ because parcel and zoning layers don&#8217;t have it defined.</li>
         <li class="right" >
           <a href="modules.html" title="CatAtom2Osm"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 2017-06-05 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 2017-06-13 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../api.html" >API reference</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="modules.html" >CatAtom2Osm</a> &#187;</li> 
       </ul>
