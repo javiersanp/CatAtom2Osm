@@ -27,12 +27,12 @@ Cadastre.""")
    
 if __name__ == "__main__":
     parser = OptionParser(usage=usage.decode('utf-8'))
-    parser.add_option("-l", "--list", dest="list", metavar="prov",
-        default=False, help=_("List available municipalities given the two "
-        "digits province code").decode('utf-8'))
     parser.add_option("-v", "--version", dest="version", default=False,
         action="store_true", help=_("Print CatAtom2Osm version and exit") \
         .decode('utf-8'))
+    parser.add_option("-l", "--list", dest="list", metavar="prov",
+        default=False, help=_("List available municipalities given the two "
+        "digits province code").decode('utf-8'))
     parser.add_option("-t", "--tasks", dest="tasks", default=False,
         action="store_true", help=_("Splits constructions into tasks files " \
         "(default, implies -z)").decode('utf-8'))

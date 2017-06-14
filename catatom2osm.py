@@ -180,6 +180,7 @@ class CatAtom2Osm:
 
     def exit(self):
         log.info(_("Finished!"))
+        log.warning(_("Only for testing purposses. Don't upload any result to OSM"))
         if hasattr(self, 'qgs'):
             self.qgs.exitQgis()
         

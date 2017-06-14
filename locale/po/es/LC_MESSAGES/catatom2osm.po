@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-06-14 10:30+WEST\n"
+"POT-Creation-Date: 2017-06-14 10:48+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -54,7 +54,7 @@ msgstr "No es un directorio: '%s'"
 msgid "Initialized qGis API"
 msgstr "Inicializada la API de qGis"
 
-#: catatom2osm.py:116 catatom2osm.py:271
+#: catatom2osm.py:116 catatom2osm.py:272
 msgid "The layer '%s' is empty"
 msgstr "La capa '%s' está vacía"
 
@@ -70,55 +70,59 @@ msgstr ""
 msgid "Finished!"
 msgstr "¡Terminado!"
 
-#: catatom2osm.py:192
+#: catatom2osm.py:183
+msgid "Only for testing purposses. Don't upload any result to OSM"
+msgstr "Sólo para fines de prueba. No cargue ningún resultado en OSM"
+
+#: catatom2osm.py:193
 msgid "Searching the url for the '%s' layer of '%s'..."
 msgstr "Buscando la url para la capa '%s' de '%s'..."
 
-#: catatom2osm.py:197
+#: catatom2osm.py:198
 msgid "Zip code '%s' don't exists"
 msgstr "El Código Postal '%s' no existe"
 
-#: catatom2osm.py:201
+#: catatom2osm.py:202
 msgid "Downloading '%s'"
 msgstr "Descargando '%s'"
 
-#: catatom2osm.py:255
+#: catatom2osm.py:256
 msgid "Unknow layer name '%s'"
 msgstr "El nombre de capa '%s' es desconocido"
 
-#: catatom2osm.py:275
+#: catatom2osm.py:276
 msgid "Could not determine the CRS of '%s'"
 msgstr "No se puede determinar el CRS de '%s'"
 
-#: catatom2osm.py:280
+#: catatom2osm.py:281
 msgid "Failed to load layer '%s'"
 msgstr "Error al cargar la capa: '%s'"
 
-#: catatom2osm.py:282 layer.py:608 layer.py:610
+#: catatom2osm.py:283 layer.py:608 layer.py:610
 msgid "Loaded %d features in the '%s' layer"
 msgstr "Cargados %d elementos en la capa '%s'"
 
-#: catatom2osm.py:297
+#: catatom2osm.py:298
 msgid "Failed to write layer: '%s'"
 msgstr "Error al escribir la capa: '%s'"
 
-#: catatom2osm.py:327
+#: catatom2osm.py:328
 msgid "Detected a %s geometry in the '%s' layer"
 msgstr "Detectada una geometría %s en la capa '%s'"
 
-#: catatom2osm.py:330
+#: catatom2osm.py:331
 msgid "Loaded %d nodes, %d ways, %d relations from '%s' layer"
 msgstr "Cargados %d nodos, %d vías, %d relaciones de la capa '%s'"
 
-#: catatom2osm.py:343
+#: catatom2osm.py:344
 msgid "Generating '%s'"
 msgstr "Generando '%s'"
 
-#: catatom2osm.py:368
+#: catatom2osm.py:369
 msgid "Zone '%s' is empty"
 msgstr "La zona '%s' está vacía"
 
-#: catatom2osm.py:384
+#: catatom2osm.py:385
 msgid "Territorial office %s %s"
 msgstr "Oficina territorial %s %s"
 
@@ -194,13 +198,13 @@ msgstr ""
 "Catastro Español."
 
 #: main.py:31
+msgid "Print CatAtom2Osm version and exit"
+msgstr "Imprime la versión de CatAtom2Osm y termina"
+
+#: main.py:34
 msgid "List available municipalities given the two digits province code"
 msgstr ""
 "Lista los municipios disponibles para el código provincial de dos dígitos"
-
-#: main.py:34
-msgid "Print CatAtom2Osm version and exit"
-msgstr "Imprime la versión de CatAtom2Osm y termina"
 
 #: main.py:37
 msgid "Splits constructions into tasks files (default, implies -z)"
