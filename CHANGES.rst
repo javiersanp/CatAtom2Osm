@@ -1,6 +1,10 @@
 Change log
 ==========
 
+**2017-06-14**
+
+* Some improvements and a bug fix (issues #16, #17, #18, #19, #20)
+
 **2017-06-13**
 
 * Fix some bugs (issues #9, #10, #11, #12, #13, #14, #15).
