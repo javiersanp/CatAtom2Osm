@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-06-14 08:32+WEST\n"
+"POT-Creation-Date: 2017-06-14 10:30+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -54,11 +54,11 @@ msgstr "No es un directorio: '%s'"
 msgid "Initialized qGis API"
 msgstr "Inicializada la API de qGis"
 
-#: catatom2osm.py:115 catatom2osm.py:270
+#: catatom2osm.py:116 catatom2osm.py:271
 msgid "The layer '%s' is empty"
 msgstr "La capa '%s' está vacía"
 
-#: catatom2osm.py:160
+#: catatom2osm.py:161
 msgid ""
 "Could not resolve joined tables for the '%s' layer, please try again with "
 "the zip file"
@@ -66,57 +66,61 @@ msgstr ""
 "No se pudieron resolver las tablas combinadas para la capa '%s', inténtalo "
 "de nuevo con el archivo zip"
 
-#: catatom2osm.py:181
+#: catatom2osm.py:182
 msgid "Finished!"
 msgstr "¡Terminado!"
 
-#: catatom2osm.py:191
+#: catatom2osm.py:192
 msgid "Searching the url for the '%s' layer of '%s'..."
 msgstr "Buscando la url para la capa '%s' de '%s'..."
 
-#: catatom2osm.py:196
+#: catatom2osm.py:197
 msgid "Zip code '%s' don't exists"
 msgstr "El Código Postal '%s' no existe"
 
-#: catatom2osm.py:200
+#: catatom2osm.py:201
 msgid "Downloading '%s'"
 msgstr "Descargando '%s'"
 
-#: catatom2osm.py:254
+#: catatom2osm.py:255
 msgid "Unknow layer name '%s'"
 msgstr "El nombre de capa '%s' es desconocido"
 
-#: catatom2osm.py:274
+#: catatom2osm.py:275
 msgid "Could not determine the CRS of '%s'"
 msgstr "No se puede determinar el CRS de '%s'"
 
-#: catatom2osm.py:279
+#: catatom2osm.py:280
 msgid "Failed to load layer '%s'"
 msgstr "Error al cargar la capa: '%s'"
 
-#: catatom2osm.py:281 layer.py:608 layer.py:610
+#: catatom2osm.py:282 layer.py:608 layer.py:610
 msgid "Loaded %d features in the '%s' layer"
 msgstr "Cargados %d elementos en la capa '%s'"
 
-#: catatom2osm.py:296
+#: catatom2osm.py:297
 msgid "Failed to write layer: '%s'"
 msgstr "Error al escribir la capa: '%s'"
 
-#: catatom2osm.py:326
+#: catatom2osm.py:327
 msgid "Detected a %s geometry in the '%s' layer"
 msgstr "Detectada una geometría %s en la capa '%s'"
 
-#: catatom2osm.py:329
+#: catatom2osm.py:330
 msgid "Loaded %d nodes, %d ways, %d relations from '%s' layer"
 msgstr "Cargados %d nodos, %d vías, %d relaciones de la capa '%s'"
 
-#: catatom2osm.py:342
+#: catatom2osm.py:343
 msgid "Generating '%s'"
 msgstr "Generando '%s'"
 
-#: catatom2osm.py:367
+#: catatom2osm.py:368
 msgid "Zone '%s' is empty"
 msgstr "La zona '%s' está vacía"
+
+#: catatom2osm.py:384
+msgid "Territorial office %s %s"
+msgstr "Oficina territorial %s %s"
 
 #: layer.py:265
 msgid "%d multi-polygons splited into %d polygons in the '%s' layer"
@@ -190,13 +194,13 @@ msgstr ""
 "Catastro Español."
 
 #: main.py:31
-msgid "Print CatAtom2Osm version and exit"
-msgstr "Imprime la versión de CatAtom2Osm y termina"
+msgid "List available municipalities given the two digits province code"
+msgstr ""
+"Lista los municipios disponibles para el código provincial de dos dígitos"
 
 #: main.py:34
-msgid "Select the log level between DEBUG, INFO, WARNING, ERROR or CRITICAL."
-msgstr ""
-"Selecciona el nivel de registro entre DEBUG, INFO, WARNING, ERROR o CRITICAL."
+msgid "Print CatAtom2Osm version and exit"
+msgstr "Imprime la versión de CatAtom2Osm y termina"
 
 #: main.py:37
 msgid "Splits constructions into tasks files (default, implies -z)"
@@ -223,18 +227,23 @@ msgstr "Procesa el conjunto de datos de parcelas catastrales"
 msgid "Process all datasets (equivalent to -bdptz)"
 msgstr "Procesa todos los conjuntos de datos (equivalente a -bdptz)"
 
-#: main.py:66
+#: main.py:54
+msgid "Select the log level between DEBUG, INFO, WARNING, ERROR or CRITICAL."
+msgstr ""
+"Selecciona el nivel de registro entre DEBUG, INFO, WARNING, ERROR o CRITICAL."
+
+#: main.py:69
 msgid "Invalid log level: %s"
 msgstr "Nivel de registro no válido: %s"
 
-#: main.py:71
+#: main.py:77
 msgid "%s version %s"
 msgstr "%s versión %s"
 
-#: main.py:75
+#: main.py:81
 msgid "Too many arguments, supply only a directory path."
 msgstr "Demasiados argumentos, proporcione sólo la ruta de un directorio."
 
-#: main.py:87
+#: main.py:93
 msgid "Please, install QGIS"
 msgstr "Por favor, instala QGIS"

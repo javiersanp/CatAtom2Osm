@@ -89,6 +89,7 @@ class CatAtom2Osm:
 
     def run(self):
         """Launches the app"""
+            
         if self.options.zoning:        
             zoning_gml = self.read_gml_layer("cadastralzoning")
             (urban_zoning, rustic_zoning) = layer.ZoningLayer.clasify_zoning(zoning_gml)
@@ -252,7 +253,7 @@ class CatAtom2Osm:
             group = 'AD' 
         else:
             raise ValueError(_("Unknow layer name '%s'") % layername)
-        url = setup.url[group] % (self.prov_code, self.prov_code)
+        url = setup.prov_url[group] % (self.prov_code, self.prov_code)
         if group == 'AD':    
             gml_fn = ".".join((setup.fn_prefix, group, self.zip_code, 
                 "gml|layername=%s" % layername))
@@ -371,3 +372,19 @@ class CatAtom2Osm:
                 zoning.writer.deleteFeatures(to_clean)
                 zoning.commitChanges()
 
+def list_municipalities(prov_code):
+    try:
+        url = setup.serv_url['BU']
+        response = download.get_response(url)
+        for row in response.iter_lines():
+            m = re.search(prov_code + " (.+)</title>", row)
+            if row.startswith(prov_code):
+                print row.split('<br/>')[0]
+            elif m:
+                title = _("Territorial office %s %s") % (prov_code, m.groups()[0])
+                print
+                print title
+                print "=" * len(title)
+    except IOError as e:
+        log.error(e)
+    

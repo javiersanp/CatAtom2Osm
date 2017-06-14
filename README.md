@@ -32,15 +32,16 @@ Cadastre.
 
 **Options**:
 
-* \-h, --help        Show this help message and exit
-* \--log=log_level   Select the log level between DEBUG, INFO, WARNING, ERROR or 
-  CRITICAL.
-* \-t, --tasks       Splits constructions into tasks files (default, implies -z).
-* \-z, --zoning      Process the cadastral zoning dataset.
-* \-b, --building    Process constructions to a single file instead of tasks.
-* \-d, --address     Process the address dataset.
-* \-p, --parcel      Process the cadastral parcel dataset.
-* \-a, --all         Process all datasets (equivalent to -dptz).
+* \-h, --help            Show this help message and exit
+* \-v, --version         Print CatAtom2Osm version and exit
+* \-l prov, --list=prov  List available municipalities given the two digits province code
+* \-t, --tasks           Splits constructions into tasks files (default, implies -z)
+* \-z, --zoning          Process the cadastral zoning dataset.
+* \-b, --building        Process constructions to a single file instead of tasks
+* \-d, --address         Process the address dataset
+* \-p, --parcel          Process the cadastral parcel dataset
+* \-a, --all             Process all datasets (equivalent to -dptz)
+* \--log=log_level       Select the log level between DEBUG, INFO, WARNING, ERROR or CRITICAL
 
 Documentation
 -------------

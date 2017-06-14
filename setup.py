@@ -21,10 +21,22 @@ dist_thr = 0.05 # Threshold in meters for vertex simplification and topological 
 angle_thr = 2 # Threshold in degrees from straight angle to delete a vertex
 
 
-url = {
-    "BU": "http://www.catastro.minhap.es/INSPIRE/buildings/%s/ES.SDGC.bu.atom_%s.xml",
-    "AD": "http://www.catastro.minhap.es/INSPIRE/addresses/%s/ES.SDGC.ad.atom_%s.xml",
-    "CP": "http://www.catastro.minhap.es/INSPIRE/CadastralParcels/%s/ES.SDGC.CP.atom_%s.xml"
+base_url = {
+    "BU": "http://www.catastro.minhap.es/INSPIRE/buildings/",
+    "AD": "http://www.catastro.minhap.es/INSPIRE/addresses/",
+    "CP": "http://www.catastro.minhap.es/INSPIRE/CadastralParcels/"
+}
+
+serv_url = {
+    "BU": base_url['BU'] + "ES.SDGC.BU.atom.xml",
+    "AD": base_url['AD'] + "ES.SDGC.AD.atom.xml",
+    "CP": base_url['CP'] + "ES.SDGC.CP.atom.xml"
+}
+
+prov_url = {
+    "BU": base_url['BU'] + "%s/ES.SDGC.bu.atom_%s.xml",
+    "AD": base_url['AD'] + "%s/ES.SDGC.ad.atom_%s.xml",
+    "CP": base_url['CP'] + "%s/ES.SDGC.CP.atom_%s.xml"
 }
 
 valid_provinces = ["%02d" % i for i in range(2,57)]

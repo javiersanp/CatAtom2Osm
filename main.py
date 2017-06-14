@@ -27,12 +27,12 @@ Cadastre.""")
    
 if __name__ == "__main__":
     parser = OptionParser(usage=usage.decode('utf-8'))
+    parser.add_option("-l", "--list", dest="list", metavar="prov",
+        default=False, help=_("List available municipalities given the two "
+        "digits province code").decode('utf-8'))
     parser.add_option("-v", "--version", dest="version", default=False,
         action="store_true", help=_("Print CatAtom2Osm version and exit") \
         .decode('utf-8'))
-    parser.add_option("", "--log", dest="log_level", metavar="log_level",
-        default=setup.log_level, help=_("Select the log level between " \
-        "DEBUG, INFO, WARNING, ERROR or CRITICAL.").decode('utf-8'))
     parser.add_option("-t", "--tasks", dest="tasks", default=False,
         action="store_true", help=_("Splits constructions into tasks files " \
         "(default, implies -z)").decode('utf-8'))
@@ -50,6 +50,9 @@ if __name__ == "__main__":
     parser.add_option("-a", "--all", dest="all", default=False,
         action="store_true", help=_("Process all datasets (equivalent " \
         "to -bdptz)").decode('utf-8'))
+    parser.add_option("", "--log", dest="log_level", metavar="log_level",
+        default=setup.log_level, help=_("Select the log level between " \
+        "DEBUG, INFO, WARNING, ERROR or CRITICAL.").decode('utf-8'))
     (options, args) = parser.parse_args()
     if options.all:
         options.building = True
@@ -66,7 +69,10 @@ if __name__ == "__main__":
         log.error(_('Invalid log level: %s') % options.log_level)
     log.setLevel(log_level)
 
-    if len(args) < 1:
+    if options.list:
+        from catatom2osm import list_municipalities
+        list_municipalities(options.list)
+    elif len(args) < 1:
         if options.version:
             print _("%s version %s") % (setup.app_name, setup.app_version)
         else:
