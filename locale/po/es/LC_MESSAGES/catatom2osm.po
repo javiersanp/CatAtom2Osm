@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-06-12 11:42+WEST\n"
+"POT-Creation-Date: 2017-06-14 08:32+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -94,7 +94,7 @@ msgstr "No se puede determinar el CRS de '%s'"
 msgid "Failed to load layer '%s'"
 msgstr "Error al cargar la capa: '%s'"
 
-#: catatom2osm.py:281 layer.py:607 layer.py:609
+#: catatom2osm.py:281 layer.py:608 layer.py:610
 msgid "Loaded %d features in the '%s' layer"
 msgstr "Cargados %d elementos en la capa '%s'"
 
@@ -138,31 +138,31 @@ msgstr "Eliminadas %d geometrías en la capa '%s'"
 msgid "Created %d topological points in the '%s' layer"
 msgstr "Creados %d puntos topológicos en la capa '%s'"
 
-#: layer.py:518
+#: layer.py:519
 msgid "Simplified %d vertices in the '%s' layer"
 msgstr "Simplificados %d vértices en la capa '%s'"
 
-#: layer.py:537
+#: layer.py:538
 msgid "%d adjacent polygons merged into %d polygons in the '%s' layer"
 msgstr "%d polígonos adyacentes fusionados a %d polígonos en la capa '%s'"
 
-#: layer.py:684
+#: layer.py:685
 msgid "Deleted %d building parts with no floors above ground"
 msgstr "Eliminadas %d partes de edificio sin pisos sobre el nivel del suelo"
 
-#: layer.py:765
+#: layer.py:766
 msgid "Merged %d building parts to footprint"
 msgstr "Fusionados %d partes de edificios al contorno"
 
-#: layer.py:785
+#: layer.py:786
 msgid "Assigning task number to each construction"
 msgstr "Asignando número de tarea a cada construcción"
 
-#: layer.py:818
+#: layer.py:819
 msgid "%d features unassigned to a task in the '%s' layer"
 msgstr "%d elementos sin asignar a tarea en la capa '%s'"
 
-#: layer.py:821
+#: layer.py:822
 msgid "All features assigned to tasks in the '%s' layer"
 msgstr "Todos los elementos asignados a tareas en la capa '%s'"
 
@@ -190,43 +190,51 @@ msgstr ""
 "Catastro Español."
 
 #: main.py:31
+msgid "Print CatAtom2Osm version and exit"
+msgstr "Imprime la versión de CatAtom2Osm y termina"
+
+#: main.py:34
 msgid "Select the log level between DEBUG, INFO, WARNING, ERROR or CRITICAL."
 msgstr ""
 "Selecciona el nivel de registro entre DEBUG, INFO, WARNING, ERROR o CRITICAL."
 
-#: main.py:34
+#: main.py:37
 msgid "Splits constructions into tasks files (default, implies -z)"
 msgstr ""
 "Reparte las construcciones en archivos de tareas (predeterminada, implica -z)"
 
-#: main.py:37
+#: main.py:40
 msgid "Process the cadastral zoning dataset"
 msgstr "Procesa el conjunto de datos de zonificación catastral"
 
-#: main.py:40
+#: main.py:43
 msgid "Process constructions to a single file instead of tasks"
 msgstr "Procesa las construcciones a un archivo individual en lugar de tareas"
 
-#: main.py:43
+#: main.py:46
 msgid "Process the address dataset"
 msgstr "Procesa el conjunto de datos de direcciones"
 
-#: main.py:45
+#: main.py:48
 msgid "Process the cadastral parcel dataset"
 msgstr "Procesa el conjunto de datos de parcelas catastrales"
 
-#: main.py:48
+#: main.py:51
 msgid "Process all datasets (equivalent to -bdptz)"
 msgstr "Procesa todos los conjuntos de datos (equivalente a -bdptz)"
 
-#: main.py:63
+#: main.py:66
 msgid "Invalid log level: %s"
 msgstr "Nivel de registro no válido: %s"
 
-#: main.py:69
+#: main.py:71
+msgid "%s version %s"
+msgstr "%s versión %s"
+
+#: main.py:75
 msgid "Too many arguments, supply only a directory path."
 msgstr "Demasiados argumentos, proporcione sólo la ruta de un directorio."
 
-#: main.py:81
+#: main.py:87
 msgid "Please, install QGIS"
 msgstr "Por favor, instala QGIS"

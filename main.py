@@ -27,6 +27,9 @@ Cadastre.""")
    
 if __name__ == "__main__":
     parser = OptionParser(usage=usage.decode('utf-8'))
+    parser.add_option("-v", "--version", dest="version", default=False,
+        action="store_true", help=_("Print CatAtom2Osm version and exit") \
+        .decode('utf-8'))
     parser.add_option("", "--log", dest="log_level", metavar="log_level",
         default=setup.log_level, help=_("Select the log level between " \
         "DEBUG, INFO, WARNING, ERROR or CRITICAL.").decode('utf-8'))
@@ -64,7 +67,10 @@ if __name__ == "__main__":
     log.setLevel(log_level)
 
     if len(args) < 1:
-        parser.print_help()
+        if options.version:
+            print _("%s version %s") % (setup.app_name, setup.app_version)
+        else:
+            parser.print_help()
     elif len(args) > 1:
         log.error(_("Too many arguments, supply only a directory path."))
     else:
