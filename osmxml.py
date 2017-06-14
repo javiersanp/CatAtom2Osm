@@ -52,6 +52,9 @@ def serialize(data):
         for key, value in rel.tags.items():
             relxml.append(etree.Element('tag', dict(k=key, v=value)))
         root.append(relxml)
-        
-    return etree.tostring(root, pretty_print=True)
+    try:
+        result = etree.tostring(root, pretty_print=True)
+    except TypeError
+        result = etree.tostring(root)
+    return result
     
