@@ -1,6 +1,10 @@
 Change log
 ==========
 
+**2017-06-15**
+
+* Minor version (issue #21)
+
 **2017-06-14**
 
 * Some improvements and a bug fix (issues #16, #17, #18, #19, #20)
