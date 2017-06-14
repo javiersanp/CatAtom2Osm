@@ -45,7 +45,7 @@ class TestGetResponse(unittest.TestCase):
         mock_requests.get.return_value = mock_response
         r = get_response('foo', 'bar')
         self.assertEquals(r, mock_response)
-        mock_requests.get.assert_called_once_with('foo', stream='bar', timeout=10)
+        mock_requests.get.assert_called_once_with('foo', stream='bar', timeout=30)
 
     @mock.patch('download.requests')
     def test_get_response_bad(self, mock_requests):
