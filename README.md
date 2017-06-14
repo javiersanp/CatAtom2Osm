@@ -5,6 +5,12 @@ Tool to convert INSPIRE data sets from the Spanish Cadastre ATOM Services (http:
 
 https://wiki.openstreetmap.org/wiki/Spanish_Cadastre/Buildings_Import
 
+Languages
+---------
+
+* https://javiersanp.github.io/CatAtom2Osm/readme.html
+* https://javiersanp.github.io/CatAtom2Osm/readme.es.html
+
 Warning
 -------
 
