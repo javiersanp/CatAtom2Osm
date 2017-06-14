@@ -4,7 +4,7 @@ import re
 
 default_bar_len = 60
 number_of_retries = 3
-default_timeout = 10
+default_timeout = 30
 chunk_size = 1024
 
 
