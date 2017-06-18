@@ -19,6 +19,7 @@ import translate
 import osmxml
 import osm
 import download
+import csvtools
 
 log = logging.getLogger(setup.app_name + "." + __name__)
 if setup.silence_gdal:
@@ -90,6 +91,33 @@ class CatAtom2Osm:
     def run(self):
         """Launches the app"""
             
+        if self.options.address:
+            thoroughfarename = self.read_gml_layer("thoroughfarename")
+            highway_names = self.get_highway_names(thoroughfarename)
+            if not highway_names:
+                return
+            return
+            address_gml = self.read_gml_layer("address")
+            if address_gml.fieldNameIndex('component_href') == -1:
+                log.error(_("Could not resolve joined tables for the '%s' "
+                    "layer, please try again with the zip file"), 
+                    address_gml.name().encode('utf-8'))
+            else:
+                address = layer.AddressLayer()
+                address.append(address_gml)
+                adminunitname = self.read_gml_layer("adminunitname")
+                postaldescriptor = self.read_gml_layer("postaldescriptor")
+                address.join_field(thoroughfarename, 'TN_id', 'gml_id', ['text'], 'TN_')
+                address.join_field(adminunitname, 'AU_id', 'gml_id', ['text'], 'AU_')
+                address.join_field(postaldescriptor, 'PD_id', 'gml_id', ['postCode'])
+                del thoroughfarename, adminunitname, postaldescriptor
+                address.reproject()
+                address_osm = self.osm_from_layer(address, translate.address_tags)
+                self.write_osm(address_osm, "address.osm")
+                if log.getEffectiveLevel() == logging.DEBUG:
+                    self.export_layer(address, 'address.geojson', 'GeoJSON')
+                    self.export_layer(address, 'address.shp')
+
         if self.options.zoning:        
             zoning_gml = self.read_gml_layer("cadastralzoning")
             (urban_zoning, rustic_zoning) = layer.ZoningLayer.clasify_zoning(zoning_gml)
@@ -154,29 +182,6 @@ class CatAtom2Osm:
             if log.getEffectiveLevel() == logging.DEBUG:
                 self.export_layer(parcel, 'parcel.geojson', 'GeoJSON')
                 self.export_layer(parcel, 'parcel.shp')
-
-        if self.options.address:
-            address_gml = self.read_gml_layer("address")
-            if address_gml.fieldNameIndex('component_href') == -1:
-                log.error(_("Could not resolve joined tables for the '%s' "
-                    "layer, please try again with the zip file"), 
-                    address_gml.name().encode('utf-8'))
-            else:
-                address = layer.AddressLayer()
-                address.append(address_gml)
-                thoroughfarename = self.read_gml_layer("thoroughfarename")
-                adminunitname = self.read_gml_layer("adminunitname")
-                postaldescriptor = self.read_gml_layer("postaldescriptor")
-                address.join_field(thoroughfarename, 'TN_id', 'gml_id', ['text'], 'TN_')
-                address.join_field(adminunitname, 'AU_id', 'gml_id', ['text'], 'AU_')
-                address.join_field(postaldescriptor, 'PD_id', 'gml_id', ['postCode'])
-                del thoroughfarename, adminunitname, postaldescriptor
-                address.reproject()
-                address_osm = self.osm_from_layer(address, translate.address_tags)
-                self.write_osm(address_osm, "address.osm")
-                if log.getEffectiveLevel() == logging.DEBUG:
-                    self.export_layer(address, 'address.geojson', 'GeoJSON')
-                    self.export_layer(address, 'address.shp')
 
     def exit(self):
         log.info(_("Finished!"))
@@ -373,7 +378,33 @@ class CatAtom2Osm:
                 zoning.writer.deleteFeatures(to_clean)
                 zoning.commitChanges()
 
+    def get_highway_names(self, names_layer):
+        """
+        If there exists a configuration file for highway types, read it, 
+        else write one with default values. If don't exists a translation file 
+        for highways, creates one, else read it and return
+        """
+        highway_types_path = os.path.join(setup.app_path, 'highways_types.csv')
+        if not os.path.exists(highway_types_path):
+            csvtools.dict2csv(highway_types_path, setup.highway_types)
+        else:
+            csvtools.csv2dict(highway_types_path, setup.highway_types)
+        highway_names_path = os.path.join(self.path, 'highway_names.csv')
+        if not os.path.exists(highway_names_path):
+            highway_names = {}
+            for feat in names_layer.getFeatures():
+                highway_names[feat['text']] = feat['text'].lower()
+                csvtools.dict2csv(highway_names_path, highway_names)
+            log.info(_("The translation file '%s' have been writen in '%s'"),
+                'highway_names.csv', self.path)
+            log.info(_("Please check and complete it before continue"))
+            return {}
+        else:
+            return csvtools.csv2dict(highway_names_path, {})
+
+
 def list_municipalities(prov_code):
+    """Get from the ATOM services a list of municipalities for a given province"""
     try:
         url = setup.serv_url['BU']
         response = download.get_response(url)

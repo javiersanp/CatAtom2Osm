@@ -3,10 +3,15 @@
 from optparse import OptionParser
 import logging
 import gettext
-import sys
+import sys, os
 from zipfile import BadZipfile
 import setup
 
+if setup.platform.startswith('win'):
+    if os.getenv('LANG') is None:
+        os.environ['LANG'] = setup.language
+gettext.install(setup.app_name.lower(), localedir=setup.localedir)
+ 
 log = logging.getLogger(setup.app_name)
 fh = logging.FileHandler(setup.log_file)
 ch = logging.StreamHandler()
@@ -24,7 +29,7 @@ The directory name shall start with 5 digits (GGMMM) matching the Cadastral
 Provincial Office and Municipality Code. If the program don't find the input 
 files it will download them for you from the INSPIRE Services of the Spanish 
 Cadastre.""")
-   
+  
 if __name__ == "__main__":
     parser = OptionParser(usage=usage.decode('utf-8'))
     parser.add_option("-v", "--version", dest="version", default=False,

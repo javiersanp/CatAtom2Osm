@@ -54,7 +54,7 @@ def serialize(data):
         root.append(relxml)
     try:
         result = etree.tostring(root, pretty_print=True)
-    except TypeError
+    except TypeError:
         result = etree.tostring(root)
     return result
     
