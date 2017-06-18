@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+"""Application preferences"""
+import sys, os, locale
+import csv
+
 app_name = 'CatAtom2Osm'
 app_version = '2017-06-15'
 app_author = u'Javier Sánchez Portero'
@@ -6,7 +10,6 @@ app_copyright = u'2017, Javier Sánchez Portero'
 app_desc = 'Tool to convert INSPIRE data sets from the Spanish Cadastre ATOM Services to OSM files'
 app_tags = ''
 
-"""Application preferences"""
 log_level = 'INFO' # Default console log level
 log_file = 'catatom2osm.log'
 log_format = '%(asctime)s - %(levelname)s - %(message)s'
@@ -19,7 +22,6 @@ silence_gdal = False
 dup_thr = 0.01 # Distance in meters to merge nearest vertexs.
 dist_thr = 0.05 # Threshold in meters for vertex simplification and topological points.
 angle_thr = 2 # Threshold in degrees from straight angle to delete a vertex
-
 
 base_url = {
     "BU": "http://www.catastro.minhap.es/INSPIRE/buildings/",
@@ -41,12 +43,91 @@ prov_url = {
 
 valid_provinces = ["%02d" % i for i in range(2,57)]
 
-import gettext, sys, os
+language, encoding = locale.getdefaultlocale()
+app_path = os.path.dirname(__file__)
+localedir = os.path.join(app_path, 'locale', 'po')
+platform = sys.platform
+eol = '\n\r' if platform.startswith('win') else '\n'
 
-if sys.platform.startswith('win'):
-    import locale
-    if os.getenv('LANG') is None:
-        lang, enc = locale.getdefaultlocale()
-        os.environ['LANG'] = lang
-localedir = os.path.join(os.path.dirname(__file__), 'locale', 'po')
-gettext.install('catatom2osm', localedir=localedir)
+highway_types = {
+    'AG': u'Agregado',
+    'AL': u'Aldea/Alameda',
+    'AR': u'Area/Arrabal',
+    'AU': u'Autopista',
+    'AV': u'Avenida',
+    'AY': u'Arroyo',
+    'BJ': u'Bajada',
+    'BO': u'Barrio',
+    'BR': u'Barranco',
+    'CA': u'Cañada',
+    'CG': u'Colegio/Cigarral',
+    'CH': u'Chalet',
+    'CI': u'Cinturón',
+    'CJ': u'Calleja/Callejón',
+    'CL': u'Calle',
+    'CM': u'Camino/Carmen',
+    'CN': u'Colonia',
+    'CO': u'Concejo/Colegio',
+    'CP': u'Campa/Campo',
+    'CR': u'Carretera/Carrera',
+    'CS': u'Caserío',
+    'CT': u'Cuesta/Costanilla',
+    'CU': u'Conjunto',
+    'CY': u'Caleya',
+    'DE': u'Detrás',
+    'DP': u'Diputación',
+    'DS': u'Diseminados',
+    'ED': u'Edificios',
+    'EM': u'Extramuros',
+    'EN': u'Entrada/Ensanche',
+    'ER': u'Extrarradio',
+    'ES': u'Escalinata',
+    'EX': u'Explanada',
+    'FC': u'Ferrocarril/Finca',
+    'FN': u'Finca',
+    'GL': u'Glorieta',
+    'GR': u'Grupo',
+    'GV': u'Gran Vía',
+    'HT': u'Huerta/Huerto',
+    'JR': u'Jardines',
+    'LD': u'Lado/Ladera',
+    'LG': u'Lugar',
+    'MC': u'Mercado',
+    'ML': u'Muelle',
+    'MN': u'Municipio',
+    'MS': u'Masias',
+    'MT': u'Monte',
+    'MZ': u'Manzana',
+    'PB': u'Poblado',
+    'PD': u'Partida',
+    'PJ': u'Pasaje/Pasadizo',
+    'PL': u'Polígono',
+    'PM': u'Páramo',
+    'PQ': u'Parroquia/Parque',
+    'PR': u'Prolongación/Continuación',
+    'PS': u'Paseo',
+    'PT': u'Puente',
+    'PZ': u'Plaza',
+    'QT': u'Quinta',
+    'RB': u'Rambla',
+    'RC': u'Rincón/Rincona',
+    'RD': u'Ronda',
+    'RM': u'Ramal',
+    'RP': u'Rampa',
+    'RR': u'Riera',
+    'RU': u'Rua',
+    'SA': u'Salida',
+    'SD': u'Senda',
+    'SL': u'Solar',
+    'SN': u'Salón',
+    'SU': u'Subida',
+    'TN': u'Terrenos',
+    'TO': u'Torrente',
+    'TR': u'Travesía/Transversal',
+    'UR': u'Urbanización',
+    'VR': u'Vereda',
+    'AC': u'Acceso',
+    'SB': u'Subida',
+    'PG': u'Polígono',
+    'VI': u'Vía de enlace' 
+}
