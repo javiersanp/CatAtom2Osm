@@ -16,7 +16,6 @@ class TestCsvTools(unittest.TestCase):
 
     def test_csv2dict(self):
         _, tmp_path = mkstemp()
-        print encoding
         with codecs.open(tmp_path, 'w', encoding) as csv_file:
             csv_file.write(u'á;x%sé;y%s' % (eol, eol))
         a_dict = csv2dict(tmp_path, {})
