@@ -12,6 +12,13 @@ from PyQt4.QtCore import QVariant
 import setup
 from layer import *
 
+import gettext
+if setup.platform.startswith('win'):
+    if os.getenv('LANG') is None:
+        os.environ['LANG'] = setup.language
+gettext.install(setup.app_name.lower(), localedir=setup.localedir)
+
+
 QgsApplication.setPrefixPath(setup.qgs_prefix_path, True)
 qgs = QgsApplication([], False)
 
