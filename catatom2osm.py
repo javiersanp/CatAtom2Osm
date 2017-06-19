@@ -96,7 +96,6 @@ class CatAtom2Osm:
             highway_names = self.get_highway_names(thoroughfarename)
             if not highway_names:
                 return
-            return
             address_gml = self.read_gml_layer("address")
             if address_gml.fieldNameIndex('component_href') == -1:
                 log.error(_("Could not resolve joined tables for the '%s' "
@@ -111,6 +110,7 @@ class CatAtom2Osm:
                 address.join_field(adminunitname, 'AU_id', 'gml_id', ['text'], 'AU_')
                 address.join_field(postaldescriptor, 'PD_id', 'gml_id', ['postCode'])
                 del thoroughfarename, adminunitname, postaldescriptor
+                address.translate_field('TN_text', highway_names)
                 address.reproject()
                 address_osm = self.osm_from_layer(address, translate.address_tags)
                 self.write_osm(address_osm, "address.osm")
@@ -393,7 +393,9 @@ class CatAtom2Osm:
         if not os.path.exists(highway_names_path):
             highway_names = {}
             for feat in names_layer.getFeatures():
-                highway_names[feat['text']] = feat['text'].lower()
+                name = feat['text']
+                new_name = layer.AddressLayer.parse_highway_name(name)
+                highway_names[name] = new_name
                 csvtools.dict2csv(highway_names_path, highway_names)
             log.info(_("The translation file '%s' have been writen in '%s'"),
                 'highway_names.csv', self.path)

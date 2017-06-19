@@ -49,6 +49,12 @@ localedir = os.path.join(app_path, 'locale', 'po')
 platform = sys.platform
 eol = '\n\r' if platform.startswith('win') else '\n'
 
+lowcase_words = [
+    'DE', 'DEL', 'EL', 'LA', 'LOS', 'LAS', 'Y', 'AL', 'EN',
+    'A LA', 'A EL', 'A LOS', 'DE LA', 'DE EL', 'DE LOS', 'DE LAS',
+    'ELS', 'LES', "L'", "D'", "N'", "S'", "D'EN"
+]
+
 highway_types = {
     'AG': u'Agregado',
     'AL': u'Aldea/Alameda',
