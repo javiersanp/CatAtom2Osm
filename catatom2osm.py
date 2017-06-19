@@ -399,7 +399,7 @@ class CatAtom2Osm:
                 csvtools.dict2csv(highway_names_path, highway_names)
             log.info(_("The translation file '%s' have been writen in '%s'"),
                 'highway_names.csv', self.path)
-            log.info(_("Please check and complete it before continue"))
+            log.info(_("Please, check it before continue"))
             return {}
         else:
             return csvtools.csv2dict(highway_names_path, {})
