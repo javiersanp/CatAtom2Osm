@@ -133,10 +133,18 @@ class TestBaseLayer(unittest.TestCase):
             value = ''.join([random.choice(ascii_uppercase) for j in range(10)])
             translations[value] = value.lower()
             feat['A'] = value
+            self.layer.addFeature(feat)
+        feat = QgsFeature(self.layer.pendingFields())
+        feat['A'] = 'FooBar'
+        self.layer.addFeature(feat)
         self.layer.commitChanges()
+        self.assertGreater(self.layer.featureCount(), 0)
+        self.layer.translate_field('FOOBAR', {})
         self.layer.translate_field('A', translations)
         for feat in self.layer.getFeatures():
-            self.assertEquals(feat['A'], feat['A'].lower())
+            if feat['A'] != 'FooBar':
+                self.assertEquals(feat['A'], feat['A'].lower())
+        self.assertEquals(feat['A'], 'FooBar')
 
     def test_reproject(self):
         layer = BaseLayer("Polygon", "test", "memory")
