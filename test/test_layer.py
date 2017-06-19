@@ -116,6 +116,20 @@ class TestBaseLayer(unittest.TestCase):
         layer.append(self.fixture, query=declined_filter)
         self.assertTrue(layer.featureCount(), 2)
     
+    def test_translate_field(self):
+        ascii_uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+        self.layer.startEditing()
+        translations = {}
+        for i in range(30):
+            feat = QgsFeature(self.layer.pendingFields())
+            value = ''.join([random.choice(ascii_uppercase) for j in range(10)])
+            translations[value] = value.lower()
+            feat['A'] = value
+        self.layer.commitChanges()
+        self.layer.translate_field('A', translations)
+        for feat in self.layer.getFeatures():
+            self.assertEquals(feat['A'], feat['A'].lower())
+
     def test_reproject(self):
         layer = BaseLayer("Polygon", "test", "memory")
         self.assertTrue(layer.isValid())

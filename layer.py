@@ -176,7 +176,7 @@ class BaseLayer(QgsVectorLayer):
             target_field_name (str): Join field in the target layer. 
             join_fieldsName (str): Join field in the source layer.
             field_names_subset (list): List of field name strings for the target layer.
-            prefix (str): An optional prefix 
+            prefix (str): An optional prefix to add to the target fields names
         """
         self.startEditing()
         fields = []
@@ -205,6 +205,26 @@ class BaseLayer(QgsVectorLayer):
                 attrs[fieldId] = value 
             self.writer.changeAttributeValues({feature.id(): attrs})
         self.commitChanges()
+
+    def translate_field(self, field_name, translations):
+        """
+        Transform the values of a field
+        
+        Args:
+            field_name (str): Name of the field to transform
+            translations (dict): A dictionary used to transform field values
+        """
+        field_ndx = self.pendingFields().fieldNameIndex(field_name)
+        if field_ndx >= 0:
+            self.startEditing()
+            for feat in self.getFeatures():
+                value = feat[field_name]
+                try:
+                    new_value = translations[value]
+                    self.changeAttributeValue(feat.id(), field_ndx, new_value)
+                except KeyError:
+                    pass
+            self.commitChanges()
 
     def export(self, path, driver_name="ESRI Shapefile", overwrite=True):
         """Write layer to file
@@ -634,7 +654,7 @@ class AddressLayer(BaseLayer):
             'TN_id': ('component_href', '[\w\.]+TN[\.0-9]+'), 
             'AU_id': ('component_href', '[\w\.]+AU[\.0-9]+')
         }
-
+    
 
 class ConsLayer(PolygonLayer):
     """Class for constructions"""
