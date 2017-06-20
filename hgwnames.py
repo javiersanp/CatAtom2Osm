@@ -50,7 +50,7 @@ def get_translations(names_layer, output_folder):
         (dict, bool): Dictionary with highway names translations and a flag to
         alert if it's new (there wasen't a previous translations file)
     """
-    highway_types_path = os.path.join(setup.app_path, 'highways_types.csv')
+    highway_types_path = os.path.join(setup.app_path, 'highway_types.csv')
     if not os.path.exists(highway_types_path):
         csvtools.dict2csv(highway_types_path, setup.highway_types)
     else:

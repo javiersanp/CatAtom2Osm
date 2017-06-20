@@ -11,6 +11,7 @@ from PyQt4.QtCore import QVariant
 
 import setup
 from layer import *
+from unittest_main import QgsSingleton
 
 import gettext
 if setup.platform.startswith('win'):
@@ -18,11 +19,10 @@ if setup.platform.startswith('win'):
         os.environ['LANG'] = setup.language
 gettext.install(setup.app_name.lower(), localedir=setup.localedir)
 
+#QgsApplication.setPrefixPath(setup.qgs_prefix_path, True)
+qgs = QgsSingleton() #QgsApplication([], False)
 
-QgsApplication.setPrefixPath(setup.qgs_prefix_path, True)
-qgs = QgsApplication([], False)
-
-def setUpModule():
+"""def setUpModule():
     qgs.initQgis()
     gdal.SetConfigOption('GML_ATTRIBUTES_TO_OGR_FIELDS', 'YES')
     gdal.SetConfigOption('GML_SKIP_RESOLVE_ELEMS', 'ALL')
@@ -31,7 +31,7 @@ def tearDownModule():
     qgs.exitQgis()
     gdal.SetConfigOption('GML_ATTRIBUTES_TO_OGR_FIELDS', 'NO')
     gdal.SetConfigOption('GML_SKIP_RESOLVE_ELEMS', 'ALL')
-
+"""
 
 class TestPoint(unittest.TestCase):
 
@@ -551,4 +551,4 @@ class TestDebugWriter(unittest.TestCase):
         writer = DebugWriter('test', QgsCoordinateReferenceSystem(4326), 'memory')
         writer.add_point(QgsPoint(0, 0), 'foobar')
         writer.add_point(QgsPoint(0, 0))
-        
+

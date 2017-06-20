@@ -2,9 +2,14 @@
 import unittest
 import logging
 import gettext
+import os
+from tempfile import gettempdir
+
+from qgis.core import *
 
 import setup
 import hgwnames
+from unittest_main import QgsSingleton
 
 logging.disable(logging.WARNING)
 if setup.platform.startswith('win'):
@@ -12,6 +17,16 @@ if setup.platform.startswith('win'):
         os.environ['LANG'] = setup.language
 gettext.install(setup.app_name.lower(), localedir=setup.localedir)
 
+#QgsApplication.setPrefixPath(setup.qgs_prefix_path, True)
+qgs = QgsSingleton() #QgsApplication([], False)
+
+
+"""def setUpModule():
+    qgs.initQgis()
+
+def tearDownModule():
+    qgs.exitQgis()
+"""
 
 class TestHgwnames(unittest.TestCase):
 
@@ -27,8 +42,32 @@ class TestHgwnames(unittest.TestCase):
             "DS ARANJASSA,S'": "Diseminados Aranjassa, s'",
             u"CL AIGUA DOLÇA (L')": u"Calle Aigua Dolça (l')",
             u"CL RUL·LAN": u"Calle Rul·lan",
+            "XX FooBar": "XX Foobar"
         }
         for (inp, out) in names.items():
             self.assertEquals(hgwnames.parse(inp), out)
 
-
+    def test_get_names(self):
+        layer = QgsVectorLayer('test/address.gml|layername=thoroughfarename', 'tn', 'ogr')
+        self.assertTrue(layer.isValid(), "Init QGIS")
+        translations = {}
+        for feat in layer.getFeatures():
+            translations[feat['text']] = hgwnames.parse(feat['text'])
+        a_path = gettempdir()
+        highway_types_path = os.path.join(setup.app_path, 'highway_types.csv')
+        highway_names_path = os.path.join(a_path, 'highway_names.csv')
+        if os.path.exists(highway_types_path):
+            os.rename(highway_types_path, highway_types_path + '.bak')
+        self.assertFalse(os.path.exists(highway_names_path))
+        (names, is_new) = hgwnames.get_translations(layer, a_path)
+        self.assertTrue(os.path.exists(highway_names_path))
+        self.assertTrue(os.path.exists(highway_types_path))
+        self.assertEquals(translations, names)
+        self.assertTrue(is_new)
+        (names, is_new) = hgwnames.get_translations(layer, a_path)
+        self.assertEquals(translations, names)
+        self.assertFalse(is_new)
+        os.remove(highway_types_path)
+        os.remove(highway_names_path)
+        if os.path.exists(highway_types_path + '.bak'):
+            os.rename(highway_types_path + '.bak', highway_types_path)
