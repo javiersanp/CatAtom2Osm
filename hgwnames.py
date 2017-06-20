@@ -20,7 +20,11 @@ def parse(name):
     for (i, word) in enumerate(re.split('[ ]+', name)):
         nude_word = re.sub('^\(|\)$', '', word) # Remove enclosing parenthesis
         if i == 0:
-            new_word = setup.highway_types[word]
+            try:
+                new_word = setup.highway_types[word]
+            except KeyError:
+                new_word = word
+                log.warning(_("The higway type '%s' is not known"), word)
         elif nude_word in setup.lowcase_words: # Articles
             new_word = word.lower()
         elif len(word) > 3 and word[1] == "'": # Articles with aphostrope
@@ -29,7 +33,7 @@ def parse(name):
             new_word = word.title()
         new_word = new_word.replace(u'·L', u'·l') # Letra ele geminada
         result.append(new_word)
-    return ' '.join(result)
+    return ' '.join(result).strip()
 
 def get_translations(names_layer, output_folder):
     """

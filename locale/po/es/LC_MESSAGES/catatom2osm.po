@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-06-19 13:27+WEST\n"
+"POT-Creation-Date: 2017-06-20 10:25+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -122,17 +122,21 @@ msgstr "Generando '%s'"
 msgid "Zone '%s' is empty"
 msgstr "La zona '%s' está vacía"
 
-#: catatom2osm.py:400
+#: catatom2osm.py:392
+msgid "Territorial office %s %s"
+msgstr "Oficina territorial %s %s"
+
+#: hgwnames.py:27
+msgid "The higway type '%s' is not known"
+msgstr "Tipo de vía '%s' desconocido"
+
+#: hgwnames.py:65
 msgid "The translation file '%s' have been writen in '%s'"
 msgstr "El fichero de conversiones '%s' ha sido generado en '%s'"
 
-#: catatom2osm.py:402
+#: hgwnames.py:67
 msgid "Please, check it before continue"
 msgstr "Por favor, compruébelo antes de continuar"
-
-#: catatom2osm.py:418
-msgid "Territorial office %s %s"
-msgstr "Oficina territorial %s %s"
 
 #: layer.py:286
 msgid "%d multi-polygons splited into %d polygons in the '%s' layer"
@@ -162,23 +166,23 @@ msgstr "Simplificados %d vértices en la capa '%s'"
 msgid "%d adjacent polygons merged into %d polygons in the '%s' layer"
 msgstr "%d polígonos adyacentes fusionados a %d polígonos en la capa '%s'"
 
-#: layer.py:724
+#: layer.py:706
 msgid "Deleted %d building parts with no floors above ground"
 msgstr "Eliminadas %d partes de edificio sin pisos sobre el nivel del suelo"
 
-#: layer.py:805
+#: layer.py:787
 msgid "Merged %d building parts to footprint"
 msgstr "Fusionados %d partes de edificios al contorno"
 
-#: layer.py:825
+#: layer.py:807
 msgid "Assigning task number to each construction"
 msgstr "Asignando número de tarea a cada construcción"
 
-#: layer.py:858
+#: layer.py:840
 msgid "%d features unassigned to a task in the '%s' layer"
 msgstr "%d elementos sin asignar a tarea en la capa '%s'"
 
-#: layer.py:861
+#: layer.py:843
 msgid "All features assigned to tasks in the '%s' layer"
 msgstr "Todos los elementos asignados a tareas en la capa '%s'"
 

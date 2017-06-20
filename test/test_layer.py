@@ -539,22 +539,6 @@ class TestAddressLayer(unittest.TestCase):
         for (attr, value) in zip(attrs, values):
             self.assertEquals(feat[attr], value)
 
-    def test_parse_highway_name(self):
-        names = {
-            "   CL  FOO BAR  TAZ  ": "Calle Foo Bar Taz",
-            u"AV DE ESPAÑA": u"Avenida de España",
-            "CJ GATA (DE LA)": u"Calleja/Callejón Gata (de la)",
-            "CR CUMBRE,DE LA": "Carretera/Carrera Cumbre, de la",
-            "CL HILARIO (ERAS LAS)": "Calle Hilario (Eras las)",
-            "CL BASTIO D'EN SANOGUERA": "Calle Bastio d'en Sanoguera",
-            "CL BANC DE L'OLI": "Calle Banc de l'Oli",
-            "DS ARANJASSA,S'": "Diseminados Aranjassa, s'",
-            u"CL AIGUA DOLÇA (L')": u"Calle Aigua Dolça (l')",
-            u"CL RUL·LAN": u"Calle Rul·lan",
-        }
-        for (inp, out) in names.items():
-            self.assertEquals(AddressLayer.parse_highway_name(inp), out)
-
 
 class TestDebugWriter(unittest.TestCase):
 
