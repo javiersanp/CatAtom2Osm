@@ -656,24 +656,6 @@ class AddressLayer(BaseLayer):
             'AU_id': ('component_href', '[\w\.]+AU[\.0-9]+')
         }
     
-    @staticmethod
-    def parse_highway_name(name):
-        name = re.sub('[,]+', ', ', name).strip() # Avoids comma without trailing space
-        result = []
-        for (i, word) in enumerate(re.split('[ ]+', name)):
-            nude_word = re.sub('^\(|\)$', '', word) # Remove enclosing parenthesis
-            if i == 0:
-                new_word = setup.highway_types[word]
-            elif nude_word in setup.lowcase_words: # Articles
-                new_word = word.lower()
-            elif len(word) > 3 and word[1] == "'": # Articles with aphostrope
-                new_word = word[0:2].lower() + word[2:].title()
-            else:
-                new_word = word.title()
-            new_word = new_word.replace(u'·L', u'·l') # Letra ele geminada
-            result.append(new_word)
-        return ' '.join(result)
-
 
 class ConsLayer(PolygonLayer):
     """Class for constructions"""

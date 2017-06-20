@@ -19,7 +19,7 @@ import translate
 import osmxml
 import osm
 import download
-import csvtools
+import hgwnames
 
 log = logging.getLogger(setup.app_name + "." + __name__)
 if setup.silence_gdal:
@@ -93,8 +93,8 @@ class CatAtom2Osm:
             
         if self.options.address:
             thoroughfarename = self.read_gml_layer("thoroughfarename")
-            highway_names = self.get_highway_names(thoroughfarename)
-            if not highway_names:
+            (highway_names, is_new) = hgwnames.get_translations(thoroughfarename, self.path)
+            if is_new:
                 return
             address_gml = self.read_gml_layer("address")
             if address_gml.fieldNameIndex('component_href') == -1:
@@ -377,32 +377,6 @@ class CatAtom2Osm:
                 zoning.startEditing()
                 zoning.writer.deleteFeatures(to_clean)
                 zoning.commitChanges()
-
-    def get_highway_names(self, names_layer):
-        """
-        If there exists a configuration file for highway types, read it, 
-        else write one with default values. If don't exists a translation file 
-        for highways, creates one, else read it and return
-        """
-        highway_types_path = os.path.join(setup.app_path, 'highways_types.csv')
-        if not os.path.exists(highway_types_path):
-            csvtools.dict2csv(highway_types_path, setup.highway_types)
-        else:
-            csvtools.csv2dict(highway_types_path, setup.highway_types)
-        highway_names_path = os.path.join(self.path, 'highway_names.csv')
-        if not os.path.exists(highway_names_path):
-            highway_names = {}
-            for feat in names_layer.getFeatures():
-                name = feat['text']
-                new_name = layer.AddressLayer.parse_highway_name(name)
-                highway_names[name] = new_name
-                csvtools.dict2csv(highway_names_path, highway_names)
-            log.info(_("The translation file '%s' have been writen in '%s'"),
-                'highway_names.csv', self.path)
-            log.info(_("Please, check it before continue"))
-            return {}
-        else:
-            return csvtools.csv2dict(highway_names_path, {})
 
 
 def list_municipalities(prov_code):
