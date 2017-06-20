@@ -24,7 +24,7 @@ def parse(name):
                 new_word = setup.highway_types[word]
             except KeyError:
                 new_word = word
-                log.warning(_("The higway type '%s' is not known"), word)
+                log.warning(_("The higway type '%s' is not known"), word.encode('utf-8'))
         elif nude_word in setup.lowcase_words: # Articles
             new_word = word.lower()
         elif len(word) > 3 and word[1] == "'": # Articles with aphostrope
