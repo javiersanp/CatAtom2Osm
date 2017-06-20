@@ -4,7 +4,6 @@
 
 from qgis.core import QgsApplication
 import gdal
-from setup import qgs_prefix_path
 
 
 class QgsSingleton(QgsApplication):
@@ -12,7 +11,6 @@ class QgsSingleton(QgsApplication):
     
     def __new__(cls):
         if QgsSingleton._qgs is None:
-            QgsApplication.setPrefixPath(qgs_prefix_path, True)
             QgsSingleton._qgs = QgsApplication([], False)
             QgsSingleton._qgs.initQgis()
             gdal.SetConfigOption('GML_ATTRIBUTES_TO_OGR_FIELDS', 'YES')
