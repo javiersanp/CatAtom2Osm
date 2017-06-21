@@ -346,13 +346,13 @@ class CatAtom2Osm:
             data (Osm): OSM data set
             filename (str): output filename
         """
-        log.debug(_("Generating '%s'"), filename)
         osm_path = os.path.join(self.path, filename)
         data.new_indexes()
         with codecs.open(osm_path,"w", "utf-8") as file_obj:
             file_obj.write("<?xml version='1.0' encoding='UTF-8'?>\n")
             file_obj.write(osmxml.serialize(data))
             file_obj.close()
+        log.info(_("Generated '%s'"), filename)
 
     def split_building_in_tasks(self, building, urban_zoning, rustic_zoning):
         """Generates osm files to import with the task manager"""
