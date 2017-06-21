@@ -26,18 +26,24 @@ def address_tags(feature):
     
 def building_tags(feature):
     """Translations for constructions layer"""
+    building_key = {
+        'functional': 'building',
+        'declined': 'disused:building',
+        'ruin': 'abandoned:building',
+    }
+    get_building_key = lambda feat: building_key.get(feat['condition'], 'building')
     translations = {
         'condition': {
-        	'ruin': '{"ruins": "yes"}',
-        	'declined': '{"disused": "yes"}',
+        	'declined': '{"building": "yes"}',
+        	'ruin': '{"building": "ruins"}',
         },
         'currentUse': {
-            '1_residential': '{"building": "residential"}',
-            '2_agriculture': '{"building": "barn"}',
-            '3_industrial': '{"building": "industrial"}',
-            '4_1_office': '{"building": "office"}',
-            '4_2_retail': '{"building": "retail"}',
-            '4_3_publicServices': '{"building": "public"}'
+            '1_residential': '{"%s": "residential"}' % get_building_key(feature),
+            '2_agriculture': '{"%s": "barn"}' % get_building_key(feature),
+            '3_industrial': '{"%s": "industrial"}' % get_building_key(feature),
+            '4_1_office': '{"%s": "office"}' % get_building_key(feature),
+            '4_2_retail': '{"%s": "retail"}' % get_building_key(feature),
+            '4_3_publicServices': '{"%s": "public"}' % get_building_key(feature),
         },
         'nature': {
             'openAirPool': '{"leisure": "swimming_pool"}'
@@ -50,6 +56,8 @@ def building_tags(feature):
         for value, new_tags in action.items():
             if feature[field] == value:
                 tags.update(json.loads(new_tags))
+    if feature['condition'] == 'ruin' and feature['currentUse'] == None:
+        tags['abandoned:building'] = 'yes'
     if '_part' in feature['localId']:
         tags['building:part'] = 'yes'
     if feature['lev_above']:

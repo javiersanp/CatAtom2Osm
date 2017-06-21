@@ -55,25 +55,29 @@ class TestTranslate(unittest.TestCase):
             'lev_below': 0
         }
         tags = building_tags(feat)
-        self.assertNotIn('ruins', tags)
-        self.assertNotIn('disused', tags)
+        self.assertNotIn('abandoned:building', tags)
+        self.assertNotIn('disused:building', tags)
         self.assertEquals(tags['building'], 'yes')
         self.assertNotIn('building:levels', tags)
         self.assertNotIn('building:levels:underground', tags)
         use = random.randint(0, len(use_values)-1)
+        feat['currentUse'] = None
         feat['condition'] = 'ruin'
-        feat['currentUse'] = use_values[use]
         feat['nature'] = 'openAirPool'
         feat['lev_above'] = 1
         feat['lev_below'] = 2
         feat['localId'] = 'foobar_part1'
         tags = building_tags(feat)
-        self.assertEquals(tags['ruins'], 'yes')
-        self.assertEquals(tags['building'], building_values[use])
+        self.assertEquals(tags['building'], 'ruins')
+        self.assertEquals(tags['abandoned:building'], 'yes')
         self.assertEquals(tags['leisure'], 'swimming_pool')
         self.assertEquals(tags['building:part'], 'yes')
         self.assertEquals(tags['building:levels'], '1')
         self.assertEquals(tags['building:levels:underground'], '2')
+        use = random.randint(0, len(use_values)-1)
+        feat['currentUse'] = use_values[use]
         feat['condition'] = 'declined'
         tags = building_tags(feat)
-        self.assertEquals(tags['disused'], 'yes')
+        self.assertEquals(tags['building'], 'yes')
+        self.assertEquals(tags['disused:building'], building_values[use])
+        use = random.randint(0, len(use_values)-1)
