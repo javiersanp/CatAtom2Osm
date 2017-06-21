@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-06-20 10:25+WEST\n"
+"POT-Creation-Date: 2017-06-21 22:34+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -38,9 +38,9 @@ msgid "Failed to import ElementTree from any known place"
 msgstr "No se pudo importar ElementTree desde ningún lugar conocido"
 
 #: catatom2osm.py:71
-msgid "Directory name must begin with a 5 digits ZIP code"
+msgid "Last directory name must be a 5 digits ZIP code"
 msgstr ""
-"El nombre del directorio debe comenzar con un Código Postal de 5 dígitos"
+"El nombre del último directorio debe ser un Código Postal de 5 dígitos"
 
 #: catatom2osm.py:76
 msgid "Province code '%s' don't exists"

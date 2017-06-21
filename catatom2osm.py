@@ -66,9 +66,9 @@ class CatAtom2Osm:
         """
         # Gets path of data directory and Zip Code value
         self.options = options
-        m = re.match("\d{5}", os.path.split(a_path)[-1])
+        m = re.match("^\d{5}$", os.path.split(a_path)[-1])
         if not m:
-            raise ValueError(_("Directory name must begin with a 5 digits ZIP code"))
+            raise ValueError(_("Last directory name must be a 5 digits ZIP code"))
         self.path = a_path
         self.zip_code = m.group()
         self.prov_code = self.zip_code[0:2]
