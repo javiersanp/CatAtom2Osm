@@ -19,7 +19,6 @@ def address_tags(feature):
         tags['addr:postcode'] = '%05d' % int(feature['postCode'])
     except:
         pass
-    tags['addr:city'] = feature['AU_text']
     if feature['spec'] == 'Entrance':
         tags['entrance'] = 'yes'
     return tags

@@ -26,13 +26,11 @@ class TestTranslate(unittest.TestCase):
             'TN_text': '111', 
             'designator': '222',
             'postCode': '',
-            'AU_text': '444',
             'spec': 'Parcel'
         }
         tags = address_tags(feat)
         self.assertEquals(tags['addr:street'], '111')
         self.assertEquals(tags['addr:housenumber'], '222')
-        self.assertEquals(tags['addr:city'], '444')
         self.assertNotIn('addr:postcode', tags)
         self.assertNotIn('entrance', tags)
         feat['spec'] = 'Entrance'
