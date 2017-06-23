@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-06-22 08:48+WEST\n"
+"POT-Creation-Date: 2017-06-23 12:44+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -53,7 +53,7 @@ msgstr "No es un directorio: '%s'"
 msgid "Initialized qGis API"
 msgstr "Inicializada la API de qGis"
 
-#: catatom2osm.py:101
+#: catatom2osm.py:97
 msgid ""
 "Could not resolve joined tables for the '%s' layer, please try again with "
 "the zip file"
@@ -61,127 +61,123 @@ msgstr ""
 "No se pudieron resolver las tablas combinadas para la capa '%s', inténtalo "
 "de nuevo con el archivo zip"
 
-#: catatom2osm.py:144 catatom2osm.py:277
-msgid "The layer '%s' is empty"
-msgstr "La capa '%s' está vacía"
-
-#: catatom2osm.py:187
-msgid "Finished!"
-msgstr "¡Terminado!"
-
-#: catatom2osm.py:188
-msgid "Only for testing purposses. Don't upload any result to OSM"
-msgstr "Sólo para fines de prueba. No cargue ningún resultado en OSM"
-
-#: catatom2osm.py:198
-msgid "Searching the url for the '%s' layer of '%s'..."
-msgstr "Buscando la url para la capa '%s' de '%s'..."
-
-#: catatom2osm.py:203
-msgid "Zip code '%s' don't exists"
-msgstr "El Código Postal '%s' no existe"
-
-#: catatom2osm.py:207
-msgid "Downloading '%s'"
-msgstr "Descargando '%s'"
-
-#: catatom2osm.py:261
-msgid "Unknow layer name '%s'"
-msgstr "El nombre de capa '%s' es desconocido"
-
-#: catatom2osm.py:281
-msgid "Could not determine the CRS of '%s'"
-msgstr "No se puede determinar el CRS de '%s'"
-
-#: catatom2osm.py:286
-msgid "Failed to load layer '%s'"
-msgstr "Error al cargar la capa: '%s'"
-
-#: catatom2osm.py:288 layer.py:629 layer.py:631
-msgid "Loaded %d features in the '%s' layer"
-msgstr "Cargados %d elementos en la capa '%s'"
-
-#: catatom2osm.py:303
-msgid "Failed to write layer: '%s'"
-msgstr "Error al escribir la capa: '%s'"
-
-#: catatom2osm.py:333
-msgid "Detected a %s geometry in the '%s' layer"
-msgstr "Detectada una geometría %s en la capa '%s'"
-
-#: catatom2osm.py:336
-msgid "Loaded %d nodes, %d ways, %d relations from '%s' layer"
-msgstr "Cargados %d nodos, %d vías, %d relaciones de la capa '%s'"
-
-#: catatom2osm.py:355
-msgid "Generated '%s'"
-msgstr "Generado '%s'"
-
-#: catatom2osm.py:374
-msgid "Zone '%s' is empty"
-msgstr "La zona '%s' está vacía"
-
-#: catatom2osm.py:392
-msgid "Territorial office %s %s"
-msgstr "Oficina territorial %s %s"
-
-#: hgwnames.py:27
-msgid "The higway type '%s' is not known"
-msgstr "Tipo de vía '%s' desconocido"
-
-#: hgwnames.py:65
+#: catatom2osm.py:120
 msgid "The translation file '%s' have been writen in '%s'"
 msgstr "El fichero de conversiones '%s' ha sido generado en '%s'"
 
-#: hgwnames.py:67
-msgid "Please, check it before continue"
-msgstr "Por favor, compruébelo antes de continuar"
+#: catatom2osm.py:122
+msgid "Please, check it and run again"
+msgstr "Por favor, compruébelo y ejecute de nuevo"
 
-#: layer.py:286
+#: catatom2osm.py:148 catatom2osm.py:281
+msgid "The layer '%s' is empty"
+msgstr "La capa '%s' está vacía"
+
+#: catatom2osm.py:191
+msgid "Finished!"
+msgstr "¡Terminado!"
+
+#: catatom2osm.py:192
+msgid "Only for testing purposses. Don't upload any result to OSM"
+msgstr "Sólo para fines de prueba. No cargue ningún resultado en OSM"
+
+#: catatom2osm.py:202
+msgid "Searching the url for the '%s' layer of '%s'..."
+msgstr "Buscando la url para la capa '%s' de '%s'..."
+
+#: catatom2osm.py:207
+msgid "Zip code '%s' don't exists"
+msgstr "El Código Postal '%s' no existe"
+
+#: catatom2osm.py:211
+msgid "Downloading '%s'"
+msgstr "Descargando '%s'"
+
+#: catatom2osm.py:265
+msgid "Unknow layer name '%s'"
+msgstr "El nombre de capa '%s' es desconocido"
+
+#: catatom2osm.py:285
+msgid "Could not determine the CRS of '%s'"
+msgstr "No se puede determinar el CRS de '%s'"
+
+#: catatom2osm.py:290
+msgid "Failed to load layer '%s'"
+msgstr "Error al cargar la capa: '%s'"
+
+#: catatom2osm.py:292 layer.py:632 layer.py:634
+msgid "Loaded %d features in the '%s' layer"
+msgstr "Cargados %d elementos en la capa '%s'"
+
+#: catatom2osm.py:307
+msgid "Failed to write layer: '%s'"
+msgstr "Error al escribir la capa: '%s'"
+
+#: catatom2osm.py:337
+msgid "Detected a %s geometry in the '%s' layer"
+msgstr "Detectada una geometría %s en la capa '%s'"
+
+#: catatom2osm.py:340
+msgid "Loaded %d nodes, %d ways, %d relations from '%s' layer"
+msgstr "Cargados %d nodos, %d vías, %d relaciones de la capa '%s'"
+
+#: catatom2osm.py:359
+msgid "Generated '%s'"
+msgstr "Generado '%s'"
+
+#: catatom2osm.py:378
+msgid "Zone '%s' is empty"
+msgstr "La zona '%s' está vacía"
+
+#: catatom2osm.py:396
+msgid "Territorial office %s %s"
+msgstr "Oficina territorial %s %s"
+
+#: layer.py:289
 msgid "%d multi-polygons splited into %d polygons in the '%s' layer"
 msgstr "%d multipolígonos divididos a %d poligonos en la capa '%s'"
 
-#: layer.py:403
+#: layer.py:406
 msgid "Merged %d close vertices in the '%s' layer"
 msgstr "Fusionados %d vértices próximos en la capa '%s'"
 
-#: layer.py:438
+#: layer.py:441
 msgid "Merged %d duplicated vertices of polygons in the '%s' layer"
 msgstr "Fusionados %d vértices de polígono duplicados en la capa '%s'"
 
-#: layer.py:441
+#: layer.py:444
 msgid "Deleted %d invalid geometries in the '%s' layer"
 msgstr "Eliminadas %d geometrías en la capa '%s'"
 
-#: layer.py:485
+#: layer.py:488
 msgid "Created %d topological points in the '%s' layer"
 msgstr "Creados %d puntos topológicos en la capa '%s'"
 
-#: layer.py:540
+#: layer.py:543
 msgid "Simplified %d vertices in the '%s' layer"
 msgstr "Simplificados %d vértices en la capa '%s'"
 
-#: layer.py:559
+#: layer.py:562
 msgid "%d adjacent polygons merged into %d polygons in the '%s' layer"
 msgstr "%d polígonos adyacentes fusionados a %d polígonos en la capa '%s'"
 
-#: layer.py:706
+#: layer.py:709
 msgid "Deleted %d building parts with no floors above ground"
 msgstr "Eliminadas %d partes de edificio sin pisos sobre el nivel del suelo"
 
-#: layer.py:787
+#: layer.py:790
 msgid "Merged %d building parts to footprint"
 msgstr "Fusionados %d partes de edificios al contorno"
 
-#: layer.py:807
+#: layer.py:810
 msgid "Assigning task number to each construction"
 msgstr "Asignando número de tarea a cada construcción"
 
-#: layer.py:840
+#: layer.py:843
 msgid "%d features unassigned to a task in the '%s' layer"
 msgstr "%d elementos sin asignar a tarea en la capa '%s'"
 
-#: layer.py:843
+#: layer.py:846
 msgid "All features assigned to tasks in the '%s' layer"
 msgstr "Todos los elementos asignados a tareas en la capa '%s'"
 
@@ -262,3 +258,6 @@ msgstr "Demasiados argumentos, proporcione sólo la ruta de un directorio."
 #: main.py:98
 msgid "Please, install QGIS"
 msgstr "Por favor, instala QGIS"
+
+#~ msgid "The higway type '%s' is not known"
+#~ msgstr "Tipo de vía '%s' desconocido"

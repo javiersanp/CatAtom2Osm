@@ -5,12 +5,9 @@ Parsing of highway names
 
 import os
 import re
-import logging
 
 import setup
 import csvtools
-
-log = logging.getLogger(setup.app_name + "." + __name__)
 
 
 def parse(name):
@@ -24,7 +21,6 @@ def parse(name):
                 new_word = setup.highway_types[word]
             except KeyError:
                 new_word = word
-                log.warning(_("The higway type '%s' is not known"), word.encode('utf-8'))
         elif nude_word in setup.lowcase_words: # Articles
             new_word = word.lower()
         elif len(word) > 3 and word[1] == "'": # Articles with aphostrope
@@ -35,16 +31,23 @@ def parse(name):
         result.append(new_word)
     return ' '.join(result).strip()
 
-def get_translations(names_layer, output_folder):
+def get_translations(address_layer, output_folder, street_fn, housenumber_fn):
     """
     If there exists the configuration file 'highway_types.csv', read it, 
     else write one with default values. If don't exists the translations file 
     'highway_names.csv', creates one parsing names_layer, else reads and returns
     it as a dictionary.
     
+    * 'highway_types.csv' is located in the application path and contains 
+    translations from abreviaturs to full types of highways.
+    * 'highway_names.csv' is located in the outputh folder and contains 
+    corrections for original highway names.
+    
     Args:
-        names_layer (AddressLayer): Layer with street names (thoroughfarename)
+        address_layer (AddressLayer): Layer with addresses
         output_folder (str): Directory where the source files are located
+        street_fn (str): Name of the field for the address street name
+        housenumber_fn (str): Name of the field for the address housenumber
     
     Returns:
         (dict, bool): Dictionary with highway names translations and a flag to
@@ -58,13 +61,14 @@ def get_translations(names_layer, output_folder):
     highway_names_path = os.path.join(output_folder, 'highway_names.csv')
     if not os.path.exists(highway_names_path):
         highway_names = {}
-        for feat in names_layer.getFeatures():
-            name = feat['text']
-            highway_names[name] = parse(name)
+        for feat in address_layer.getFeatures():
+            name = feat[street_fn]
+            if not name in highway_names:
+            	highway_names[name] = ''
+            if highway_names[name] == '' and \
+            	not re.match(setup.no_number, feat[housenumber_fn]):
+		            highway_names[name] = parse(name)
             csvtools.dict2csv(highway_names_path, highway_names)
-        log.info(_("The translation file '%s' have been writen in '%s'"),
-            'highway_names.csv', output_folder)
-        log.info(_("Please, check it before continue"))
         return (highway_names, True)
     else:
         return (csvtools.csv2dict(highway_names_path, {}), False)

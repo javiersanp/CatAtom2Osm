@@ -92,10 +92,6 @@ class CatAtom2Osm:
         """Launches the app"""
             
         if self.options.address:
-            thoroughfarename = self.read_gml_layer("thoroughfarename")
-            (highway_names, is_new) = hgwnames.get_translations(thoroughfarename, self.path)
-            if is_new:
-                return
             address_gml = self.read_gml_layer("address")
             if address_gml.fieldNameIndex('component_href') == -1:
                 log.error(_("Could not resolve joined tables for the '%s' "
@@ -106,10 +102,13 @@ class CatAtom2Osm:
                 address.append(address_gml)
                 adminunitname = self.read_gml_layer("adminunitname")
                 postaldescriptor = self.read_gml_layer("postaldescriptor")
+                thoroughfarename = self.read_gml_layer("thoroughfarename")
                 address.join_field(thoroughfarename, 'TN_id', 'gml_id', ['text'], 'TN_')
                 address.join_field(adminunitname, 'AU_id', 'gml_id', ['text'], 'AU_')
                 address.join_field(postaldescriptor, 'PD_id', 'gml_id', ['postCode'])
                 del thoroughfarename, adminunitname, postaldescriptor
+                (highway_names, is_new) = hgwnames.get_translations(address, 
+                    self.path, 'TN_text', 'designator')
                 if log.getEffectiveLevel() == logging.DEBUG:
                     self.export_layer(address, 'address.geojson', 'GeoJSON')
                     self.export_layer(address, 'address.shp')
@@ -117,6 +116,11 @@ class CatAtom2Osm:
                 address.reproject()
                 address_osm = self.osm_from_layer(address, translate.address_tags)
                 self.write_osm(address_osm, "address.osm")
+                if is_new:
+                    log.info(_("The translation file '%s' have been writen in '%s'"),
+                        'highway_names.csv', self.path)
+                    log.info(_("Please, check it and run again"))
+                    return
 
         if self.options.zoning:        
             zoning_gml = self.read_gml_layer("cadastralzoning")

@@ -49,13 +49,15 @@ localedir = os.path.join(app_path, 'locale', 'po')
 platform = sys.platform
 eol = '\n\r' if platform.startswith('win') else '\n'
 
-lowcase_words = [
+no_number = 'S-N' # Regular expression to match addresses without number
+
+lowcase_words = [ # Words to exclude from the general Title Case rule for highway names
     'DE', 'DEL', 'EL', 'LA', 'LOS', 'LAS', 'Y', 'AL', 'EN',
     'A LA', 'A EL', 'A LOS', 'DE LA', 'DE EL', 'DE LOS', 'DE LAS',
     'ELS', 'LES', "L'", "D'", "N'", "S'", "D'EN"
 ]
 
-highway_types = {
+highway_types = { # Dictionary for default 'highway_types.csv'
     'AG': u'Agregado',
     'AL': u'Aldea/Alameda',
     'AR': u'Area/Arrabal',

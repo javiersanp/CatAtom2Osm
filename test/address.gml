@@ -25,7 +25,7 @@
     <AD:AddressLocator>
      <AD:designator>
       <AD:LocatorDesignator>
-       <AD:designator>12</AD:designator>
+       <AD:designator>S-N</AD:designator>
        <AD:type>1</AD:type>
       </AD:LocatorDesignator>
      </AD:designator>
@@ -177,7 +177,7 @@
     <AD:AddressLocator>
      <AD:designator>
       <AD:LocatorDesignator>
-       <AD:designator>11</AD:designator>
+       <AD:designator>S-N</AD:designator>
        <AD:type>1</AD:type>
       </AD:LocatorDesignator>
      </AD:designator>
