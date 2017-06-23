@@ -123,7 +123,7 @@ highway_types = { # Dictionary for default 'highway_types.csv'
     'RM': u'Ramal',
     'RP': u'Rampa',
     'RR': u'Riera',
-    'RU': u'Rua',
+    'RU': u'Rúa',
     'SA': u'Salida',
     'SD': u'Senda',
     'SL': u'Solar',
