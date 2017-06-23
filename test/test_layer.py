@@ -139,12 +139,13 @@ class TestBaseLayer(unittest.TestCase):
         self.layer.addFeature(feat)
         self.layer.commitChanges()
         self.assertGreater(self.layer.featureCount(), 0)
-        self.layer.translate_field('FOOBAR', {})
+        self.layer.translate_field('TAZ', {})
         self.layer.translate_field('A', translations)
         for feat in self.layer.getFeatures():
-            if feat['A'] != 'FooBar':
-                self.assertEquals(feat['A'], feat['A'].lower())
-        self.assertEquals(feat['A'], 'FooBar')
+            self.assertNotEquals(feat['A'], 'FooBar')
+            self.assertEquals(feat['A'], feat['A'].lower())
+        self.layer.translate_field('A', translations, clean=False)
+        self.assertGreater(self.layer.featureCount(), 0)
 
     def test_reproject(self):
         layer = BaseLayer("Polygon", "test", "memory")

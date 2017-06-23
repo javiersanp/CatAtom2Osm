@@ -110,13 +110,13 @@ class CatAtom2Osm:
                 address.join_field(adminunitname, 'AU_id', 'gml_id', ['text'], 'AU_')
                 address.join_field(postaldescriptor, 'PD_id', 'gml_id', ['postCode'])
                 del thoroughfarename, adminunitname, postaldescriptor
+                if log.getEffectiveLevel() == logging.DEBUG:
+                    self.export_layer(address, 'address.geojson', 'GeoJSON')
+                    self.export_layer(address, 'address.shp')
                 address.translate_field('TN_text', highway_names)
                 address.reproject()
                 address_osm = self.osm_from_layer(address, translate.address_tags)
                 self.write_osm(address_osm, "address.osm")
-                if log.getEffectiveLevel() == logging.DEBUG:
-                    self.export_layer(address, 'address.geojson', 'GeoJSON')
-                    self.export_layer(address, 'address.shp')
 
         if self.options.zoning:        
             zoning_gml = self.read_gml_layer("cadastralzoning")

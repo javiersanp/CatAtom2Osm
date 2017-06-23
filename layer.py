@@ -60,7 +60,7 @@ class BaseLayer(QgsVectorLayer):
         self.rename={}
         self.resolve={}
         self.reference_matchs={}
-	
+    
     def copy_feature(self, feature, rename=None, resolve=None):
         """
         Return a copy of feature renaming attributes or resolving xlink references.
@@ -207,24 +207,27 @@ class BaseLayer(QgsVectorLayer):
             self.writer.changeAttributeValues({feature.id(): attrs})
         self.commitChanges()
 
-    def translate_field(self, field_name, translations):
+    def translate_field(self, field_name, translations, clean=True):
         """
         Transform the values of a field
         
         Args:
             field_name (str): Name of the field to transform
             translations (dict): A dictionary used to transform field values
+            clean (bool): If true (default), delete features without translation
         """
         field_ndx = self.pendingFields().fieldNameIndex(field_name)
         if field_ndx >= 0:
+            to_clean = []
             self.startEditing()
             for feat in self.getFeatures():
                 value = feat[field_name]
-                try:
+                if value in translations and translations[value] != '':
                     new_value = translations[value]
                     self.changeAttributeValue(feat.id(), field_ndx, new_value)
-                except KeyError:
-                    pass
+                elif clean:
+                    to_clean.append(feat.id())
+            self.writer.deleteFeatures(to_clean)
             self.commitChanges()
 
     def export(self, path, driver_name="ESRI Shapefile", overwrite=True):
