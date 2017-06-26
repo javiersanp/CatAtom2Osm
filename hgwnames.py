@@ -23,11 +23,19 @@ def parse(name):
                 new_word = word
         elif nude_word in setup.lowcase_words: # Articles
             new_word = word.lower()
-        elif len(word) > 3 and word[1] == "'": # Articles with aphostrope
-            new_word = word[0:2].lower() + word[2:].title()
+        elif "'" in word[1:-1]: # Articles with aphostrope
+            left = word.split("'")[0]
+            right = word.split("'")[-1]
+            if left in ['C', 'D', 'L', 'N', 'S']:
+                new_word = left.lower() + "'" + right.title()
+            elif right in ['S', 'N', 'L', 'LA', 'LS']:
+                new_word = left.title() + "'" + right.lower()
+            else:
+                new_word = word.title()
         else:
             new_word = word.title()
         new_word = new_word.replace(u'·L', u'·l') # Letra ele geminada
+        new_word = new_word.replace(u'.L', u'·l') # Letra ele geminada
         result.append(new_word)
     return ' '.join(result).strip()
 

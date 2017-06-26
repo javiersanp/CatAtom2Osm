@@ -31,6 +31,9 @@ class TestHgwnames(unittest.TestCase):
             "DS ARANJASSA,S'": "Diseminados Aranjassa, s'",
             u"CL AIGUA DOLÇA (L')": u"Calle Aigua Dolça (l')",
             u"CL RUL·LAN": u"Calle Rul·lan",
+            "CL FONTE'L PILO": "Calle Fonte'l Pilo",
+            "CL TRENET D'ALCOI": "Calle Trenet d'Alcoi",
+            "CL SANT MARCEL.LI": u"Calle Sant Marcel·li",
             "XX FooBar": "XX Foobar"
         }
         for (inp, out) in names.items():
