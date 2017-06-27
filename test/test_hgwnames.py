@@ -34,6 +34,7 @@ class TestHgwnames(unittest.TestCase):
             "CL FONTE'L PILO": "Calle Fonte'l Pilo",
             "CL TRENET D'ALCOI": "Calle Trenet d'Alcoi",
             "CL SANT MARCEL.LI": u"Calle Sant Marcel·li",
+            "CL O'DONNELL": "Calle O'Donnell",
             "XX FooBar": "XX Foobar"
         }
         for (inp, out) in names.items():
