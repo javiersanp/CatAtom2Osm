@@ -140,3 +140,14 @@ highway_types = { # Dictionary for default 'highway_types.csv'
     'PG': u'Polígono',
     'VI': u'Vía de enlace' 
 }
+
+place_types = [
+	'Agregado', 'Aldea', u'Área', 'Barrio', 'Barranco', u'Cañada', 'Colegio', 
+	'Cigarral', 'Chalet', 'Concejo', 'Campa', 'Campo', u'Caserío', 'Conjunto', 
+	u'Diputación', 'Diseminados', 'Edificios', 'Extramuros', 'Entrada', 
+	'Ensanche', 'Extrarradio', 'Finca', 'Grupo', 'Huerta', 'Huerto', 
+	'Jardines', 'Lugar', 'Mercado', 'Muelle', 'Municipio', u'Masías', 'Monte', 
+	'Manzana', 'Poblado', 'Partida', u'Polígono', u'Páramo', 'Parroquia', 'Solar', 
+	'Terrenos', u'Urbanización', 'Bulevar', 'Sector'
+]
+

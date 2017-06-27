@@ -2,6 +2,7 @@
 """Translations from source fields to OSM tags"""
 
 import json
+import setup
 
 def all_tags(feature):
     """All fields to tags translations"""
@@ -13,7 +14,14 @@ def all_tags(feature):
 def address_tags(feature):
     """Translatios for address layer fields"""
     tags = {}
-    tags['addr:street'] = feature['TN_text']
+    hgw_name = feature['TN_text'].strip()
+    if len(hgw_name) == 0:
+    	return tags
+    hgw_type = hgw_name.split(' ')[0]
+    if hgw_type in setup.place_types:
+    	tags['addr:place'] = hgw_name
+    else:
+	    tags['addr:street'] = hgw_name
     tags['addr:housenumber'] = feature['designator']
     try:
         tags['addr:postcode'] = '%05d' % int(feature['postCode'])

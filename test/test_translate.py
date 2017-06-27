@@ -22,6 +22,7 @@ class TestTranslate(unittest.TestCase):
             self.assertTrue(dest[k], str(v))
 
     def test_address_tags(self):
+    	self.assertEquals(address_tags({'TN_text': '  ', 'postCode': '9'}), {})
         feat = {
             'TN_text': '111', 
             'designator': '222',
@@ -38,6 +39,15 @@ class TestTranslate(unittest.TestCase):
         tags = address_tags(feat)
         self.assertEquals(tags['entrance'], 'yes')
         self.assertEquals(tags['addr:postcode'], '00333')
+        feat = {
+            'TN_text': 'Lugar foo', 
+            'designator': '',
+            'postCode': '',
+            'spec': ''
+        }
+        tags = address_tags(feat)
+        self.assertEquals(tags['addr:place'], 'Lugar foo')
+        self.assertNotIn('addr:street', tags)
 
     def test_building_tags(self):
         building_values = ('residential', 'barn', 'industrial', 'office', 
