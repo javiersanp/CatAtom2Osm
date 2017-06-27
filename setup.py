@@ -61,7 +61,7 @@ lowcase_words = [ # Words to exclude from the general Title Case rule for highwa
 highway_types = { # Dictionary for default 'highway_types.csv'
     'AG': u'Agregado',
     'AL': u'Aldea/Alameda',
-    'AR': u'Area/Arrabal',
+    'AR': u'Área/Arrabal',
     'AU': u'Autopista',
     'AV': u'Avenida',
     'AY': u'Arroyo',
