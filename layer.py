@@ -699,6 +699,11 @@ class ConsLayer(PolygonLayer):
     def is_part(feature):
         """Part features have '_part' in its localId field"""
         return '_part' in feature['localId']
+    
+    @staticmethod
+    def is_pool(feature):
+        """Pool features have '_PI.' in its localId field"""
+        return '_PI.' in feature['localId']
 
     def remove_parts_below_ground(self):
         """Remove all parts with 'lev_above' field equal 0."""
@@ -789,6 +794,37 @@ class ConsLayer(PolygonLayer):
         if parts_merged:
             log.info(_("Merged %d building parts to footprint"), parts_merged)
 
+    def remove_duplicated_holes(self):
+        log.info("Buscando agujeritos")
+        (parents_per_vertex, features) = self.get_parents_per_vertex_and_features()
+        ip = 0
+        self.startEditing()
+        for feature in self.getFeatures():
+            if ConsLayer.is_pool(feature):
+                continue
+            geom = feature.geometry()
+            to_clean = []
+            for (i, ring) in enumerate(geom.asPolygon()[1:]):
+                first_parents = parents_per_vertex[ring[0]]
+                for point in ring[1:-1]:
+                    duplicated = parents_per_vertex[point] == first_parents
+                    if not duplicated:
+                        break
+                first_parents.remove(feature.id())
+                if duplicated and len(first_parents) > 0:
+                    if any([ConsLayer.is_pool(features[fid]) for fid in first_parents]) or (
+                            ConsLayer.is_part(feature) and any([ConsLayer.is_part(features[fid]) for fid in first_parents])):
+                        print feature['localId'], features[fid]['localId'], i+1, geom.deleteRing(i+1)
+                        to_clean.append(i + 1)
+                        ip += 1
+            if to_clean:
+                for ring in sorted(to_clean, reverse=True):
+                    geom.deleteRing(ring)
+                self.writer.changeGeometryValues({feature.id(): geom})
+        self.commitChanges()
+        if ip:
+            log_info(_("Removed %d duplicated inner rings"), ip)
+                    
     def clean(self):
         """
         Merge duplicated vertices, add topological points, simplify layer
@@ -799,6 +835,7 @@ class ConsLayer(PolygonLayer):
         self.add_topological_points()
         self.simplify()
         self.merge_building_parts()
+        self.remove_duplicated_holes()
 
     def set_tasks(self, urban_zoning, rustic_zoning):
         """Assings to the 'task' field the label of the zone that each feature 
