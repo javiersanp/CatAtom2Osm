@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-06-23 12:44+WEST\n"
+"POT-Creation-Date: 2017-06-28 12:29+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -50,8 +50,8 @@ msgid "Not a directory: '%s'"
 msgstr "No es un directorio: '%s'"
 
 #: catatom2osm.py:89
-msgid "Initialized qGis API"
-msgstr "Inicializada la API de qGis"
+msgid "Initialized QGIS API"
+msgstr "Inicializada la API de QGIS"
 
 #: catatom2osm.py:97
 msgid ""
@@ -161,23 +161,27 @@ msgstr "Simplificados %d vértices en la capa '%s'"
 msgid "%d adjacent polygons merged into %d polygons in the '%s' layer"
 msgstr "%d polígonos adyacentes fusionados a %d polígonos en la capa '%s'"
 
-#: layer.py:709
+#: layer.py:714
 msgid "Deleted %d building parts with no floors above ground"
 msgstr "Eliminadas %d partes de edificio sin pisos sobre el nivel del suelo"
 
-#: layer.py:790
+#: layer.py:795
 msgid "Merged %d building parts to footprint"
 msgstr "Fusionados %d partes de edificios al contorno"
 
-#: layer.py:810
+#: layer.py:826
+msgid "Removed %d duplicated inner rings"
+msgstr "Eliminados %d anillos interiores duplicados"
+
+#: layer.py:847
 msgid "Assigning task number to each construction"
 msgstr "Asignando número de tarea a cada construcción"
 
-#: layer.py:843
+#: layer.py:880
 msgid "%d features unassigned to a task in the '%s' layer"
 msgstr "%d elementos sin asignar a tarea en la capa '%s'"
 
-#: layer.py:846
+#: layer.py:883
 msgid "All features assigned to tasks in the '%s' layer"
 msgstr "Todos los elementos asignados a tareas en la capa '%s'"
 

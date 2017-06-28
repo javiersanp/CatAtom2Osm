@@ -86,7 +86,7 @@ class CatAtom2Osm:
         # sets GDAL to convert xlink references to fields but not resolve
         gdal.SetConfigOption('GML_ATTRIBUTES_TO_OGR_FIELDS', 'YES')
         gdal.SetConfigOption('GML_SKIP_RESOLVE_ELEMS', 'ALL')
-        log.debug(_("Initialized qGis API"))
+        log.debug(_("Initialized QGIS API"))
 
     def run(self):
         """Launches the app"""
