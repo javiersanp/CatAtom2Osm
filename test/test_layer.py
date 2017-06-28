@@ -342,7 +342,11 @@ class TestConsLayer(unittest.TestCase):
     
     def test_is_part(self):
         self.assertTrue(ConsLayer.is_part({'localId': 'foo_part1'}))
-        self.assertFalse(ConsLayer.is_part({'localId': 'foo_P1.1'}))
+        self.assertFalse(ConsLayer.is_part({'localId': 'foo_PI.1'}))
+
+    def test_is_pool(self):
+        self.assertTrue(ConsLayer.is_pool({'localId': 'foo_PI.1'}))
+        self.assertFalse(ConsLayer.is_pool({'localId': 'foo_part1'}))
 
     def test_append_building(self):
         layer = ConsLayer()
@@ -416,6 +420,18 @@ class TestConsLayer(unittest.TestCase):
         self.assertTrue(all([localid==features[fid]['localid'][0:14] 
             for (localid, fids) in parts.items() for fid in fids]))
                 
+    def test_remove_outside_parts(self):
+        refs = [
+            '8742721CS5284S_part10',
+            '8742721CS5284S_part5',
+            '8742708CS5284S_part1',
+            '8742707CS5284S_part2',
+            '8742707CS5284S_part6'
+        ]
+        self.layer.remove_outside_parts()
+        for feat in self.layer.getFeatures():
+            self.assertNotIn(feat['localId'], refs)
+
     def test_merge_building_parts(self):
         self.layer.explode_multi_parts()
         self.layer.remove_parts_below_ground()

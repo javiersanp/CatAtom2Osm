@@ -714,12 +714,33 @@ class ConsLayer(PolygonLayer):
             log.info(_("Deleted %d building parts with no floors above ground"), 
                 len(to_clean))
         self.commitChanges()
-        
+
+    def remove_outside_parts(self):
+        """
+        Remove parts outside the footprint of its building.
+        Precondition: Called before merge_greatest_part
+        """
+        to_clean = []
+        (features, buildings, parts) = self.index_of_building_and_parts()
+        self.startEditing()
+        for (localId, fids) in buildings.items():
+            if localId in parts:
+                for fid in fids:
+                    footprint = features[fid]
+                    parts_for_building = [features[i] for i in parts[localId]]
+                    for part in parts_for_building:
+                        if not (footprint.geometry().contains(part.geometry())
+                                or footprint.geometry().overlaps(part.geometry())):
+                            to_clean.append(part.id())
+        if to_clean:
+            self.writer.deleteFeatures(to_clean)
+            log.info(_("Removed %d building parts outside the footprint"), len(to_clean))
+        self.commitChanges()
+
+            
     def merge_greatest_part(self, footprint, parts):
         """
         Given a building footprint and its parts:
-        
-        * Exclude parts not inside the footprint.
         
         * If the area of the parts above ground is equal to the area of the 
           footprint.
@@ -730,12 +751,11 @@ class ConsLayer(PolygonLayer):
             
           * For the level with greatest area, translate the number of floors 
             values to the footprint and deletes all the parts in that level.
+
+        Precondition: parts outside the footprint have been removed.
         """
-        parts_inside_footprint = [part for part in parts 
-            if footprint.geometry().contains(part.geometry())
-                or footprint.geometry().overlaps(part.geometry())]
         area_for_level = defaultdict(list)
-        for part in parts_inside_footprint:
+        for part in parts:
             level = (part['lev_above'], part['lev_below'])
             area = part.geometry().area()
             if level[0] > 0:
@@ -747,7 +767,7 @@ class ConsLayer(PolygonLayer):
             if footprint_area == parts_area:
                 level_with_greatest_area = max(area_for_level.iterkeys(), key=(lambda level: sum(area_for_level[level])))
                 to_clean = []
-                for part in parts_inside_footprint:
+                for part in parts:
                     if (part['lev_above'], part['lev_below']) == level_with_greatest_area:
                         to_clean.append(part.id())
                 if to_clean:
@@ -795,7 +815,10 @@ class ConsLayer(PolygonLayer):
             log.info(_("Merged %d building parts to footprint"), parts_merged)
 
     def remove_duplicated_holes(self):
-        log.info("Buscando agujeritos")
+        """
+        Remove inner rings of buildings and parts if there exists another 
+        pool or part with the same geometry
+        """
         (parents_per_vertex, features) = self.get_parents_per_vertex_and_features()
         ip = 0
         self.startEditing()
@@ -812,9 +835,9 @@ class ConsLayer(PolygonLayer):
                         break
                 first_parents.remove(feature.id())
                 if duplicated and len(first_parents) > 0:
-                    if any([ConsLayer.is_pool(features[fid]) for fid in first_parents]) or (
-                            ConsLayer.is_part(feature) and any([ConsLayer.is_part(features[fid]) for fid in first_parents])):
-                        print feature['localId'], features[fid]['localId'], i+1, geom.deleteRing(i+1)
+                    any_pool = any([ConsLayer.is_pool(features[fid]) for fid in first_parents])
+                    any_part = any([ConsLayer.is_part(features[fid]) for fid in first_parents])
+                    if any_pool or (ConsLayer.is_part(feature) and any_part):
                         to_clean.append(i + 1)
                         ip += 1
             if to_clean:
@@ -823,7 +846,7 @@ class ConsLayer(PolygonLayer):
                 self.writer.changeGeometryValues({feature.id(): geom})
         self.commitChanges()
         if ip:
-            log_info(_("Removed %d duplicated inner rings"), ip)
+            log.info(_("Removed %d duplicated inner rings"), ip)
                     
     def clean(self):
         """
