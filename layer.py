@@ -765,7 +765,8 @@ class ConsLayer(PolygonLayer):
             footprint_area = round(footprint.geometry().area()*100)
             parts_area = round(sum(sum(v) for v in area_for_level.values())*100)
             if footprint_area == parts_area:
-                level_with_greatest_area = max(area_for_level.iterkeys(), key=(lambda level: sum(area_for_level[level])))
+                level_with_greatest_area = max(area_for_level.iterkeys(), 
+                        key=(lambda level: sum(area_for_level[level])))
                 to_clean = []
                 for part in parts:
                     if (part['lev_above'], part['lev_below']) == level_with_greatest_area:
@@ -816,7 +817,7 @@ class ConsLayer(PolygonLayer):
 
     def remove_duplicated_holes(self):
         """
-        Remove inner rings of buildings and parts if there exists another 
+        Remove inner rings of parts and of buildings if there exists another 
         pool or part with the same geometry
         """
         (parents_per_vertex, features) = self.get_parents_per_vertex_and_features()
@@ -827,7 +828,14 @@ class ConsLayer(PolygonLayer):
                 continue
             geom = feature.geometry()
             to_clean = []
-            for (i, ring) in enumerate(geom.asPolygon()[1:]):
+            rings = geom.asPolygon()
+            if ConsLayer.is_part(feature):
+                if len(rings) > 1:
+                    geom = QgsGeometry.fromPolygon([rings[0]])
+                    ip += (len(rings) - 1)
+                    self.writer.changeGeometryValues({feature.id(): geom})
+                continue
+            for (i, ring) in enumerate(rings[1:]):
                 first_parents = parents_per_vertex[ring[0]]
                 for point in ring[1:-1]:
                     duplicated = parents_per_vertex[point] == first_parents
@@ -835,9 +843,9 @@ class ConsLayer(PolygonLayer):
                         break
                 first_parents.remove(feature.id())
                 if duplicated and len(first_parents) > 0:
-                    any_pool = any([ConsLayer.is_pool(features[fid]) for fid in first_parents])
-                    any_part = any([ConsLayer.is_part(features[fid]) for fid in first_parents])
-                    if any_pool or (ConsLayer.is_part(feature) and any_part):
+                    any_pool = any([ConsLayer.is_pool(features[fid]) 
+                        for fid in first_parents])
+                    if any_pool:
                         to_clean.append(i + 1)
                         ip += 1
             if to_clean:
