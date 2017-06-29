@@ -13,7 +13,10 @@ import setup
 import logging
 log = logging.getLogger(setup.app_name + "." + __name__)
 
-
+is_inside = lambda f1, f2: f2.geometry().contains(f1.geometry()) or \
+    f2.geometry().overlaps(f1.geometry())
+    
+    
 class Point(QgsPoint):
     """Extends QgsPoint with some utility methods"""
 
@@ -727,8 +730,7 @@ class ConsLayer(PolygonLayer):
                     footprint = features[fid]
                     parts_for_building = [features[i] for i in parts[localId]]
                     for part in parts_for_building:
-                        if not (footprint.geometry().contains(part.geometry())
-                                or footprint.geometry().overlaps(part.geometry())):
+                        if not is_inside(part, footprint):
                             to_clean.append(part.id())
         if to_clean:
             self.writer.deleteFeatures(to_clean)
@@ -741,30 +743,27 @@ class ConsLayer(PolygonLayer):
         Given a building footprint and its parts:
         
         * Exclude parts not inside the footprint.
-        
         * If the area of the parts above ground is equal to the area of the 
           footprint.
-          
           * Sum the area for all the parts with the same level. Level is the 
             pair of values 'lev_above' and 'lev_below' (number of floors 
             above, and below groud).
-            
           * For the level with greatest area, translate the number of floors 
             values to the footprint and deletes all the parts in that level.
         """
-        parts_inside_footprint = [part for part in parts 
-            if footprint.geometry().contains(part.geometry())
-                or footprint.geometry().overlaps(part.geometry())]
+        parts_inside_footprint = [part for part in parts if is_inside(part, footprint)]
         area_for_level = defaultdict(list)
         for part in parts_inside_footprint:
             level = (part['lev_above'], part['lev_below'])
+            rings = part.geometry().asPolygon()
             area = part.geometry().area()
-            if level[0] > 0:
-                area_for_level[level].append(area)
+            if level[0] > 0: # priority to parts with rings to reduce relations
+                area_for_level[level].append(area + (len(rings) - 1)*1E10)
         parts_merged = 0
         if area_for_level:
             footprint_area = round(footprint.geometry().area()*100)
-            parts_area = round(sum(sum(v) for v in area_for_level.values())*100)
+            parts_area = round(divmod(sum(sum(v) \
+                for v in area_for_level.values())/1E10,1)[1] * 1E10 * 100)
             if footprint_area == parts_area:
                 level_with_greatest_area = max(area_for_level.iterkeys(), key=(lambda level: sum(area_for_level[level])))
                 to_clean = []
@@ -825,18 +824,28 @@ class ConsLayer(PolygonLayer):
         for feature in self.getFeatures():
             geom = feature.geometry()
             to_clean = []
-            for (i, ring) in enumerate(geom.asPolygon()[1:]):
-                first_parents = parents_per_vertex[ring[0]]
-                if len(first_parents) > 1:
-                    duplicated = all(parents_per_vertex[point] == first_parents 
-                        for point in ring[1:-1])
+            rings = geom.asPolygon()
+            if ConsLayer.is_part(feature):
+                if len(rings) > 1:
+                    geom = QgsGeometry.fromPolygon([rings[0]])
+                    ip += (len(rings) - 1)
+                    self.writer.changeGeometryValues({feature.id(): geom})
+            else:
+                for (i, ring) in enumerate(rings[1:]):
+                    first_parents = list(parents_per_vertex[ring[0]])
+                    duplicated = all([parents_per_vertex[p] == first_parents \
+                        for p in ring[1:-1]]) and len(first_parents) > 1
                     if duplicated:
-                         to_clean.append(i + 1)
-                         ip += 1
-            if to_clean:
-                for ring in sorted(to_clean, reverse=True):
-                    geom.deleteRing(ring)
-                self.writer.changeGeometryValues({feature.id(): geom})
+                        """first_parents.remove(feature.id())
+                        any_pool = any([ConsLayer.is_pool(features[fid]) 
+                            for fid in first_parents])
+                        if any_pool:"""
+                        to_clean.append(i + 1)
+                        ip += 1
+                if to_clean:
+                    for ring in sorted(to_clean, reverse=True):
+                        geom.deleteRing(ring)
+                    self.writer.changeGeometryValues({feature.id(): geom})
         self.commitChanges()
         if ip:
             log.info(_("Removed %d duplicated inner rings"), ip)
@@ -871,8 +880,7 @@ class ConsLayer(PolygonLayer):
             zone = task.geometry()
             for fid in index.intersects(zone.boundingBox()):
                 candidate = features[fid]
-                if not candidate['task'] and (zone.overlaps(candidate.geometry()) 
-                        or zone.contains(candidate.geometry())):
+                if not candidate['task'] and is_inside(candidate, zone):
                     features[fid]['task'] = prefix + task['label']
                     self.changeAttributeValue(fid, tf, prefix + task['label'])
                     updated.add(fid)
@@ -886,7 +894,7 @@ class ConsLayer(PolygonLayer):
             zone = task.geometry()
             for fid in index.intersects(zone.boundingBox()):
                 candidate = features[fid]
-                if not candidate['task'] and zone.contains(candidate.geometry()):
+                if not candidate['task'] and is_inside(candidate, zone):
                     features[fid]['task'] = prefix + task['label']
                     self.changeAttributeValue(fid, tf, prefix + task['label'])
                     updated.add(fid)

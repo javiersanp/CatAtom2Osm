@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-06-28 14:37+WEST\n"
+"POT-Creation-Date: 2017-06-29 12:49+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -53,7 +53,11 @@ msgstr "No es un directorio: '%s'"
 msgid "Initialized QGIS API"
 msgstr "Inicializada la API de QGIS"
 
-#: catatom2osm.py:97
+#: catatom2osm.py:94
+msgid "Start processing '%s' dataset"
+msgstr "Comienza el procesado del conjunto de datos '%s'"
+
+#: catatom2osm.py:98
 msgid ""
 "Could not resolve joined tables for the '%s' layer, please try again with "
 "the zip file"
@@ -61,75 +65,75 @@ msgstr ""
 "No se pudieron resolver las tablas combinadas para la capa '%s', inténtalo "
 "de nuevo con el archivo zip"
 
-#: catatom2osm.py:120
+#: catatom2osm.py:121
 msgid "The translation file '%s' have been writen in '%s'"
 msgstr "El fichero de conversiones '%s' ha sido generado en '%s'"
 
-#: catatom2osm.py:122
+#: catatom2osm.py:123
 msgid "Please, check it and run again"
 msgstr "Por favor, compruébelo y ejecute de nuevo"
 
-#: catatom2osm.py:148 catatom2osm.py:282
+#: catatom2osm.py:149 catatom2osm.py:283
 msgid "The layer '%s' is empty"
 msgstr "La capa '%s' está vacía"
 
-#: catatom2osm.py:192
+#: catatom2osm.py:193
 msgid "Finished!"
 msgstr "¡Terminado!"
 
-#: catatom2osm.py:193
+#: catatom2osm.py:194
 msgid "Only for testing purposses. Don't upload any result to OSM"
 msgstr "Sólo para fines de prueba. No cargue ningún resultado en OSM"
 
-#: catatom2osm.py:203
+#: catatom2osm.py:204
 msgid "Searching the url for the '%s' layer of '%s'..."
 msgstr "Buscando la url para la capa '%s' de '%s'..."
 
-#: catatom2osm.py:208
+#: catatom2osm.py:209
 msgid "Zip code '%s' don't exists"
 msgstr "El Código Postal '%s' no existe"
 
-#: catatom2osm.py:212
+#: catatom2osm.py:213
 msgid "Downloading '%s'"
 msgstr "Descargando '%s'"
 
-#: catatom2osm.py:266
+#: catatom2osm.py:267
 msgid "Unknow layer name '%s'"
 msgstr "El nombre de capa '%s' es desconocido"
 
-#: catatom2osm.py:286
+#: catatom2osm.py:287
 msgid "Could not determine the CRS of '%s'"
 msgstr "No se puede determinar el CRS de '%s'"
 
-#: catatom2osm.py:291
+#: catatom2osm.py:292
 msgid "Failed to load layer '%s'"
 msgstr "Error al cargar la capa: '%s'"
 
-#: catatom2osm.py:293 layer.py:632 layer.py:634
+#: catatom2osm.py:294 layer.py:632 layer.py:634
 msgid "Loaded %d features in the '%s' layer"
 msgstr "Cargados %d elementos en la capa '%s'"
 
-#: catatom2osm.py:308
+#: catatom2osm.py:309
 msgid "Failed to write layer: '%s'"
 msgstr "Error al escribir la capa: '%s'"
 
-#: catatom2osm.py:338
+#: catatom2osm.py:339
 msgid "Detected a %s geometry in the '%s' layer"
 msgstr "Detectada una geometría %s en la capa '%s'"
 
-#: catatom2osm.py:341
+#: catatom2osm.py:342
 msgid "Loaded %d nodes, %d ways, %d relations from '%s' layer"
 msgstr "Cargados %d nodos, %d vías, %d relaciones de la capa '%s'"
 
-#: catatom2osm.py:360
+#: catatom2osm.py:361
 msgid "Generated '%s'"
 msgstr "Generado '%s'"
 
-#: catatom2osm.py:379
+#: catatom2osm.py:380
 msgid "Zone '%s' is empty"
 msgstr "La zona '%s' está vacía"
 
-#: catatom2osm.py:397
+#: catatom2osm.py:398
 msgid "Territorial office %s %s"
 msgstr "Oficina territorial %s %s"
 
@@ -169,23 +173,23 @@ msgstr "Eliminadas %d partes de edificio sin pisos sobre el nivel del suelo"
 msgid "Removed %d building parts outside the footprint"
 msgstr "Eliminadas %d partes de edificio fuera del contorno"
 
-#: layer.py:815
+#: layer.py:816
 msgid "Merged %d building parts to footprint"
 msgstr "Fusionados %d partes de edificios al contorno"
 
-#: layer.py:849
+#: layer.py:865
 msgid "Removed %d duplicated inner rings"
 msgstr "Eliminados %d anillos interiores duplicados"
 
-#: layer.py:870
+#: layer.py:886
 msgid "Assigning task number to each construction"
 msgstr "Asignando número de tarea a cada construcción"
 
-#: layer.py:903
+#: layer.py:919
 msgid "%d features unassigned to a task in the '%s' layer"
 msgstr "%d elementos sin asignar a tarea en la capa '%s'"
 
-#: layer.py:906
+#: layer.py:922
 msgid "All features assigned to tasks in the '%s' layer"
 msgstr "Todos los elementos asignados a tareas en la capa '%s'"
 
