@@ -357,7 +357,6 @@ class PolygonLayer(BaseLayer):
         """
         vertices = self.get_vertices()
         vertices_by_fid = {feat.id(): feat for feat in vertices.getFeatures()}
-        #index = QgsSpatialIndex()
         index = QgsSpatialIndex(vertices.getFeatures())
         dup_thr = self.dup_thr if dup_thr is None else dup_thr
         duplicates = defaultdict(list)
@@ -451,7 +450,6 @@ class PolygonLayer(BaseLayer):
         tp = 0
         if log.getEffectiveLevel() <= logging.DEBUG:
             debshp = DebugWriter("debug_topology.shp", self.crs())
-        #index = QgsSpatialIndex()
         index = QgsSpatialIndex(self.getFeatures())
         features = {feat.id(): feat for feat in self.getFeatures()}
 
@@ -819,37 +817,22 @@ class ConsLayer(PolygonLayer):
 
     def remove_duplicated_holes(self):
         """
-        Remove inner rings of parts and of buildings if there exists another 
-        pool or part with the same geometry
+        Remove inner rings of geometries if it's equal to any other geometry
         """
         (parents_per_vertex, features) = self.get_parents_per_vertex_and_features()
         ip = 0
         self.startEditing()
         for feature in self.getFeatures():
-            if ConsLayer.is_pool(feature):
-                continue
             geom = feature.geometry()
             to_clean = []
-            rings = geom.asPolygon()
-            if ConsLayer.is_part(feature):
-                if len(rings) > 1:
-                    geom = QgsGeometry.fromPolygon([rings[0]])
-                    ip += (len(rings) - 1)
-                    self.writer.changeGeometryValues({feature.id(): geom})
-                continue
-            for (i, ring) in enumerate(rings[1:]):
+            for (i, ring) in enumerate(geom.asPolygon()[1:]):
                 first_parents = parents_per_vertex[ring[0]]
-                for point in ring[1:-1]:
-                    duplicated = parents_per_vertex[point] == first_parents
-                    if not duplicated:
-                        break
-                first_parents.remove(feature.id())
-                if duplicated and len(first_parents) > 0:
-                    any_pool = any([ConsLayer.is_pool(features[fid]) 
-                        for fid in first_parents])
-                    if any_pool:
-                        to_clean.append(i + 1)
-                        ip += 1
+                if len(first_parents) > 1:
+                    duplicated = all(parents_per_vertex[point] == first_parents 
+                        for point in ring[1:-1])
+                    if duplicated:
+                         to_clean.append(i + 1)
+                         ip += 1
             if to_clean:
                 for ring in sorted(to_clean, reverse=True):
                     geom.deleteRing(ring)
