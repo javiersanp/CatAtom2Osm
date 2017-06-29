@@ -146,7 +146,7 @@ class CatAtom2Osm:
                 building.append(other_gml)
                 del other_gml
             else:
-                log.info(_("The layer '%s' is empty"), u'otherconstruction')
+                log.info(_("The layer '%s' is empty"), 'otherconstruction')
             building.remove_outside_parts()
             building.explode_multi_parts()
             building.remove_parts_below_ground()
