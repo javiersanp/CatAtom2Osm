@@ -743,14 +743,11 @@ class ConsLayer(PolygonLayer):
         Given a building footprint and its parts:
         
         * Exclude parts not inside the footprint.
-        
         * If the area of the parts above ground is equal to the area of the 
           footprint.
-          
           * Sum the area for all the parts with the same level. Level is the 
             pair of values 'lev_above' and 'lev_below' (number of floors 
             above, and below groud).
-            
           * For the level with greatest area, translate the number of floors 
             values to the footprint and deletes all the parts in that level.
         """
@@ -762,22 +759,26 @@ class ConsLayer(PolygonLayer):
             level = (part['lev_above'], part['lev_below'])
             rings = part.geometry().asPolygon()
             area = part.geometry().area()
-            if level[0] > 0: # priority to parts with rings to reduce number of relations
+            if level[0] > 0: # priority to parts with rings to reduce relations
                 area_for_level[level].append(area + (len(rings) - 1)*1E10)
         parts_merged = 0
         if area_for_level:
-            level_with_greatest_area = max(area_for_level.iterkeys(), key=(lambda level: sum(area_for_level[level])))
-            to_clean = []
-            for part in parts_inside_footprint:
-                if (part['lev_above'], part['lev_below']) == level_with_greatest_area:
-                    to_clean.append(part.id())
-            if to_clean:
-                self.changeAttributeValue(footprint.id(), 
-                    self.fieldNameIndex('lev_above'), level_with_greatest_area[0])
-                self.changeAttributeValue(footprint.id(), 
-                    self.fieldNameIndex('lev_below'), level_with_greatest_area[1])
-                self.writer.deleteFeatures(to_clean)
-            parts_merged = len(to_clean)
+            footprint_area = round(footprint.geometry().area()*100)
+            parts_area = round(divmod(sum(sum(v) \
+                for v in area_for_level.values())/1E10,1)[1] * 1E10 * 100)
+            if footprint_area == parts_area:
+                level_with_greatest_area = max(area_for_level.iterkeys(), key=(lambda level: sum(area_for_level[level])))
+                to_clean = []
+                for part in parts_inside_footprint:
+                    if (part['lev_above'], part['lev_below']) == level_with_greatest_area:
+                        to_clean.append(part.id())
+                if to_clean:
+                    self.changeAttributeValue(footprint.id(), 
+                        self.fieldNameIndex('lev_above'), level_with_greatest_area[0])
+                    self.changeAttributeValue(footprint.id(), 
+                        self.fieldNameIndex('lev_below'), level_with_greatest_area[1])
+                    self.writer.deleteFeatures(to_clean)
+                parts_merged = len(to_clean)
         return parts_merged
 
     def index_of_building_and_parts(self):
