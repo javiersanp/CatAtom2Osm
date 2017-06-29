@@ -885,7 +885,7 @@ class ConsLayer(PolygonLayer):
             zone = task.geometry()
             for fid in index.intersects(zone.boundingBox()):
                 candidate = features[fid]
-                if not candidate['task'] and is_inside(candidate, zone):
+                if not candidate['task'] and is_inside(candidate, part):
                     features[fid]['task'] = prefix + task['label']
                     self.changeAttributeValue(fid, tf, prefix + task['label'])
                     updated.add(fid)
@@ -899,7 +899,7 @@ class ConsLayer(PolygonLayer):
             zone = task.geometry()
             for fid in index.intersects(zone.boundingBox()):
                 candidate = features[fid]
-                if not candidate['task'] and is_inside(candidate, zone):
+                if not candidate['task'] and is_inside(candidate, part):
                     features[fid]['task'] = prefix + task['label']
                     self.changeAttributeValue(fid, tf, prefix + task['label'])
                     updated.add(fid)
