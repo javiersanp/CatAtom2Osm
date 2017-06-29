@@ -405,8 +405,7 @@ class TestConsLayer(unittest.TestCase):
             self.layer.merge_greatest_part(building, parts)
             oparts = [f for f in self.layer.search("localId LIKE '%%%s_part%%'" % ref)]
             self.assertTrue(self.layer.commitChanges())
-            m = "Number of parts"
-            self.assertEquals(refs[building['localId']], len(oparts), m)
+            self.assertEquals(refs[ref], len(oparts), "Number of parts")
             self.assertGreater(building['lev_above'], 0, "Copy levels")
 
     def test_index_of_building_and_parts(self):
