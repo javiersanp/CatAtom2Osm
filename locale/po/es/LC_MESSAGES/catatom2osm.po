@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-06-29 10:28+WEST\n"
+"POT-Creation-Date: 2017-06-29 12:49+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -54,8 +54,8 @@ msgid "Initialized QGIS API"
 msgstr "Inicializada la API de QGIS"
 
 #: catatom2osm.py:94
-msgid "Start processing '%d' dataset"
-msgstr "Comienza el procesado del conjunto de datos '%d'"
+msgid "Start processing '%s' dataset"
+msgstr "Comienza el procesado del conjunto de datos '%s'"
 
 #: catatom2osm.py:98
 msgid ""
@@ -173,23 +173,23 @@ msgstr "Eliminadas %d partes de edificio sin pisos sobre el nivel del suelo"
 msgid "Removed %d building parts outside the footprint"
 msgstr "Eliminadas %d partes de edificio fuera del contorno"
 
-#: layer.py:817
+#: layer.py:816
 msgid "Merged %d building parts to footprint"
 msgstr "Fusionados %d partes de edificios al contorno"
 
-#: layer.py:858
+#: layer.py:865
 msgid "Removed %d duplicated inner rings"
 msgstr "Eliminados %d anillos interiores duplicados"
 
-#: layer.py:879
+#: layer.py:886
 msgid "Assigning task number to each construction"
 msgstr "Asignando número de tarea a cada construcción"
 
-#: layer.py:912
+#: layer.py:919
 msgid "%d features unassigned to a task in the '%s' layer"
 msgstr "%d elementos sin asignar a tarea en la capa '%s'"
 
-#: layer.py:915
+#: layer.py:922
 msgid "All features assigned to tasks in the '%s' layer"
 msgstr "Todos los elementos asignados a tareas en la capa '%s'"
 

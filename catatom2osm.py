@@ -91,7 +91,7 @@ class CatAtom2Osm:
     def run(self):
         """Launches the app"""
             
-        log.info(_("Start processing '%d' dataset"), self.zip_code)
+        log.info(_("Start processing '%s' dataset"), self.zip_code)
         if self.options.address:
             address_gml = self.read_gml_layer("address")
             if address_gml.fieldNameIndex('component_href') == -1:
