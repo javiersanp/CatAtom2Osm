@@ -748,24 +748,32 @@ class ConsLayer(PolygonLayer):
           * Sum the area for all the parts with the same level. Level is the 
             pair of values 'lev_above' and 'lev_below' (number of floors 
             above, and below groud).
-          * For the level with greatest area, translate the number of floors 
+          * For the level with greatest area, giving priority to parts with 
+            rings to reduce relations, translate the number of floors 
             values to the footprint and deletes all the parts in that level.
         """
         parts_inside_footprint = [part for part in parts if is_inside(part, footprint)]
         area_for_level = defaultdict(list)
+        levels_with_holes = []
         for part in parts_inside_footprint:
             level = (part['lev_above'], part['lev_below'])
             rings = part.geometry().asPolygon()
             area = part.geometry().area()
-            if level[0] > 0: # priority to parts with rings to reduce relations
-                area_for_level[level].append(area + (len(rings) - 1)*1E10)
+            if len(rings) > 1:
+                levels_with_holes.append(level)
+            if level[0] > 0: 
+                area_for_level[level].append(area)
         parts_merged = 0
         if area_for_level:
             footprint_area = round(footprint.geometry().area()*100)
-            parts_area = round(divmod(sum(sum(v) \
-                for v in area_for_level.values())/1E10,1)[1] * 1E10 * 100)
+            parts_area = round(sum(sum(v) for v in area_for_level.values()) * 100)
             if footprint_area == parts_area:
-                level_with_greatest_area = max(area_for_level.iterkeys(), key=(lambda level: sum(area_for_level[level])))
+                if levels_with_holes:
+                    level_with_greatest_area = max(levels_with_holes, 
+                        key=(lambda level: sum(area_for_level[level])))
+                else:    
+                    level_with_greatest_area = max(area_for_level.iterkeys(), 
+                        key=(lambda level: sum(area_for_level[level])))
                 to_clean = []
                 for part in parts_inside_footprint:
                     if (part['lev_above'], part['lev_below']) == level_with_greatest_area:
@@ -816,7 +824,8 @@ class ConsLayer(PolygonLayer):
 
     def remove_duplicated_holes(self):
         """
-        Remove inner rings of geometries if it's equal to any other geometry
+        Remove inner rings of parts and of buildings/pool if there exists another 
+        feature with the same geometry
         """
         (parents_per_vertex, features) = self.get_parents_per_vertex_and_features()
         ip = 0
@@ -836,10 +845,6 @@ class ConsLayer(PolygonLayer):
                     duplicated = all([parents_per_vertex[p] == first_parents \
                         for p in ring[1:-1]]) and len(first_parents) > 1
                     if duplicated:
-                        """first_parents.remove(feature.id())
-                        any_pool = any([ConsLayer.is_pool(features[fid]) 
-                            for fid in first_parents])
-                        if any_pool:"""
                         to_clean.append(i + 1)
                         ip += 1
                 if to_clean:
