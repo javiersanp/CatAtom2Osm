@@ -824,8 +824,6 @@ class ConsLayer(PolygonLayer):
         ip = 0
         self.startEditing()
         for feature in self.getFeatures():
-            if ConsLayer.is_pool(feature):
-                continue
             geom = feature.geometry()
             to_clean = []
             rings = geom.asPolygon()
@@ -834,24 +832,18 @@ class ConsLayer(PolygonLayer):
                     geom = QgsGeometry.fromPolygon([rings[0]])
                     ip += (len(rings) - 1)
                     self.writer.changeGeometryValues({feature.id(): geom})
-                continue
-            for (i, ring) in enumerate(rings[1:]):
-                first_parents = parents_per_vertex[ring[0]]
-                for point in ring[1:-1]:
-                    duplicated = parents_per_vertex[point] == first_parents
-                    if not duplicated:
-                        break
-                first_parents.remove(feature.id())
-                if duplicated and len(first_parents) > 0:
-                    any_pool = any([ConsLayer.is_pool(features[fid]) 
-                        for fid in first_parents])
-                    if any_pool:
+            else:
+                for (i, ring) in enumerate(rings[1:]):
+                    first_parents = list(parents_per_vertex[ring[0]])
+                    duplicated = all([parents_per_vertex[p] == first_parents \
+                        for p in ring[1:-1]]) and len(first_parents) > 1
+                    if duplicated:
                         to_clean.append(i + 1)
                         ip += 1
-            if to_clean:
-                for ring in sorted(to_clean, reverse=True):
-                    geom.deleteRing(ring)
-                self.writer.changeGeometryValues({feature.id(): geom})
+                if to_clean:
+                    for ring in sorted(to_clean, reverse=True):
+                        geom.deleteRing(ring)
+                    self.writer.changeGeometryValues({feature.id(): geom})
         self.commitChanges()
         if ip:
             log.info(_("Removed %d duplicated inner rings"), ip)
