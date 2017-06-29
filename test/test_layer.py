@@ -509,6 +509,35 @@ class TestConsLayer(unittest.TestCase):
         self.layer.set_tasks(urban_zoning, rustic_zoning)
         self.assertTrue(all([f['task'] != 'NULL' for f in self.layer.getFeatures()]))
 
+    def test_remove_duplicated_holes_parts(self):
+        exp = QgsExpression('localId ILIKE \'%_part%\'')
+        request = QgsFeatureRequest(exp)
+        for feat in self.layer.getFeatures(request):
+            hole = len(feat.geometry().asPolygon()) > 1
+            if hole: break
+        self.assertTrue(hole)
+        self.layer.remove_duplicated_holes()
+        for feat in self.layer.getFeatures(request):
+            hole = len(feat.geometry().asPolygon()) > 1
+            if hole: break
+        self.assertFalse(hole)
+
+    def test_remove_duplicated_holes_buildings(self):
+        refs = ['8642309CS5284S', '8646411CS5284N', '8841602CS5284S']
+        for ref in refs:
+            exp = QgsExpression("localId = '%s'" % ref)
+            request = QgsFeatureRequest(exp)
+            feat = self.layer.getFeatures(request).next()
+            geom = feat.geometry().asPolygon()
+            self.assertGreater(len(geom), 1)
+        self.layer.remove_duplicated_holes()
+        for ref in refs:
+            exp = QgsExpression("localId = '%s'" % ref)
+            request = QgsFeatureRequest(exp)
+            feat = self.layer.getFeatures(request).next()
+            geom = feat.geometry().asPolygon()
+            self.assertEquals(len(geom), 1)
+
 
 class TestAddressLayer(unittest.TestCase):
 
