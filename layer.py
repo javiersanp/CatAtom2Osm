@@ -13,7 +13,10 @@ import setup
 import logging
 log = logging.getLogger(setup.app_name + "." + __name__)
 
-
+is_inside = lambda f1, f2: f2.geometry().contains(f1.geometry()) or \
+    f2.geometry().overlaps(f1.geometry())
+    
+    
 class Point(QgsPoint):
     """Extends QgsPoint with some utility methods"""
 
@@ -729,8 +732,7 @@ class ConsLayer(PolygonLayer):
                     footprint = features[fid]
                     parts_for_building = [features[i] for i in parts[localId]]
                     for part in parts_for_building:
-                        if not (footprint.geometry().contains(part.geometry())
-                                or footprint.geometry().overlaps(part.geometry())):
+                        if not is_inside(part, footprint):
                             to_clean.append(part.id())
         if to_clean:
             self.writer.deleteFeatures(to_clean)
@@ -751,9 +753,7 @@ class ConsLayer(PolygonLayer):
           * For the level with greatest area, translate the number of floors 
             values to the footprint and deletes all the parts in that level.
         """
-        parts_inside_footprint = [part for part in parts 
-            if footprint.geometry().contains(part.geometry())
-                or footprint.geometry().overlaps(part.geometry())]
+        parts_inside_footprint = [part for part in parts if is_inside(part, footprint)]
         area_for_level = defaultdict(list)
         for part in parts_inside_footprint:
             level = (part['lev_above'], part['lev_below'])
@@ -839,6 +839,10 @@ class ConsLayer(PolygonLayer):
                     duplicated = all([parents_per_vertex[p] == first_parents \
                         for p in ring[1:-1]]) and len(first_parents) > 1
                     if duplicated:
+                        """first_parents.remove(feature.id())
+                        any_pool = any([ConsLayer.is_pool(features[fid]) 
+                            for fid in first_parents])
+                        if any_pool:"""
                         to_clean.append(i + 1)
                         ip += 1
                 if to_clean:
@@ -879,8 +883,7 @@ class ConsLayer(PolygonLayer):
             zone = task.geometry()
             for fid in index.intersects(zone.boundingBox()):
                 candidate = features[fid]
-                if not candidate['task'] and (zone.overlaps(candidate.geometry()) 
-                        or zone.contains(candidate.geometry())):
+                if not candidate['task'] and is_inside(candidate, zone):
                     features[fid]['task'] = prefix + task['label']
                     self.changeAttributeValue(fid, tf, prefix + task['label'])
                     updated.add(fid)
@@ -894,7 +897,7 @@ class ConsLayer(PolygonLayer):
             zone = task.geometry()
             for fid in index.intersects(zone.boundingBox()):
                 candidate = features[fid]
-                if not candidate['task'] and zone.contains(candidate.geometry()):
+                if not candidate['task'] and is_inside(candidate, zone):
                     features[fid]['task'] = prefix + task['label']
                     self.changeAttributeValue(fid, tf, prefix + task['label'])
                     updated.add(fid)
