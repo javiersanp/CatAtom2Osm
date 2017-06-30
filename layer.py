@@ -424,6 +424,7 @@ class PolygonLayer(BaseLayer):
         """
         dupes = 0
         to_clean = []
+        to_change = {}
         self.startEditing()
         for feature in self.getFeatures(): 
             geom = feature.geometry()
@@ -442,18 +443,18 @@ class PolygonLayer(BaseLayer):
             if replace:
                 new_geom = QgsGeometry().fromPolygon(new_polygon)
                 if new_geom and new_geom.isGeosValid():
-                    self.writer.changeGeometryValues({feature.id(): new_geom})
+                    to_change[feature.id()] = new_geom
                 else:
                     to_clean.append(feature.id())
-        if to_clean:
-            self.writer.deleteFeatures(to_clean)
-        self.commitChanges()
-        if dupes:
+        if to_change:
+            self.writer.changeGeometryValues(to_change)
             log.info(_("Merged %d duplicated vertices of polygons in "
                 "the '%s' layer"), dupes, self.name().encode('utf-8'))
-        if len(to_clean):
+        if to_clean:
+            self.writer.deleteFeatures(to_clean)
             log.info(_("Deleted %d invalid geometries in the '%s' layer"),
                 len(to_clean), self.name().encode('utf-8'))
+        self.commitChanges()
 
     def add_topological_points(self):
         """For each vertex in a polygon layer, adds it to nearest segments."""
