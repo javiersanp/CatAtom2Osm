@@ -2,6 +2,8 @@
 """OpenStreetMap data model"""
 from collections import defaultdict
 
+COOR_DIGITS = 8
+
 
 class Osm(object):
     """Class to implement a OSM data set."""
@@ -129,6 +131,8 @@ class Node(Element):
         super(Node, self).__init__(container, *args, **kwargs)
         (self.x, self.y) = (x[0], x[1]) \
             if hasattr(x, '__getitem__') else (x, y)
+        self.x = round(self.x, COOR_DIGITS)
+        self.y = round(self.y, COOR_DIGITS)
             
 
     def __getitem__(self, key):
