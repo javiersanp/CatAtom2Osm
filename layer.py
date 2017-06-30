@@ -574,8 +574,8 @@ class PolygonLayer(BaseLayer):
             cleaned += len(group)
         self.commitChanges()
         if cleaned:
-            log.info(_("%d adjacent polygons merged into %d polygons in the '%s'"
-                " layer"), cleaned, added, self.name().encode('utf-8'))
+            log.info(_("%d adjacent polygons merged into %d polygons in the "
+                "'%s' layer"), cleaned, added, self.name().encode('utf-8'))
 
     def clean(self):
         """Merge duplicated vertices and simplify layer"""
@@ -777,7 +777,7 @@ class ConsLayer(PolygonLayer):
                 levels_with_holes.append(level)
             if level[0] > 0: 
                 area_for_level[level].append(area)
-        parts_merged = 0
+        to_clean = []
         if area_for_level:
             footprint_area = round(footprint.geometry().area()*100)
             parts_area = round(sum(sum(v) for v in area_for_level.values()) * 100)
@@ -788,7 +788,6 @@ class ConsLayer(PolygonLayer):
                 else:    
                     level_with_greatest_area = max(area_for_level.iterkeys(), 
                         key=(lambda level: sum(area_for_level[level])))
-                to_clean = []
                 for part in parts_inside_footprint:
                     if (part['lev_above'], part['lev_below']) == level_with_greatest_area:
                         to_clean.append(part.id())
@@ -797,9 +796,7 @@ class ConsLayer(PolygonLayer):
                         self.fieldNameIndex('lev_above'), level_with_greatest_area[0])
                     self.changeAttributeValue(footprint.id(), 
                         self.fieldNameIndex('lev_below'), level_with_greatest_area[1])
-                    self.writer.deleteFeatures(to_clean)
-                parts_merged = len(to_clean)
-        return parts_merged
+        return to_clean
 
     def index_of_building_and_parts(self):
         """
@@ -821,20 +818,21 @@ class ConsLayer(PolygonLayer):
         return (features, buildings, parts)
     
     def merge_building_parts(self):
-        """Apply merge_greatest_part to each set of building and its parts"""
-        parts_merged = 0
+        """Apply merge_greatest_part to eacto_cleanh set of building and its parts"""
         (features, buildings, parts) = self.index_of_building_and_parts()
         self.startEditing()
+        to_clean = []
         for (localId, fids) in buildings.items():
             if localId in parts:
                 for fid in fids:
                     building = features[fid]
                     parts_for_building = [features[i] for i in parts[localId]]
-                    parts_merged += \
+                    to_clean += \
                         self.merge_greatest_part(building, parts_for_building)
+        if to_clean:
+            self.writer.deleteFeatures(to_clean)
+            log.info(_("Merged %d building parts to footprint"), len(to_clean))
         self.commitChanges()
-        if parts_merged:
-            log.info(_("Merged %d building parts to footprint"), parts_merged)
 
     def remove_duplicated_holes(self):
         """
