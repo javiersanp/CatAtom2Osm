@@ -758,11 +758,14 @@ class ConsLayer(PolygonLayer):
         Given a building footprint and its parts:
         
         * Exclude parts not inside the footprint.
+
         * If the area of the parts above ground is equal to the area of the 
           footprint.
+
           * Sum the area for all the parts with the same level. Level is the 
             pair of values 'lev_above' and 'lev_below' (number of floors 
             above, and below groud).
+
           * For the level with greatest area, giving priority to parts with 
             rings to reduce relations, translate the number of floors 
             values to the footprint and deletes all the parts in that level.
@@ -842,16 +845,17 @@ class ConsLayer(PolygonLayer):
         """
         (parents_per_vertex, features) = self.get_parents_per_vertex_and_features()
         ip = 0
+        to_change = {}
         self.startEditing()
         for feature in self.getFeatures():
-            geom = feature.geometry()
+            geom = QgsGeometry(feature.geometry())
             to_clean = []
             rings = geom.asPolygon()
             if ConsLayer.is_part(feature):
                 if len(rings) > 1:
                     geom = QgsGeometry.fromPolygon([rings[0]])
                     ip += (len(rings) - 1)
-                    self.writer.changeGeometryValues({feature.id(): geom})
+                    to_change[feature.id()] = geom
             else:
                 for (i, ring) in enumerate(rings[1:]):
                     first_parents = list(parents_per_vertex[ring[0]])
@@ -863,10 +867,11 @@ class ConsLayer(PolygonLayer):
                 if to_clean:
                     for ring in sorted(to_clean, reverse=True):
                         geom.deleteRing(ring)
-                    self.writer.changeGeometryValues({feature.id(): geom})
-        self.commitChanges()
+                    to_change[feature.id()] = geom
         if ip:
+            self.writer.changeGeometryValues(to_change)            
             log.info(_("Removed %d duplicated inner rings"), ip)
+        self.commitChanges()
                     
     def clean(self):
         """
