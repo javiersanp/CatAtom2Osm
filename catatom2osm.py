@@ -305,7 +305,9 @@ class CatAtom2Osm:
             driver_name (str): Defaults to ESRI Shapefile.
         """
         out_path = os.path.join(self.path, filename)
-        if not layer.export(out_path, driver_name):
+        if layer.export(out_path, driver_name):
+            log.info(_("Generated '%s'"), filename)
+        else:
             raise IOError(_("Failed to write layer: '%s'") % filename)
         
     

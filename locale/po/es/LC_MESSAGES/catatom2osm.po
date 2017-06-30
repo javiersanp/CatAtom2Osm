@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-06-29 12:49+WEST\n"
+"POT-Creation-Date: 2017-06-30 20:42+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -109,87 +109,91 @@ msgstr "No se puede determinar el CRS de '%s'"
 msgid "Failed to load layer '%s'"
 msgstr "Error al cargar la capa: '%s'"
 
-#: catatom2osm.py:294 layer.py:632 layer.py:634
+#: catatom2osm.py:294 layer.py:641 layer.py:643
 msgid "Loaded %d features in the '%s' layer"
 msgstr "Cargados %d elementos en la capa '%s'"
 
-#: catatom2osm.py:309
-msgid "Failed to write layer: '%s'"
-msgstr "Error al escribir la capa: '%s'"
-
-#: catatom2osm.py:339
-msgid "Detected a %s geometry in the '%s' layer"
-msgstr "Detectada una geometría %s en la capa '%s'"
-
-#: catatom2osm.py:342
-msgid "Loaded %d nodes, %d ways, %d relations from '%s' layer"
-msgstr "Cargados %d nodos, %d vías, %d relaciones de la capa '%s'"
-
-#: catatom2osm.py:361
+#: catatom2osm.py:309 catatom2osm.py:363
 msgid "Generated '%s'"
 msgstr "Generado '%s'"
 
-#: catatom2osm.py:380
+#: catatom2osm.py:311
+msgid "Failed to write layer: '%s'"
+msgstr "Error al escribir la capa: '%s'"
+
+#: catatom2osm.py:341
+msgid "Detected a %s geometry in the '%s' layer"
+msgstr "Detectada una geometría %s en la capa '%s'"
+
+#: catatom2osm.py:344
+msgid "Loaded %d nodes, %d ways, %d relations from '%s' layer"
+msgstr "Cargados %d nodos, %d vías, %d relaciones de la capa '%s'"
+
+#: catatom2osm.py:382
 msgid "Zone '%s' is empty"
 msgstr "La zona '%s' está vacía"
 
-#: catatom2osm.py:398
+#: catatom2osm.py:400
 msgid "Territorial office %s %s"
 msgstr "Oficina territorial %s %s"
 
-#: layer.py:289
+#: layer.py:171
+msgid "Reprojected the '%s' layer to '%s' CRS"
+msgstr "Reproyectada la capa '%s' al CRS '%s'"
+
+#: layer.py:294
 msgid "%d multi-polygons splited into %d polygons in the '%s' layer"
 msgstr "%d multipolígonos divididos a %d poligonos en la capa '%s'"
 
-#: layer.py:406
+#: layer.py:413
 msgid "Merged %d close vertices in the '%s' layer"
 msgstr "Fusionados %d vértices próximos en la capa '%s'"
 
-#: layer.py:441
+#: layer.py:448
 msgid "Merged %d duplicated vertices of polygons in the '%s' layer"
 msgstr "Fusionados %d vértices de polígono duplicados en la capa '%s'"
 
-#: layer.py:444
+#: layer.py:451
 msgid "Deleted %d invalid geometries in the '%s' layer"
 msgstr "Eliminadas %d geometrías en la capa '%s'"
 
-#: layer.py:488
+#: layer.py:497
 msgid "Created %d topological points in the '%s' layer"
 msgstr "Creados %d puntos topológicos en la capa '%s'"
 
-#: layer.py:543
+#: layer.py:552
 msgid "Simplified %d vertices in the '%s' layer"
 msgstr "Simplificados %d vértices en la capa '%s'"
 
-#: layer.py:562
+#: layer.py:571
 msgid "%d adjacent polygons merged into %d polygons in the '%s' layer"
 msgstr "%d polígonos adyacentes fusionados a %d polígonos en la capa '%s'"
 
-#: layer.py:714
+#: layer.py:723
 msgid "Deleted %d building parts with no floors above ground"
 msgstr "Eliminadas %d partes de edificio sin pisos sobre el nivel del suelo"
 
-#: layer.py:737
+#: layer.py:745
 msgid "Removed %d building parts outside the footprint"
 msgstr "Eliminadas %d partes de edificio fuera del contorno"
 
-#: layer.py:816
+#: layer.py:831
 msgid "Merged %d building parts to footprint"
 msgstr "Fusionados %d partes de edificios al contorno"
 
-#: layer.py:865
+#: layer.py:864
 msgid "Removed %d duplicated inner rings"
 msgstr "Eliminados %d anillos interiores duplicados"
 
-#: layer.py:886
+#: layer.py:885
 msgid "Assigning task number to each construction"
 msgstr "Asignando número de tarea a cada construcción"
 
-#: layer.py:919
+#: layer.py:917
 msgid "%d features unassigned to a task in the '%s' layer"
 msgstr "%d elementos sin asignar a tarea en la capa '%s'"
 
-#: layer.py:922
+#: layer.py:920
 msgid "All features assigned to tasks in the '%s' layer"
 msgstr "Todos los elementos asignados a tareas en la capa '%s'"
 

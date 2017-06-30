@@ -168,6 +168,8 @@ class BaseLayer(QgsVectorLayer):
         self.setCrs(target_crs)
         self.commitChanges()
         self.updateExtents()
+        log.info(_("Reprojected the '%s' layer to '%s' CRS"), 
+            self.name().encode('utf-8'), target_crs.description())
     
     def join_field(self, source_layer, target_field_name, join_field_name, 
             field_names_subset, prefix = ""):
