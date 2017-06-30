@@ -387,6 +387,7 @@ class PolygonLayer(BaseLayer):
         duplicates = self.get_duplicates()
         self.startEditing()
         duplist = sorted(duplicates.keys(), key=lambda x: -len(duplicates[x]))
+        to_change = {}
         for point in duplist:
             for dup in duplicates[point]:
                 for fid in parents_per_vertex[dup]:
@@ -398,11 +399,13 @@ class PolygonLayer(BaseLayer):
                         if geom.isGeosValid():
                             note = "Merge. %s" % feat['localId']
                             dupes += 1
-                            self.writer.changeGeometryValues({fid: geom})
+                            to_change[fid] = geom
                         if log.getEffectiveLevel() <= logging.DEBUG:
                             debshp.add_point(p, note)
                 if dup in duplist:
                     duplist.remove(dup)
+        if to_change:
+            self.writer.changeGeometryValues(to_change)
         self.commitChanges()
         if dupes:
             log.info(_("Merged %d close vertices in the '%s' layer"), dupes, 
