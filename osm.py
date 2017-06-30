@@ -8,8 +8,8 @@ COOR_DIGITS = 8
 class Osm(object):
     """Class to implement a OSM data set."""
 
-    def __init__(self, upload='false'):
-        self.upload = 'false'
+    def __init__(self, upload='never'):
+        self.upload = upload
         self.version = '0.6'
         self.counter = 0
         self.elements = set()
