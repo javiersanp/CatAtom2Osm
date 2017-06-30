@@ -156,15 +156,19 @@ class BaseLayer(QgsVectorLayer):
         if target_crs is None:
             target_crs = QgsCoordinateReferenceSystem(4326)
         crs_transform = QgsCoordinateTransform(self.crs(), target_crs)
-        out_feat = QgsFeature()
         self.startEditing()
+        to_add = []
+        to_clean = []
         for feature in self.getFeatures():
             geom = feature.geometry()
             geom.transform(crs_transform)
+            out_feat = QgsFeature()
             out_feat.setGeometry(geom)
             out_feat.setAttributes(feature.attributes())
-            self.writer.addFeatures([out_feat])
-            self.writer.deleteFeatures([feature.id()])
+            to_add.append(out_feat)
+            to_clean.append(feature.id())
+        self.writer.deleteFeatures(to_clean)
+        self.writer.addFeatures(to_add)
         self.setCrs(target_crs)
         self.commitChanges()
         self.updateExtents()
