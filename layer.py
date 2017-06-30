@@ -522,6 +522,7 @@ class PolygonLayer(BaseLayer):
         killed = 0
         dupes = 0
         self.startEditing()
+        to_change = {}
         for pnt, parents in parents_per_vertex.items():
             # Test if this vertex is a 'corner' in any of its parent polygons
             point = Point(pnt)
@@ -535,26 +536,27 @@ class PolygonLayer(BaseLayer):
                 if is_corner:
                     corners += 1
                     break
-            if corners == 0:     # If not is a corner
-                killed += 1      # delete the vertex from all its parents.
-                for fid in frozenset(parents):
+            if corners == 0:            # If not is a corner, delete the vertex 
+                killed += 1      
+                for fid in frozenset(parents):  # from all its parents.
                     feat = features[fid]
                     geom = feat.geometry()
                     (point, ndx, ndxa, ndxb, dist) = geom.closestVertex(point)
                     if geom.deleteVertex(ndx):
                         if geom.isGeosValid():
                             parents.remove(fid)
-                            self.writer.changeGeometryValues({fid: geom})
+                            to_change[fid] = geom
                 if log.getEffectiveLevel() <= logging.DEBUG:
                     msg = str(["%s angle=%.1f, cath=%.4f" % v for v in deb_values])
                     debshp.add_point(point, "Deleted. %s" % msg)
             elif log.getEffectiveLevel() <= logging.DEBUG:
                 msg = str(["%s angle=%.1f, cath=%.4f" % v for v in deb_values])
                 debshp.add_point(point, "Keep. %s" % msg)
-        self.commitChanges()
         if killed:
+            self.writer.changeGeometryValues(to_change)
             log.info(_("Simplified %d vertices in the '%s' layer"), killed, 
                 self.name().encode('utf-8'))
+        self.commitChanges()
 
     def merge_adjacents(self):
         """Merge polygons with shared segments"""
