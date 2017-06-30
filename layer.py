@@ -460,6 +460,7 @@ class PolygonLayer(BaseLayer):
         for feature in features.values():
             geom = feature.geometry()
             for point in geom.asPolygon()[0][0:-1]: # excludes inner rings and last point:
+                to_change = {}
                 area_of_candidates = Point(point).boundingBox(threshold)
                 for fid in index.intersects(area_of_candidates):
                     candidate = features[fid]
@@ -479,9 +480,11 @@ class PolygonLayer(BaseLayer):
                                     if g.isGeosValid():
                                         note = "accepted"
                                         tp += 1
-                                        self.writer.changeGeometryValues({fid: g})
+                                        to_change[fid] = g
                             if log.getEffectiveLevel() <= logging.DEBUG:
                                 debshp.add_point(point, note)
+                if to_change:
+                    self.writer.changeGeometryValues(to_change)
         self.commitChanges()
         if log.getEffectiveLevel() <= logging.DEBUG:
             del debshp
