@@ -2,7 +2,7 @@
 """OpenStreetMap data model"""
 from collections import defaultdict
 
-COOR_DIGITS = 8
+COOR_DIGITS = 7 # With a value greater than this, JOSM give duplicated points errors
 
 
 class Osm(object):
