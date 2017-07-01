@@ -412,10 +412,9 @@ class PolygonLayer(BaseLayer):
                     duplist.remove(dup)
         if to_change:
             self.writer.changeGeometryValues(to_change)
-        self.commitChanges()
-        if dupes:
             log.info(_("Merged %d close vertices in the '%s' layer"), dupes, 
                 self.name().encode('utf-8'))
+        self.commitChanges()
 
     def clean_duplicated_nodes_in_polygons(self):
         """
@@ -467,10 +466,10 @@ class PolygonLayer(BaseLayer):
         features = {feat.id(): feat for feat in self.getFeatures()}
 
         self.startEditing()
+        to_change = {}
         for feature in features.values():
             geom = feature.geometry()
             for point in geom.asPolygon()[0][0:-1]: # excludes inner rings and last point:
-                to_change = {}
                 area_of_candidates = Point(point).boundingBox(threshold)
                 for fid in index.intersects(area_of_candidates):
                     candidate = features[fid]
@@ -493,14 +492,13 @@ class PolygonLayer(BaseLayer):
                                         to_change[fid] = g
                             if log.getEffectiveLevel() <= logging.DEBUG:
                                 debshp.add_point(point, note)
-                if to_change:
-                    self.writer.changeGeometryValues(to_change)
+        if to_change:
+            self.writer.changeGeometryValues(to_change)
+            log.info (_("Created %d topological points in the '%s' layer"), 
+                tp, self.name().encode('utf-8'))
         self.commitChanges()
         if log.getEffectiveLevel() <= logging.DEBUG:
             del debshp
-        if tp:
-            log.info (_("Created %d topological points in the '%s' layer"), 
-                tp, self.name().encode('utf-8'))
 
 
     def simplify(self):
@@ -553,7 +551,7 @@ class PolygonLayer(BaseLayer):
             elif log.getEffectiveLevel() <= logging.DEBUG:
                 msg = str(["%s angle=%.1f, cath=%.4f" % v for v in deb_values])
                 debshp.add_point(point, "Keep. %s" % msg)
-        if killed:
+        if to_change:
             self.writer.changeGeometryValues(to_change)
             log.info(_("Simplified %d vertices in the '%s' layer"), killed, 
                 self.name().encode('utf-8'))
