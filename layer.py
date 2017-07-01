@@ -291,13 +291,13 @@ class PolygonLayer(BaseLayer):
                     feat.setGeometry(QgsGeometry.fromPolygon(part))
                     to_add.append(feat)
                 to_clean.append(feature.id())
-        self.writer.deleteFeatures(to_clean)
-        self.writer.addFeatures(to_add)
-        self.commitChanges()
-        if len(to_clean):
+        if to_clean:
+            self.writer.deleteFeatures(to_clean)
+            self.writer.addFeatures(to_add)
             log.info(_("%d multi-polygons splited into %d polygons in "
                 "the '%s' layer"), len(to_clean), len(to_add), 
                 self.name().encode('utf-8'))
+        self.commitChanges()
 
     def get_parents_per_vertex_and_features(self):
         """
@@ -561,20 +561,21 @@ class PolygonLayer(BaseLayer):
         """Merge polygons with shared segments"""
         (groups, features) = self.get_adjacents_and_features()
         self.startEditing()
-        cleaned = added = 0
+        to_clean = []
+        to_change = {}
         for group in groups:
             group = list(group)
             geom = features[group[0]].geometry()
             for fid in group[1:]:
                 geom = geom.combine(features[fid].geometry())
-            self.writer.deleteFeatures(group[1:])
-            self.writer.changeGeometryValues({group[0]: geom})
-            added += 1
-            cleaned += len(group)
+            to_clean += group[1:]
+            to_change[group[0]] = geom
+        if to_clean:
+            self.writer.deleteFeatures(to_clean)
+            self.writer.changeGeometryValues(to_change)
+            log.info(_("%d adjacent polygons merged into %d polygons in the '%s' "
+                "layer"), len(to_clean), len(to_change), self.name().encode('utf-8'))
         self.commitChanges()
-        if cleaned:
-            log.info(_("%d adjacent polygons merged into %d polygons in the "
-                "'%s' layer"), cleaned, added, self.name().encode('utf-8'))
 
     def clean(self):
         """Merge duplicated vertices and simplify layer"""
