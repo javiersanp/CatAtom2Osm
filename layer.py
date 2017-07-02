@@ -753,7 +753,6 @@ class ConsLayer(PolygonLayer):
             self.writer.deleteFeatures(to_clean)
             log.info(_("Removed %d building parts outside the footprint"), len(to_clean))
         self.commitChanges()
-
             
     def merge_greatest_part(self, footprint, parts):
         """

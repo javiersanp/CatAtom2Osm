@@ -402,10 +402,12 @@ class TestConsLayer(unittest.TestCase):
             self.assertEquals(building['localId'], ref, "Find building")
             parts = [f for f in self.layer.search("localId LIKE '%%%s_part%%'" % ref)]
             self.assertTrue(self.layer.startEditing())
-            self.layer.merge_greatest_part(building, parts)
+            to_clean = self.layer.merge_greatest_part(building, parts)
+            self.writer.deleteFeatures(to_clean)
             oparts = [f for f in self.layer.search("localId LIKE '%%%s_part%%'" % ref)]
             self.assertTrue(self.layer.commitChanges())
-            self.assertEquals(refs[ref], len(oparts), "Number of parts %s %d %d" % (ref, refs[ref], len(oparts)))
+            self.assertEquals(refs[ref], len(oparts), "Number of parts %s "
+                "%d != %d" % (ref, refs[ref], len(oparts)))
             self.assertGreater(building['lev_above'], 0, "Copy levels")
 
     def test_index_of_building_and_parts(self):
