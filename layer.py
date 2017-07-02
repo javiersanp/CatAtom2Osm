@@ -13,8 +13,11 @@ import setup
 import logging
 log = logging.getLogger(setup.app_name + "." + __name__)
 
-is_inside = lambda f1, f2: f2.geometry().contains(f1.geometry()) or \
-    f2.geometry().overlaps(f1.geometry())
+is_inside = lambda f1, f2: \
+    f2.geometry().contains(f1.geometry()) or f2.geometry().overlaps(f1.geometry())
+
+get_attributes = lambda feat: \
+    dict([(i, feat[i]) for i in range(len(feat.fields().toList()))])
     
     
 class Point(QgsPoint):
@@ -883,6 +886,70 @@ class ConsLayer(PolygonLayer):
         self.simplify()
         self.merge_building_parts()
         self.remove_duplicated_holes()
+
+    def move_address(self, address):
+        """
+        Move each address to the nearest point in the footprint of its 
+        associated building (same cadastral reference), but only if:
+        
+        * There aren't more than one associated building.
+        
+        * The address specification is Entrance.
+        
+        * The new position is enough close and is not a corner
+        
+        Delete the address if there aren't any associated building.
+        """
+        ad_count = 0
+        to_clean = []
+        to_change = {}
+        to_move = {}
+        to_insert = {}
+        building_index = defaultdict(list)  # Index of building 
+        for building in self.getFeatures(): # per cadastral reference
+            building_index[building['localId']].append(building)
+        for ad in address.getFeatures():
+            ad_count += 1
+            attributes = get_attributes(ad)
+            refcat = ad['localId'].split('.')[-1]
+            building_count = len(building_index[refcat])
+            if building_count == 0:
+                to_clean.append(ad.id())
+            elif building_count == 1:
+                building = building_index[refcat][0]
+                if ad['spec'] == 'Entrance':
+                    point = ad.geometry().asPoint()
+                    g = building.geometry()
+                    distance, closest, vertex = g.closestSegmentWithContext(point)
+                    va = g.vertexAt(vertex - 1)
+                    vb = g.vertexAt(vertex)
+                    if distance < setup.addr_thr**2:
+                        if closest in (va, vb):
+                            attributes[ad.fieldNameIndex('spec')] = 'corner'
+                            to_change[ad.id()] = attributes
+                        else:
+                            to_move[ad.id()] = QgsGeometry.fromPoint(closest)
+                            g.insertVertex(closest.x(), closest.y(), vertex)
+                            to_insert[building.id()] = g
+                    else:
+                        attributes[ad.fieldNameIndex('spec')] = 'remote'
+                        to_change[ad.id()] = attributes
+            else:
+                attributes[ad.fieldNameIndex('spec')] = 'relation'
+                to_change[ad.id()] = attributes
+        address.startEditing()
+        if to_change:
+            address.writer.changeAttributeValues(to_change)
+        if to_clean:
+            address.writer.deleteFeatures(to_clean)
+        if to_move:
+            address.writer.changeGeometryValues(to_move)
+        address.commitChanges()
+        self.startEditing()
+        if to_insert:
+            self.writer.changeGeometryValues(to_insert)
+        self.commitChanges()
+        log.info("Deleted %d addresses of %d, %d moved", len(to_clean), ad_count, len(to_move))
 
     def set_tasks(self, urban_zoning, rustic_zoning):
         """Assings to the 'task' field the label of the zone that each feature 

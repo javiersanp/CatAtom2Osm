@@ -108,16 +108,15 @@ class CatAtom2Osm:
                 address.join_field(adminunitname, 'AU_id', 'gml_id', ['text'], 'AU_')
                 address.join_field(postaldescriptor, 'PD_id', 'gml_id', ['postCode'])
                 del thoroughfarename, adminunitname, postaldescriptor
+                if log.getEffectiveLevel() == logging.DEBUG:
+                    self.export_layer(address, 'address.shp')
                 (highway_names, is_new) = hgwnames.get_translations(address, 
                     self.path, 'TN_text', 'designator')
-                if log.getEffectiveLevel() == logging.DEBUG:
-                    self.export_layer(address, 'address.geojson', 'GeoJSON')
-                    self.export_layer(address, 'address.shp')
                 address.translate_field('TN_text', highway_names)
-                address.reproject()
-                address_osm = self.osm_from_layer(address, translate.address_tags)
-                self.write_osm(address_osm, "address.osm")
                 if is_new:
+                    address.reproject()
+                    address_osm = self.osm_from_layer(address, translate.address_tags)
+                    self.write_osm(address_osm, "address.osm")
                     log.info(_("The translation file '%s' have been writen in '%s'"),
                         'highway_names.csv', self.path)
                     log.info(_("Please, check it and run again"))
@@ -147,14 +146,16 @@ class CatAtom2Osm:
                 del other_gml
             else:
                 log.info(_("The layer '%s' is empty"), 'otherconstruction')
+            if log.getEffectiveLevel() == logging.DEBUG:
+                self.export_layer(building, 'building.shp')
             building.remove_outside_parts()
             building.explode_multi_parts()
             building.remove_parts_below_ground()
             if self.options.tasks:
                 building.set_tasks(urban_zoning, rustic_zoning)
-            if log.getEffectiveLevel() == logging.DEBUG:
-                self.export_layer(building, 'building.shp')
             building.clean()
+            if self.options.address:
+                building.move_address(address)
             building.reproject()
             if log.getEffectiveLevel() == logging.DEBUG:
                 self.export_layer(building, 'building.geojson', 'GeoJSON')
@@ -165,6 +166,13 @@ class CatAtom2Osm:
             del building_osm
         elif self.options.tasks:
             self.split_building_in_tasks(building, urban_zoning, rustic_zoning)
+
+        if self.options.address: 
+            address.reproject()
+            if log.getEffectiveLevel() == logging.DEBUG:
+                self.export_layer(address, 'address.geojson', 'GeoJSON')
+            address_osm = self.osm_from_layer(address, translate.address_tags)
+            self.write_osm(address_osm, "address.osm")
 
         if self.options.zoning:
             urban_zoning.clean()

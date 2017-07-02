@@ -405,7 +405,7 @@ class TestConsLayer(unittest.TestCase):
             self.layer.merge_greatest_part(building, parts)
             oparts = [f for f in self.layer.search("localId LIKE '%%%s_part%%'" % ref)]
             self.assertTrue(self.layer.commitChanges())
-            self.assertEquals(refs[ref], len(oparts), "Number of parts")
+            self.assertEquals(refs[ref], len(oparts), "Number of parts %s %d %d" % (ref, refs[ref], len(oparts)))
             self.assertGreater(building['lev_above'], 0, "Copy levels")
 
     def test_index_of_building_and_parts(self):
@@ -537,6 +537,29 @@ class TestConsLayer(unittest.TestCase):
             feat = self.layer.getFeatures(request).next()
             geom = feat.geometry().asPolygon()
             self.assertEquals(len(geom), 1)
+
+    def test_move_address(self):
+        refs = {
+            '38.012.10.10.8643403CS5284S': 'Entrance',
+            '38.012.10.11.8842304CS5284S': 'Entrance',
+            '38.012.10.13.8842305CS5284S': 'relation',
+            '38.012.10.14.8643404CS5284S': 'corner',
+            '38.012.10.14.8643406CS5284S': 'Parcel',
+            '38.012.10.2.8642321CS5284S': 'Entrance',
+            '38.012.15.73.8544911CS5284S': 'remote'
+        }
+        address = AddressLayer()
+        address_gml = QgsVectorLayer('test/address.gml', 'address', 'ogr')
+        address.append(address_gml)
+        self.layer.explode_multi_parts()
+        self.layer.move_address(address)
+        self.assertEquals(address.featureCount(), 7)
+        for ad in address.getFeatures():
+            self.assertEquals(ad['spec'], refs[ad['localId']])
+            if ad['spec'] == 'Entrance':
+                refcat = ad['localId'].split('.')[-1]
+                building = self.layer.search("localId = '%s'" % refcat).next()
+                self.assertTrue(ad.geometry().touches(building.geometry()))
 
 
 class TestAddressLayer(unittest.TestCase):
