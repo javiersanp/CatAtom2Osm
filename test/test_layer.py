@@ -402,8 +402,9 @@ class TestConsLayer(unittest.TestCase):
             self.assertEquals(building['localId'], ref, "Find building")
             parts = [f for f in self.layer.search("localId LIKE '%%%s_part%%'" % ref)]
             self.assertTrue(self.layer.startEditing())
-            to_clean = self.layer.merge_greatest_part(building, parts)
+            to_clean, to_change = self.layer.merge_greatest_part(building, parts)
             self.writer.deleteFeatures(to_clean)
+            self.writer.changeAttributeValues(to_change)
             oparts = [f for f in self.layer.search("localId LIKE '%%%s_part%%'" % ref)]
             self.assertTrue(self.layer.commitChanges())
             self.assertEquals(refs[ref], len(oparts), "Number of parts %s "

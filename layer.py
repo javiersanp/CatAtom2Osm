@@ -145,9 +145,11 @@ class BaseLayer(QgsVectorLayer):
         """
         self.setCrs(layer.crs())
         self.startEditing()
+        to_add = []
         for feature in layer.getFeatures():
             if not query or query(feature):
-                self.addFeature(self.copy_feature(feature, rename, resolve))
+                to_add.append(self.copy_feature(feature, rename, resolve))
+        self.addFeatures(to_add)
         self.commitChanges()
 
     def reproject(self, target_crs=None):
@@ -207,6 +209,7 @@ class BaseLayer(QgsVectorLayer):
         for feature in source_layer.getFeatures():
             source_values[feature[join_field_name]] = \
                     {attr: feature[attr] for attr in field_names_subset}
+        to_change = {}
         for feature in self.getFeatures():
             attrs = {}
             for attr in field_names_subset:
@@ -216,7 +219,8 @@ class BaseLayer(QgsVectorLayer):
                 else:
                     value = None
                 attrs[fieldId] = value 
-            self.writer.changeAttributeValues({feature.id(): attrs})
+            to_change[feature.id()] = attrs
+        self.writer.changeAttributeValues(to_change)
         self.commitChanges()
 
     def translate_field(self, field_name, translations, clean=True):
@@ -231,14 +235,18 @@ class BaseLayer(QgsVectorLayer):
         field_ndx = self.pendingFields().fieldNameIndex(field_name)
         if field_ndx >= 0:
             to_clean = []
+            to_change = {}
             self.startEditing()
             for feat in self.getFeatures():
                 value = feat[field_name]
                 if value in translations and translations[value] != '':
                     new_value = translations[value]
-                    self.changeAttributeValue(feat.id(), field_ndx, new_value)
+                    attributes = get_attributes(feat)
+                    attributes[field_ndx] = new_value
+                    to_change[feat.id()] = attributes
                 elif clean:
                     to_clean.append(feat.id())
+            self.writer.changeAttributeValues(to_change)
             self.writer.deleteFeatures(to_clean)
             self.commitChanges()
 
@@ -352,13 +360,15 @@ class PolygonLayer(BaseLayer):
         """Returns a in memory layer with the coordinates of each vertex"""
         vertices = QgsVectorLayer("Point", "vertices", "memory")
         vertices.startEditing() # layer with the coordinates of each vertex
+        to_add = []
         for feature in self.getFeatures(): 
             for ring in feature.geometry().asPolygon():
                 for point in ring[0:-1]:
                     feat = QgsFeature(QgsFields())
                     geom = QgsGeometry.fromPoint(point)
                     feat.setGeometry(geom)
-                    vertices.addFeature(feat)
+                    to_add.append(feat)
+        vertices.addFeatures(to_add)
         vertices.commitChanges()
         return vertices
     
@@ -624,10 +634,13 @@ class ZoningLayer(PolygonLayer):
         """
         self.startEditing()
         i = 1
+        to_change = {}
         for feat in self.getFeatures():
-            self.changeAttributeValue(feat.id(), self.fieldNameIndex('label'), 
-                str_format % i)
+            attributes = get_attributes(feat)
+            attributes[self.fieldNameIndex('label')] = str_format % i
+            to_change[feat.id()] = attributes
             i += 1
+        self.writer.changeAttributeValues(to_change)
         self.commitChanges()
 
     @staticmethod
@@ -783,6 +796,7 @@ class ConsLayer(PolygonLayer):
             if level[0] > 0: 
                 area_for_level[level].append(area)
         to_clean = []
+        to_change = {}
         if area_for_level:
             footprint_area = round(footprint.geometry().area()*100)
             parts_area = round(sum(sum(v) for v in area_for_level.values()) * 100)
@@ -797,11 +811,11 @@ class ConsLayer(PolygonLayer):
                     if (part['lev_above'], part['lev_below']) == level_with_greatest_area:
                         to_clean.append(part.id())
                 if to_clean:
-                    self.changeAttributeValue(footprint.id(), 
-                        self.fieldNameIndex('lev_above'), level_with_greatest_area[0])
-                    self.changeAttributeValue(footprint.id(), 
-                        self.fieldNameIndex('lev_below'), level_with_greatest_area[1])
-        return to_clean
+                    attr = get_attributes(footprint)
+                    attr[self.fieldNameIndex('lev_above')] = level_with_greatest_area[0]
+                    attr[self.fieldNameIndex('lev_below')] = level_with_greatest_area[1]
+                    to_change[footprint.id()] = attr 
+        return to_clean, to_change
 
     def index_of_building_and_parts(self):
         """
@@ -827,14 +841,17 @@ class ConsLayer(PolygonLayer):
         (features, buildings, parts) = self.index_of_building_and_parts()
         self.startEditing()
         to_clean = []
+        to_change = {}
         for (localId, fids) in buildings.items():
             if localId in parts:
                 for fid in fids:
                     building = features[fid]
                     parts_for_building = [features[i] for i in parts[localId]]
-                    to_clean += \
-                        self.merge_greatest_part(building, parts_for_building)
+                    cn, ch = self.merge_greatest_part(building, parts_for_building)
+                    to_clean += cn
+                    to_change.update(ch)
         if to_clean:
+            self.writer.changeAttributeValues(to_change)
             self.writer.deleteFeatures(to_clean)
             log.info(_("Merged %d building parts to footprint"), len(to_clean))
         self.commitChanges()
@@ -937,18 +954,15 @@ class ConsLayer(PolygonLayer):
                 attributes[ad.fieldNameIndex('spec')] = 'relation'
                 to_change[ad.id()] = attributes
         address.startEditing()
-        if to_change:
-            address.writer.changeAttributeValues(to_change)
-        if to_clean:
-            address.writer.deleteFeatures(to_clean)
-        if to_move:
-            address.writer.changeGeometryValues(to_move)
+        address.writer.changeAttributeValues(to_change)
+        address.writer.deleteFeatures(to_clean)
+        address.writer.changeGeometryValues(to_move)
         address.commitChanges()
         self.startEditing()
-        if to_insert:
-            self.writer.changeGeometryValues(to_insert)
+        self.writer.changeGeometryValues(to_insert)
         self.commitChanges()
-        log.info("Deleted %d addresses of %d, %d moved", len(to_clean), ad_count, len(to_move))
+        log.info(_("Deleted %d addresses of %d, %d moved"), len(to_clean), 
+            ad_count, len(to_move))
 
     def set_tasks(self, urban_zoning, rustic_zoning):
         """Assings to the 'task' field the label of the zone that each feature 
@@ -961,7 +975,7 @@ class ConsLayer(PolygonLayer):
         (features, buildings, parts) = self.index_of_building_and_parts()
         index = QgsSpatialIndex(self.getFeatures())
         self.startEditing()
-        updated = set()
+        to_change = {}
         prefix = urban_zoning.name()[0].upper()
         tf = self.fieldNameIndex('task')
         for task in urban_zoning.getFeatures():
@@ -970,13 +984,13 @@ class ConsLayer(PolygonLayer):
                 candidate = features[fid]
                 if not candidate['task'] and is_inside(candidate, task):
                     features[fid]['task'] = prefix + task['label']
-                    self.changeAttributeValue(fid, tf, prefix + task['label'])
-                    updated.add(fid)
+                    attributes = get_attributes(features[fid])
+                    to_change[fid] = attributes
                     if self.is_building(candidate):
                         for i in parts[candidate['localId']]:
                             features[i]['task'] = prefix + task['label']
-                            self.changeAttributeValue(i, tf, prefix + task['label'])
-                            updated.add(i)
+                            attributes = get_attributes(features[i])
+                            to_change[i] = attributes
         prefix = rustic_zoning.name()[0].upper()
         for task in rustic_zoning.getFeatures():
             zone = task.geometry()
@@ -984,10 +998,11 @@ class ConsLayer(PolygonLayer):
                 candidate = features[fid]
                 if not candidate['task'] and is_inside(candidate, task):
                     features[fid]['task'] = prefix + task['label']
-                    self.changeAttributeValue(fid, tf, prefix + task['label'])
-                    updated.add(fid)
+                    attributes = get_attributes(features[fid])
+                    to_change[fid] = attributes
+        self.writer.changeAttributeValues(to_change)
         self.commitChanges()
-        nt = self.featureCount() - len(updated)
+        nt = self.featureCount() - len(to_change)
         if nt:
             log.warning(_("%d features unassigned to a task in the '%s' layer"),
                 nt, self.name().decode('utf-8'))
