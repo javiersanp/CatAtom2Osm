@@ -14,7 +14,7 @@ def parse(name):
     """Transform the name of a street from Cadastre conventions to OSM ones."""
     name = re.sub('[,]+', ', ', name).strip() # Avoids comma without trailing space
     result = []
-    for (i, word) in enumerate(re.split('[ ]+', name)):
+    for (i, word) in enumerate(re.split('[ ]+', name.strip())):
         nude_word = re.sub('^\(|\)$', '', word) # Remove enclosing parenthesis
         if i == 0:
             try:
