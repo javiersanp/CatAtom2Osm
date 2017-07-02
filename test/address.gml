@@ -2,6 +2,44 @@
 <!--Direcciones de la D.G. del Catastro.-->
 <gml:FeatureCollection gml:id="ES.SDGC.AD" xmlns:GN="urn:x-inspire:specification:gmlas:GeographicalNames:3.0" xmlns:base="urn:x-inspire:specification:gmlas:BaseTypes:3.2" xmlns:gml="http://www.opengis.net/gml/3.2"  xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:ogc="http://www.opengis.net/ogc" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:AD="urn:x-inspire:specification:gmlas:Addresses:3.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:x-inspire:specification:gmlas:Addresses:3.0 http://inspire.ec.europa.eu/schemas/ad/3.0/Addresses.xsd">
  <gml:featureMember>
+  <AD:Address gml:id="ES.SDGC.AD.38.012.15.73.8544911CS5284S">
+   <AD:inspireId>
+    <base:Identifier>
+    <base:localId>38.012.15.73.8544911CS5284S</base:localId>
+     <base:namespace>ES.SDGC.AD</base:namespace>
+    </base:Identifier>
+   </AD:inspireId>
+   <AD:position>
+    <AD:GeographicPosition>
+     <AD:geometry>
+      <gml:Point gml:id="ES.SDGC.AD.38.012.15.73.8544911CS5284S_P" srsName="urn:ogc:def:crs:EPSG::32628">
+       <gml:pos>358571.51 3124389.87</gml:pos> 
+      </gml:Point>
+     </AD:geometry>
+     <AD:specification>Entrance</AD:specification>
+     <AD:method>fromFeature</AD:method>
+     <AD:default>true</AD:default>
+    </AD:GeographicPosition>
+   </AD:position>
+   <AD:locator>
+    <AD:AddressLocator>
+     <AD:designator>
+      <AD:LocatorDesignator>
+       <AD:designator>73</AD:designator>
+       <AD:type>1</AD:type>
+      </AD:LocatorDesignator>
+     </AD:designator>
+     <AD:level>siteLevel</AD:level>
+    </AD:AddressLocator>
+   </AD:locator>
+   <AD:validFrom xsi:nil="true" nilReason="other:unpopulated"></AD:validFrom>
+   <AD:beginLifespanVersion>2001-07-09T00:00:00</AD:beginLifespanVersion>
+   <AD:component xlink:href="#ES.SDGC.PD.38.012.38570" />
+   <AD:component xlink:href="#ES.SDGC.TN.38.012.15" />
+   <AD:component xlink:href="#ES.SDGC.AU.38.012" />
+  </AD:Address>
+ </gml:featureMember>
+ <gml:featureMember>
   <AD:Address gml:id="ES.SDGC.AD.38.012.1.12.0295603CS6109N">
    <AD:inspireId>
     <base:Identifier>
@@ -758,5 +796,35 @@
    <AD:level>4</AD:level>
    <AD:adminUnit nilReason="missing" xsi:nil="true" />
    </AD:AdminUnitName>
+ </gml:featureMember>
+ <gml:featureMember>
+  <AD:ThoroughfareName gml:id="ES.SDGC.TN.38.012.15">
+  <AD:alternativeIdentifier>15</AD:alternativeIdentifier>
+  <AD:beginLifespanVersion xsi:nil="true" nilReason="UNKNOWN" />
+  <AD:endLifespanVersion xsi:nil="true" nilReason="UNKNOWN" />
+  <AD:validFrom xsi:nil="true" nilReason="UNKNOWN" />
+  <AD:validTo xsi:nil="true" nilReason="UNKNOWN" />
+  <AD:name>
+  <AD:ThoroughfareNameValue>
+   <AD:name>
+    <GN:GeographicalName>
+     <GN:language>esp</GN:language>
+     <GN:nativeness>Endonym</GN:nativeness>
+     <GN:nameStatus>Official</GN:nameStatus>
+     <GN:sourceOfName>Catastro</GN:sourceOfName>
+     <GN:pronunciation>
+      <GN:PronunciationOfName />
+     </GN:pronunciation>
+     <GN:spelling>
+      <GN:SpellingOfName>
+       <GN:text> CR GENERAL DEL SUR (FASNIA)</GN:text>
+       <GN:script>Latn</GN:script>
+      </GN:SpellingOfName>
+     </GN:spelling>
+    </GN:GeographicalName>
+   </AD:name>
+  </AD:ThoroughfareNameValue>
+  </AD:name>
+  </AD:ThoroughfareName>
  </gml:featureMember>
 </gml:FeatureCollection>
