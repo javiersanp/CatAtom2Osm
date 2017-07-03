@@ -174,7 +174,6 @@ class CatAtom2Osm:
                 address.commitChanges()
                 log.info(_("Deleted %d addresses without house number") % len(to_clean))
             address_osm = self.osm_from_layer(address, translate.address_tags)
-            self.write_osm(address_osm, "address.osm")
 
         if self.options.building: 
             if self.options.address:
@@ -182,6 +181,9 @@ class CatAtom2Osm:
             self.write_osm(building_osm, "building.osm")
         elif self.options.tasks:
             self.split_building_in_tasks(building, urban_zoning, rustic_zoning)
+
+        if self.options.address:
+            self.write_osm(address_osm, "address.osm")
 
         if self.options.zoning:
             urban_zoning.clean()
@@ -371,6 +373,9 @@ class CatAtom2Osm:
             data (Osm): OSM data set
             filename (str): output filename
         """
+        for e in data.elements:
+            if 'ref' in e.tags:
+                del e.tags['ref']
         osm_path = os.path.join(self.path, filename)
         data.new_indexes()
         with codecs.open(osm_path,"w", "utf-8") as file_obj:
@@ -390,7 +395,6 @@ class CatAtom2Osm:
         address_index = {}
         for ad in address_osm.nodes:
             address_index[ad.tags['ref']] = ad
-            del ad.tags['ref']
         building_index = defaultdict(list)
         for bu in building_osm.elements:
             if 'ref' in bu.tags:
@@ -412,9 +416,6 @@ class CatAtom2Osm:
                             entrance.tags.update(ad.tags)
                     else:
                         bu[0].tags.update(ad.tags)
-        for bu in building_osm.elements:
-            if 'ref' in bu.tags:
-                del bu.tags['ref']
                     
 
     def split_building_in_tasks(self, building, urban_zoning, rustic_zoning):
