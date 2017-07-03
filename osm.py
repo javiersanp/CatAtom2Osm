@@ -220,7 +220,11 @@ class Relation(Element):
 
         @property
         def type(self):
-            return self.element.__class__.__name__.lower()
+            if isinstance(self.element, Node):
+                return 'node'
+            elif isinstance(self.element, Way):
+                return 'way'
+            return 'relation'
         
         @property
         def ref(self):
