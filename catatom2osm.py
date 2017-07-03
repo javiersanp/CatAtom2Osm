@@ -399,23 +399,29 @@ class CatAtom2Osm:
         for bu in building_osm.elements:
             if 'ref' in bu.tags:
                 building_index[bu.tags['ref']].append(bu)
-        for (ref, bu) in building_index.items():
+        for (ref, group) in building_index.items():
             if ref in address_index:
                 ad = address_index[ref]
-                if len(bu) > 1:
+                if len(group) > 1:
                     r = building_osm.Relation()
                     r.tags.update(ad.tags)
                     r.tags['type'] = 'multipolygon'
-                    map(lambda b: r.append(b, 'outer'), bu)
-                elif len(bu) == 1:
+                    for bu in group:
+                        if isinstance(bu, osm.Relation):
+                            map(lambda m: r.append(m.element, 'outer'),  
+                                [m for m in bu.members if m.role == 'outer'])
+                        else:
+                            r.append(bu, 'outer')
+                elif len(group) == 1:
+                    bu = group[0]
                     if 'entrance' in ad.tags:
-                        footprint = bu[0] if isinstance(bu[0], osm.Way) \
-                            else bu[0].members[0].element
+                        footprint = bu if isinstance(bu, osm.Way) \
+                            else bu.members[0].element
                         entrance = footprint.search_node(ad.x, ad.y)
                         if entrance:
                             entrance.tags.update(ad.tags)
                     else:
-                        bu[0].tags.update(ad.tags)
+                        bu.tags.update(ad.tags)
                     
 
     def split_building_in_tasks(self, building, urban_zoning, rustic_zoning):
