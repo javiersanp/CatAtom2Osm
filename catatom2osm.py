@@ -8,6 +8,7 @@ import re
 import codecs
 import logging
 import zipfile
+from collections import defaultdict
 
 from qgis.core import (QGis, QgsApplication, QgsVectorLayer, 
     QgsCoordinateReferenceSystem)
@@ -117,8 +118,8 @@ class CatAtom2Osm:
                     address.reproject()
                     address_osm = self.osm_from_layer(address, translate.address_tags)
                     self.write_osm(address_osm, "address.osm")
-                    log.info(_("The translation file '%s' have been writen in '%s'"),
-                        'highway_names.csv', self.path)
+                    log.info(_("The translation file '%s' have been writen in "
+                        "'%s'"), 'highway_names.csv', self.path)
                     log.info(_("Please, check it and run again"))
                     return
 
@@ -159,13 +160,7 @@ class CatAtom2Osm:
             building.reproject()
             if log.getEffectiveLevel() == logging.DEBUG:
                 self.export_layer(building, 'building.geojson', 'GeoJSON')
-
-        if self.options.building: 
             building_osm = self.osm_from_layer(building, translate.building_tags)
-            self.write_osm(building_osm, "building.osm")
-            del building_osm
-        elif self.options.tasks:
-            self.split_building_in_tasks(building, urban_zoning, rustic_zoning)
 
         if self.options.address: 
             address.reproject()
@@ -173,6 +168,13 @@ class CatAtom2Osm:
                 self.export_layer(address, 'address.geojson', 'GeoJSON')
             address_osm = self.osm_from_layer(address, translate.address_tags)
             self.write_osm(address_osm, "address.osm")
+
+        if self.options.building: 
+            self.merge_address(building_osm, address_osm)
+            self.write_osm(building_osm, "building.osm")
+        elif self.options.tasks:
+            self.split_building_in_tasks(building, urban_zoning, rustic_zoning)
+        del building_osm
 
         if self.options.zoning:
             urban_zoning.clean()
@@ -369,6 +371,47 @@ class CatAtom2Osm:
             file_obj.write(osmxml.serialize(data))
             file_obj.close()
         log.info(_("Generated '%s'"), filename)
+
+    def merge_address(self, building_osm, address_osm):
+        address_index = {}
+        building_index = defaultdict(list)
+        for ad in address_osm.nodes:
+            address_index[ad.tags['ref']] = ad
+        for bu in building_osm.elements:
+            if 'ref' in bu.tags:
+                building_index[bu.tags['ref']].append(bu)
+        for (ref, bu) in building_index.items():
+            if len(bu) > 1:
+                pass
+                r = building_osm.Relation()
+                for b in bu:
+                    r.append(b, 'outter')
+                    del b.tags['ref']
+                r.tags.update(ad.tags)
+                del r.tags['ref']
+            elif len(bu) == 1:
+                if bu[0].tags['ref'] in address_index:
+                    ad = address_index[bu[0].tags['ref']]
+                    if 'entrance' in ad.tags:
+                        footprint = bu[0]
+                        if isinstance(bu[0], osm.Relation):
+                            footprint = bu[0].members[0].element
+                        entrance = None
+                        for n in footprint.nodes:
+                            if n.x == ad.x and n.y == ad.y:
+                                entrance = n
+                                break
+                        if entrance:
+                            entrance.tags.update(ad.tags)
+                            del entrance.tags['ref']
+                        else:
+                            n.tags['note'] = 'missing entrance'
+                    else:
+                        bu[0].tags.update(ad.tags)
+                else:
+                    bu[0].tags['note'] = 'missing address'
+                del bu[0].tags['ref']
+                    
 
     def split_building_in_tasks(self, building, urban_zoning, rustic_zoning):
         """Generates osm files to import with the task manager"""

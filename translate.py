@@ -29,6 +29,7 @@ def address_tags(feature):
         pass
     if feature['spec'] == 'Entrance':
         tags['entrance'] = 'yes'
+    tags['ref'] = feature['localId'].split('.')[-1]
     return tags
     
 def building_tags(feature):
@@ -59,6 +60,7 @@ def building_tags(feature):
     tags = {}
     if '_' not in feature['localId']:
         tags['building'] = 'yes'
+        tags['ref'] = feature['localId']
     for field, action in translations.items():
         for value, new_tags in action.items():
             if feature[field] == value:
