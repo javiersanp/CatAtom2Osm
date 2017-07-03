@@ -166,6 +166,13 @@ class CatAtom2Osm:
             address.reproject()
             if log.getEffectiveLevel() == logging.DEBUG:
                 self.export_layer(address, 'address.geojson', 'GeoJSON')
+            to_clean = [feat.id() for feat in address.search("designator = '%s'" \
+                % setup.no_number)]
+            if to_clean:
+                address.startEditing()
+                address.writer.deleteFeatures(to_clean)
+                address.commitChanges()
+                log.info(_("Deleted %d addresses without house number") % len(to_clean))
             address_osm = self.osm_from_layer(address, translate.address_tags)
             self.write_osm(address_osm, "address.osm")
 
@@ -175,7 +182,6 @@ class CatAtom2Osm:
             self.write_osm(building_osm, "building.osm")
         elif self.options.tasks:
             self.split_building_in_tasks(building, urban_zoning, rustic_zoning)
-        del building_osm
 
         if self.options.zoning:
             urban_zoning.clean()
