@@ -170,7 +170,8 @@ class CatAtom2Osm:
             self.write_osm(address_osm, "address.osm")
 
         if self.options.building: 
-            self.merge_address(building_osm, address_osm)
+            if self.options.address:
+                self.merge_address(building_osm, address_osm)
             self.write_osm(building_osm, "building.osm")
         elif self.options.tasks:
             self.split_building_in_tasks(building, urban_zoning, rustic_zoning)
