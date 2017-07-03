@@ -947,7 +947,7 @@ class ConsLayer(PolygonLayer):
                                 pg = part.geometry()
                                 for (i, vpa) in enumerate(pg.asPolygon()[0][0:-1]):
                                     vpb = pg.vertexAt(i+1)
-                                    if va == vpa and vb == vpb:
+                                    if va in (vpa, vpb) and vb in (vpa, vpb):
                                         pg.insertVertex(closest.x(), closest.y(), i+1)
                                         to_insert[part.id()] = pg
                     else:
