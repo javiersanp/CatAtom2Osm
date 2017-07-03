@@ -759,9 +759,9 @@ class ConsLayer(PolygonLayer):
         to_clean = []
         (buildings, parts) = self.index_of_building_and_parts()
         self.startEditing()
-        for (ref, bu) in buildings.items():
-            if ref in parts:
-                for part in parts[ref]:
+        for (refcat, bu) in buildings.items():
+            if refcat in parts:
+                for part in parts[refcat]:
                     if not is_inside(part, bu[0]):
                         to_clean.append(part.id())
         if to_clean:
@@ -841,10 +841,10 @@ class ConsLayer(PolygonLayer):
         self.startEditing()
         to_clean = []
         to_change = {}
-        for (ref, group) in buildings.items():
-            if ref in parts:
+        for (refcat, group) in buildings.items():
+            if refcat in parts:
                 for building in group:
-                    cn, ch = self.merge_greatest_part(building, parts[ref])
+                    cn, ch = self.merge_greatest_part(building, parts[refcat])
                     to_clean += cn
                     to_change.update(ch)
         if to_clean:
@@ -918,32 +918,38 @@ class ConsLayer(PolygonLayer):
         to_change = {}
         to_move = {}
         to_insert = {}
-        building_index = defaultdict(list)  # Index of building 
-        for building in self.getFeatures(): # per cadastral reference
-            building_index[building['localId']].append(building)
+        (buildings, parts) = self.index_of_building_and_parts()
         for ad in address.getFeatures():
             ad_count += 1
             attributes = get_attributes(ad)
             refcat = ad['localId'].split('.')[-1]
-            building_count = len(building_index[refcat])
+            building_count = len(buildings[refcat])
             if building_count == 0:
                 to_clean.append(ad.id())
             elif building_count == 1:
-                building = building_index[refcat][0]
+                building = buildings[refcat][0]
                 if ad['spec'] == 'Entrance':
                     point = ad.geometry().asPoint()
-                    g = building.geometry()
-                    distance, closest, vertex = g.closestSegmentWithContext(point)
-                    va = g.vertexAt(vertex - 1)
-                    vb = g.vertexAt(vertex)
+                    bg = building.geometry()
+                    distance, closest, vertex = bg.closestSegmentWithContext(point)
+                    va = bg.vertexAt(vertex - 1)
+                    vb = bg.vertexAt(vertex)
                     if distance < setup.addr_thr**2:
                         if closest in (va, vb):
                             attributes[ad.fieldNameIndex('spec')] = 'corner'
                             to_change[ad.id()] = attributes
                         else:
-                            to_move[ad.id()] = QgsGeometry.fromPoint(closest)
-                            g.insertVertex(closest.x(), closest.y(), vertex)
-                            to_insert[building.id()] = g
+                            dg = QgsGeometry.fromPoint(closest)
+                            to_move[ad.id()] = dg
+                            bg.insertVertex(closest.x(), closest.y(), vertex)
+                            to_insert[building.id()] = bg
+                            for part in parts[refcat]:
+                                pg = part.geometry()
+                                for (i, vpa) in enumerate(pg.asPolygon()[0][0:-1]):
+                                    vpb = pg.vertexAt(i+1)
+                                    if va == vpa and vb == vpb:
+                                        pg.insertVertex(closest.x(), closest.y(), i+1)
+                                        to_insert[part.id()] = pg
                     else:
                         attributes[ad.fieldNameIndex('spec')] = 'remote'
                         to_change[ad.id()] = attributes
