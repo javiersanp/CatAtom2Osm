@@ -499,10 +499,13 @@ class PolygonLayer(BaseLayer):
                                 note = "refused by insertVertex"
                                 if g.insertVertex(point.x(), point.y(), vertex):
                                     note = "refused by isGeosValid"
+                                    prev = QgsGeometry(g)
                                     if g.isGeosValid():
                                         note = "accepted"
                                         tp += 1
                                         to_change[fid] = g
+                                    elif fid in to_change:
+                                        to_change[fid] = prev
                             if log.getEffectiveLevel() <= logging.DEBUG:
                                 debshp.add_point(point, note)
         if to_change:
@@ -528,7 +531,6 @@ class PolygonLayer(BaseLayer):
         angle_thr = self.angle_thr
         if log.getEffectiveLevel() <= logging.DEBUG:
             debshp = DebugWriter("debug_simplify.shp", self.crs())
-        index = QgsSpatialIndex()
         index = QgsSpatialIndex(self.getFeatures())
         (parents_per_vertex, features) = self.get_parents_per_vertex_and_features()
         killed = 0
@@ -548,23 +550,26 @@ class PolygonLayer(BaseLayer):
                 if is_corner:
                     corners += 1
                     break
-            if corners == 0:            # If not is a corner, delete the vertex 
-                killed += 1      
-                for fid in frozenset(parents):  # from all its parents.
-                    feat = features[fid]
-                    geom = feat.geometry()
+            if corners == 0:     # If not is a corner
+                killed += 1      # delete the vertex from all its parents.
+                for fid in frozenset(parents):
+                    geom = features[fid].geometry()
                     (point, ndx, ndxa, ndxb, dist) = geom.closestVertex(point)
+                    prev = QgsGeometry(geom)
                     if geom.deleteVertex(ndx):
                         if geom.isGeosValid():
                             parents.remove(fid)
                             to_change[fid] = geom
+                        elif fid in to_change:
+                            to_change[fid] = prev
+                            
                 if log.getEffectiveLevel() <= logging.DEBUG:
                     msg = str(["%s angle=%.1f, cath=%.4f" % v for v in deb_values])
                     debshp.add_point(point, "Deleted. %s" % msg)
             elif log.getEffectiveLevel() <= logging.DEBUG:
                 msg = str(["%s angle=%.1f, cath=%.4f" % v for v in deb_values])
                 debshp.add_point(point, "Keep. %s" % msg)
-        if to_change:
+        if killed:
             self.writer.changeGeometryValues(to_change)
             log.info(_("Simplified %d vertices in the '%s' layer"), killed, 
                 self.name().encode('utf-8'))
