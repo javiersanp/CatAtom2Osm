@@ -757,16 +757,13 @@ class ConsLayer(PolygonLayer):
         Precondition: Called before merge_greatest_part
         """
         to_clean = []
-        (features, buildings, parts) = self.index_of_building_and_parts()
+        (buildings, parts) = self.index_of_building_and_parts()
         self.startEditing()
-        for (localId, fids) in buildings.items():
-            if localId in parts:
-                for fid in fids:
-                    footprint = features[fid]
-                    parts_for_building = [features[i] for i in parts[localId]]
-                    for part in parts_for_building:
-                        if not is_inside(part, footprint):
-                            to_clean.append(part.id())
+        for (ref, bu) in buildings.items():
+            if ref in parts:
+                for part in parts[ref]:
+                    if not is_inside(part, bu[0]):
+                        to_clean.append(part.id())
         if to_clean:
             self.writer.deleteFeatures(to_clean)
             log.info(_("Removed %d building parts outside the footprint"), len(to_clean))
@@ -825,34 +822,29 @@ class ConsLayer(PolygonLayer):
     def index_of_building_and_parts(self):
         """
         Constructs some utility dicts.
-        features index feature by fid.
         buildings index building by localid (many if it was a multipart building).
         parts index parts of building by building localid.
         """
-        features = {}
         buildings = defaultdict(list)
         parts = defaultdict(list)
         for feature in self.getFeatures():
-            features[feature.id()] = feature
             if self.is_building(feature):
-                buildings[feature['localId']].append(feature.id())
+                buildings[feature['localId']].append(feature)
             elif self.is_part(feature):
                 localId = feature['localId'].split('_')[0]
-                parts[localId].append(feature.id())
-        return (features, buildings, parts)
+                parts[localId].append(feature)
+        return (buildings, parts)
     
     def merge_building_parts(self):
-        """Apply merge_greatest_part to eacto_cleanh set of building and its parts"""
-        (features, buildings, parts) = self.index_of_building_and_parts()
+        """Apply merge_greatest_part to each set of building and its parts"""
+        (buildings, parts) = self.index_of_building_and_parts()
         self.startEditing()
         to_clean = []
         to_change = {}
-        for (localId, fids) in buildings.items():
-            if localId in parts:
-                for fid in fids:
-                    building = features[fid]
-                    parts_for_building = [features[i] for i in parts[localId]]
-                    cn, ch = self.merge_greatest_part(building, parts_for_building)
+        for (ref, group) in buildings.items():
+            if ref in parts:
+                for building in group:
+                    cn, ch = self.merge_greatest_part(building, parts[ref])
                     to_clean += cn
                     to_change.update(ch)
         if to_clean:
@@ -977,7 +969,8 @@ class ConsLayer(PolygonLayer):
         is propagated to its parts.
         """
         log.info (_("Assigning task number to each construction"))
-        (features, buildings, parts) = self.index_of_building_and_parts()
+        (buildings, parts) = self.index_of_building_and_parts()
+        features = {feat.id(): feat for feat in self.getFeatures()}
         index = QgsSpatialIndex(self.getFeatures())
         self.startEditing()
         to_change = {}
@@ -988,22 +981,22 @@ class ConsLayer(PolygonLayer):
             for fid in index.intersects(zone.boundingBox()):
                 candidate = features[fid]
                 if not candidate['task'] and is_inside(candidate, task):
-                    features[fid]['task'] = prefix + task['label']
-                    attributes = get_attributes(features[fid])
+                    candidate['task'] = prefix + task['label']
+                    attributes = get_attributes(candidate)
                     to_change[fid] = attributes
                     if self.is_building(candidate):
-                        for i in parts[candidate['localId']]:
-                            features[i]['task'] = prefix + task['label']
-                            attributes = get_attributes(features[i])
-                            to_change[i] = attributes
+                        for part in parts[candidate['localId']]:
+                            part['task'] = prefix + task['label']
+                            attributes = get_attributes(part)
+                            to_change[part.id()] = attributes
         prefix = rustic_zoning.name()[0].upper()
         for task in rustic_zoning.getFeatures():
             zone = task.geometry()
             for fid in index.intersects(zone.boundingBox()):
                 candidate = features[fid]
                 if not candidate['task'] and is_inside(candidate, task):
-                    features[fid]['task'] = prefix + task['label']
-                    attributes = get_attributes(features[fid])
+                    candidate['task'] = prefix + task['label']
+                    attributes = get_attributes(candidate)
                     to_change[fid] = attributes
         self.writer.changeAttributeValues(to_change)
         self.commitChanges()

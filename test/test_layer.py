@@ -412,15 +412,13 @@ class TestConsLayer(unittest.TestCase):
             self.assertGreater(building['lev_above'], 0, "Copy levels")
 
     def test_index_of_building_and_parts(self):
-        (features, buildings, parts) = self.layer.index_of_building_and_parts()
-        self.assertEquals(len(features), self.layer.featureCount())
-        self.assertTrue(all([features[fid].id() == fid for fid in features]))
-        self.assertGreater(len(buildings), 0)
+        (buildings, parts) = self.layer.index_of_building_and_parts()
+        self.assertGreaterEqual(len(buildings), 0)
         self.assertGreater(len(parts), 0)
-        self.assertTrue(all([localid==features[fid]['localid'] 
-            for (localid, fids) in buildings.items() for fid in fids]))
-        self.assertTrue(all([localid==features[fid]['localid'][0:14] 
-            for (localid, fids) in parts.items() for fid in fids]))
+        self.assertTrue(all([localid==bu['localid'] 
+            for (localid, group) in buildings.items() for bu in group]))
+        self.assertTrue(all([localid==pa['localid'][0:14] 
+            for (localid, group) in parts.items() for pa in group]))
                 
     def test_remove_outside_parts(self):
         refs = [
@@ -437,19 +435,17 @@ class TestConsLayer(unittest.TestCase):
     def test_merge_building_parts(self):
         self.layer.explode_multi_parts()
         self.layer.remove_parts_below_ground()
-        (features, buildings, building_parts) = self.layer.index_of_building_and_parts()
+        (buildings, parts) = self.layer.index_of_building_and_parts()
         self.layer.merge_building_parts()
-        for (localId, fids) in buildings.items():
-            if localId in building_parts:
-                for fid in fids:
-                    building = features[fid]
-                    parts_in_building = [features[i] for i in building_parts[localId]]
+        for (ref, group) in buildings.items():
+            if ref in parts:
+                for building in group:
                     building_area = round(building.geometry().area()*100)
                     parts_area = round(sum([part.geometry().area() 
-                        for part in parts_in_building])*100)
+                        for part in parts[ref]])*100)
                     if building_area == parts_area:
                         request = QgsFeatureRequest()
-                        request.setFilterFids([fid])
+                        request.setFilterFids([building.id()])
                         feat = self.layer.getFeatures(request).next()
                         self.assertTrue(feat['lev_above'])
 
