@@ -896,8 +896,8 @@ class ConsLayer(PolygonLayer):
         self.merge_duplicates()
         self.clean_duplicated_nodes_in_polygons()
         self.add_topological_points()
+        self.merge_building_parts(
         self.simplify()
-        self.merge_building_parts()
         self.remove_duplicated_holes()
 
     def move_address(self, address):
