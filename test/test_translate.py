@@ -24,12 +24,14 @@ class TestTranslate(unittest.TestCase):
     def test_address_tags(self):
     	self.assertEquals(address_tags({'TN_text': '  ', 'postCode': '9'}), {})
         feat = {
+            'localId': '000',
             'TN_text': '111', 
             'designator': '222',
             'postCode': '',
             'spec': 'Parcel'
         }
         tags = address_tags(feat)
+        self.assertEquals(tags['ref'], '000')
         self.assertEquals(tags['addr:street'], '111')
         self.assertEquals(tags['addr:housenumber'], '222')
         self.assertNotIn('addr:postcode', tags)
@@ -40,6 +42,7 @@ class TestTranslate(unittest.TestCase):
         self.assertEquals(tags['entrance'], 'yes')
         self.assertEquals(tags['addr:postcode'], '00333')
         feat = {
+            'localId': '000',
             'TN_text': 'Lugar foo', 
             'designator': '',
             'postCode': '',
@@ -63,6 +66,7 @@ class TestTranslate(unittest.TestCase):
             'lev_below': 0
         }
         tags = building_tags(feat)
+        self.assertEquals(tags['ref'], 'foobar')
         self.assertNotIn('abandoned:building', tags)
         self.assertNotIn('disused:building', tags)
         self.assertEquals(tags['building'], 'yes')
@@ -76,6 +80,7 @@ class TestTranslate(unittest.TestCase):
         feat['lev_below'] = 2
         feat['localId'] = 'foobar_part1'
         tags = building_tags(feat)
+        self.assertNotIn('ref', tags)
         self.assertEquals(tags['building'], 'ruins')
         self.assertEquals(tags['abandoned:building'], 'yes')
         self.assertEquals(tags['leisure'], 'swimming_pool')

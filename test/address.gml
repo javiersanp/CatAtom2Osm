@@ -507,7 +507,7 @@
     <AD:GeographicPosition>
      <AD:geometry>
       <gml:Point gml:id="ES.SDGC.AD.38.012.15.73.8544911CS5284S_P" srsName="urn:ogc:def:crs:EPSG::32628">
-       <gml:pos>358571.51 3124389.87</gml:pos> 
+       <gml:pos>358569.78,3124383.89</gml:pos> 
       </gml:Point>
      </AD:geometry>
      <AD:specification>Entrance</AD:specification>

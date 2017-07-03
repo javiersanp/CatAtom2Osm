@@ -177,6 +177,16 @@ class Way(Element):
                 if n != self.nodes[i]:
                     merged.append(n)
             self.nodes = merged
+    
+    def search_node(self, x, y):
+        """Returns osm node of way in the given position or None"""
+        result = None
+        for n in self.nodes:
+            if n.x == x and n.y == y:
+                result = n
+                break
+        return result
+        
 
 class Relation(Element):
     """A relation is a collection of nodes, ways or relations"""

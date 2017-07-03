@@ -373,44 +373,41 @@ class CatAtom2Osm:
         log.info(_("Generated '%s'"), filename)
 
     def merge_address(self, building_osm, address_osm):
+        """
+        Copy address from address_osm to building_osm
+
+        Args:
+            building_osm (Osm): OSM data set with addresses
+            address_osm (Osm): OSM data set with buildings
+        """
         address_index = {}
-        building_index = defaultdict(list)
         for ad in address_osm.nodes:
             address_index[ad.tags['ref']] = ad
+            del ad.tags['ref']
+        building_index = defaultdict(list)
         for bu in building_osm.elements:
             if 'ref' in bu.tags:
                 building_index[bu.tags['ref']].append(bu)
         for (ref, bu) in building_index.items():
-            if len(bu) > 1:
-                pass
-                r = building_osm.Relation()
-                for b in bu:
-                    r.append(b, 'outter')
-                    del b.tags['ref']
-                r.tags.update(ad.tags)
-                del r.tags['ref']
-            elif len(bu) == 1:
-                if bu[0].tags['ref'] in address_index:
-                    ad = address_index[bu[0].tags['ref']]
+            if ref in address_index:
+                ad = address_index[ref]
+                if len(bu) > 1:
+                    r = building_osm.Relation()
+                    r.tags.update(ad.tags)
+                    r.tags['type'] = 'multipolygon'
+                    map(lambda b: r.append(b, 'outer'), bu)
+                elif len(bu) == 1:
                     if 'entrance' in ad.tags:
-                        footprint = bu[0]
-                        if isinstance(bu[0], osm.Relation):
-                            footprint = bu[0].members[0].element
-                        entrance = None
-                        for n in footprint.nodes:
-                            if n.x == ad.x and n.y == ad.y:
-                                entrance = n
-                                break
+                        footprint = bu[0] if isinstance(bu[0], osm.Way) \
+                            else bu[0].members[0].element
+                        entrance = footprint.search_node(ad.x, ad.y)
                         if entrance:
                             entrance.tags.update(ad.tags)
-                            del entrance.tags['ref']
-                        else:
-                            n.tags['note'] = 'missing entrance'
                     else:
                         bu[0].tags.update(ad.tags)
-                else:
-                    bu[0].tags['note'] = 'missing address'
-                del bu[0].tags['ref']
+        for bu in building_osm.elements:
+            if 'ref' in bu.tags:
+                del bu.tags['ref']
                     
 
     def split_building_in_tasks(self, building, urban_zoning, rustic_zoning):

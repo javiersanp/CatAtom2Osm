@@ -500,7 +500,7 @@ class TestConsLayer(unittest.TestCase):
         layer.simplify()
         for feat in layer.getFeatures():
             geom = feat.geometry()
-            self.assertTrue(geom.isGeosValid())
+            self.assertTrue(geom.isGeosValid(), feat['localId'])
         layer.merge_building_parts()
 
     def test_set_tasks(self):
