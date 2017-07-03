@@ -137,9 +137,15 @@ highway_types = { # Dictionary for default 'highway_types.csv'
     'UR': u'Urbanización',
     'VR': u'Vereda',
     'AC': u'Acceso',
-    'SB': u'Subida',
+    'AD': u'Aldea',
+    'BV': u'Bulevar',
+    'CZ': u'Calzada',
+    'PA': u'Paralela',
+    'PC': u'Placeta/Plaça',
     'PG': u'Polígono',
-    'VI': u'Vía de enlace' 
+    'PO': u'Polígono',
+    'SB': u'Subida',
+    'SC': u'Sector',
 }
 
 place_types = [
