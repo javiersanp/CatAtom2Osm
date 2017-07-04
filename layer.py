@@ -28,24 +28,22 @@ class Point(QgsPoint):
         return QgsRectangle(self.x() - radius, self.y() - radius,
                         self.x() + radius, self.y() + radius)
 
-    def is_corner_with_context(self, geom, angle_thr=setup.angle_thr,
-            cath_thr=setup.dist_thr): 
+    def get_angle_with_context(self, geom): 
         """
-        Test if the nearest vertex in a geometry is a 'corner': if the angle between
-        the vertex and their adjacents difers by more than angle_thr of 180 and if 
-        the distance from the vertex to the segment formed by their adjacents is 
-        greater than cath_thr.
-        
+        For the vertex in a geometry nearest to this point, give the angle 
+        between its adjacent vertexs.
+                
         Args:
             geom (QgsGeometry): Geometry to test.
-            point (QgsPoint): A point near the vertex we want to test.
-            angle_thr (float): Angle threshold.
-            cath_thr (float): Cathetus threshold.
         
         Returns:
-            (bool) True for a corner, 
             (float) Angle between the vertex and their adjacents,
-            (float) Distance from the vertex to the segment formed by their adjacents
+            (bool)  True for a corner (the angle differs by more than straight_thr
+                    of 180 and if the distance from the vertex to the segment
+                    formed by their adjacents is greater than cath_thr.
+            (bool)  True if the angle is too low (< acute_thr)
+            (float) Distance from the vertex to the segment formed by their 
+                    adjacents
         """
         (point, ndx, ndxa, ndxb, dist) = geom.closestVertex(self)
         va = geom.vertexAt(ndxa) # previous vertex
@@ -54,7 +52,9 @@ class Point(QgsPoint):
         a = abs(va.azimuth(point) - va.azimuth(vb))
         h = math.sqrt(va.sqrDist(point))
         c = abs(h * math.sin(math.radians(a)))
-        return (abs(180 - angle) > angle_thr or c > cath_thr, angle, c)
+        is_corner = abs(180 - angle) > setup.straight_thr or c > setup.dist_thr
+        is_acute = angle < 5 if angle < 180 else 360 - angle < 5
+        return (angle, is_acute, is_corner, c)
 
 
 class BaseLayer(QgsVectorLayer):
@@ -281,7 +281,7 @@ class PolygonLayer(BaseLayer):
         super(PolygonLayer, self).__init__(path, baseName, providerLib)
         self.dup_thr = setup.dup_thr # Distance in meters to merge nearest vertex.
         self.cath_thr = setup.dist_thr # Threshold in meters for cathetus reduction
-        self.angle_thr = setup.angle_thr # Threshold in degrees from straight angle to delete a vertex
+        self.straight_thr = setup.straight_thr # Threshold in degrees from straight angle to delete a vertex
         self.dist_thr = setup.dist_thr # Threshold for topological points.
 
     def explode_multi_parts(self):
@@ -471,7 +471,7 @@ class PolygonLayer(BaseLayer):
     def add_topological_points(self):
         """For each vertex in a polygon layer, adds it to nearest segments."""
         threshold = self.dist_thr # Distance threshold to create nodes
-        angle_thr = self.angle_thr
+        straight_thr = self.straight_thr
         tp = 0
         if log.getEffectiveLevel() <= logging.DEBUG:
             debshp = DebugWriter("debug_topology.shp", self.crs())
@@ -495,7 +495,7 @@ class PolygonLayer(BaseLayer):
                         if distance < threshold**2 and point <> va and point <> vb:
                             note = "refused by angle"
                             angle = abs(point.azimuth(va) - point.azimuth(vb))
-                            if abs(180 - angle) <= angle_thr:
+                            if abs(180 - angle) <= straight_thr:
                                 note = "refused by insertVertex"
                                 if g.insertVertex(point.x(), point.y(), vertex):
                                     note = "refused by isGeosValid"
@@ -516,63 +516,81 @@ class PolygonLayer(BaseLayer):
         if log.getEffectiveLevel() <= logging.DEBUG:
             del debshp
 
-
     def simplify(self):
         """
         Reduces the number of vertices in a polygon layer according to:
 
+        * Delete vertex if the angle with its adjacents is below 'acute_thr'
+        
+        * Delete vertex if the angle with its adjacents is near of the straight 
+          angle for less than 'straight_thr' degrees in all its parents.
+
         * Delete vertex if the distance to the segment formed by its parents is
           less than 'cath_thr' meters.
 
-        * Delete vertex if the angle with its parent is near of the straight 
-          angle for less than 'angle_thr' degrees.
+        * Delete invalid geometries
         """
-        cath_thr = self.cath_thr
-        angle_thr = self.angle_thr
         if log.getEffectiveLevel() <= logging.DEBUG:
             debshp = DebugWriter("debug_simplify.shp", self.crs())
-        index = QgsSpatialIndex(self.getFeatures())
         (parents_per_vertex, features) = self.get_parents_per_vertex_and_features()
         killed = 0
-        dupes = 0
-        self.startEditing()
         to_change = {}
+        to_clean = []
+        # Clean acute vertices
+        for fid, feat in features.items():
+            geom = feat.geometry()
+            n = -1
+            while n < 0 or v != QgsPoint(0, 0):
+                n += 1
+                v = geom.vertexAt(n)
+                (__, is_acute, __, __) = Point(v).get_angle_with_context(geom)
+                if is_acute:
+                    killed += 1
+                    c = geom.centroid().asPoint()
+                    geom.deleteVertex(n)
+                    if geom.isGeosValid():
+                        to_change[fid] = geom
+                        n = -1
+                    else:
+                        to_clean.append(fid)
+                        if fid in to_change: del to_change[fid]
+                        if log.getEffectiveLevel() <= logging.DEBUG:
+                            debshp.add_point(c, "invalid geometry")
+                        v = QgsPoint(0, 0)
+        # Clean non corners
         for pnt, parents in parents_per_vertex.items():
             # Test if this vertex is a 'corner' in any of its parent polygons
             point = Point(pnt)
             deb_values = []
-            corners = 0
             for fid in parents:
                 feat = features[fid]
                 geom = feat.geometry()
-                (is_corner, angle, cath) = point.is_corner_with_context(geom)
-                deb_values.append((is_corner, angle, cath))
-                if is_corner:
-                    corners += 1
-                    break
-            if corners == 0:     # If not is a corner
+                (angle, is_acute, is_corner, cath) = point.get_angle_with_context(geom)
+                deb_values.append((angle, is_acute, is_corner, cath))
+                if is_corner: break
+            msg = str(["angle=%.1f, is_acute=%s, is_corner=%s, cath=%.4f" % \
+                    v for v in deb_values])
+            if not is_corner:
                 killed += 1      # delete the vertex from all its parents.
                 for fid in frozenset(parents):
                     geom = features[fid].geometry()
-                    (point, ndx, ndxa, ndxb, dist) = geom.closestVertex(point)
-                    prev = QgsGeometry(geom)
-                    if geom.deleteVertex(ndx):
-                        if geom.isGeosValid():
-                            parents.remove(fid)
-                            to_change[fid] = geom
-                        elif fid in to_change:
-                            to_change[fid] = prev
-                            
+                    (__, ndx, __, __, __) = geom.closestVertex(point)
+                    geom.deleteVertex(ndx)
+                    parents.remove(fid)
+                    to_change[fid] = geom
                 if log.getEffectiveLevel() <= logging.DEBUG:
-                    msg = str(["%s angle=%.1f, cath=%.4f" % v for v in deb_values])
                     debshp.add_point(point, "Deleted. %s" % msg)
             elif log.getEffectiveLevel() <= logging.DEBUG:
-                msg = str(["%s angle=%.1f, cath=%.4f" % v for v in deb_values])
                 debshp.add_point(point, "Keep. %s" % msg)
-        if killed:
+        self.startEditing()
+        if to_change:
             self.writer.changeGeometryValues(to_change)
             log.info(_("Simplified %d vertices in the '%s' layer"), killed, 
                 self.name().encode('utf-8'))
+        if to_clean:
+            self.writer.deleteFeatures(to_clean)
+            log.info(_("Deleted %d invalid geometries in the '%s' layer"), 
+                len(to_clean), self.name().encode('utf-8'))
         self.commitChanges()
 
     def merge_adjacents(self):

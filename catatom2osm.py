@@ -372,10 +372,10 @@ class CatAtom2Osm:
         Args:
             data (Osm): OSM data set
             filename (str): output filename
-        """
         for e in data.elements:
             if 'ref' in e.tags:
                 del e.tags['ref']
+        """
         osm_path = os.path.join(self.path, filename)
         data.new_indexes()
         with codecs.open(osm_path,"w", "utf-8") as file_obj:

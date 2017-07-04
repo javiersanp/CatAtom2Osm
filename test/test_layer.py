@@ -47,14 +47,14 @@ class TestPoint(unittest.TestCase):
         ]])
         angle_thr = 5
         cath_thr = 0.5
-        (test, a, c) = Point(50, 0.4).is_corner_with_context(square, angle_thr, cath_thr)
-        self.assertTrue(test)
-        (test, a, c) = Point(105, 51).is_corner_with_context(square, angle_thr, cath_thr)
-        self.assertTrue(test)
-        (test, a, c) = Point(5.1, 100).is_corner_with_context(square, angle_thr, cath_thr)
-        self.assertTrue(test)
-        (test, a, c) = Point(0.4, 50).is_corner_with_context(square, angle_thr, cath_thr)
-        self.assertFalse(test)
+        (a, is_acute, is_corner, c) = Point(50, 0.4).get_angle_with_context(square)
+        self.assertTrue(is_corner)
+        (a, is_acute, is_corner, c) = Point(105, 51).get_angle_with_context(square)
+        self.assertTrue(is_corner)
+        (a, is_acute, is_corner, c) = Point(5.1, 100).get_angle_with_context(square)
+        self.assertTrue(is_corner)
+        (a, is_acute, is_corner, c) = Point(0.4, 50).get_angle_with_context(square)
+        self.assertTrue(is_corner)
     
 class TestBaseLayer(unittest.TestCase):
 
