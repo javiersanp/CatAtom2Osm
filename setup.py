@@ -49,7 +49,7 @@ language, encoding = locale.getdefaultlocale()
 app_path = os.path.dirname(__file__)
 localedir = os.path.join(app_path, 'locale', 'po')
 platform = sys.platform
-eol = '\n\r' if platform.startswith('win') else '\n'
+eol = '\r\n' if platform.startswith('win') else '\n'
 
 no_number = 'S-N' # Regular expression to match addresses without number
 

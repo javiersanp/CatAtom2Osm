@@ -15,12 +15,11 @@ def dict2csv(csv_path, a_dict):
         for (k, v) in a_dict.items():
             csv_file.write(u'%s;%s%s' % (k, v, eol))
 
-def csv2dict(csv_path, a_dict, encoding='utf-8'):
+def csv2dict(csv_path, a_dict, encoding=encoding):
     """Read a dictionary from a csv file"""
     with open(csv_path) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=delimiter)
         for row in csv_reader:
             a_dict[row[0].decode(encoding)] = row[1].decode(encoding)
     return a_dict
-
 
