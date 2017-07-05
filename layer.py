@@ -548,9 +548,9 @@ class PolygonLayer(BaseLayer):
                     killed += 1
                     c = geom.centroid().asPoint()
                     geom.deleteVertex(n)
-                    if geom.isGeosValid():
+                    if geom.isGeosValid() and geom.area() > setup.min_area:
                         to_change[fid] = geom
-                        n = -1
+                        n = -1 if n == 0 else n - 2
                     else:
                         to_clean.append(fid)
                         if fid in to_change: del to_change[fid]
@@ -573,11 +573,12 @@ class PolygonLayer(BaseLayer):
             if not is_corner:
                 killed += 1      # delete the vertex from all its parents.
                 for fid in frozenset(parents):
-                    geom = features[fid].geometry()
+                    geom = QgsGeometry(features[fid].geometry())
                     (__, ndx, __, __, __) = geom.closestVertex(point)
                     geom.deleteVertex(ndx)
-                    parents.remove(fid)
-                    to_change[fid] = geom
+                    if geom.isGeosValid():
+                        parents.remove(fid)
+                        to_change[fid] = geom
                 if log.getEffectiveLevel() <= logging.DEBUG:
                     debshp.add_point(point, "Deleted. %s" % msg)
             elif log.getEffectiveLevel() <= logging.DEBUG:
