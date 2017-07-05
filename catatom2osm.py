@@ -22,6 +22,11 @@ import osm
 import download
 import hgwnames
 
+try:
+    _('')
+except:
+    _ = lambda x:x
+
 log = logging.getLogger(setup.app_name + "." + __name__)
 if setup.silence_gdal:
     gdal.PushErrorHandler('CPLQuietErrorHandler')

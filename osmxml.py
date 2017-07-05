@@ -7,6 +7,11 @@ import logging
 log = logging.getLogger(setup.app_name + "." + __name__)
 
 try:
+    _('')
+except:
+    _ = lambda x:x
+
+try:
     from lxml import etree
     log.debug(_("Running with lxml.etree"))
 except ImportError:

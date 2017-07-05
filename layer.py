@@ -32,18 +32,17 @@ class Point(QgsPoint):
         """
         For the vertex in a geometry nearest to this point, give the angle 
         between its adjacent vertexs.
-                
+        
         Args:
             geom (QgsGeometry): Geometry to test.
         
         Returns:
             (float) Angle between the vertex and their adjacents,
             (bool)  True for a corner (the angle differs by more than straight_thr
-                    of 180 and if the distance from the vertex to the segment
-                    formed by their adjacents is greater than cath_thr.
+            of 180 and if the distance from the vertex to the segment formed by 
+            their adjacents is greater than cath_thr.
             (bool)  True if the angle is too low (< acute_thr)
-            (float) Distance from the vertex to the segment formed by their 
-                    adjacents
+            (float) Distance from the vertex to the segment formed by their adjacents
         """
         (point, ndx, ndxa, ndxb, dist) = geom.closestVertex(self)
         va = geom.vertexAt(ndxa) # previous vertex
