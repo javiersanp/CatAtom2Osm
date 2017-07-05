@@ -1,10 +1,11 @@
+SHELL         = /bin/bash
 SPHINXBUILD   = sphinx-build
 APIBUILD      = sphinx-apidoc
 COVERAGE      = coverage
 DOCSRCDIR     = doc-src
 BUILDDIR      = docs
 COVERAGEDIR   = $(BUILDDIR)/coverage
-APIDIR        = $(DOCSRCDIR)/api
+APIDIR        = $(DOCSRCDIR)/en/api
 GETTEXT       = pygettext
 MSGMERGE      = msgmerge
 MSGFMT        = msgfmt
@@ -31,13 +32,15 @@ clean:
 
 .PHONY: html
 html:
-	$(SPHINXBUILD) -b html $(DOCSRCDIR) $(BUILDDIR)
-	@echo
-	@echo "Build finished. The HTML pages are in $(BUILDDIR)."
+	rm -rf $(DOCSRCDIR)/es/api/*.rst
+	for f in $(DOCSRCDIR)/en/api/*.rst; do \
+		echo ".. include:: ../../en/api/$$(basename $$f)" > "$(DOCSRCDIR)/es/api/$$(basename $$f)"; \
+	done
+	cd $(DOCSRCDIR) && make html
 
 .PHONY: coverage
 coverage:
-	$(COVERAGE) run test/unittest_main.py discover
+	$(COVERAGE) run --source=. test/unittest_main.py discover
 	$(COVERAGE) report
 	$(COVERAGE) html
 	@echo

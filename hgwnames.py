@@ -47,9 +47,10 @@ def get_translations(address_layer, output_folder, street_fn, housenumber_fn):
     it as a dictionary.
     
     * 'highway_types.csv' is located in the application path and contains 
-    translations from abreviaturs to full types of highways.
+      translations from abreviaturs to full types of highways.
+
     * 'highway_names.csv' is located in the outputh folder and contains 
-    corrections for original highway names.
+      corrections for original highway names.
     
     Args:
         address_layer (AddressLayer): Layer with addresses

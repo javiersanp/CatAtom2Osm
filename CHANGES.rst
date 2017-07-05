@@ -1,6 +1,15 @@
 Change log
 ==========
 
+**2017-07-05**
+
+* Reduces JOSM Validation errors (issue #29)
+* Improve code to reduce execution time (issue #31)
+* Improve simplify method (issue #35)
+* Move entrances to footprint and merge addresses with buildings (issues #34, #33)
+* Some bugs (issues #25, #30, #32, #36, #37)
+* Some enhancements (issues #2, #7, #22, #23, #24, #26, #28)
+
 **2017-06-15**
 
 * Minor version (issue #21)

@@ -7,12 +7,6 @@ a archivos OSM. Esto es parte de una propuesta de importación en construcción:
 
 https://wiki.openstreetmap.org/wiki/Spanish_Cadastre/Buildings_Import
 
-Idiomas
--------
-
-* https://javiersanp.github.io/CatAtom2Osm/readme.html
-* https://javiersanp.github.io/CatAtom2Osm/readme.es.html
-
 Advertencia
 -----------
 
@@ -64,5 +58,5 @@ Documentación
 
 Consulta la documentación del programa.
 
-https://javiersanp.github.io/CatAtom2Osm/
+https://javiersanp.github.io/CatAtom2Osm/es
 

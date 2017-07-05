@@ -88,7 +88,6 @@
 <p id='n23' class='stm run hide_run'><a href='#n23'>23</a></p>
 <p id='n24' class='stm run hide_run'><a href='#n24'>24</a></p>
 <p id='n25' class='pln'><a href='#n25'>25</a></p>
-<p id='n26' class='pln'><a href='#n26'>26</a></p>
                 
             </td>
             <td class='text' valign='top'>
@@ -109,7 +108,7 @@
 <p id='t15' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; <span class='key'>for</span> <span class='op'>(</span><span class='nam'>k</span><span class='op'>,</span> <span class='nam'>v</span><span class='op'>)</span> <span class='key'>in</span> <span class='nam'>a_dict</span><span class='op'>.</span><span class='nam'>items</span><span class='op'>(</span><span class='op'>)</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
 <p id='t16' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>csv_file</span><span class='op'>.</span><span class='nam'>write</span><span class='op'>(</span><span class='str'>u&#39;%s;%s%s&#39;</span> <span class='op'>%</span> <span class='op'>(</span><span class='nam'>k</span><span class='op'>,</span> <span class='nam'>v</span><span class='op'>,</span> <span class='nam'>eol</span><span class='op'>)</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
 <p id='t17' class='pln'><span class='strut'>&nbsp;</span></p>
-<p id='t18' class='stm run hide_run'><span class='key'>def</span> <span class='nam'>csv2dict</span><span class='op'>(</span><span class='nam'>csv_path</span><span class='op'>,</span> <span class='nam'>a_dict</span><span class='op'>,</span> <span class='nam'>encoding</span><span class='op'>=</span><span class='str'>&#39;utf-8&#39;</span><span class='op'>)</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
+<p id='t18' class='stm run hide_run'><span class='key'>def</span> <span class='nam'>csv2dict</span><span class='op'>(</span><span class='nam'>csv_path</span><span class='op'>,</span> <span class='nam'>a_dict</span><span class='op'>,</span> <span class='nam'>encoding</span><span class='op'>=</span><span class='nam'>encoding</span><span class='op'>)</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
 <p id='t19' class='pln'>&nbsp; &nbsp; <span class='str'>&quot;&quot;&quot;Read a dictionary from a csv file&quot;&quot;&quot;</span><span class='strut'>&nbsp;</span></p>
 <p id='t20' class='stm run hide_run'>&nbsp; &nbsp; <span class='key'>with</span> <span class='nam'>open</span><span class='op'>(</span><span class='nam'>csv_path</span><span class='op'>)</span> <span class='key'>as</span> <span class='nam'>csv_file</span><span class='op'>:</span><span class='strut'>&nbsp;</span></p>
 <p id='t21' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>csv_reader</span> <span class='op'>=</span> <span class='nam'>csv</span><span class='op'>.</span><span class='nam'>reader</span><span class='op'>(</span><span class='nam'>csv_file</span><span class='op'>,</span> <span class='nam'>delimiter</span><span class='op'>=</span><span class='nam'>delimiter</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
@@ -117,7 +116,6 @@
 <p id='t23' class='stm run hide_run'>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class='nam'>a_dict</span><span class='op'>[</span><span class='nam'>row</span><span class='op'>[</span><span class='num'>0</span><span class='op'>]</span><span class='op'>.</span><span class='nam'>decode</span><span class='op'>(</span><span class='nam'>encoding</span><span class='op'>)</span><span class='op'>]</span> <span class='op'>=</span> <span class='nam'>row</span><span class='op'>[</span><span class='num'>1</span><span class='op'>]</span><span class='op'>.</span><span class='nam'>decode</span><span class='op'>(</span><span class='nam'>encoding</span><span class='op'>)</span><span class='strut'>&nbsp;</span></p>
 <p id='t24' class='stm run hide_run'>&nbsp; &nbsp; <span class='key'>return</span> <span class='nam'>a_dict</span><span class='strut'>&nbsp;</span></p>
 <p id='t25' class='pln'><span class='strut'>&nbsp;</span></p>
-<p id='t26' class='pln'><span class='strut'>&nbsp;</span></p>
                 
             </td>
         </tr>

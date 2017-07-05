@@ -1,0 +1,1202 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>layer &#8212; CatAtom2Osm 2017-07-05 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2017-07-05',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  
+   
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 2017-07-05 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+        <a href="
+    ../index.html" class="text-logo">CatAtom2Osm</a>
+        
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <h2>Table Of Contents</h2>
+  </div>
+  <div class="sidebar-toc">
+    
+    
+      <ul>
+<li class="toctree-l1"><a class="reference internal" href="../readme.html">Read me</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changes.html">Change log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
+</ul>
+
+    
+  </div>
+</div>
+        
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../index.html">Docs</a></li>
+              
+                <li><a href="index.html">Module code</a></li>
+              
+              <li>layer</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <h1>Source code for layer</h1><div class="highlight"><pre>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;Application layers&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
+
+<span class="kn">from</span> <span class="nn">qgis.core</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">PyQt4.QtCore</span> <span class="k">import</span> <span class="n">QVariant</span>
+
+<span class="kn">import</span> <span class="nn">setup</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">setup</span><span class="o">.</span><span class="n">app_name</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">__name__</span><span class="p">)</span>
+
+<span class="n">is_inside</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">f1</span><span class="p">,</span> <span class="n">f2</span><span class="p">:</span> \
+    <span class="n">f2</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">f1</span><span class="o">.</span><span class="n">geometry</span><span class="p">())</span> <span class="ow">or</span> <span class="n">f2</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span><span class="o">.</span><span class="n">overlaps</span><span class="p">(</span><span class="n">f1</span><span class="o">.</span><span class="n">geometry</span><span class="p">())</span>
+
+<span class="n">get_attributes</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">feat</span><span class="p">:</span> \
+    <span class="nb">dict</span><span class="p">([(</span><span class="n">i</span><span class="p">,</span> <span class="n">feat</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">feat</span><span class="o">.</span><span class="n">fields</span><span class="p">()</span><span class="o">.</span><span class="n">toList</span><span class="p">()))])</span>
+    
+    
+<div class="viewcode-block" id="Point"><a class="viewcode-back" href="../api/layer.html#layer.Point">[docs]</a><span class="k">class</span> <span class="nc">Point</span><span class="p">(</span><span class="n">QgsPoint</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Extends QgsPoint with some utility methods&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Point.boundingBox"><a class="viewcode-back" href="../api/layer.html#layer.Point.boundingBox">[docs]</a>    <span class="k">def</span> <span class="nf">boundingBox</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">radius</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a bounding box of 2*radius centered in point.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">QgsRectangle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">()</span> <span class="o">-</span> <span class="n">radius</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">()</span> <span class="o">-</span> <span class="n">radius</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">()</span> <span class="o">+</span> <span class="n">radius</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">()</span> <span class="o">+</span> <span class="n">radius</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Point.get_angle_with_context"><a class="viewcode-back" href="../api/layer.html#layer.Point.get_angle_with_context">[docs]</a>    <span class="k">def</span> <span class="nf">get_angle_with_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geom</span><span class="p">):</span> 
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        For the vertex in a geometry nearest to this point, give the angle </span>
+<span class="sd">        between its adjacent vertexs.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            geom (QgsGeometry): Geometry to test.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            (float) Angle between the vertex and their adjacents,</span>
+<span class="sd">            (bool)  True for a corner (the angle differs by more than straight_thr</span>
+<span class="sd">            of 180 and if the distance from the vertex to the segment formed by </span>
+<span class="sd">            their adjacents is greater than cath_thr.</span>
+<span class="sd">            (bool)  True if the angle is too low (&lt; acute_thr)</span>
+<span class="sd">            (float) Distance from the vertex to the segment formed by their adjacents</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">ndx</span><span class="p">,</span> <span class="n">ndxa</span><span class="p">,</span> <span class="n">ndxb</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span> <span class="o">=</span> <span class="n">geom</span><span class="o">.</span><span class="n">closestVertex</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">va</span> <span class="o">=</span> <span class="n">geom</span><span class="o">.</span><span class="n">vertexAt</span><span class="p">(</span><span class="n">ndxa</span><span class="p">)</span> <span class="c1"># previous vertex</span>
+        <span class="n">vb</span> <span class="o">=</span> <span class="n">geom</span><span class="o">.</span><span class="n">vertexAt</span><span class="p">(</span><span class="n">ndxb</span><span class="p">)</span> <span class="c1"># next vertex</span>
+        <span class="n">angle</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">point</span><span class="o">.</span><span class="n">azimuth</span><span class="p">(</span><span class="n">va</span><span class="p">)</span> <span class="o">-</span> <span class="n">point</span><span class="o">.</span><span class="n">azimuth</span><span class="p">(</span><span class="n">vb</span><span class="p">))</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">va</span><span class="o">.</span><span class="n">azimuth</span><span class="p">(</span><span class="n">point</span><span class="p">)</span> <span class="o">-</span> <span class="n">va</span><span class="o">.</span><span class="n">azimuth</span><span class="p">(</span><span class="n">vb</span><span class="p">))</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">va</span><span class="o">.</span><span class="n">sqrDist</span><span class="p">(</span><span class="n">point</span><span class="p">))</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">h</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">a</span><span class="p">)))</span>
+        <span class="n">is_corner</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="mi">180</span> <span class="o">-</span> <span class="n">angle</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">setup</span><span class="o">.</span><span class="n">straight_thr</span> <span class="ow">or</span> <span class="n">c</span> <span class="o">&gt;</span> <span class="n">setup</span><span class="o">.</span><span class="n">dist_thr</span>
+        <span class="n">is_acute</span> <span class="o">=</span> <span class="n">angle</span> <span class="o">&lt;</span> <span class="mi">5</span> <span class="k">if</span> <span class="n">angle</span> <span class="o">&lt;</span> <span class="mi">180</span> <span class="k">else</span> <span class="mi">360</span> <span class="o">-</span> <span class="n">angle</span> <span class="o">&lt;</span> <span class="mi">5</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">angle</span><span class="p">,</span> <span class="n">is_acute</span><span class="p">,</span> <span class="n">is_corner</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="BaseLayer"><a class="viewcode-back" href="../api/layer.html#layer.BaseLayer">[docs]</a><span class="k">class</span> <span class="nc">BaseLayer</span><span class="p">(</span><span class="n">QgsVectorLayer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for application layers&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span> <span class="o">=</span> <span class="s2">&quot;ogr&quot;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">BaseLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataProvider</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rename</span><span class="o">=</span><span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resolve</span><span class="o">=</span><span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reference_matchs</span><span class="o">=</span><span class="p">{}</span>
+    
+<div class="viewcode-block" id="BaseLayer.copy_feature"><a class="viewcode-back" href="../api/layer.html#layer.BaseLayer.copy_feature">[docs]</a>    <span class="k">def</span> <span class="nf">copy_feature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feature</span><span class="p">,</span> <span class="n">rename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">resolve</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a copy of feature renaming attributes or resolving xlink references.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            feature (QgsFeature): Source feature</span>
+<span class="sd">            rename (dict): Translation of attributes names</span>
+<span class="sd">            resolve (dict): xlink reference fields</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            With this:</span>
+<span class="sd">            </span>
+<span class="sd">            &gt;&gt;&gt; rename = {&#39;spec&#39;: &#39;specification&#39;}</span>
+<span class="sd">            &gt;&gt;&gt; resolve = {</span>
+<span class="sd">            ...     &#39;PD_id&#39;: (&#39;component_href&#39;, &#39;[\w\.]+PD[\.0-9]+&#39;), </span>
+<span class="sd">            ...     &#39;TN_id&#39;: (&#39;component_href&#39;, &#39;[\w\.]+TN[\.0-9]+&#39;), </span>
+<span class="sd">            ...     &#39;AU_id&#39;: (&#39;component_href&#39;, &#39;[\w\.]+AU[\.0-9]+&#39;)</span>
+<span class="sd">            ... }</span>
+<span class="sd">                </span>
+<span class="sd">            You get:</span>
+<span class="sd">            </span>
+<span class="sd">            &gt;&gt;&gt; original_attributes = [&#39;localId&#39;, &#39;specification&#39;, &#39;component_href&#39;]</span>
+<span class="sd">            &gt;&gt;&gt; original_values = [</span>
+<span class="sd">            ...     &#39;38.012.1.12.0295603CS6109N&#39;, </span>
+<span class="sd">            ...     &#39;Parcel&#39;, </span>
+<span class="sd">            ...     &#39;(3:#ES.SDGC.PD.38.012.38570,#ES.SDGC.TN.38.012.1,#ES.SDGC.AU.38.012)&#39;</span>
+<span class="sd">            ... ]</span>
+<span class="sd">            &gt;&gt;&gt; final_attributes = [&#39;localId&#39;, &#39;spec&#39;, &#39;PD_id&#39;, &#39;TN_id&#39;, &#39;AU_id&#39;]</span>
+<span class="sd">            &gt;&gt;&gt; final_values = [</span>
+<span class="sd">            ...     &#39;38.012.1.12.0295603CS6109N&#39;, </span>
+<span class="sd">            ...     &#39;Parcel&#39;, </span>
+<span class="sd">            ...     &#39;ES.SDGC.PD.38.012.38570&#39;,</span>
+<span class="sd">            ...     &#39;ES.SDGC.TN.38.012.1&#39;,</span>
+<span class="sd">            ...     &#39;ES.SDGC.AU.38.012&#39;</span>
+<span class="sd">            ... ]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rename</span> <span class="o">=</span> <span class="n">rename</span> <span class="k">if</span> <span class="n">rename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">rename</span>
+        <span class="n">resolve</span> <span class="o">=</span> <span class="n">resolve</span> <span class="k">if</span> <span class="n">resolve</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pendingFields</span><span class="p">()</span><span class="o">.</span><span class="n">isEmpty</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dataProvider</span><span class="p">()</span><span class="o">.</span><span class="n">addAttributes</span><span class="p">(</span><span class="n">feature</span><span class="o">.</span><span class="n">fields</span><span class="p">()</span><span class="o">.</span><span class="n">toList</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">updateFields</span><span class="p">()</span>
+        <span class="n">dst_ft</span> <span class="o">=</span> <span class="n">QgsFeature</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pendingFields</span><span class="p">())</span>
+        <span class="n">dst_ft</span><span class="o">.</span><span class="n">setGeometry</span><span class="p">(</span><span class="n">feature</span><span class="o">.</span><span class="n">geometry</span><span class="p">())</span>
+        <span class="n">src_attrs</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">()</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">feature</span><span class="o">.</span><span class="n">fields</span><span class="p">()]</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pendingFields</span><span class="p">()</span><span class="o">.</span><span class="n">toList</span><span class="p">():</span>
+            <span class="n">dst_attr</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">dst_attr</span> <span class="ow">in</span> <span class="n">resolve</span><span class="p">:</span>
+                <span class="p">(</span><span class="n">src_attr</span><span class="p">,</span> <span class="n">reference_match</span><span class="p">)</span> <span class="o">=</span> <span class="n">resolve</span><span class="p">[</span><span class="n">dst_attr</span><span class="p">]</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">reference_match</span><span class="p">,</span> <span class="n">feature</span><span class="p">[</span><span class="n">src_attr</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                    <span class="n">dst_ft</span><span class="p">[</span><span class="n">dst_attr</span><span class="p">]</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">src_attr</span> <span class="o">=</span> <span class="n">dst_attr</span>
+                <span class="k">if</span> <span class="n">dst_attr</span> <span class="ow">in</span> <span class="n">rename</span><span class="p">:</span>
+                    <span class="n">src_attr</span> <span class="o">=</span> <span class="n">rename</span><span class="p">[</span><span class="n">dst_attr</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">src_attr</span> <span class="ow">in</span> <span class="n">src_attrs</span><span class="p">:</span>
+                    <span class="n">dst_ft</span><span class="p">[</span><span class="n">dst_attr</span><span class="p">]</span> <span class="o">=</span> <span class="n">feature</span><span class="p">[</span><span class="n">src_attr</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">dst_ft</span></div>
+    
+<div class="viewcode-block" id="BaseLayer.append"><a class="viewcode-back" href="../api/layer.html#layer.BaseLayer.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">rename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">resolve</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Copy all features from layer.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            layer (QgsVectorLayer): Source layer</span>
+<span class="sd">            rename (dict): Translation of attributes names</span>
+<span class="sd">            resolve (dict): xlink reference fields</span>
+<span class="sd">            query (func):</span>
+
+<span class="sd">        Examples:</span>
+
+<span class="sd">            &gt;&gt;&gt; query = lambda feat: feat[&#39;foo&#39;]==&#39;bar&#39;</span>
+<span class="sd">            </span>
+<span class="sd">            Will copy only features with a value &#39;bar&#39; in the field &#39;foo&#39;.</span>
+<span class="sd">            </span>
+<span class="sd">            See also copy_feature().</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setCrs</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">crs</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startEditing</span><span class="p">()</span>
+        <span class="n">to_add</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">layer</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">query</span> <span class="ow">or</span> <span class="n">query</span><span class="p">(</span><span class="n">feature</span><span class="p">):</span>
+                <span class="n">to_add</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">copy_feature</span><span class="p">(</span><span class="n">feature</span><span class="p">,</span> <span class="n">rename</span><span class="p">,</span> <span class="n">resolve</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addFeatures</span><span class="p">(</span><span class="n">to_add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commitChanges</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="BaseLayer.reproject"><a class="viewcode-back" href="../api/layer.html#layer.BaseLayer.reproject">[docs]</a>    <span class="k">def</span> <span class="nf">reproject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_crs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reproject all features in this layer to a new CRS.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            target_crs (QgsCoordinateReferenceSystem): New CRS to apply.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">target_crs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">target_crs</span> <span class="o">=</span> <span class="n">QgsCoordinateReferenceSystem</span><span class="p">(</span><span class="mi">4326</span><span class="p">)</span>
+        <span class="n">crs_transform</span> <span class="o">=</span> <span class="n">QgsCoordinateTransform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="p">(),</span> <span class="n">target_crs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startEditing</span><span class="p">()</span>
+        <span class="n">to_add</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">to_clean</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">():</span>
+            <span class="n">geom</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span>
+            <span class="n">geom</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">crs_transform</span><span class="p">)</span>
+            <span class="n">out_feat</span> <span class="o">=</span> <span class="n">QgsFeature</span><span class="p">()</span>
+            <span class="n">out_feat</span><span class="o">.</span><span class="n">setGeometry</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
+            <span class="n">out_feat</span><span class="o">.</span><span class="n">setAttributes</span><span class="p">(</span><span class="n">feature</span><span class="o">.</span><span class="n">attributes</span><span class="p">())</span>
+            <span class="n">to_add</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out_feat</span><span class="p">)</span>
+            <span class="n">to_clean</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feature</span><span class="o">.</span><span class="n">id</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">deleteFeatures</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">addFeatures</span><span class="p">(</span><span class="n">to_add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setCrs</span><span class="p">(</span><span class="n">target_crs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commitChanges</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateExtents</span><span class="p">()</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Reprojected the &#39;</span><span class="si">%s</span><span class="s2">&#39; layer to &#39;</span><span class="si">%s</span><span class="s2">&#39; CRS&quot;</span><span class="p">),</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">),</span> <span class="n">target_crs</span><span class="o">.</span><span class="n">description</span><span class="p">())</span></div>
+    
+<div class="viewcode-block" id="BaseLayer.join_field"><a class="viewcode-back" href="../api/layer.html#layer.BaseLayer.join_field">[docs]</a>    <span class="k">def</span> <span class="nf">join_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_layer</span><span class="p">,</span> <span class="n">target_field_name</span><span class="p">,</span> <span class="n">join_field_name</span><span class="p">,</span> 
+            <span class="n">field_names_subset</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replaces qgis table join mechanism becouse I&#39;m not able to work with it </span>
+<span class="sd">        in standalone script mode (without GUI).</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            source_layer (QgsVectorLayer): Source layer.</span>
+<span class="sd">            target_field_name (str): Join field in the target layer. </span>
+<span class="sd">            join_fieldsName (str): Join field in the source layer.</span>
+<span class="sd">            field_names_subset (list): List of field name strings for the target layer.</span>
+<span class="sd">            prefix (str): An optional prefix to add to the target fields names</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startEditing</span><span class="p">()</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">target_attrs</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">()</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pendingFields</span><span class="p">()]</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">field_names_subset</span><span class="p">:</span>
+            <span class="n">field</span> <span class="o">=</span> <span class="n">source_layer</span><span class="o">.</span><span class="n">pendingFields</span><span class="p">()</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">length</span> <span class="o">&gt;</span> <span class="mi">254</span><span class="p">:</span>
+                <span class="n">field</span><span class="o">.</span><span class="n">setLength</span><span class="p">(</span><span class="mi">254</span><span class="p">)</span>
+            <span class="n">field</span><span class="o">.</span><span class="n">setName</span><span class="p">(</span><span class="n">prefix</span> <span class="o">+</span> <span class="n">attr</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">target_attrs</span><span class="p">:</span>
+                <span class="n">fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">addAttributes</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateFields</span><span class="p">()</span>
+        <span class="n">source_values</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">source_layer</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">():</span>
+            <span class="n">source_values</span><span class="p">[</span><span class="n">feature</span><span class="p">[</span><span class="n">join_field_name</span><span class="p">]]</span> <span class="o">=</span> \
+                    <span class="p">{</span><span class="n">attr</span><span class="p">:</span> <span class="n">feature</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">field_names_subset</span><span class="p">}</span>
+        <span class="n">to_change</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">():</span>
+            <span class="n">attrs</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">field_names_subset</span><span class="p">:</span>
+                <span class="n">fieldId</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">fieldNameIndex</span><span class="p">(</span><span class="n">prefix</span> <span class="o">+</span> <span class="n">attr</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">feature</span><span class="p">[</span><span class="n">target_field_name</span><span class="p">]</span> <span class="ow">in</span> <span class="n">source_values</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">source_values</span><span class="p">[</span><span class="n">feature</span><span class="p">[</span><span class="n">target_field_name</span><span class="p">]][</span><span class="n">attr</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">attrs</span><span class="p">[</span><span class="n">fieldId</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span> 
+            <span class="n">to_change</span><span class="p">[</span><span class="n">feature</span><span class="o">.</span><span class="n">id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">attrs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">changeAttributeValues</span><span class="p">(</span><span class="n">to_change</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commitChanges</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="BaseLayer.translate_field"><a class="viewcode-back" href="../api/layer.html#layer.BaseLayer.translate_field">[docs]</a>    <span class="k">def</span> <span class="nf">translate_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">translations</span><span class="p">,</span> <span class="n">clean</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transform the values of a field</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            field_name (str): Name of the field to transform</span>
+<span class="sd">            translations (dict): A dictionary used to transform field values</span>
+<span class="sd">            clean (bool): If true (default), delete features without translation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">field_ndx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pendingFields</span><span class="p">()</span><span class="o">.</span><span class="n">fieldNameIndex</span><span class="p">(</span><span class="n">field_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">field_ndx</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">to_clean</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">to_change</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">startEditing</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">feat</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">():</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">feat</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">translations</span> <span class="ow">and</span> <span class="n">translations</span><span class="p">[</span><span class="n">value</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                    <span class="n">new_value</span> <span class="o">=</span> <span class="n">translations</span><span class="p">[</span><span class="n">value</span><span class="p">]</span>
+                    <span class="n">attributes</span> <span class="o">=</span> <span class="n">get_attributes</span><span class="p">(</span><span class="n">feat</span><span class="p">)</span>
+                    <span class="n">attributes</span><span class="p">[</span><span class="n">field_ndx</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_value</span>
+                    <span class="n">to_change</span><span class="p">[</span><span class="n">feat</span><span class="o">.</span><span class="n">id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">attributes</span>
+                <span class="k">elif</span> <span class="n">clean</span><span class="p">:</span>
+                    <span class="n">to_clean</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feat</span><span class="o">.</span><span class="n">id</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">changeAttributeValues</span><span class="p">(</span><span class="n">to_change</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">deleteFeatures</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">commitChanges</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="BaseLayer.export"><a class="viewcode-back" href="../api/layer.html#layer.BaseLayer.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">driver_name</span><span class="o">=</span><span class="s2">&quot;ESRI Shapefile&quot;</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write layer to file</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str): Path of the output file</span>
+<span class="sd">            driver_name (str): Defaults to ESRI Shapefile.</span>
+<span class="sd">            overwrite (bool): Defaults to True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="ow">and</span> <span class="n">overwrite</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">driver_name</span> <span class="o">==</span> <span class="s1">&#39;ESRI Shapefile&#39;</span><span class="p">:</span>
+                <span class="n">QgsVectorFileWriter</span><span class="o">.</span><span class="n">deleteShapeFile</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">QgsVectorFileWriter</span><span class="o">.</span><span class="n">writeAsVectorFormat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> 
+                <span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="p">(),</span> <span class="n">driver_name</span><span class="p">)</span> <span class="o">==</span> <span class="n">QgsVectorFileWriter</span><span class="o">.</span><span class="n">NoError</span></div>
+
+<div class="viewcode-block" id="BaseLayer.search"><a class="viewcode-back" href="../api/layer.html#layer.BaseLayer.search">[docs]</a>    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a features list for this search expression</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">exp</span> <span class="o">=</span> <span class="n">QgsExpression</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="n">QgsFeatureRequest</span><span class="p">(</span><span class="n">exp</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">(</span><span class="n">request</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="PolygonLayer"><a class="viewcode-back" href="../api/layer.html#layer.PolygonLayer">[docs]</a><span class="k">class</span> <span class="nc">PolygonLayer</span><span class="p">(</span><span class="n">BaseLayer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for polygon layers&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span> <span class="o">=</span> <span class="s2">&quot;ogr&quot;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">PolygonLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dup_thr</span> <span class="o">=</span> <span class="n">setup</span><span class="o">.</span><span class="n">dup_thr</span> <span class="c1"># Distance in meters to merge nearest vertex.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cath_thr</span> <span class="o">=</span> <span class="n">setup</span><span class="o">.</span><span class="n">dist_thr</span> <span class="c1"># Threshold in meters for cathetus reduction</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">straight_thr</span> <span class="o">=</span> <span class="n">setup</span><span class="o">.</span><span class="n">straight_thr</span> <span class="c1"># Threshold in degrees from straight angle to delete a vertex</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dist_thr</span> <span class="o">=</span> <span class="n">setup</span><span class="o">.</span><span class="n">dist_thr</span> <span class="c1"># Threshold for topological points.</span>
+
+<div class="viewcode-block" id="PolygonLayer.explode_multi_parts"><a class="viewcode-back" href="../api/layer.html#layer.PolygonLayer.explode_multi_parts">[docs]</a>    <span class="k">def</span> <span class="nf">explode_multi_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a new WKBPolygon feature for each part of any WKBMultiPolygon </span>
+<span class="sd">        feature in the layer. This avoid relations with may &#39;outer&#39; members in</span>
+<span class="sd">        OSM data set. From this moment, localId will not be a unique identifier</span>
+<span class="sd">        for buildings.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startEditing</span><span class="p">()</span>
+        <span class="n">to_clean</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">to_add</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">():</span>
+            <span class="n">geom</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">geom</span><span class="o">.</span><span class="n">wkbType</span><span class="p">()</span> <span class="o">==</span> <span class="n">QGis</span><span class="o">.</span><span class="n">WKBMultiPolygon</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">geom</span><span class="o">.</span><span class="n">asMultiPolygon</span><span class="p">():</span>
+                    <span class="n">feat</span> <span class="o">=</span> <span class="n">QgsFeature</span><span class="p">(</span><span class="n">feature</span><span class="p">)</span>
+                    <span class="n">feat</span><span class="o">.</span><span class="n">setGeometry</span><span class="p">(</span><span class="n">QgsGeometry</span><span class="o">.</span><span class="n">fromPolygon</span><span class="p">(</span><span class="n">part</span><span class="p">))</span>
+                    <span class="n">to_add</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feat</span><span class="p">)</span>
+                <span class="n">to_clean</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feature</span><span class="o">.</span><span class="n">id</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">to_clean</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">deleteFeatures</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">addFeatures</span><span class="p">(</span><span class="n">to_add</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> multi-polygons splited into </span><span class="si">%d</span><span class="s2"> polygons in &quot;</span>
+                <span class="s2">&quot;the &#39;</span><span class="si">%s</span><span class="s2">&#39; layer&quot;</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_add</span><span class="p">),</span> 
+                <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commitChanges</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="PolygonLayer.get_parents_per_vertex_and_features"><a class="viewcode-back" href="../api/layer.html#layer.PolygonLayer.get_parents_per_vertex_and_features">[docs]</a>    <span class="k">def</span> <span class="nf">get_parents_per_vertex_and_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            (dict) parent fids for each vertex, (dict) feature for each fid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">parents_per_vertex</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">():</span> 
+            <span class="n">features</span><span class="p">[</span><span class="n">feature</span><span class="o">.</span><span class="n">id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">feature</span>
+            <span class="n">geom</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">ring</span> <span class="ow">in</span> <span class="n">geom</span><span class="o">.</span><span class="n">asPolygon</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">ring</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="n">parents_per_vertex</span><span class="p">[</span><span class="n">point</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feature</span><span class="o">.</span><span class="n">id</span><span class="p">())</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">parents_per_vertex</span><span class="p">,</span> <span class="n">features</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="PolygonLayer.get_adjacents_and_features"><a class="viewcode-back" href="../api/layer.html#layer.PolygonLayer.get_adjacents_and_features">[docs]</a>    <span class="k">def</span> <span class="nf">get_adjacents_and_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            (list) groups of fids of adjacent polygons, (dict) feature for each fid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="p">(</span><span class="n">parents_per_vertex</span><span class="p">,</span> <span class="n">features</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_parents_per_vertex_and_features</span><span class="p">()</span>
+        <span class="n">adjs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">parents</span><span class="p">)</span> <span class="ow">in</span> <span class="n">parents_per_vertex</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parents</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">fid</span> <span class="ow">in</span> <span class="n">parents</span><span class="p">:</span>
+                    <span class="n">geom</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="n">fid</span><span class="p">]</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span>
+                    <span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">ndx</span><span class="p">,</span> <span class="n">ndxa</span><span class="p">,</span> <span class="n">ndxb</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span> <span class="o">=</span> <span class="n">geom</span><span class="o">.</span><span class="n">closestVertex</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+                    <span class="nb">next</span> <span class="o">=</span> <span class="n">geom</span><span class="o">.</span><span class="n">vertexAt</span><span class="p">(</span><span class="n">ndxb</span><span class="p">)</span>
+                    <span class="n">parents_next</span> <span class="o">=</span> <span class="n">parents_per_vertex</span><span class="p">[</span><span class="nb">next</span><span class="p">]</span>
+                    <span class="n">common</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">parents</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">parents_next</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">common</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">adjs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">common</span><span class="p">)</span>
+        <span class="n">adjs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">adjs</span><span class="p">)</span>
+        <span class="n">groups</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="n">adjs</span><span class="p">:</span>
+            <span class="n">group</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">adjs</span><span class="o">.</span><span class="n">pop</span><span class="p">())</span>
+            <span class="n">lastlen</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">group</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">lastlen</span><span class="p">:</span>
+                <span class="n">lastlen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">adj</span> <span class="ow">in</span> <span class="n">adjs</span><span class="p">[:]:</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">({</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">adj</span> <span class="k">if</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">group</span><span class="p">})</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">group</span> <span class="o">|=</span> <span class="n">adj</span>
+                        <span class="n">adjs</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">adj</span><span class="p">)</span>
+            <span class="n">groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">groups</span><span class="p">,</span> <span class="n">features</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="PolygonLayer.get_vertices"><a class="viewcode-back" href="../api/layer.html#layer.PolygonLayer.get_vertices">[docs]</a>    <span class="k">def</span> <span class="nf">get_vertices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a in memory layer with the coordinates of each vertex&quot;&quot;&quot;</span>
+        <span class="n">vertices</span> <span class="o">=</span> <span class="n">QgsVectorLayer</span><span class="p">(</span><span class="s2">&quot;Point&quot;</span><span class="p">,</span> <span class="s2">&quot;vertices&quot;</span><span class="p">,</span> <span class="s2">&quot;memory&quot;</span><span class="p">)</span>
+        <span class="n">vertices</span><span class="o">.</span><span class="n">startEditing</span><span class="p">()</span> <span class="c1"># layer with the coordinates of each vertex</span>
+        <span class="n">to_add</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">():</span> 
+            <span class="k">for</span> <span class="n">ring</span> <span class="ow">in</span> <span class="n">feature</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span><span class="o">.</span><span class="n">asPolygon</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">ring</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="n">feat</span> <span class="o">=</span> <span class="n">QgsFeature</span><span class="p">(</span><span class="n">QgsFields</span><span class="p">())</span>
+                    <span class="n">geom</span> <span class="o">=</span> <span class="n">QgsGeometry</span><span class="o">.</span><span class="n">fromPoint</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+                    <span class="n">feat</span><span class="o">.</span><span class="n">setGeometry</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
+                    <span class="n">to_add</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feat</span><span class="p">)</span>
+        <span class="n">vertices</span><span class="o">.</span><span class="n">addFeatures</span><span class="p">(</span><span class="n">to_add</span><span class="p">)</span>
+        <span class="n">vertices</span><span class="o">.</span><span class="n">commitChanges</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">vertices</span></div>
+    
+<div class="viewcode-block" id="PolygonLayer.get_duplicates"><a class="viewcode-back" href="../api/layer.html#layer.PolygonLayer.get_duplicates">[docs]</a>    <span class="k">def</span> <span class="nf">get_duplicates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dup_thr</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a dict of duplicated vertices for each coordinate.</span>
+<span class="sd">        Two vertices are duplicated if they are nearest than dup_thr.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">vertices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_vertices</span><span class="p">()</span>
+        <span class="n">vertices_by_fid</span> <span class="o">=</span> <span class="p">{</span><span class="n">feat</span><span class="o">.</span><span class="n">id</span><span class="p">():</span> <span class="n">feat</span> <span class="k">for</span> <span class="n">feat</span> <span class="ow">in</span> <span class="n">vertices</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">()}</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">QgsSpatialIndex</span><span class="p">(</span><span class="n">vertices</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">())</span>
+        <span class="n">dup_thr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dup_thr</span> <span class="k">if</span> <span class="n">dup_thr</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">dup_thr</span>
+        <span class="n">duplicates</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="n">vertices</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">():</span>
+            <span class="n">point</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="n">vertex</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span><span class="o">.</span><span class="n">asPoint</span><span class="p">())</span>
+            <span class="n">area_of_candidates</span> <span class="o">=</span> <span class="n">point</span><span class="o">.</span><span class="n">boundingBox</span><span class="p">(</span><span class="n">dup_thr</span><span class="p">)</span>
+            <span class="n">fids</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">intersects</span><span class="p">(</span><span class="n">area_of_candidates</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">fid</span> <span class="ow">in</span> <span class="n">fids</span><span class="p">:</span>
+                <span class="n">dup</span> <span class="o">=</span> <span class="n">vertices_by_fid</span><span class="p">[</span><span class="n">fid</span><span class="p">]</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span><span class="o">.</span><span class="n">asPoint</span><span class="p">()</span>
+                <span class="n">dist</span> <span class="o">=</span> <span class="n">point</span><span class="o">.</span><span class="n">sqrDist</span><span class="p">(</span><span class="n">dup</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">dup</span> <span class="o">!=</span> <span class="n">point</span> <span class="ow">and</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="n">dup_thr</span><span class="o">**</span><span class="mi">2</span><span class="p">:</span>
+                    <span class="n">duplicates</span><span class="p">[</span><span class="n">point</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dup</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">duplicates</span></div>
+        
+<div class="viewcode-block" id="PolygonLayer.merge_duplicates"><a class="viewcode-back" href="../api/layer.html#layer.PolygonLayer.merge_duplicates">[docs]</a>    <span class="k">def</span> <span class="nf">merge_duplicates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reduces the number of distinct vertices in a polygon layer moving to the</span>
+<span class="sd">        same position vertices nearest than &#39;dup_thr&#39; meters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dup_thr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dup_thr</span>
+        <span class="k">if</span> <span class="n">log</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
+            <span class="n">debshp</span> <span class="o">=</span> <span class="n">DebugWriter</span><span class="p">(</span><span class="s2">&quot;debug_duplicated.shp&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="p">())</span>
+        <span class="p">(</span><span class="n">parents_per_vertex</span><span class="p">,</span> <span class="n">features</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_parents_per_vertex_and_features</span><span class="p">()</span>
+        <span class="n">dupes</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">duplicates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_duplicates</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startEditing</span><span class="p">()</span>
+        <span class="n">duplist</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">duplicates</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">duplicates</span><span class="p">[</span><span class="n">x</span><span class="p">]))</span>
+        <span class="n">to_change</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">duplist</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">dup</span> <span class="ow">in</span> <span class="n">duplicates</span><span class="p">[</span><span class="n">point</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">fid</span> <span class="ow">in</span> <span class="n">parents_per_vertex</span><span class="p">[</span><span class="n">dup</span><span class="p">]:</span>
+                    <span class="n">feat</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="n">fid</span><span class="p">]</span>
+                    <span class="n">geom</span> <span class="o">=</span> <span class="n">feat</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span>
+                    <span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">ndx</span><span class="p">,</span> <span class="n">ndxa</span><span class="p">,</span> <span class="n">ndxb</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span> <span class="o">=</span> <span class="n">geom</span><span class="o">.</span><span class="n">closestVertex</span><span class="p">(</span><span class="n">dup</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">geom</span><span class="o">.</span><span class="n">moveVertex</span><span class="p">(</span><span class="n">point</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">point</span><span class="o">.</span><span class="n">y</span><span class="p">(),</span> <span class="n">ndx</span><span class="p">):</span>
+                        <span class="n">note</span> <span class="o">=</span> <span class="s2">&quot;refused by isGeosValid&quot;</span>
+                        <span class="k">if</span> <span class="n">geom</span><span class="o">.</span><span class="n">isGeosValid</span><span class="p">():</span>
+                            <span class="n">note</span> <span class="o">=</span> <span class="s2">&quot;Merge. </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">feat</span><span class="p">[</span><span class="s1">&#39;localId&#39;</span><span class="p">]</span>
+                            <span class="n">dupes</span> <span class="o">+=</span> <span class="mi">1</span>
+                            <span class="n">to_change</span><span class="p">[</span><span class="n">fid</span><span class="p">]</span> <span class="o">=</span> <span class="n">geom</span>
+                        <span class="k">if</span> <span class="n">log</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
+                            <span class="n">debshp</span><span class="o">.</span><span class="n">add_point</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">note</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">dup</span> <span class="ow">in</span> <span class="n">duplist</span><span class="p">:</span>
+                    <span class="n">duplist</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">dup</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">to_change</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">changeGeometryValues</span><span class="p">(</span><span class="n">to_change</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Merged </span><span class="si">%d</span><span class="s2"> close vertices in the &#39;</span><span class="si">%s</span><span class="s2">&#39; layer&quot;</span><span class="p">),</span> <span class="n">dupes</span><span class="p">,</span> 
+                <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commitChanges</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="PolygonLayer.clean_duplicated_nodes_in_polygons"><a class="viewcode-back" href="../api/layer.html#layer.PolygonLayer.clean_duplicated_nodes_in_polygons">[docs]</a>    <span class="k">def</span> <span class="nf">clean_duplicated_nodes_in_polygons</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Cleans consecutives nodes with the same coordinates in any ring of a </span>
+<span class="sd">        polygon.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dupes</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">to_clean</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">to_change</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startEditing</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">():</span> 
+            <span class="n">geom</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span>
+            <span class="n">replace</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">new_polygon</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">ring</span> <span class="ow">in</span> <span class="n">geom</span><span class="o">.</span><span class="n">asPolygon</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">ring</span><span class="p">:</span>
+                    <span class="n">merged</span> <span class="o">=</span> <span class="p">[</span><span class="n">ring</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+                    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">point</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ring</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+                        <span class="k">if</span> <span class="n">point</span> <span class="o">==</span> <span class="n">ring</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                            <span class="n">dupes</span> <span class="o">+=</span> <span class="mi">1</span>
+                            <span class="n">replace</span><span class="o">=</span><span class="kc">True</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">merged</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+                    <span class="n">new_polygon</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">merged</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">replace</span><span class="p">:</span>
+                <span class="n">new_geom</span> <span class="o">=</span> <span class="n">QgsGeometry</span><span class="p">()</span><span class="o">.</span><span class="n">fromPolygon</span><span class="p">(</span><span class="n">new_polygon</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">new_geom</span> <span class="ow">and</span> <span class="n">new_geom</span><span class="o">.</span><span class="n">isGeosValid</span><span class="p">():</span>
+                    <span class="n">to_change</span><span class="p">[</span><span class="n">feature</span><span class="o">.</span><span class="n">id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">new_geom</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">to_clean</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feature</span><span class="o">.</span><span class="n">id</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">to_change</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">changeGeometryValues</span><span class="p">(</span><span class="n">to_change</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Merged </span><span class="si">%d</span><span class="s2"> duplicated vertices of polygons in &quot;</span>
+                <span class="s2">&quot;the &#39;</span><span class="si">%s</span><span class="s2">&#39; layer&quot;</span><span class="p">),</span> <span class="n">dupes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">to_clean</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">deleteFeatures</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Deleted </span><span class="si">%d</span><span class="s2"> invalid geometries in the &#39;</span><span class="si">%s</span><span class="s2">&#39; layer&quot;</span><span class="p">),</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commitChanges</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="PolygonLayer.add_topological_points"><a class="viewcode-back" href="../api/layer.html#layer.PolygonLayer.add_topological_points">[docs]</a>    <span class="k">def</span> <span class="nf">add_topological_points</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;For each vertex in a polygon layer, adds it to nearest segments.&quot;&quot;&quot;</span>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dist_thr</span> <span class="c1"># Distance threshold to create nodes</span>
+        <span class="n">straight_thr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">straight_thr</span>
+        <span class="n">tp</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">log</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
+            <span class="n">debshp</span> <span class="o">=</span> <span class="n">DebugWriter</span><span class="p">(</span><span class="s2">&quot;debug_topology.shp&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="p">())</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">QgsSpatialIndex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">())</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="p">{</span><span class="n">feat</span><span class="o">.</span><span class="n">id</span><span class="p">():</span> <span class="n">feat</span> <span class="k">for</span> <span class="n">feat</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">()}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">startEditing</span><span class="p">()</span>
+        <span class="n">to_change</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">features</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">geom</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">geom</span><span class="o">.</span><span class="n">asPolygon</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span> <span class="c1"># excludes inner rings and last point:</span>
+                <span class="n">area_of_candidates</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="n">point</span><span class="p">)</span><span class="o">.</span><span class="n">boundingBox</span><span class="p">(</span><span class="n">threshold</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">fid</span> <span class="ow">in</span> <span class="n">index</span><span class="o">.</span><span class="n">intersects</span><span class="p">(</span><span class="n">area_of_candidates</span><span class="p">):</span>
+                    <span class="n">candidate</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="n">fid</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">fid</span> <span class="o">!=</span> <span class="n">feature</span><span class="o">.</span><span class="n">id</span><span class="p">():</span>
+                        <span class="n">distance</span><span class="p">,</span> <span class="n">closest</span><span class="p">,</span> <span class="n">vertex</span> <span class="o">=</span> <span class="n">candidate</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span> \
+                                <span class="o">.</span><span class="n">closestSegmentWithContext</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+                        <span class="n">g</span> <span class="o">=</span> <span class="n">candidate</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span>
+                        <span class="n">va</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">vertexAt</span><span class="p">(</span><span class="n">vertex</span><span class="p">)</span>
+                        <span class="n">vb</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">vertexAt</span><span class="p">(</span><span class="n">vertex</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">distance</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="o">**</span><span class="mi">2</span> <span class="ow">and</span> <span class="n">point</span> <span class="o">&lt;&gt;</span> <span class="n">va</span> <span class="ow">and</span> <span class="n">point</span> <span class="o">&lt;&gt;</span> <span class="n">vb</span><span class="p">:</span>
+                            <span class="n">note</span> <span class="o">=</span> <span class="s2">&quot;refused by angle&quot;</span>
+                            <span class="n">angle</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">point</span><span class="o">.</span><span class="n">azimuth</span><span class="p">(</span><span class="n">va</span><span class="p">)</span> <span class="o">-</span> <span class="n">point</span><span class="o">.</span><span class="n">azimuth</span><span class="p">(</span><span class="n">vb</span><span class="p">))</span>
+                            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="mi">180</span> <span class="o">-</span> <span class="n">angle</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">straight_thr</span><span class="p">:</span>
+                                <span class="n">note</span> <span class="o">=</span> <span class="s2">&quot;refused by insertVertex&quot;</span>
+                                <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">insertVertex</span><span class="p">(</span><span class="n">point</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">point</span><span class="o">.</span><span class="n">y</span><span class="p">(),</span> <span class="n">vertex</span><span class="p">):</span>
+                                    <span class="n">note</span> <span class="o">=</span> <span class="s2">&quot;refused by isGeosValid&quot;</span>
+                                    <span class="n">prev</span> <span class="o">=</span> <span class="n">QgsGeometry</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+                                    <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">isGeosValid</span><span class="p">():</span>
+                                        <span class="n">note</span> <span class="o">=</span> <span class="s2">&quot;accepted&quot;</span>
+                                        <span class="n">tp</span> <span class="o">+=</span> <span class="mi">1</span>
+                                        <span class="n">to_change</span><span class="p">[</span><span class="n">fid</span><span class="p">]</span> <span class="o">=</span> <span class="n">g</span>
+                                    <span class="k">elif</span> <span class="n">fid</span> <span class="ow">in</span> <span class="n">to_change</span><span class="p">:</span>
+                                        <span class="n">to_change</span><span class="p">[</span><span class="n">fid</span><span class="p">]</span> <span class="o">=</span> <span class="n">prev</span>
+                            <span class="k">if</span> <span class="n">log</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
+                                <span class="n">debshp</span><span class="o">.</span><span class="n">add_point</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">note</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">to_change</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">changeGeometryValues</span><span class="p">(</span><span class="n">to_change</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span> <span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Created </span><span class="si">%d</span><span class="s2"> topological points in the &#39;</span><span class="si">%s</span><span class="s2">&#39; layer&quot;</span><span class="p">),</span> 
+                <span class="n">tp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commitChanges</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">log</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">debshp</span></div>
+
+<div class="viewcode-block" id="PolygonLayer.simplify"><a class="viewcode-back" href="../api/layer.html#layer.PolygonLayer.simplify">[docs]</a>    <span class="k">def</span> <span class="nf">simplify</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reduces the number of vertices in a polygon layer according to:</span>
+
+<span class="sd">        * Delete vertex if the angle with its adjacents is below &#39;acute_thr&#39;</span>
+<span class="sd">        </span>
+<span class="sd">        * Delete vertex if the angle with its adjacents is near of the straight </span>
+<span class="sd">          angle for less than &#39;straight_thr&#39; degrees in all its parents.</span>
+
+<span class="sd">        * Delete vertex if the distance to the segment formed by its parents is</span>
+<span class="sd">          less than &#39;cath_thr&#39; meters.</span>
+
+<span class="sd">        * Delete invalid geometries</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">log</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
+            <span class="n">debshp</span> <span class="o">=</span> <span class="n">DebugWriter</span><span class="p">(</span><span class="s2">&quot;debug_simplify.shp&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="p">())</span>
+        <span class="p">(</span><span class="n">parents_per_vertex</span><span class="p">,</span> <span class="n">features</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_parents_per_vertex_and_features</span><span class="p">()</span>
+        <span class="n">killed</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">to_change</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">to_clean</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># Clean acute vertices</span>
+        <span class="k">for</span> <span class="n">fid</span><span class="p">,</span> <span class="n">feat</span> <span class="ow">in</span> <span class="n">features</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">geom</span> <span class="o">=</span> <span class="n">feat</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="k">while</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">v</span> <span class="o">!=</span> <span class="n">QgsPoint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">v</span> <span class="o">=</span> <span class="n">geom</span><span class="o">.</span><span class="n">vertexAt</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+                <span class="p">(</span><span class="n">__</span><span class="p">,</span> <span class="n">is_acute</span><span class="p">,</span> <span class="n">__</span><span class="p">,</span> <span class="n">__</span><span class="p">)</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">get_angle_with_context</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">is_acute</span><span class="p">:</span>
+                    <span class="n">killed</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">c</span> <span class="o">=</span> <span class="n">geom</span><span class="o">.</span><span class="n">centroid</span><span class="p">()</span><span class="o">.</span><span class="n">asPoint</span><span class="p">()</span>
+                    <span class="n">geom</span><span class="o">.</span><span class="n">deleteVertex</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">geom</span><span class="o">.</span><span class="n">isGeosValid</span><span class="p">()</span> <span class="ow">and</span> <span class="n">geom</span><span class="o">.</span><span class="n">area</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">setup</span><span class="o">.</span><span class="n">min_area</span><span class="p">:</span>
+                        <span class="n">to_change</span><span class="p">[</span><span class="n">fid</span><span class="p">]</span> <span class="o">=</span> <span class="n">geom</span>
+                        <span class="n">n</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">2</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">to_clean</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fid</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">fid</span> <span class="ow">in</span> <span class="n">to_change</span><span class="p">:</span> <span class="k">del</span> <span class="n">to_change</span><span class="p">[</span><span class="n">fid</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="n">log</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
+                            <span class="n">debshp</span><span class="o">.</span><span class="n">add_point</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="s2">&quot;invalid geometry&quot;</span><span class="p">)</span>
+                        <span class="n">v</span> <span class="o">=</span> <span class="n">QgsPoint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># Clean non corners</span>
+        <span class="k">for</span> <span class="n">pnt</span><span class="p">,</span> <span class="n">parents</span> <span class="ow">in</span> <span class="n">parents_per_vertex</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># Test if this vertex is a &#39;corner&#39; in any of its parent polygons</span>
+            <span class="n">point</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="n">pnt</span><span class="p">)</span>
+            <span class="n">deb_values</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">fid</span> <span class="ow">in</span> <span class="n">parents</span><span class="p">:</span>
+                <span class="n">feat</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="n">fid</span><span class="p">]</span>
+                <span class="n">geom</span> <span class="o">=</span> <span class="n">feat</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span>
+                <span class="p">(</span><span class="n">angle</span><span class="p">,</span> <span class="n">is_acute</span><span class="p">,</span> <span class="n">is_corner</span><span class="p">,</span> <span class="n">cath</span><span class="p">)</span> <span class="o">=</span> <span class="n">point</span><span class="o">.</span><span class="n">get_angle_with_context</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
+                <span class="n">deb_values</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">angle</span><span class="p">,</span> <span class="n">is_acute</span><span class="p">,</span> <span class="n">is_corner</span><span class="p">,</span> <span class="n">cath</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">is_corner</span><span class="p">:</span> <span class="k">break</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="nb">str</span><span class="p">([</span><span class="s2">&quot;angle=</span><span class="si">%.1f</span><span class="s2">, is_acute=</span><span class="si">%s</span><span class="s2">, is_corner=</span><span class="si">%s</span><span class="s2">, cath=</span><span class="si">%.4f</span><span class="s2">&quot;</span> <span class="o">%</span> \
+                    <span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">deb_values</span><span class="p">])</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">is_corner</span><span class="p">:</span>
+                <span class="n">killed</span> <span class="o">+=</span> <span class="mi">1</span>      <span class="c1"># delete the vertex from all its parents.</span>
+                <span class="k">for</span> <span class="n">fid</span> <span class="ow">in</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">parents</span><span class="p">):</span>
+                    <span class="n">geom</span> <span class="o">=</span> <span class="n">QgsGeometry</span><span class="p">(</span><span class="n">features</span><span class="p">[</span><span class="n">fid</span><span class="p">]</span><span class="o">.</span><span class="n">geometry</span><span class="p">())</span>
+                    <span class="p">(</span><span class="n">__</span><span class="p">,</span> <span class="n">ndx</span><span class="p">,</span> <span class="n">__</span><span class="p">,</span> <span class="n">__</span><span class="p">,</span> <span class="n">__</span><span class="p">)</span> <span class="o">=</span> <span class="n">geom</span><span class="o">.</span><span class="n">closestVertex</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+                    <span class="n">geom</span><span class="o">.</span><span class="n">deleteVertex</span><span class="p">(</span><span class="n">ndx</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">geom</span><span class="o">.</span><span class="n">isGeosValid</span><span class="p">():</span>
+                        <span class="n">parents</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">fid</span><span class="p">)</span>
+                        <span class="n">to_change</span><span class="p">[</span><span class="n">fid</span><span class="p">]</span> <span class="o">=</span> <span class="n">geom</span>
+                <span class="k">if</span> <span class="n">log</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
+                    <span class="n">debshp</span><span class="o">.</span><span class="n">add_point</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="s2">&quot;Deleted. </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">msg</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">log</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
+                <span class="n">debshp</span><span class="o">.</span><span class="n">add_point</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="s2">&quot;Keep. </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">msg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startEditing</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">to_change</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">changeGeometryValues</span><span class="p">(</span><span class="n">to_change</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Simplified </span><span class="si">%d</span><span class="s2"> vertices in the &#39;</span><span class="si">%s</span><span class="s2">&#39; layer&quot;</span><span class="p">),</span> <span class="n">killed</span><span class="p">,</span> 
+                <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">to_clean</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">deleteFeatures</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Deleted </span><span class="si">%d</span><span class="s2"> invalid geometries in the &#39;</span><span class="si">%s</span><span class="s2">&#39; layer&quot;</span><span class="p">),</span> 
+                <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commitChanges</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="PolygonLayer.merge_adjacents"><a class="viewcode-back" href="../api/layer.html#layer.PolygonLayer.merge_adjacents">[docs]</a>    <span class="k">def</span> <span class="nf">merge_adjacents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Merge polygons with shared segments&quot;&quot;&quot;</span>
+        <span class="p">(</span><span class="n">groups</span><span class="p">,</span> <span class="n">features</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_adjacents_and_features</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startEditing</span><span class="p">()</span>
+        <span class="n">to_clean</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">to_change</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
+            <span class="n">group</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+            <span class="n">geom</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="n">group</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">fid</span> <span class="ow">in</span> <span class="n">group</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                <span class="n">geom</span> <span class="o">=</span> <span class="n">geom</span><span class="o">.</span><span class="n">combine</span><span class="p">(</span><span class="n">features</span><span class="p">[</span><span class="n">fid</span><span class="p">]</span><span class="o">.</span><span class="n">geometry</span><span class="p">())</span>
+            <span class="n">to_clean</span> <span class="o">+=</span> <span class="n">group</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="n">to_change</span><span class="p">[</span><span class="n">group</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">geom</span>
+        <span class="k">if</span> <span class="n">to_clean</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">deleteFeatures</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">changeGeometryValues</span><span class="p">(</span><span class="n">to_change</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> adjacent polygons merged into </span><span class="si">%d</span><span class="s2"> polygons in the &#39;</span><span class="si">%s</span><span class="s2">&#39; &quot;</span>
+                <span class="s2">&quot;layer&quot;</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_change</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commitChanges</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="PolygonLayer.clean"><a class="viewcode-back" href="../api/layer.html#layer.PolygonLayer.clean">[docs]</a>    <span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Merge duplicated vertices and simplify layer&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">merge_duplicates</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clean_duplicated_nodes_in_polygons</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">simplify</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="ParcelLayer"><a class="viewcode-back" href="../api/layer.html#layer.ParcelLayer">[docs]</a><span class="k">class</span> <span class="nc">ParcelLayer</span><span class="p">(</span><span class="n">BaseLayer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class for cadastral parcels&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">&quot;Polygon&quot;</span><span class="p">,</span> <span class="n">baseName</span><span class="o">=</span><span class="s2">&quot;cadastralparcel&quot;</span><span class="p">,</span> <span class="n">providerLib</span><span class="o">=</span><span class="s2">&quot;memory&quot;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ParcelLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pendingFields</span><span class="p">()</span><span class="o">.</span><span class="n">isEmpty</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dataProvider</span><span class="p">()</span><span class="o">.</span><span class="n">addAttributes</span><span class="p">([</span>
+                    <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;localId&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">254</span><span class="p">),</span>
+                <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;label&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">254</span><span class="p">),</span>
+            <span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">updateFields</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rename</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;localId&#39;</span><span class="p">:</span> <span class="s1">&#39;inspireId_localId&#39;</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="ZoningLayer"><a class="viewcode-back" href="../api/layer.html#layer.ZoningLayer">[docs]</a><span class="k">class</span> <span class="nc">ZoningLayer</span><span class="p">(</span><span class="n">PolygonLayer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class for cadastral zoning&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">&quot;Polygon&quot;</span><span class="p">,</span> <span class="n">baseName</span><span class="o">=</span><span class="s2">&quot;cadastralzoning&quot;</span><span class="p">,</span> <span class="n">providerLib</span><span class="o">=</span><span class="s2">&quot;memory&quot;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ZoningLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pendingFields</span><span class="p">()</span><span class="o">.</span><span class="n">isEmpty</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dataProvider</span><span class="p">()</span><span class="o">.</span><span class="n">addAttributes</span><span class="p">([</span>
+                <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;localId&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">254</span><span class="p">),</span>
+                <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;label&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">254</span><span class="p">),</span>
+                <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;level&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">254</span><span class="p">),</span>
+                <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;levelName&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">254</span><span class="p">),</span>
+            <span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">updateFields</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rename</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;localId&#39;</span><span class="p">:</span> <span class="s1">&#39;inspireId_localId&#39;</span><span class="p">}</span>
+
+<div class="viewcode-block" id="ZoningLayer.set_labels"><a class="viewcode-back" href="../api/layer.html#layer.ZoningLayer.set_labels">[docs]</a>    <span class="k">def</span> <span class="nf">set_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">str_format</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Asigns a sequence of integers to the label field.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            str_format (string): Text format for the label field.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startEditing</span><span class="p">()</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">to_change</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">feat</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">():</span>
+            <span class="n">attributes</span> <span class="o">=</span> <span class="n">get_attributes</span><span class="p">(</span><span class="n">feat</span><span class="p">)</span>
+            <span class="n">attributes</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">fieldNameIndex</span><span class="p">(</span><span class="s1">&#39;label&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">str_format</span> <span class="o">%</span> <span class="n">i</span>
+            <span class="n">to_change</span><span class="p">[</span><span class="n">feat</span><span class="o">.</span><span class="n">id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">attributes</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">changeAttributeValues</span><span class="p">(</span><span class="n">to_change</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commitChanges</span><span class="p">()</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="ZoningLayer.clasify_zoning"><a class="viewcode-back" href="../api/layer.html#layer.ZoningLayer.clasify_zoning">[docs]</a>    <span class="k">def</span> <span class="nf">clasify_zoning</span><span class="p">(</span><span class="n">zoning</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Splits zones acording to levelName. &#39;MANZANA&#39; zones corresponds to </span>
+<span class="sd">        Urban Cadastre and &#39;POLIGONO&#39; zones to Rustic Cadastre.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            zoning (QgsVectorLayer): CadastralZoning data set</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            (ZoningLayer) Urban zoning, (ZoningLayer) Rustic zoning</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">urban_zoning</span> <span class="o">=</span> <span class="n">ZoningLayer</span><span class="p">(</span><span class="n">baseName</span><span class="o">=</span><span class="s1">&#39;urbanzoning&#39;</span><span class="p">)</span>
+        <span class="n">rustic_zoning</span> <span class="o">=</span> <span class="n">ZoningLayer</span><span class="p">(</span><span class="n">baseName</span><span class="o">=</span><span class="s1">&#39;rusticzoning&#39;</span><span class="p">)</span>
+        <span class="n">urban_query</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">feat</span><span class="p">:</span> <span class="n">feat</span><span class="p">[</span><span class="s1">&#39;levelName&#39;</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;M&#39;</span> <span class="c1"># &quot;(1:MANZANA )&quot;</span>
+        <span class="n">rustic_query</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">feat</span><span class="p">:</span> <span class="n">feat</span><span class="p">[</span><span class="s1">&#39;levelName&#39;</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;P&#39;</span> <span class="c1"># &quot;(1:POLIGONO )&quot;</span>
+        <span class="n">urban_zoning</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">zoning</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="n">urban_query</span><span class="p">)</span>
+        <span class="n">rustic_zoning</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">zoning</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="n">rustic_query</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Loaded </span><span class="si">%d</span><span class="s2"> features in the &#39;</span><span class="si">%s</span><span class="s2">&#39; layer&quot;</span><span class="p">),</span> 
+            <span class="n">urban_zoning</span><span class="o">.</span><span class="n">featureCount</span><span class="p">(),</span> <span class="n">urban_zoning</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Loaded </span><span class="si">%d</span><span class="s2"> features in the &#39;</span><span class="si">%s</span><span class="s2">&#39; layer&quot;</span><span class="p">),</span> 
+            <span class="n">rustic_zoning</span><span class="o">.</span><span class="n">featureCount</span><span class="p">(),</span> <span class="n">rustic_zoning</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">urban_zoning</span><span class="p">,</span> <span class="n">rustic_zoning</span></div></div>
+
+
+<div class="viewcode-block" id="AddressLayer"><a class="viewcode-back" href="../api/layer.html#layer.AddressLayer">[docs]</a><span class="k">class</span> <span class="nc">AddressLayer</span><span class="p">(</span><span class="n">BaseLayer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class for address&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">&quot;Point&quot;</span><span class="p">,</span> <span class="n">baseName</span><span class="o">=</span><span class="s2">&quot;address&quot;</span><span class="p">,</span> 
+            <span class="n">providerLib</span> <span class="o">=</span> <span class="s2">&quot;memory&quot;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">AddressLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pendingFields</span><span class="p">()</span><span class="o">.</span><span class="n">isEmpty</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dataProvider</span><span class="p">()</span><span class="o">.</span><span class="n">addAttributes</span><span class="p">([</span>
+                <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;localId&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">254</span><span class="p">),</span>
+                <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;spec&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">254</span><span class="p">),</span>
+                <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;designator&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">254</span><span class="p">),</span>
+                <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;PD_id&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">254</span><span class="p">),</span>
+                <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;TN_id&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">254</span><span class="p">),</span>
+                <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;AU_id&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">254</span><span class="p">)</span>
+            <span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">updateFields</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rename</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;spec&#39;</span><span class="p">:</span> <span class="s1">&#39;specification&#39;</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resolve</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;PD_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;component_href&#39;</span><span class="p">,</span> <span class="s1">&#39;[\w\.]+PD[\.0-9]+&#39;</span><span class="p">),</span> 
+            <span class="s1">&#39;TN_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;component_href&#39;</span><span class="p">,</span> <span class="s1">&#39;[\w\.]+TN[\.0-9]+&#39;</span><span class="p">),</span> 
+            <span class="s1">&#39;AU_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;component_href&#39;</span><span class="p">,</span> <span class="s1">&#39;[\w\.]+AU[\.0-9]+&#39;</span><span class="p">)</span>
+        <span class="p">}</span></div>
+    
+
+<div class="viewcode-block" id="ConsLayer"><a class="viewcode-back" href="../api/layer.html#layer.ConsLayer">[docs]</a><span class="k">class</span> <span class="nc">ConsLayer</span><span class="p">(</span><span class="n">PolygonLayer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class for constructions&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">&quot;Polygon&quot;</span><span class="p">,</span> <span class="n">baseName</span><span class="o">=</span><span class="s2">&quot;building&quot;</span><span class="p">,</span> 
+            <span class="n">providerLib</span> <span class="o">=</span> <span class="s2">&quot;memory&quot;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ConsLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pendingFields</span><span class="p">()</span><span class="o">.</span><span class="n">isEmpty</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dataProvider</span><span class="p">()</span><span class="o">.</span><span class="n">addAttributes</span><span class="p">([</span>
+                <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;localId&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">254</span><span class="p">),</span>
+                <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;condition&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">254</span><span class="p">),</span>
+                <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;link&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">254</span><span class="p">),</span>
+                <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;currentUse&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">254</span><span class="p">),</span>
+                <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;bu_units&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">Int</span><span class="p">),</span>
+                <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;dwellings&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">Int</span><span class="p">),</span>
+                <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;lev_above&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">Int</span><span class="p">),</span>
+                <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;lev_below&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">Int</span><span class="p">),</span>
+                <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;nature&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">254</span><span class="p">),</span>
+                <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;task&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">254</span><span class="p">)</span>
+            <span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">updateFields</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rename</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;condition&#39;</span><span class="p">:</span> <span class="s1">&#39;conditionOfConstruction&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;link&#39;</span><span class="p">:</span> <span class="s1">&#39;documentLink&#39;</span> <span class="p">,</span>
+            <span class="s1">&#39;bu_units&#39;</span><span class="p">:</span> <span class="s1">&#39;numberOfBuildingUnits&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;dwellings&#39;</span><span class="p">:</span> <span class="s1">&#39;numberOfDwellings&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;lev_above&#39;</span><span class="p">:</span> <span class="s1">&#39;numberOfFloorsAboveGround&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;lev_below&#39;</span><span class="p">:</span> <span class="s1">&#39;numberOfFloorsBelowGround&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;nature&#39;</span><span class="p">:</span> <span class="s1">&#39;constructionNature&#39;</span>
+        <span class="p">}</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="ConsLayer.is_building"><a class="viewcode-back" href="../api/layer.html#layer.ConsLayer.is_building">[docs]</a>    <span class="k">def</span> <span class="nf">is_building</span><span class="p">(</span><span class="n">feature</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Building features have not any underscore in its localId field&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s1">&#39;_&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">feature</span><span class="p">[</span><span class="s1">&#39;localId&#39;</span><span class="p">]</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="ConsLayer.is_part"><a class="viewcode-back" href="../api/layer.html#layer.ConsLayer.is_part">[docs]</a>    <span class="k">def</span> <span class="nf">is_part</span><span class="p">(</span><span class="n">feature</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Part features have &#39;_part&#39; in its localId field&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s1">&#39;_part&#39;</span> <span class="ow">in</span> <span class="n">feature</span><span class="p">[</span><span class="s1">&#39;localId&#39;</span><span class="p">]</span></div>
+    
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="ConsLayer.is_pool"><a class="viewcode-back" href="../api/layer.html#layer.ConsLayer.is_pool">[docs]</a>    <span class="k">def</span> <span class="nf">is_pool</span><span class="p">(</span><span class="n">feature</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Pool features have &#39;_PI.&#39; in its localId field&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s1">&#39;_PI.&#39;</span> <span class="ow">in</span> <span class="n">feature</span><span class="p">[</span><span class="s1">&#39;localId&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="ConsLayer.remove_parts_below_ground"><a class="viewcode-back" href="../api/layer.html#layer.ConsLayer.remove_parts_below_ground">[docs]</a>    <span class="k">def</span> <span class="nf">remove_parts_below_ground</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove all parts with &#39;lev_above&#39; field equal 0.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startEditing</span><span class="p">()</span>
+        <span class="n">to_clean</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">id</span><span class="p">()</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;lev_above=0&#39;</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">to_clean</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">deleteFeatures</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Deleted </span><span class="si">%d</span><span class="s2"> building parts with no floors above ground&quot;</span><span class="p">),</span> 
+                <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commitChanges</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ConsLayer.remove_outside_parts"><a class="viewcode-back" href="../api/layer.html#layer.ConsLayer.remove_outside_parts">[docs]</a>    <span class="k">def</span> <span class="nf">remove_outside_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove parts outside the footprint of its building.</span>
+<span class="sd">        Precondition: Called before merge_greatest_part</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">to_clean</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="p">(</span><span class="n">buildings</span><span class="p">,</span> <span class="n">parts</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_of_building_and_parts</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startEditing</span><span class="p">()</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">refcat</span><span class="p">,</span> <span class="n">bu</span><span class="p">)</span> <span class="ow">in</span> <span class="n">buildings</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">refcat</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">[</span><span class="n">refcat</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_inside</span><span class="p">(</span><span class="n">part</span><span class="p">,</span> <span class="n">bu</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                        <span class="n">to_clean</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part</span><span class="o">.</span><span class="n">id</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">to_clean</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">deleteFeatures</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Removed </span><span class="si">%d</span><span class="s2"> building parts outside the footprint&quot;</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commitChanges</span><span class="p">()</span></div>
+            
+<div class="viewcode-block" id="ConsLayer.merge_greatest_part"><a class="viewcode-back" href="../api/layer.html#layer.ConsLayer.merge_greatest_part">[docs]</a>    <span class="k">def</span> <span class="nf">merge_greatest_part</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">footprint</span><span class="p">,</span> <span class="n">parts</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given a building footprint and its parts:</span>
+<span class="sd">        </span>
+<span class="sd">        * Exclude parts not inside the footprint.</span>
+
+<span class="sd">        * If the area of the parts above ground is equal to the area of the </span>
+<span class="sd">          footprint.</span>
+
+<span class="sd">          * Sum the area for all the parts with the same level. Level is the </span>
+<span class="sd">            pair of values &#39;lev_above&#39; and &#39;lev_below&#39; (number of floors </span>
+<span class="sd">            above, and below groud).</span>
+
+<span class="sd">          * For the level with greatest area, giving priority to parts with </span>
+<span class="sd">            rings to reduce relations, translate the number of floors </span>
+<span class="sd">            values to the footprint and deletes all the parts in that level.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">parts_inside_footprint</span> <span class="o">=</span> <span class="p">[</span><span class="n">part</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span> <span class="k">if</span> <span class="n">is_inside</span><span class="p">(</span><span class="n">part</span><span class="p">,</span> <span class="n">footprint</span><span class="p">)]</span>
+        <span class="n">area_for_level</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="n">levels_with_holes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts_inside_footprint</span><span class="p">:</span>
+            <span class="n">level</span> <span class="o">=</span> <span class="p">(</span><span class="n">part</span><span class="p">[</span><span class="s1">&#39;lev_above&#39;</span><span class="p">],</span> <span class="n">part</span><span class="p">[</span><span class="s1">&#39;lev_below&#39;</span><span class="p">])</span>
+            <span class="n">rings</span> <span class="o">=</span> <span class="n">part</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span><span class="o">.</span><span class="n">asPolygon</span><span class="p">()</span>
+            <span class="n">area</span> <span class="o">=</span> <span class="n">part</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span><span class="o">.</span><span class="n">area</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rings</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">levels_with_holes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">level</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span> 
+                <span class="n">area_for_level</span><span class="p">[</span><span class="n">level</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">area</span><span class="p">)</span>
+        <span class="n">to_clean</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">to_change</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">area_for_level</span><span class="p">:</span>
+            <span class="n">footprint_area</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">footprint</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span><span class="o">.</span><span class="n">area</span><span class="p">()</span><span class="o">*</span><span class="mi">100</span><span class="p">)</span>
+            <span class="n">parts_area</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">area_for_level</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">footprint_area</span> <span class="o">==</span> <span class="n">parts_area</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">levels_with_holes</span><span class="p">:</span>
+                    <span class="n">level_with_greatest_area</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">levels_with_holes</span><span class="p">,</span> 
+                        <span class="n">key</span><span class="o">=</span><span class="p">(</span><span class="k">lambda</span> <span class="n">level</span><span class="p">:</span> <span class="nb">sum</span><span class="p">(</span><span class="n">area_for_level</span><span class="p">[</span><span class="n">level</span><span class="p">])))</span>
+                <span class="k">else</span><span class="p">:</span>    
+                    <span class="n">level_with_greatest_area</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">area_for_level</span><span class="o">.</span><span class="n">iterkeys</span><span class="p">(),</span> 
+                        <span class="n">key</span><span class="o">=</span><span class="p">(</span><span class="k">lambda</span> <span class="n">level</span><span class="p">:</span> <span class="nb">sum</span><span class="p">(</span><span class="n">area_for_level</span><span class="p">[</span><span class="n">level</span><span class="p">])))</span>
+                <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts_inside_footprint</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">part</span><span class="p">[</span><span class="s1">&#39;lev_above&#39;</span><span class="p">],</span> <span class="n">part</span><span class="p">[</span><span class="s1">&#39;lev_below&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="n">level_with_greatest_area</span><span class="p">:</span>
+                        <span class="n">to_clean</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part</span><span class="o">.</span><span class="n">id</span><span class="p">())</span>
+                <span class="k">if</span> <span class="n">to_clean</span><span class="p">:</span>
+                    <span class="n">attr</span> <span class="o">=</span> <span class="n">get_attributes</span><span class="p">(</span><span class="n">footprint</span><span class="p">)</span>
+                    <span class="n">attr</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">fieldNameIndex</span><span class="p">(</span><span class="s1">&#39;lev_above&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">level_with_greatest_area</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">attr</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">fieldNameIndex</span><span class="p">(</span><span class="s1">&#39;lev_below&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">level_with_greatest_area</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">to_change</span><span class="p">[</span><span class="n">footprint</span><span class="o">.</span><span class="n">id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">attr</span> 
+        <span class="k">return</span> <span class="n">to_clean</span><span class="p">,</span> <span class="n">to_change</span></div>
+
+<div class="viewcode-block" id="ConsLayer.index_of_building_and_parts"><a class="viewcode-back" href="../api/layer.html#layer.ConsLayer.index_of_building_and_parts">[docs]</a>    <span class="k">def</span> <span class="nf">index_of_building_and_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructs some utility dicts.</span>
+<span class="sd">        buildings index building by localid (many if it was a multipart building).</span>
+<span class="sd">        parts index parts of building by building localid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">buildings</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">():</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_building</span><span class="p">(</span><span class="n">feature</span><span class="p">):</span>
+                <span class="n">buildings</span><span class="p">[</span><span class="n">feature</span><span class="p">[</span><span class="s1">&#39;localId&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feature</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_part</span><span class="p">(</span><span class="n">feature</span><span class="p">):</span>
+                <span class="n">localId</span> <span class="o">=</span> <span class="n">feature</span><span class="p">[</span><span class="s1">&#39;localId&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">parts</span><span class="p">[</span><span class="n">localId</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feature</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">buildings</span><span class="p">,</span> <span class="n">parts</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="ConsLayer.merge_building_parts"><a class="viewcode-back" href="../api/layer.html#layer.ConsLayer.merge_building_parts">[docs]</a>    <span class="k">def</span> <span class="nf">merge_building_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Apply merge_greatest_part to each set of building and its parts&quot;&quot;&quot;</span>
+        <span class="p">(</span><span class="n">buildings</span><span class="p">,</span> <span class="n">parts</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_of_building_and_parts</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startEditing</span><span class="p">()</span>
+        <span class="n">to_clean</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">to_change</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">refcat</span><span class="p">,</span> <span class="n">group</span><span class="p">)</span> <span class="ow">in</span> <span class="n">buildings</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">refcat</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">building</span> <span class="ow">in</span> <span class="n">group</span><span class="p">:</span>
+                    <span class="n">cn</span><span class="p">,</span> <span class="n">ch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">merge_greatest_part</span><span class="p">(</span><span class="n">building</span><span class="p">,</span> <span class="n">parts</span><span class="p">[</span><span class="n">refcat</span><span class="p">])</span>
+                    <span class="n">to_clean</span> <span class="o">+=</span> <span class="n">cn</span>
+                    <span class="n">to_change</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">to_clean</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">changeAttributeValues</span><span class="p">(</span><span class="n">to_change</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">deleteFeatures</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Merged </span><span class="si">%d</span><span class="s2"> building parts to footprint&quot;</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commitChanges</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ConsLayer.remove_duplicated_holes"><a class="viewcode-back" href="../api/layer.html#layer.ConsLayer.remove_duplicated_holes">[docs]</a>    <span class="k">def</span> <span class="nf">remove_duplicated_holes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove inner rings of parts and of buildings/pool if there exists another </span>
+<span class="sd">        feature with the same geometry</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="p">(</span><span class="n">parents_per_vertex</span><span class="p">,</span> <span class="n">features</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_parents_per_vertex_and_features</span><span class="p">()</span>
+        <span class="n">ip</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">to_change</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startEditing</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">():</span>
+            <span class="n">geom</span> <span class="o">=</span> <span class="n">QgsGeometry</span><span class="p">(</span><span class="n">feature</span><span class="o">.</span><span class="n">geometry</span><span class="p">())</span>
+            <span class="n">to_clean</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">rings</span> <span class="o">=</span> <span class="n">geom</span><span class="o">.</span><span class="n">asPolygon</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">ConsLayer</span><span class="o">.</span><span class="n">is_part</span><span class="p">(</span><span class="n">feature</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rings</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">geom</span> <span class="o">=</span> <span class="n">QgsGeometry</span><span class="o">.</span><span class="n">fromPolygon</span><span class="p">([</span><span class="n">rings</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+                    <span class="n">ip</span> <span class="o">+=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rings</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="n">to_change</span><span class="p">[</span><span class="n">feature</span><span class="o">.</span><span class="n">id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">geom</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">ring</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rings</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+                    <span class="n">first_parents</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">parents_per_vertex</span><span class="p">[</span><span class="n">ring</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+                    <span class="n">duplicated</span> <span class="o">=</span> <span class="nb">all</span><span class="p">([</span><span class="n">parents_per_vertex</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">==</span> <span class="n">first_parents</span> \
+                        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">ring</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">first_parents</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
+                    <span class="k">if</span> <span class="n">duplicated</span><span class="p">:</span>
+                        <span class="n">to_clean</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                        <span class="n">ip</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">to_clean</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">ring</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">to_clean</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                        <span class="n">geom</span><span class="o">.</span><span class="n">deleteRing</span><span class="p">(</span><span class="n">ring</span><span class="p">)</span>
+                    <span class="n">to_change</span><span class="p">[</span><span class="n">feature</span><span class="o">.</span><span class="n">id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">geom</span>
+        <span class="k">if</span> <span class="n">ip</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">changeGeometryValues</span><span class="p">(</span><span class="n">to_change</span><span class="p">)</span>            
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Removed </span><span class="si">%d</span><span class="s2"> duplicated inner rings&quot;</span><span class="p">),</span> <span class="n">ip</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commitChanges</span><span class="p">()</span></div>
+                    
+<div class="viewcode-block" id="ConsLayer.clean"><a class="viewcode-back" href="../api/layer.html#layer.ConsLayer.clean">[docs]</a>    <span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Merge duplicated vertices, add topological points, simplify layer</span>
+<span class="sd">        and merge building parts.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">merge_duplicates</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clean_duplicated_nodes_in_polygons</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_topological_points</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">merge_building_parts</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">simplify</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remove_duplicated_holes</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ConsLayer.move_address"><a class="viewcode-back" href="../api/layer.html#layer.ConsLayer.move_address">[docs]</a>    <span class="k">def</span> <span class="nf">move_address</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Move each address to the nearest point in the footprint of its </span>
+<span class="sd">        associated building (same cadastral reference), but only if:</span>
+<span class="sd">        </span>
+<span class="sd">        * There aren&#39;t more than one associated building.</span>
+<span class="sd">        </span>
+<span class="sd">        * The address specification is Entrance.</span>
+<span class="sd">        </span>
+<span class="sd">        * The new position is enough close and is not a corner</span>
+<span class="sd">        </span>
+<span class="sd">        Delete the address if there aren&#39;t any associated building.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ad_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">to_clean</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">to_change</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">to_move</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">to_insert</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="p">(</span><span class="n">buildings</span><span class="p">,</span> <span class="n">parts</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_of_building_and_parts</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">ad</span> <span class="ow">in</span> <span class="n">address</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">():</span>
+            <span class="n">ad_count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">attributes</span> <span class="o">=</span> <span class="n">get_attributes</span><span class="p">(</span><span class="n">ad</span><span class="p">)</span>
+            <span class="n">refcat</span> <span class="o">=</span> <span class="n">ad</span><span class="p">[</span><span class="s1">&#39;localId&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">building_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">buildings</span><span class="p">[</span><span class="n">refcat</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">building_count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">to_clean</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ad</span><span class="o">.</span><span class="n">id</span><span class="p">())</span>
+            <span class="k">elif</span> <span class="n">building_count</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">building</span> <span class="o">=</span> <span class="n">buildings</span><span class="p">[</span><span class="n">refcat</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">ad</span><span class="p">[</span><span class="s1">&#39;spec&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Entrance&#39;</span><span class="p">:</span>
+                    <span class="n">point</span> <span class="o">=</span> <span class="n">ad</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span><span class="o">.</span><span class="n">asPoint</span><span class="p">()</span>
+                    <span class="n">bg</span> <span class="o">=</span> <span class="n">building</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span>
+                    <span class="n">distance</span><span class="p">,</span> <span class="n">closest</span><span class="p">,</span> <span class="n">vertex</span> <span class="o">=</span> <span class="n">bg</span><span class="o">.</span><span class="n">closestSegmentWithContext</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+                    <span class="n">va</span> <span class="o">=</span> <span class="n">bg</span><span class="o">.</span><span class="n">vertexAt</span><span class="p">(</span><span class="n">vertex</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="n">vb</span> <span class="o">=</span> <span class="n">bg</span><span class="o">.</span><span class="n">vertexAt</span><span class="p">(</span><span class="n">vertex</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">distance</span> <span class="o">&lt;</span> <span class="n">setup</span><span class="o">.</span><span class="n">addr_thr</span><span class="o">**</span><span class="mi">2</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">closest</span> <span class="ow">in</span> <span class="p">(</span><span class="n">va</span><span class="p">,</span> <span class="n">vb</span><span class="p">):</span>
+                            <span class="n">attributes</span><span class="p">[</span><span class="n">ad</span><span class="o">.</span><span class="n">fieldNameIndex</span><span class="p">(</span><span class="s1">&#39;spec&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;corner&#39;</span>
+                            <span class="n">to_change</span><span class="p">[</span><span class="n">ad</span><span class="o">.</span><span class="n">id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">attributes</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">dg</span> <span class="o">=</span> <span class="n">QgsGeometry</span><span class="o">.</span><span class="n">fromPoint</span><span class="p">(</span><span class="n">closest</span><span class="p">)</span>
+                            <span class="n">to_move</span><span class="p">[</span><span class="n">ad</span><span class="o">.</span><span class="n">id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">dg</span>
+                            <span class="n">bg</span><span class="o">.</span><span class="n">insertVertex</span><span class="p">(</span><span class="n">closest</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">closest</span><span class="o">.</span><span class="n">y</span><span class="p">(),</span> <span class="n">vertex</span><span class="p">)</span>
+                            <span class="n">to_insert</span><span class="p">[</span><span class="n">building</span><span class="o">.</span><span class="n">id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">bg</span>
+                            <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">[</span><span class="n">refcat</span><span class="p">]:</span>
+                                <span class="n">pg</span> <span class="o">=</span> <span class="n">part</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span>
+                                <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">vpa</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pg</span><span class="o">.</span><span class="n">asPolygon</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+                                    <span class="n">vpb</span> <span class="o">=</span> <span class="n">pg</span><span class="o">.</span><span class="n">vertexAt</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+                                    <span class="k">if</span> <span class="n">va</span> <span class="ow">in</span> <span class="p">(</span><span class="n">vpa</span><span class="p">,</span> <span class="n">vpb</span><span class="p">)</span> <span class="ow">and</span> <span class="n">vb</span> <span class="ow">in</span> <span class="p">(</span><span class="n">vpa</span><span class="p">,</span> <span class="n">vpb</span><span class="p">):</span>
+                                        <span class="n">pg</span><span class="o">.</span><span class="n">insertVertex</span><span class="p">(</span><span class="n">closest</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">closest</span><span class="o">.</span><span class="n">y</span><span class="p">(),</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+                                        <span class="n">to_insert</span><span class="p">[</span><span class="n">part</span><span class="o">.</span><span class="n">id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">pg</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">attributes</span><span class="p">[</span><span class="n">ad</span><span class="o">.</span><span class="n">fieldNameIndex</span><span class="p">(</span><span class="s1">&#39;spec&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;remote&#39;</span>
+                        <span class="n">to_change</span><span class="p">[</span><span class="n">ad</span><span class="o">.</span><span class="n">id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">attributes</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">attributes</span><span class="p">[</span><span class="n">ad</span><span class="o">.</span><span class="n">fieldNameIndex</span><span class="p">(</span><span class="s1">&#39;spec&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="s1">&#39;relation&#39;</span>
+                <span class="n">to_change</span><span class="p">[</span><span class="n">ad</span><span class="o">.</span><span class="n">id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">attributes</span>
+        <span class="n">address</span><span class="o">.</span><span class="n">startEditing</span><span class="p">()</span>
+        <span class="n">address</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">changeAttributeValues</span><span class="p">(</span><span class="n">to_change</span><span class="p">)</span>
+        <span class="n">address</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">deleteFeatures</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span>
+        <span class="n">address</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">changeGeometryValues</span><span class="p">(</span><span class="n">to_move</span><span class="p">)</span>
+        <span class="n">address</span><span class="o">.</span><span class="n">commitChanges</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startEditing</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">changeGeometryValues</span><span class="p">(</span><span class="n">to_insert</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commitChanges</span><span class="p">()</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Deleted </span><span class="si">%d</span><span class="s2"> addresses of </span><span class="si">%d</span><span class="s2">, </span><span class="si">%d</span><span class="s2"> moved&quot;</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">),</span> 
+            <span class="n">ad_count</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_move</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ConsLayer.set_tasks"><a class="viewcode-back" href="../api/layer.html#layer.ConsLayer.set_tasks">[docs]</a>    <span class="k">def</span> <span class="nf">set_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">urban_zoning</span><span class="p">,</span> <span class="n">rustic_zoning</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Assings to the &#39;task&#39; field the label of the zone that each feature </span>
+<span class="sd">        is contained. Buildings within or adjacent to an urban zone receives an </span>
+<span class="sd">        urban zone label, buildings within an rustic zone that have not been</span>
+<span class="sd">        previously labeled receives a rustic zone label. Building task label</span>
+<span class="sd">        is propagated to its parts.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span> <span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Assigning task number to each construction&quot;</span><span class="p">))</span>
+        <span class="p">(</span><span class="n">buildings</span><span class="p">,</span> <span class="n">parts</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_of_building_and_parts</span><span class="p">()</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="p">{</span><span class="n">feat</span><span class="o">.</span><span class="n">id</span><span class="p">():</span> <span class="n">feat</span> <span class="k">for</span> <span class="n">feat</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">()}</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">QgsSpatialIndex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startEditing</span><span class="p">()</span>
+        <span class="n">to_change</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="n">urban_zoning</span><span class="o">.</span><span class="n">name</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="n">tf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fieldNameIndex</span><span class="p">(</span><span class="s1">&#39;task&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">urban_zoning</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">():</span>
+            <span class="n">zone</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">fid</span> <span class="ow">in</span> <span class="n">index</span><span class="o">.</span><span class="n">intersects</span><span class="p">(</span><span class="n">zone</span><span class="o">.</span><span class="n">boundingBox</span><span class="p">()):</span>
+                <span class="n">candidate</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="n">fid</span><span class="p">]</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">candidate</span><span class="p">[</span><span class="s1">&#39;task&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">is_inside</span><span class="p">(</span><span class="n">candidate</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+                    <span class="n">candidate</span><span class="p">[</span><span class="s1">&#39;task&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span>
+                    <span class="n">attributes</span> <span class="o">=</span> <span class="n">get_attributes</span><span class="p">(</span><span class="n">candidate</span><span class="p">)</span>
+                    <span class="n">to_change</span><span class="p">[</span><span class="n">fid</span><span class="p">]</span> <span class="o">=</span> <span class="n">attributes</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_building</span><span class="p">(</span><span class="n">candidate</span><span class="p">):</span>
+                        <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">[</span><span class="n">candidate</span><span class="p">[</span><span class="s1">&#39;localId&#39;</span><span class="p">]]:</span>
+                            <span class="n">part</span><span class="p">[</span><span class="s1">&#39;task&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span>
+                            <span class="n">attributes</span> <span class="o">=</span> <span class="n">get_attributes</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
+                            <span class="n">to_change</span><span class="p">[</span><span class="n">part</span><span class="o">.</span><span class="n">id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">attributes</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="n">rustic_zoning</span><span class="o">.</span><span class="n">name</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">rustic_zoning</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">():</span>
+            <span class="n">zone</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">fid</span> <span class="ow">in</span> <span class="n">index</span><span class="o">.</span><span class="n">intersects</span><span class="p">(</span><span class="n">zone</span><span class="o">.</span><span class="n">boundingBox</span><span class="p">()):</span>
+                <span class="n">candidate</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="n">fid</span><span class="p">]</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">candidate</span><span class="p">[</span><span class="s1">&#39;task&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">is_inside</span><span class="p">(</span><span class="n">candidate</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
+                    <span class="n">candidate</span><span class="p">[</span><span class="s1">&#39;task&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span>
+                    <span class="n">attributes</span> <span class="o">=</span> <span class="n">get_attributes</span><span class="p">(</span><span class="n">candidate</span><span class="p">)</span>
+                    <span class="n">to_change</span><span class="p">[</span><span class="n">fid</span><span class="p">]</span> <span class="o">=</span> <span class="n">attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">changeAttributeValues</span><span class="p">(</span><span class="n">to_change</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commitChanges</span><span class="p">()</span>
+        <span class="n">nt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">featureCount</span><span class="p">()</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_change</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nt</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> features unassigned to a task in the &#39;</span><span class="si">%s</span><span class="s2">&#39; layer&quot;</span><span class="p">),</span>
+                <span class="n">nt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;All features assigned to tasks in the &#39;</span><span class="si">%s</span><span class="s2">&#39; layer&quot;</span><span class="p">),</span> 
+                <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="DebugWriter"><a class="viewcode-back" href="../api/layer.html#layer.DebugWriter">[docs]</a><span class="k">class</span> <span class="nc">DebugWriter</span><span class="p">(</span><span class="n">QgsVectorFileWriter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A QgsVectorFileWriter for debugging purposess.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">crs</span><span class="p">,</span> <span class="n">driver_name</span><span class="o">=</span><span class="s2">&quot;ESRI Shapefile&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            filename (str): File name of the layer</span>
+<span class="sd">            crs (QgsCoordinateReferenceSystem): Crs of layer.</span>
+<span class="sd">            driver_name (str): Defaults to ESRI Shapefile.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">=</span> <span class="n">QgsFields</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">QgsField</span><span class="p">(</span><span class="s2">&quot;note&quot;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">100</span><span class="p">))</span>
+        <span class="n">QgsVectorFileWriter</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">,</span> 
+                <span class="n">QGis</span><span class="o">.</span><span class="n">WKBPoint</span><span class="p">,</span> <span class="n">crs</span><span class="p">,</span> <span class="n">driver_name</span><span class="p">)</span>
+    
+<div class="viewcode-block" id="DebugWriter.add_point"><a class="viewcode-back" href="../api/layer.html#layer.DebugWriter.add_point">[docs]</a>    <span class="k">def</span> <span class="nf">add_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="p">,</span> <span class="n">note</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Adds a point to the layer with the attribute note.&quot;&quot;&quot;</span>
+        <span class="n">feat</span> <span class="o">=</span> <span class="n">QgsFeature</span><span class="p">(</span><span class="n">QgsFields</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">))</span>
+        <span class="n">geom</span> <span class="o">=</span> <span class="n">QgsGeometry</span><span class="o">.</span><span class="n">fromPoint</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+        <span class="n">feat</span><span class="o">.</span><span class="n">setGeometry</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">note</span><span class="p">:</span>
+            <span class="n">feat</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="s2">&quot;note&quot;</span><span class="p">,</span> <span class="n">note</span><span class="p">[:</span><span class="mi">254</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">addFeature</span><span class="p">(</span><span class="n">feat</span><span class="p">)</span></div></div>
+
+</pre></div>
+
+          </div>
+            
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 2017-07-05 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2017, Javier Sánchez Portero. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>

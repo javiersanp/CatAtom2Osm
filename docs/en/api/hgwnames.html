@@ -1,0 +1,223 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+  
+  <!-- Licensed under the Apache 2.0 License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/open-sans/stylesheet.css" />
+  <!-- Licensed under the SIL Open Font License -->
+  <link rel="stylesheet" type="text/css" href="../_static/fonts/source-serif-pro/source-serif-pro.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>hgwnames module &#8212; CatAtom2Osm 2017-07-05 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '2017-07-05',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="layer module" href="layer.html" />
+    <link rel="prev" title="download module" href="download.html" />
+  
+   
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="layer.html" title="layer module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="download.html" title="download module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 2017-07-05 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../api.html" >API reference</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="modules.html" accesskey="U">CatAtom2Osm</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="container-wrapper">
+
+      <div id="mobile-toggle">
+        <a href="#"><span class="glyphicon glyphicon-align-justify" aria-hidden="true"></span></a>
+      </div>
+  <div id="left-column">
+    <div class="sphinxsidebar">
+        <a href="
+    ../index.html" class="text-logo">CatAtom2Osm</a>
+        
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <h2>Table Of Contents</h2>
+  </div>
+  <div class="sidebar-toc">
+    
+    
+      <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../readme.html">Read me</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changes.html">Change log</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="modules.html">CatAtom2Osm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../coverage.html">Code coverage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../genindex.html">Index</a></li>
+</ul>
+</li>
+</ul>
+
+    
+  </div>
+</div>
+        
+<div class="sidebar-block">
+  <div class="sidebar-wrapper">
+    <div id="main-search">
+      <form class="form-inline" action="../search.html" method="GET" role="form">
+        <div class="input-group">
+          <input name="q" type="text" class="form-control" placeholder="Search...">
+        </div>
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div>
+    </div>
+  </div>
+        <div id="right-column">
+          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+            <ol class="breadcrumb">
+              <li><a href="../index.html">Docs</a></li>
+              
+                <li><a href="../api.html">API reference</a></li>
+              
+                <li><a href="modules.html">CatAtom2Osm</a></li>
+              
+              <li>hgwnames module</li>
+            </ol>
+          </div>
+          
+          <div class="document clearer body">
+            
+  <div class="section" id="module-hgwnames">
+<span id="hgwnames-module"></span><h1>hgwnames module<a class="headerlink" href="#module-hgwnames" title="Permalink to this headline">¶</a></h1>
+<p>Parsing of highway names</p>
+<dl class="function">
+<dt id="hgwnames.get_translations">
+<code class="descclassname">hgwnames.</code><code class="descname">get_translations</code><span class="sig-paren">(</span><em>address_layer</em>, <em>output_folder</em>, <em>street_fn</em>, <em>housenumber_fn</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hgwnames.html#get_translations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hgwnames.get_translations" title="Permalink to this definition">¶</a></dt>
+<dd><p>If there exists the configuration file &#8216;highway_types.csv&#8217;, read it,
+else write one with default values. If don&#8217;t exists the translations file
+&#8216;highway_names.csv&#8217;, creates one parsing names_layer, else reads and returns
+it as a dictionary.</p>
+<ul class="simple">
+<li>&#8216;highway_types.csv&#8217; is located in the application path and contains
+translations from abreviaturs to full types of highways.</li>
+<li>&#8216;highway_names.csv&#8217; is located in the outputh folder and contains
+corrections for original highway names.</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>address_layer</strong> (<a class="reference internal" href="layer.html#layer.AddressLayer" title="layer.AddressLayer"><em>AddressLayer</em></a>) &#8211; Layer with addresses</li>
+<li><strong>output_folder</strong> (<em>str</em>) &#8211; Directory where the source files are located</li>
+<li><strong>street_fn</strong> (<em>str</em>) &#8211; Name of the field for the address street name</li>
+<li><strong>housenumber_fn</strong> (<em>str</em>) &#8211; Name of the field for the address housenumber</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Dictionary with highway names translations and a flag to
+alert if it&#8217;s new (there wasen&#8217;t a previous translations file)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(dict, bool)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="hgwnames.parse">
+<code class="descclassname">hgwnames.</code><code class="descname">parse</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hgwnames.html#parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hgwnames.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform the name of a street from Cadastre conventions to OSM ones.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+            
+  <div class="footer-relations">
+    
+      <div class="pull-left">
+        <a class="btn btn-default" href="download.html" title="previous chapter (use the left arrow)">download module</a>
+      </div>
+    
+      <div class="pull-right">
+        <a class="btn btn-default" href="layer.html" title="next chapter (use the right arrow)">layer module</a>
+      </div>
+    </div>
+    <div class="clearer"></div>
+  
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="layer.html" title="layer module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="download.html" title="download module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 2017-07-05 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../api.html" >API reference</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="modules.html" >CatAtom2Osm</a> &#187;</li> 
+      </ul>
+    </div>
+<script type="text/javascript">
+  $("#mobile-toggle a").click(function () {
+    $("#left-column").toggle();
+  });
+</script>
+<script type="text/javascript" src="../_static/js/bootstrap.js"></script>
+  <div class="footer">
+    &copy; Copyright 2017, Javier Sánchez Portero. Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  </body>
+</html>
