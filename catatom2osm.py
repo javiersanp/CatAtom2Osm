@@ -80,8 +80,6 @@ class CatAtom2Osm:
         if not os.path.isdir(a_path):
             raise IOError(_("Not a directory: '%s'") % a_path)
         # Init qGis API
-        QgsApplication.setPrefixPath(setup.qgs_prefix_path, True)
-        
         self.qgs = QgsApplication([], False)
         self.qgs.initQgis()
         # sets GDAL to convert xlink references to fields but not resolve

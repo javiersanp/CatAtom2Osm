@@ -14,7 +14,6 @@ log_level = 'INFO' # Default console log level
 log_file = 'catatom2osm.log'
 log_format = '%(asctime)s - %(levelname)s - %(message)s'
 
-qgs_prefix_path = '/usr' # qGis API prefix path. TODO: detect OS
 fn_prefix = 'A.ES.SDGC' # Inspire Atom file name prefix
 
 silence_gdal = False
