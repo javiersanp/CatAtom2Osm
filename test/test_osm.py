@@ -197,6 +197,12 @@ class TestOsmWay(OsmTestCase):
         w = self.d.Way()
         w.clean_duplicated_nodes()
         self.assertEquals(len(w.nodes), 0)
+ 
+    def test_search_node(self):
+        n = self.d.Node(1,1)
+        w = self.d.Way([(0,0), n, (2,2)])
+        self.assertTrue(w.search_node(1, 1) is n)
+        self.assertEquals(w.search_node(5, 0), None)
         
 
 class TestOsmRelation(OsmTestCase):
@@ -274,9 +280,15 @@ class TestOsmRelation(OsmTestCase):
         self.assertEquals([m.element for m in r.members], [n1, n3, n4])
 
     def test_type(self):
-        n1 = self.d.Node(1,1)
-        m = osm.Relation.Member(n1)
+        n = self.d.Node(1,1)
+        w = self.d.Way(((1,1), (2,2), (3,3)))
+        r = self.d.Relation([n, w])
+        m = osm.Relation.Member(n)
         self.assertEquals(m.type, 'node')
+        m = osm.Relation.Member(w)
+        self.assertEquals(m.type, 'way')
+        m = osm.Relation.Member(r)
+        self.assertEquals(m.type, 'relation')
     
     def test_ref(self):
         n1 = self.d.Node(1,1)
