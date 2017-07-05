@@ -180,7 +180,7 @@ class CatAtom2Osm:
                 self.merge_address(building_osm, address_osm)
             self.write_osm(building_osm, "building.osm")
         elif self.options.tasks:
-            self.split_building_in_tasks(building, urban_zoning, rustic_zoning)
+            self.split_building_in_tasks(building, urban_zoning, rustic_zoning, address_osm)
 
         if self.options.address:
             self.write_osm(address_osm, "address.osm")
@@ -424,7 +424,7 @@ class CatAtom2Osm:
                         bu.tags.update(ad.tags)
                     
 
-    def split_building_in_tasks(self, building, urban_zoning, rustic_zoning):
+    def split_building_in_tasks(self, building, urban_zoning, rustic_zoning, address_osm):
         """Generates osm files to import with the task manager"""
         base_path = os.path.join(self.path, 'tasks')
         if not os.path.exists(base_path):
@@ -439,6 +439,8 @@ class CatAtom2Osm:
                 if task.featureCount() > 0:
                     task_path = os.path.join('tasks', label + '.osm')
                     task_osm = self.osm_from_layer(task, translate.building_tags)
+                    if self.options.address:
+                        self.merge_address(task_osm, address_osm)
                     self.write_osm(task_osm, task_path)
                 else:
                     log.info(_("Zone '%s' is empty"), label.encode('utf-8'))
