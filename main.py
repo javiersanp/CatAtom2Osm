@@ -10,7 +10,7 @@ import setup
 if setup.platform.startswith('win'):
     if os.getenv('LANG') is None:
         os.environ['LANG'] = setup.language
-gettext.install(setup.app_name.lower(), localedir=setup.localedir)
+gettext.install(setup.app_name.lower(), localedir=setup.localedir, unicode=1)
  
 log = logging.getLogger(setup.app_name)
 fh = logging.FileHandler(setup.log_file)
@@ -31,33 +31,30 @@ files it will download them for you from the INSPIRE Services of the Spanish
 Cadastre.""")
   
 if __name__ == "__main__":
-    parser = OptionParser(usage=usage.decode('utf-8'))
+    parser = OptionParser(usage=usage)
     parser.add_option("-v", "--version", dest="version", default=False,
-        action="store_true", help=_("Print CatAtom2Osm version and exit") \
-        .decode('utf-8'))
+        action="store_true", help=_("Print CatAtom2Osm version and exit"))
     parser.add_option("-l", "--list", dest="list", metavar="prov",
         default=False, help=_("List available municipalities given the two "
-        "digits province code").decode('utf-8'))
+        "digits province code"))
     parser.add_option("-t", "--tasks", dest="tasks", default=False,
         action="store_true", help=_("Splits constructions into tasks files " \
-        "(default, implies -z)").decode('utf-8'))
+        "(default, implies -z)"))
     parser.add_option("-z", "--zoning", dest="zoning", default=False,
-        action="store_true", help=_("Process the cadastral zoning dataset") \
-        .decode('utf-8'))
+        action="store_true", help=_("Process the cadastral zoning dataset"))
     parser.add_option("-b", "--building", dest="building", default=False,
         action="store_true", help=_("Process constructions to a single file " \
-        "instead of tasks").decode('utf-8'))
+        "instead of tasks"))
     parser.add_option("-d", "--address", dest="address", default=False,
-        action="store_true", help=_("Process the address dataset").decode('utf-8'))
+        action="store_true", help=_("Process the address dataset"))
     parser.add_option("-p", "--parcel", dest="parcel", default=False,
-        action="store_true", help=_("Process the cadastral parcel dataset") \
-        .decode('utf-8'))
+        action="store_true", help=_("Process the cadastral parcel dataset"))
     parser.add_option("-a", "--all", dest="all", default=False,
         action="store_true", help=_("Process all datasets (equivalent " \
-        "to -bdptz)").decode('utf-8'))
+        "to -bdptz)"))
     parser.add_option("", "--log", dest="log_level", metavar="log_level",
         default=setup.log_level, help=_("Select the log level between " \
-        "DEBUG, INFO, WARNING, ERROR or CRITICAL.").decode('utf-8'))
+        "DEBUG, INFO, WARNING, ERROR or CRITICAL."))
     (options, args) = parser.parse_args()
     if options.all:
         options.building = True
