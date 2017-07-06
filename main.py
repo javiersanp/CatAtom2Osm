@@ -88,9 +88,9 @@ if __name__ == "__main__":
             app.run()
             app.exit()
         except (IOError, OSError, ValueError, BadZipfile) as e:
-            log.error(e)
+            log.error(e.message)
         except ImportError as e:
-            log.error(e)
+            log.error(e.message)
             if 'qgis' in e.message or 'core' in e.message or 'osgeo' in e.message:
                 log.error(_("Please, install QGIS"))
 
