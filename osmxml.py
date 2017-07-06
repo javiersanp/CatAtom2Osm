@@ -14,7 +14,7 @@ except:
 try:
     from lxml import etree
     log.debug(_("Running with lxml.etree"))
-except ImportError:
+except ImportError: # pragma: no cover
     try:
         import xml.etree.ElementTree as etree
         log.debug(_("Running with ElementTree on Python 2.5+"))
@@ -33,6 +33,10 @@ def serialize(data):
     """Output XML for an OSM data set"""
     attrs = dict(upload=data.upload, version=data.version, generator=setup.app_name.lower())
     root = etree.Element('osm', attrs)
+    csxml = etree.Element('changeset')
+    for key, value in data.tags.items():
+        csxml.append(etree.Element('tag', dict(k=key, v=value)))
+    root.append(csxml)
     for node in data.nodes:
         attrs = dict(id=str(node.id), action=node.action, visible=node.visible)
         attrs.update(dict(lat=str(node.y), lon=str(node.x)))
@@ -59,7 +63,7 @@ def serialize(data):
         root.append(relxml)
     try:
         result = etree.tostring(root, pretty_print=True)
-    except TypeError:
+    except TypeError: # pragma: no cover
         result = etree.tostring(root)
     return result
     

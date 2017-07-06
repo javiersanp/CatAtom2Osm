@@ -118,6 +118,16 @@ class TestOsmNode(OsmTestCase):
         n2 = self.d.Node((2,3), tags={'a': 'b'})
         self.assertEquals(n2.tags['a'], 'b')
         self.assertEquals((n2.x, n2.y), (2, 3))
+        
+    def test_init_round(self):
+        osm.COOR_DIGITS = 2
+        n = self.d.Node(1.001, 2.0055)
+        self.assertEquals(n.x, 1.00)
+        self.assertEquals(n.y, 2.01)
+        osm.COOR_DIGITS = 0
+        n = self.d.Node(1.001, 2.0055)
+        self.assertEquals(n.x, 1.001)
+        self.assertEquals(n.y, 2.0055)
 
     def test_eq(self):
         n1 = self.d.Node(1, 2)

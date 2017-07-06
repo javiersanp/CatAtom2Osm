@@ -2,7 +2,9 @@
 """OpenStreetMap data model"""
 from collections import defaultdict
 
-COOR_DIGITS = 7 # With a value greater than this, JOSM give duplicated points errors
+# Number of significant decimal digits. 0 to cancel rounding. With a value 
+# greater than 7, JOSM give duplicated points errors
+COOR_DIGITS = 7
 
 
 class Osm(object):
@@ -13,6 +15,7 @@ class Osm(object):
         self.version = '0.6'
         self.counter = 0
         self.elements = set()
+        self.tags = {}
 
     @property
     def nodes(self):
@@ -131,8 +134,9 @@ class Node(Element):
         super(Node, self).__init__(container, *args, **kwargs)
         (self.x, self.y) = (x[0], x[1]) \
             if hasattr(x, '__getitem__') else (x, y)
-        self.x = round(self.x, COOR_DIGITS)
-        self.y = round(self.y, COOR_DIGITS)
+        if COOR_DIGITS:
+            self.x = round(self.x, COOR_DIGITS)
+            self.y = round(self.y, COOR_DIGITS)
             
 
     def __getitem__(self, key):
