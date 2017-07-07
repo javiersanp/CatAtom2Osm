@@ -18,7 +18,8 @@ fn_prefix = 'A.ES.SDGC' # Inspire Atom file name prefix
 
 silence_gdal = False
 
-dup_thr = 0.01 # Distance in meters to merge nearest vertexs.
+dup_thr = 0.012 # Distance in meters to merge nearest vertexs.
+                # 0.011 is about 1E-7 degrees in latitude
 dist_thr = 0.02 # Threshold in meters for vertex simplification and topological points.
 straight_thr = 2 # Threshold in degrees from straight angle to delete a vertex
 acute_thr = 5 # Remove vertices with an angle smaller than this value

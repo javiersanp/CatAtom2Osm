@@ -4,7 +4,7 @@ from collections import defaultdict
 
 # Number of significant decimal digits. 0 to cancel rounding. With a value 
 # greater than 7, JOSM give duplicated points errors
-COOR_DIGITS = 7
+COOR_DIGITS = 0
 
 
 class Osm(object):
