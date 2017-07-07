@@ -703,9 +703,9 @@ class ZoningLayer(PolygonLayer):
 class AddressLayer(BaseLayer):
     """Class for address"""
 
-    def __init__(self, path="Point", baseName="address", providerLib = "memory"):
-        super(AddressLayer, self).__init__(path, baseName, providerLib, 
-                source_date=source_date)
+    def __init__(self, path="Point", baseName="address", providerLib="memory",
+            source_date=None):
+        super(AddressLayer, self).__init__(path, baseName, providerLib)
         if self.pendingFields().isEmpty():
             self.dataProvider().addAttributes([
                 QgsField('localId', QVariant.String, len=254),

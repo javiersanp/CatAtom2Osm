@@ -103,7 +103,7 @@ class CatAtom2Osm:
                     "layer, please try again with the zip file"), 
                     address_gml.name().encode('utf-8'))
             else:
-                address = layer.AddressLayer()
+                address = layer.AddressLayer(source_date = address_gml.source_date)
                 address.append(address_gml)
                 adminunitname = self.read_gml_layer("adminunitname")
                 postaldescriptor = self.read_gml_layer("postaldescriptor")
@@ -200,7 +200,7 @@ class CatAtom2Osm:
                 self.export_layer(urban_zoning, 'rustic_zoning.shp')
 
         if self.options.parcel:
-            parcel = layer.ParcelLayer()
+            parcel = layer.ParcelLayer(source_date = building_gml.source_date)
             parcel_gml = self.read_gml_layer("cadastralparcel")
             parcel.append(parcel_gml)
             del parcel_gml
@@ -358,7 +358,7 @@ class CatAtom2Osm:
             raise IOError(_("Failed to write layer: '%s'") % filename)
         
     
-    def osm_from_layer(self, layer, tags_translation=translate.all_tags):
+    def osm_from_layer(self, layer, tags_translation=translate.all_tags, upload='never'):
         """
         Create a Osm data set from a vector layer.
 
@@ -366,11 +366,12 @@ class CatAtom2Osm:
             layer (QgsVectorLayer): Source layer.
             tags_translation (function): Function to translate fields to tags. 
                 By defaults convert all fields.
+            upload (str): upload attribute of the osm dataset, default 'never'
 
         Returns:
             Osm: OSM data set
         """
-        data = osm.Osm()
+        data = osm.Osm(upload)
         for feature in layer.getFeatures(): 
             geom = feature.geometry()
             e = None
@@ -388,6 +389,10 @@ class CatAtom2Osm:
                 log.warning(_("Detected a %s geometry in the '%s' layer"), 
                     geom.wkbType(), layer.name().encode('utf-8'))
             if e: e.tags.update(tags_translation(feature))
+        for (key, value) in setup.changeset_tags.items():
+            data.tags[key] = value
+        if layer.source_date:
+            data.tags['source:date'] = layer.source_date
         log.info(_("Loaded %d nodes, %d ways, %d relations from '%s' layer"), 
             len(data.nodes), len(data.ways), len(data.relations), 
             layer.name().encode('utf-8'))
@@ -424,6 +429,8 @@ class CatAtom2Osm:
         for ad in address_osm.nodes:
             address_index[ad.tags['ref']] = ad
         building_index = defaultdict(list)
+        if 'source:date' in address_osm.tags:
+            building_osm.tags['source:date:addr'] = address_osm.tags['source:date']
         for bu in building_osm.elements:
             if 'ref' in bu.tags:
                 building_index[bu.tags['ref']].append(bu)
@@ -466,7 +473,7 @@ class CatAtom2Osm:
                 task.append(building, rename={}, query=query)
                 if task.featureCount() > 0:
                     task_path = os.path.join('tasks', label + '.osm')
-                    task_osm = self.osm_from_layer(task, translate.building_tags)
+                    task_osm = self.osm_from_layer(task, translate.building_tags, 'yes')
                     if self.options.address:
                         self.merge_address(task_osm, address_osm)
                     self.write_osm(task_osm, task_path)

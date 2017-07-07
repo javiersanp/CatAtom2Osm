@@ -25,6 +25,13 @@ acute_thr = 5 # Remove vertices with an angle smaller than this value
 min_area = 0.05 # Delete geometries with an area smaller than this value
 addr_thr = 10 # Distance in meters to merge address node with building footprint
 
+changeset_tags = {
+    'comment': "#Spanish_Cadastre_Buildings_Import",
+    'source': u"Dirección General del Catastro",
+    'type': 'import',
+    'url': "https://wiki.openstreetmap.org/wiki/Spanish_Cadastre/Buildings_Import" 
+}
+
 base_url = {
     "BU": "http://www.catastro.minhap.es/INSPIRE/buildings/",
     "AD": "http://www.catastro.minhap.es/INSPIRE/addresses/",
