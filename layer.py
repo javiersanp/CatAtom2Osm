@@ -52,7 +52,7 @@ class Point(QgsPoint):
         h = math.sqrt(va.sqrDist(point))
         c = abs(h * math.sin(math.radians(a)))
         is_corner = abs(180 - angle) > setup.straight_thr or c > setup.dist_thr
-        is_acute = angle < 5 if angle < 180 else 360 - angle < 5
+        is_acute = angle < setup.acute_thr if angle < 180 else 360 - angle < setup.acute_thr
         return (angle, is_acute, is_corner, c)
 
 
@@ -531,13 +531,13 @@ class PolygonLayer(BaseLayer):
         """
         if log.getEffectiveLevel() <= logging.DEBUG:
             debshp = DebugWriter("debug_simplify.shp", self.crs())
-        (parents_per_vertex, features) = self.get_parents_per_vertex_and_features()
         killed = 0
         to_change = {}
         to_clean = []
         # Clean acute vertices
+        features = {feat.id(): feat for feat in self.getFeatures()}
         for fid, feat in features.items():
-            geom = feat.geometry()
+            geom = QgsGeometry(feat.geometry())
             n = -1
             while n < 0 or v != QgsPoint(0, 0):
                 n += 1
@@ -548,15 +548,23 @@ class PolygonLayer(BaseLayer):
                     c = geom.centroid().asPoint()
                     geom.deleteVertex(n)
                     if geom.isGeosValid() and geom.area() > setup.min_area:
+                        feat.setGeometry(geom)
                         to_change[fid] = geom
-                        n = -1 if n == 0 else n - 2
+                        n = -1
                     else:
                         to_clean.append(fid)
                         if fid in to_change: del to_change[fid]
                         if log.getEffectiveLevel() <= logging.DEBUG:
                             debshp.add_point(c, "invalid geometry")
-                        v = QgsPoint(0, 0)
+                        break
+        self.startEditing()
+        if to_clean:
+            self.writer.deleteFeatures(to_clean)
+            log.info(_("Deleted %d invalid geometries in the '%s' layer"), 
+                len(to_clean), self.name().encode('utf-8'))
+        self.commitChanges()
         # Clean non corners
+        (parents_per_vertex, features) = self.get_parents_per_vertex_and_features()
         for pnt, parents in parents_per_vertex.items():
             # Test if this vertex is a 'corner' in any of its parent polygons
             point = Point(pnt)
@@ -572,10 +580,12 @@ class PolygonLayer(BaseLayer):
             if not is_corner:
                 killed += 1      # delete the vertex from all its parents.
                 for fid in frozenset(parents):
-                    geom = QgsGeometry(features[fid].geometry())
+                    feat = features[fid]
+                    geom = QgsGeometry(feat.geometry())
                     (__, ndx, __, __, __) = geom.closestVertex(point)
                     geom.deleteVertex(ndx)
                     if geom.isGeosValid():
+                        feat.setGeometry(geom)
                         parents.remove(fid)
                         to_change[fid] = geom
                 if log.getEffectiveLevel() <= logging.DEBUG:
@@ -587,10 +597,6 @@ class PolygonLayer(BaseLayer):
             self.writer.changeGeometryValues(to_change)
             log.info(_("Simplified %d vertices in the '%s' layer"), killed, 
                 self.name().encode('utf-8'))
-        if to_clean:
-            self.writer.deleteFeatures(to_clean)
-            log.info(_("Deleted %d invalid geometries in the '%s' layer"), 
-                len(to_clean), self.name().encode('utf-8'))
         self.commitChanges()
 
     def merge_adjacents(self):
