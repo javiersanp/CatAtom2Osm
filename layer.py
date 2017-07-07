@@ -51,7 +51,7 @@ class Point(QgsPoint):
         a = abs(va.azimuth(point) - va.azimuth(vb))
         h = math.sqrt(va.sqrDist(point))
         c = abs(h * math.sin(math.radians(a)))
-        is_corner = abs(180 - angle) > setup.straight_thr or c > setup.dist_thr
+        is_corner = abs(180 - angle) > setup.straight_thr and c > setup.dist_thr
         is_acute = angle < setup.acute_thr if angle < 180 else 360 - angle < setup.acute_thr
         return (angle, is_acute, is_corner, c)
 
