@@ -143,11 +143,11 @@ class BaseLayer(QgsVectorLayer):
             See also copy_feature().
         """
         self.setCrs(layer.crs())
-        self.startEditing()
         to_add = []
         for feature in layer.getFeatures():
             if not query or query(feature):
                 to_add.append(self.copy_feature(feature, rename, resolve))
+        self.startEditing()
         self.addFeatures(to_add)
         self.commitChanges()
 
@@ -160,7 +160,6 @@ class BaseLayer(QgsVectorLayer):
         if target_crs is None:
             target_crs = QgsCoordinateReferenceSystem(4326)
         crs_transform = QgsCoordinateTransform(self.crs(), target_crs)
-        self.startEditing()
         to_add = []
         to_clean = []
         for feature in self.getFeatures():
@@ -171,6 +170,7 @@ class BaseLayer(QgsVectorLayer):
             out_feat.setAttributes(feature.attributes())
             to_add.append(out_feat)
             to_clean.append(feature.id())
+        self.startEditing()
         self.writer.deleteFeatures(to_clean)
         self.writer.addFeatures(to_add)
         self.setCrs(target_crs)
@@ -192,7 +192,6 @@ class BaseLayer(QgsVectorLayer):
             field_names_subset (list): List of field name strings for the target layer.
             prefix (str): An optional prefix to add to the target fields names
         """
-        self.startEditing()
         fields = []
         target_attrs = [f.name() for f in self.pendingFields()]
         for attr in field_names_subset:
@@ -219,6 +218,7 @@ class BaseLayer(QgsVectorLayer):
                     value = None
                 attrs[fieldId] = value 
             to_change[feature.id()] = attrs
+        self.startEditing()
         self.writer.changeAttributeValues(to_change)
         self.commitChanges()
 
@@ -235,7 +235,6 @@ class BaseLayer(QgsVectorLayer):
         if field_ndx >= 0:
             to_clean = []
             to_change = {}
-            self.startEditing()
             for feat in self.getFeatures():
                 value = feat[field_name]
                 if value in translations and translations[value] != '':
@@ -245,6 +244,7 @@ class BaseLayer(QgsVectorLayer):
                     to_change[feat.id()] = attributes
                 elif clean:
                     to_clean.append(feat.id())
+            self.startEditing()
             self.writer.changeAttributeValues(to_change)
             self.writer.deleteFeatures(to_clean)
             self.commitChanges()
@@ -290,7 +290,6 @@ class PolygonLayer(BaseLayer):
         OSM data set. From this moment, localId will not be a unique identifier
         for buildings.
         """
-        self.startEditing()
         to_clean = []
         to_add = []
         for feature in self.getFeatures():
@@ -301,6 +300,7 @@ class PolygonLayer(BaseLayer):
                     feat.setGeometry(QgsGeometry.fromPolygon(part))
                     to_add.append(feat)
                 to_clean.append(feature.id())
+        self.startEditing()
         if to_clean:
             self.writer.deleteFeatures(to_clean)
             self.writer.addFeatures(to_add)
@@ -358,7 +358,6 @@ class PolygonLayer(BaseLayer):
     def get_vertices(self):
         """Returns a in memory layer with the coordinates of each vertex"""
         vertices = QgsVectorLayer("Point", "vertices", "memory")
-        vertices.startEditing() # layer with the coordinates of each vertex
         to_add = []
         for feature in self.getFeatures(): 
             for ring in feature.geometry().asPolygon():
@@ -367,6 +366,7 @@ class PolygonLayer(BaseLayer):
                     geom = QgsGeometry.fromPoint(point)
                     feat.setGeometry(geom)
                     to_add.append(feat)
+        vertices.startEditing() # layer with the coordinates of each vertex
         vertices.addFeatures(to_add)
         vertices.commitChanges()
         return vertices
@@ -403,7 +403,6 @@ class PolygonLayer(BaseLayer):
         (parents_per_vertex, features) = self.get_parents_per_vertex_and_features()
         dupes = 0
         duplicates = self.get_duplicates()
-        self.startEditing()
         duplist = sorted(duplicates.keys(), key=lambda x: -len(duplicates[x]))
         to_change = {}
         for point in duplist:
@@ -422,6 +421,7 @@ class PolygonLayer(BaseLayer):
                             debshp.add_point(p, note)
                 if dup in duplist:
                     duplist.remove(dup)
+        self.startEditing()
         if to_change:
             self.writer.changeGeometryValues(to_change)
             log.info(_("Merged %d close vertices in the '%s' layer"), dupes, 
@@ -436,7 +436,6 @@ class PolygonLayer(BaseLayer):
         dupes = 0
         to_clean = []
         to_change = {}
-        self.startEditing()
         for feature in self.getFeatures(): 
             geom = feature.geometry()
             replace = False
@@ -457,6 +456,7 @@ class PolygonLayer(BaseLayer):
                     to_change[feature.id()] = new_geom
                 else:
                     to_clean.append(feature.id())
+        self.startEditing()
         if to_change:
             self.writer.changeGeometryValues(to_change)
             log.info(_("Merged %d duplicated vertices of polygons in "
@@ -477,7 +477,6 @@ class PolygonLayer(BaseLayer):
         index = QgsSpatialIndex(self.getFeatures())
         features = {feat.id(): feat for feat in self.getFeatures()}
 
-        self.startEditing()
         to_change = {}
         for feature in features.values():
             geom = feature.geometry()
@@ -507,6 +506,7 @@ class PolygonLayer(BaseLayer):
                                         to_change[fid] = prev
                             if log.getEffectiveLevel() <= logging.DEBUG:
                                 debshp.add_point(point, note)
+        self.startEditing()
         if to_change:
             self.writer.changeGeometryValues(to_change)
             log.info (_("Created %d topological points in the '%s' layer"), 
