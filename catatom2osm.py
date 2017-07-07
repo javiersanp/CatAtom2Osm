@@ -138,7 +138,7 @@ class CatAtom2Osm:
         
         if self.options.building or self.options.tasks:
             building_gml = self.read_gml_layer("building")
-            building = layer.ConsLayer()
+            building = layer.ConsLayer(source_date = building_gml.source_date)
             building.append(building_gml)
             del building_gml
             part_gml = self.read_gml_layer("buildingpart")
@@ -217,6 +217,26 @@ class CatAtom2Osm:
         if hasattr(self, 'qgs'):
             self.qgs.exitQgis()
         
+    def get_gml_date(self, md_path, zip_path=""):
+        """Get the source file production date from the metadata."""
+        if os.path.exists(md_path):
+            text = open(md_path, 'r').read()
+        else:
+            zip = zipfile.ZipFile(zip_path)
+            text = zip.read(os.path.basename(md_path))
+        root = etree.fromstring(text)
+        is_empty = len(root) == 0 or len(root[0]) == 0
+        namespace = {
+            'gco': 'http://www.isotc211.org/2005/gco', 
+            'gmd': 'http://www.isotc211.org/2005/gmd'
+        }
+        if hasattr(root, 'nsmap'):
+            namespace = root.nsmap
+        gml_date = root.find('gmd:dateStamp/gco:Date', namespace)
+        if is_empty or gml_date == None:
+            raise IOError(_("Could not read date from '%s'") % md_path)
+        return gml_date.text
+
     def get_atom_file(self, url):
         """
         Given the url of a Cadastre ATOM service, tries to download the ZIP
@@ -288,17 +308,21 @@ class CatAtom2Osm:
         else:
             raise ValueError(_("Unknow layer name '%s'") % layername)
         url = setup.prov_url[group] % (self.prov_code, self.prov_code)
+        gml_fn = ".".join((setup.fn_prefix, group, self.zip_code, layername, "gml"))
         if group == 'AD':    
             gml_fn = ".".join((setup.fn_prefix, group, self.zip_code, 
                 "gml|layername=%s" % layername))
-        else:
-            gml_fn = ".".join((setup.fn_prefix, group, self.zip_code, layername, "gml"))
+        md_fn = ".".join((setup.fn_prefix, group, "MD", self.zip_code, "xml"))
+        if group == 'CP':
+            md_fn = ".".join((setup.fn_prefix, group, "MD.", self.zip_code, "xml"))
         zip_fn = ".".join((setup.fn_prefix, group, self.zip_code, "zip"))
+        md_path = os.path.join(self.path, md_fn)
         gml_path = os.path.join(self.path, gml_fn)
         zip_path = os.path.join(self.path, zip_fn)
         vsizip_path = "/".join(('/vsizip', self.path, zip_fn, gml_fn))
         if not os.path.exists(gml_path) and not os.path.exists(zip_path):
             self.get_atom_file(url)
+        gml_date = self.get_gml_date(md_path, zip_path)
         (is_empty, crs) = self.get_crs_from_gml(gml_path, zip_path)
         if is_empty:
             if not allow_empty:
@@ -315,6 +339,7 @@ class CatAtom2Osm:
         layer.setCrs(crs)
         log.info(_("Loaded %d features in the '%s' layer"), layer.featureCount(), 
             layer.name().encode('utf-8'))
+        layer.source_date = gml_date
         return layer
     
     def export_layer(self, layer, filename, driver_name='ESRI Shapefile'):

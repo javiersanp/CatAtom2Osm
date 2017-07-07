@@ -97,7 +97,7 @@ class BaseLayer(QgsVectorLayer):
             >>> final_values = [
             ...     '38.012.1.12.0295603CS6109N', 
             ...     'Parcel', 
-            ...     'ES.SDGC.PD.38.012.38570',
+            ...     'ES.SDGC.PD.38.012.38570',  
             ...     'ES.SDGC.TN.38.012.1',
             ...     'ES.SDGC.AU.38.012'
             ... ]
@@ -629,7 +629,8 @@ class PolygonLayer(BaseLayer):
 class ParcelLayer(BaseLayer):
     """Class for cadastral parcels"""
 
-    def __init__(self, path="Polygon", baseName="cadastralparcel", providerLib="memory"):
+    def __init__(self, path="Polygon", baseName="cadastralparcel", 
+            providerLib="memory", source_date=None):
         super(ParcelLayer, self).__init__(path, baseName, providerLib)
         if self.pendingFields().isEmpty():
             self.dataProvider().addAttributes([
@@ -638,12 +639,14 @@ class ParcelLayer(BaseLayer):
             ])
             self.updateFields()
         self.rename = {'localId': 'inspireId_localId'}
+        self.source_date = source_date
 
 
 class ZoningLayer(PolygonLayer):
     """Class for cadastral zoning"""
 
-    def __init__(self, path="Polygon", baseName="cadastralzoning", providerLib="memory"):
+    def __init__(self, path="Polygon", baseName="cadastralzoning", 
+            providerLib="memory", source_date=None):
         super(ZoningLayer, self).__init__(path, baseName, providerLib)
         if self.pendingFields().isEmpty():
             self.dataProvider().addAttributes([
@@ -654,6 +657,7 @@ class ZoningLayer(PolygonLayer):
             ])
             self.updateFields()
         self.rename = {'localId': 'inspireId_localId'}
+        self.source_date = source_date
 
     def set_labels(self, str_format):
         """Asigns a sequence of integers to the label field.
@@ -699,9 +703,9 @@ class ZoningLayer(PolygonLayer):
 class AddressLayer(BaseLayer):
     """Class for address"""
 
-    def __init__(self, path="Point", baseName="address", 
-            providerLib = "memory"):
-        super(AddressLayer, self).__init__(path, baseName, providerLib)
+    def __init__(self, path="Point", baseName="address", providerLib = "memory"):
+        super(AddressLayer, self).__init__(path, baseName, providerLib, 
+                source_date=source_date)
         if self.pendingFields().isEmpty():
             self.dataProvider().addAttributes([
                 QgsField('localId', QVariant.String, len=254),
@@ -718,13 +722,14 @@ class AddressLayer(BaseLayer):
             'TN_id': ('component_href', '[\w\.]+TN[\.0-9]+'), 
             'AU_id': ('component_href', '[\w\.]+AU[\.0-9]+')
         }
-    
+        self.source_date = source_date
+
 
 class ConsLayer(PolygonLayer):
     """Class for constructions"""
 
     def __init__(self, path="Polygon", baseName="building", 
-            providerLib = "memory"):
+            providerLib = "memory", source_date=None):
         super(ConsLayer, self).__init__(path, baseName, providerLib)
         if self.pendingFields().isEmpty():
             self.dataProvider().addAttributes([
@@ -749,6 +754,7 @@ class ConsLayer(PolygonLayer):
             'lev_below': 'numberOfFloorsBelowGround',
             'nature': 'constructionNature'
         }
+        self.source_date = source_date
 
     @staticmethod
     def is_building(feature):
