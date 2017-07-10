@@ -43,19 +43,31 @@ class TestPoint(unittest.TestCase):
             QgsPoint(2, 100.3), #dist < 0.5, angle > 5
             QgsPoint(0, 100), 
             QgsPoint(0.3, 50), #dist < 0.5, angle < 5
+            QgsPoint(0, 1),
+            QgsPoint(-50, 0), # acute
             QgsPoint(0, 0)
         ]])
-        angle_thr = 5
+        acute_thr = 10
+        straight_thr = 5
         cath_thr = 0.5
-        (a, is_acute, is_corner, c) = Point(50, 0.4).get_angle_with_context(square)
-        self.assertTrue(is_corner)
-        (a, is_acute, is_corner, c) = Point(105, 51).get_angle_with_context(square)
-        self.assertTrue(is_corner)
-        (a, is_acute, is_corner, c) = Point(5.1, 100).get_angle_with_context(square)
-        self.assertTrue(is_corner)
-        (a, is_acute, is_corner, c) = Point(0.4, 50).get_angle_with_context(square)
-        self.assertTrue(is_corner)
-    
+        (a, is_acute, is_corner, c) = Point(50, 0.4).get_angle_with_context(square,
+            acute_thr, straight_thr, cath_thr)
+        self.assertFalse(is_acute)
+        self.assertFalse(is_corner, "%f %s %s %f" % (a, is_acute, is_corner, c))
+        (a, is_acute, is_corner, c) = Point(105, 51).get_angle_with_context(square,
+            acute_thr, straight_thr, cath_thr)
+        self.assertTrue(is_corner, "%f %s %s %f" % (a, is_acute, is_corner, c))
+        (a, is_acute, is_corner, c) = Point(5.1, 100).get_angle_with_context(square,
+            acute_thr, straight_thr, cath_thr)
+        self.assertFalse(is_corner, "%f %s %s %f" % (a, is_acute, is_corner, c))
+        (a, is_acute, is_corner, c) = Point(0.4, 50).get_angle_with_context(square,
+            acute_thr, straight_thr, cath_thr)
+        self.assertFalse(is_corner, "%f %s %s %f" % (a, is_acute, is_corner, c))
+        (a, is_acute, is_corner, c) = Point(-51, 0).get_angle_with_context(square,
+            acute_thr, straight_thr, cath_thr)
+        self.assertTrue(is_acute)
+
+
 class TestBaseLayer(unittest.TestCase):
 
     def setUp(self):

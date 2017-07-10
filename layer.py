@@ -28,13 +28,17 @@ class Point(QgsPoint):
         return QgsRectangle(self.x() - radius, self.y() - radius,
                         self.x() + radius, self.y() + radius)
 
-    def get_angle_with_context(self, geom): 
+    def get_angle_with_context(self, geom, acute_thr=setup.acute_thr,
+            straight_thr=setup.straight_thr, cath_thr=setup.dist_thr):
         """
         For the vertex in a geometry nearest to this point, give the angle 
         between its adjacent vertexs.
         
         Args:
             geom (QgsGeometry): Geometry to test.
+            acute_thr (float): Acute angle threshold.
+            straight_thr (float): Straight angle threshold.
+            cath_thr (float): Cathetus threshold.
         
         Returns:
             (float) Angle between the vertex and their adjacents,
@@ -51,8 +55,8 @@ class Point(QgsPoint):
         a = abs(va.azimuth(point) - va.azimuth(vb))
         h = math.sqrt(va.sqrDist(point))
         c = abs(h * math.sin(math.radians(a)))
-        is_corner = abs(180 - angle) > setup.straight_thr and c > setup.dist_thr
-        is_acute = angle < setup.acute_thr if angle < 180 else 360 - angle < setup.acute_thr
+        is_corner = abs(180 - angle) > straight_thr and c > cath_thr
+        is_acute = angle < acute_thr if angle < 180 else 360 - angle < acute_thr
         return (angle, is_acute, is_corner, c)
 
 
