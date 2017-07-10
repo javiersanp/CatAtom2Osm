@@ -969,7 +969,8 @@ class ConsLayer(PolygonLayer):
                     va = bg.vertexAt(vertex - 1)
                     vb = bg.vertexAt(vertex)
                     if distance < setup.addr_thr**2:
-                        if closest in (va, vb):
+                        if closest.distance(va) < setup.entrance_thr \
+                                or closest.distance(vb) < setup.entrance_thr:
                             attributes[ad.fieldNameIndex('spec')] = 'corner'
                             to_change[ad.id()] = attributes
                         else:
