@@ -18,6 +18,7 @@ import setup
 import layer
 import translate
 import osmxml
+from osmxml import etree
 import osm
 import download
 import hgwnames
@@ -30,24 +31,6 @@ except:
 log = logging.getLogger(setup.app_name + "." + __name__)
 if setup.silence_gdal:
     gdal.PushErrorHandler('CPLQuietErrorHandler')
-
-try:
-    from lxml import etree
-    log.debug(_("Running with lxml.etree"))
-except ImportError:
-    try:
-        import xml.etree.ElementTree as etree
-        log.debug(_("Running with ElementTree on Python 2.5+"))
-    except ImportError:
-        try:
-            import cElementTree as etree
-            log.debug(_("Running with cElementTree"))
-        except ImportError:
-            try:
-                import elementtree.ElementTree as etree
-                log.debug(_("Running with ElementTree"))
-            except ImportError:
-                raise ImportError(_("Failed to import ElementTree from any known place"))
 
 
 class CatAtom2Osm:

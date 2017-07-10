@@ -1,20 +1,6 @@
 import unittest
 import random
 
-try:
-    from lxml import etree
-except ImportError:
-    try:
-        import xml.etree.ElementTree as etree
-    except ImportError:
-        try:
-            import cElementTree as etree
-        except ImportError:
-            try:
-                import elementtree.ElementTree as etree
-            except ImportError:
-                raise ImportError("Failed to import ElementTree from any known place")
-
 import osm
 import osmxml
 
@@ -38,7 +24,7 @@ class OsmxmlTest(unittest.TestCase):
         r.tags['building'] = 'residential'
         data.new_indexes()
         result = osmxml.serialize(data)
-        root = etree.fromstring(result)
+        root = osmxml.etree.fromstring(result)
         self.assertEquals(root.xpath('count(//way)'), 3)
         self.assertEquals(root.xpath('count(//relation)'), 1)
         for (xmltag, osmtag) in zip(root.findall('changeset/tag'), data.tags.items()):
