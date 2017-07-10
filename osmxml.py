@@ -7,7 +7,7 @@ import logging
 log = logging.getLogger(setup.app_name + "." + __name__)
 
 try:
-    _('')
+    _('_test')
 except:
     _ = lambda x:x
 

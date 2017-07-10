@@ -23,7 +23,7 @@ import download
 import hgwnames
 
 try:
-    _('')
+    _('_test')
 except:
     _ = lambda x:x
 
