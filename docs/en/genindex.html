@@ -16,7 +16,7 @@
   <link rel="stylesheet" type="text/css" href="_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>Index &#8212; CatAtom2Osm 2017-07-05 documentation</title>
+    <title>Index &#8212; CatAtom2Osm 2017-07-11 documentation</title>
     
     <link rel="stylesheet" href="_static/guzzle.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,7 +24,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017-07-05',
+        VERSION:     '2017-07-11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -50,7 +50,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">CatAtom2Osm 2017-07-05 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">CatAtom2Osm 2017-07-11 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="container-wrapper">
@@ -184,6 +184,8 @@
 </li>
       <li><a href="api/catatom2osm.html#module-catatom2osm">catatom2osm (module)</a>
 </li>
+      <li><a href="api/layer.html#layer.ConsLayer.check_levels_and_area">check_levels_and_area() (layer.ConsLayer method)</a>
+</li>
       <li><a href="api/layer.html#layer.ZoningLayer.clasify_zoning">clasify_zoning() (layer.ZoningLayer static method)</a>
 </li>
       <li><a href="api/layer.html#layer.ConsLayer.clean">clean() (layer.ConsLayer method)</a>
@@ -258,13 +260,15 @@
 </li>
       <li><a href="api/catatom2osm.html#catatom2osm.CatAtom2Osm.get_atom_file">get_atom_file() (catatom2osm.CatAtom2Osm method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/layer.html#layer.get_attributes">get_attributes() (in module layer)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/catatom2osm.html#catatom2osm.CatAtom2Osm.get_crs_from_gml">get_crs_from_gml() (catatom2osm.CatAtom2Osm method)</a>
 </li>
       <li><a href="api/layer.html#layer.PolygonLayer.get_duplicates">get_duplicates() (layer.PolygonLayer method)</a>
+</li>
+      <li><a href="api/catatom2osm.html#catatom2osm.CatAtom2Osm.get_gml_date">get_gml_date() (catatom2osm.CatAtom2Osm method)</a>
 </li>
       <li><a href="api/layer.html#layer.PolygonLayer.get_parents_per_vertex_and_features">get_parents_per_vertex_and_features() (layer.PolygonLayer method)</a>
 </li>
@@ -374,13 +378,15 @@
 </li>
       <li><a href="api/osm.html#module-osm">osm (module)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/catatom2osm.html#catatom2osm.CatAtom2Osm.osm_from_layer">osm_from_layer() (catatom2osm.CatAtom2Osm method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/test.test_osm.html#test.test_osm.OsmTestCase">OsmTestCase (class in test.test_osm)</a>
 </li>
       <li><a href="api/osmxml.html#module-osmxml">osmxml (module)</a>
+</li>
+      <li><a href="api/test.test_osmxml.html#test.test_osmxml.OsmxmlTest">OsmxmlTest (class in test.test_osmxml)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -508,6 +514,8 @@
 </li>
       <li><a href="api/test.test_osm.html#module-test.test_osm">test.test_osm (module)</a>
 </li>
+      <li><a href="api/test.test_osmxml.html#module-test.test_osmxml">test.test_osmxml (module)</a>
+</li>
       <li><a href="api/test.test_translate.html#module-test.test_translate">test.test_translate (module)</a>
 </li>
       <li><a href="api/test.unittest_main.html#module-test.unittest_main">test.unittest_main (module)</a>
@@ -541,6 +549,8 @@
       <li><a href="api/test.test_layer.html#test.test_layer.TestPoint.test_boundigBox">test_boundigBox() (test.test_layer.TestPoint method)</a>
 </li>
       <li><a href="api/test.test_translate.html#test.test_translate.TestTranslate.test_building_tags">test_building_tags() (test.test_translate.TestTranslate method)</a>
+</li>
+      <li><a href="api/test.test_layer.html#test.test_layer.TestConsLayer.test_check_levels_and_area">test_check_levels_and_area() (test.test_layer.TestConsLayer method)</a>
 </li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestZoningLayer.test_clasify_zoning">test_clasify_zoning() (test.test_layer.TestZoningLayer method)</a>
 </li>
@@ -620,14 +630,16 @@
         <li><a href="api/test.test_osm.html#test.test_osm.TestOsmWay.test_init">(test.test_osm.TestOsmWay method)</a>
 </li>
       </ul></li>
+      <li><a href="api/test.test_osm.html#test.test_osm.TestOsmNode.test_init_round">test_init_round() (test.test_osm.TestOsmNode method)</a>
+</li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestConsLayer.test_is_building">test_is_building() (test.test_layer.TestConsLayer method)</a>
 </li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestPoint.test_is_corner_with_context">test_is_corner_with_context() (test.test_layer.TestPoint method)</a>
 </li>
-      <li><a href="api/test.test_layer.html#test.test_layer.TestConsLayer.test_is_part">test_is_part() (test.test_layer.TestConsLayer method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/test.test_layer.html#test.test_layer.TestConsLayer.test_is_part">test_is_part() (test.test_layer.TestConsLayer method)</a>
+</li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestConsLayer.test_is_pool">test_is_pool() (test.test_layer.TestConsLayer method)</a>
 </li>
       <li><a href="api/test.test_osm.html#test.test_osm.TestOsmElement.test_is_uploaded">test_is_uploaded() (test.test_osm.TestOsmElement method)</a>
@@ -687,6 +699,8 @@
       <li><a href="api/test.test_layer.html#test.test_layer.TestBaseLayer.test_reproject">test_reproject() (test.test_layer.TestBaseLayer method)</a>
 </li>
       <li><a href="api/test.test_osm.html#test.test_osm.TestOsmWay.test_search_node">test_search_node() (test.test_osm.TestOsmWay method)</a>
+</li>
+      <li><a href="api/test.test_osmxml.html#test.test_osmxml.OsmxmlTest.test_serialize">test_serialize() (test.test_osmxml.OsmxmlTest method)</a>
 </li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestZoningLayer.test_set_labels">test_set_labels() (test.test_layer.TestZoningLayer method)</a>
 </li>
@@ -811,7 +825,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">CatAtom2Osm 2017-07-05 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">CatAtom2Osm 2017-07-11 documentation</a> &#187;</li> 
       </ul>
     </div>
 <script type="text/javascript">

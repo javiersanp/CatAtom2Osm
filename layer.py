@@ -216,10 +216,9 @@ class BaseLayer(QgsVectorLayer):
             attrs = {}
             for attr in field_names_subset:
                 fieldId = feature.fieldNameIndex(prefix + attr)
+                value = None
                 if feature[target_field_name] in source_values:
                     value = source_values[feature[target_field_name]][attr]
-                else:
-                    value = None
                 attrs[fieldId] = value 
             to_change[feature.id()] = attrs
         self.startEditing()
@@ -491,7 +490,7 @@ class PolygonLayer(BaseLayer):
                     if fid != feature.id():
                         distance, closest, vertex = candidate.geometry() \
                                 .closestSegmentWithContext(point)
-                        g = candidate.geometry()
+                        g = QgsGeometry(candidate.geometry())
                         va = g.vertexAt(vertex)
                         vb = g.vertexAt(vertex - 1)
                         if distance < threshold**2 and point <> va and point <> vb:
@@ -501,13 +500,11 @@ class PolygonLayer(BaseLayer):
                                 note = "refused by insertVertex"
                                 if g.insertVertex(point.x(), point.y(), vertex):
                                     note = "refused by isGeosValid"
-                                    prev = QgsGeometry(g)
                                     if g.isGeosValid():
+                                        features[fid].setGeometry(g)
                                         note = "accepted"
                                         tp += 1
                                         to_change[fid] = g
-                                    elif fid in to_change:
-                                        to_change[fid] = prev
                             if log.getEffectiveLevel() <= logging.DEBUG:
                                 debshp.add_point(point, note)
         self.startEditing()
@@ -1062,11 +1059,11 @@ class ConsLayer(PolygonLayer):
         to_change = {}
         field_ndx = self.pendingFields().fieldNameIndex('fixme')
         for feat in self.getFeatures():
-            if feat['lev_above'] > 0:
-                localid = feat['localId']
+            localid = feat['localId']
+            if isinstance(feat['lev_above'], int) and feat['lev_above'] > 0:
                 if localid not in max_level or feat['lev_above'] > max_level[localid]:
                     max_level[localid] = feat['lev_above']
-            if feat['lev_below'] > 0:
+            if isinstance(feat['lev_below'], int) and feat['lev_below'] > 0:
                 if localid not in min_level or feat['lev_below'] > min_level[localid]:
                     min_level[localid] = feat['lev_below']
             if ConsLayer.is_building(feat):

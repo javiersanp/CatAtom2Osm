@@ -1,6 +1,12 @@
 Change log
 ==========
 
+**2017-07-11**
+
+* Fix some errors.
+* Check floors and area of buildings (issue #40).
+* Adds changeset tags to the OSM XML files (issue #38).
+
 **2017-07-05**
 
 * Reduces JOSM Validation errors (issue #29)

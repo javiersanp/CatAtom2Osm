@@ -1,6 +1,12 @@
 Registro de cambios
 ===================
 
+**11-07-2017**
+
+* Corrige varios errores.
+* Comprobación de alturas y área de edificios (cuestión #40).
+* Añade etiquetas del conjunto de cambios a los ficheros OSM XML (cuestión #38).
+
 **05-07-2017**
 
 * Reduce los errores de validación de JOSM (cuestión #29)

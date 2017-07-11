@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>catatom2osm module &#8212; documentación de CatAtom2Osm - 2017-07-05</title>
+    <title>catatom2osm module &#8212; documentación de CatAtom2Osm - 2017-07-11</title>
     
     <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -23,7 +23,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '2017-07-05',
+        VERSION:     '2017-07-11',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -58,7 +58,7 @@
         <li class="right" >
           <a href="modules.html" title="CatAtom2Osm"
              accesskey="P">anterior</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 2017-07-05</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 2017-07-11</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../api.html" >Referencia API</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="modules.html" accesskey="U">CatAtom2Osm</a> &#187;</li> 
       </ul>
@@ -214,6 +214,12 @@ crs (QgsCoordinateReferenceSystem): CRS of the file</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="catatom2osm.CatAtom2Osm.get_gml_date">
+<code class="descname">get_gml_date</code><span class="sig-paren">(</span><em>md_path</em>, <em>zip_path=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.get_gml_date"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.get_gml_date" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Get the source file production date from the metadata.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="catatom2osm.CatAtom2Osm.merge_address">
 <code class="descname">merge_address</code><span class="sig-paren">(</span><em>building_osm</em>, <em>address_osm</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.merge_address"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.merge_address" title="Enlazar permanentemente con esta definición">¶</a></dt>
 <dd><p>Copy address from address_osm to building_osm</p>
@@ -233,7 +239,7 @@ crs (QgsCoordinateReferenceSystem): CRS of the file</p>
 
 <dl class="method">
 <dt id="catatom2osm.CatAtom2Osm.osm_from_layer">
-<code class="descname">osm_from_layer</code><span class="sig-paren">(</span><em>layer</em>, <em>tags_translation=&lt;function all_tags&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.osm_from_layer"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.osm_from_layer" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<code class="descname">osm_from_layer</code><span class="sig-paren">(</span><em>layer</em>, <em>tags_translation=&lt;function all_tags&gt;</em>, <em>upload='never'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.osm_from_layer"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.osm_from_layer" title="Enlazar permanentemente con esta definición">¶</a></dt>
 <dd><p>Create a Osm data set from a vector layer.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -243,6 +249,7 @@ crs (QgsCoordinateReferenceSystem): CRS of the file</p>
 <li><strong>layer</strong> (<em>QgsVectorLayer</em>) &#8211; Source layer.</li>
 <li><strong>tags_translation</strong> (<em>function</em>) &#8211; Function to translate fields to tags.
 By defaults convert all fields.</li>
+<li><strong>upload</strong> (<em>str</em>) &#8211; upload attribute of the osm dataset, default &#8216;never&#8217;</li>
 </ul>
 </td>
 </tr>
@@ -361,7 +368,7 @@ layer, else returns None</li>
         <li class="right" >
           <a href="modules.html" title="CatAtom2Osm"
              >anterior</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 2017-07-05</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 2017-07-11</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../api.html" >Referencia API</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="modules.html" >CatAtom2Osm</a> &#187;</li> 
       </ul>

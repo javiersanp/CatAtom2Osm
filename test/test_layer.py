@@ -434,6 +434,7 @@ class TestConsLayer(unittest.TestCase):
                 
     def test_remove_outside_parts(self):
         refs = [
+            '000902900CS52D_part1',
             '8742721CS5284S_part10',
             '8742721CS5284S_part5',
             '8742708CS5284S_part1',
@@ -571,6 +572,18 @@ class TestConsLayer(unittest.TestCase):
                 refcat = ad['localId'].split('.')[-1]
                 building = self.layer.search("localId = '%s'" % refcat).next()
                 self.assertTrue(ad.geometry().touches(building.geometry()))
+
+    @mock.patch('layer.log')
+    def test_check_levels_and_area(self, mock_lock):
+        refs = ['7239208CS5273N', '38012A00400007']
+        self.layer.check_levels_and_area()
+        self.assertEquals(mock_lock.info.mock_calls[0][1][1], '1: 465, 2: 244, 3: 97, 4: 18, 5: 1')
+        self.assertEquals(mock_lock.info.mock_calls[1][1][1], '1: 153, 2: 7')
+        for ref in refs:
+            exp = QgsExpression("localId = '%s'" % ref)
+            request = QgsFeatureRequest(exp)
+            feat = self.layer.getFeatures(request).next()
+            self.assertNotEquals(feat['fixme'], '')
 
 
 class TestAddressLayer(unittest.TestCase):

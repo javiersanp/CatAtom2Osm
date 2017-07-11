@@ -11,6 +11,7 @@ Submodules
    test.test_hgwnames
    test.test_layer
    test.test_osm
+   test.test_osmxml
    test.test_translate
    test.unittest_main
 
