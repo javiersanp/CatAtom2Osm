@@ -787,12 +787,17 @@ class ConsLayer(PolygonLayer):
 
     def remove_outside_parts(self):
         """
-        Remove parts outside the footprint of its building.
+        Remove parts outside the footprint of it building or without associated 
+        building.
         Precondition: Called before merge_greatest_part
         """
         to_clean = []
         (buildings, parts) = self.index_of_building_and_parts()
         self.startEditing()
+        for refcat in parts.keys():
+            if refcat not in buildings:
+                for part in parts[refcat]:
+                    to_clean.append(part.id())
         for (refcat, bu) in buildings.items():
             if refcat in parts:
                 for part in parts[refcat]:
