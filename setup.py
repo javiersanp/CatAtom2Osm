@@ -22,7 +22,7 @@ dup_thr = 0.012 # Distance in meters to merge nearest vertexs.
                 # 0.011 is about 1E-7 degrees in latitude
 dist_thr = 0.02 # Threshold in meters for vertex simplification and topological points.
 straight_thr = 2 # Threshold in degrees from straight angle to delete a vertex
-acute_thr = 5 # Remove vertices with an angle smaller than this value
+acute_thr = 10 # Remove vertices with an angle smaller than this value
 min_area = 0.05 # Delete geometries with an area smaller than this value
 addr_thr = 10 # Distance in meters to merge address node with building footprint
 entrance_thr = 0.4 # Minimum distance in meters from a entrance to the nearest corner
