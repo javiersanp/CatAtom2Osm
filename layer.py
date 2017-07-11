@@ -1072,10 +1072,10 @@ class ConsLayer(PolygonLayer):
             if ConsLayer.is_building(feat):
                 area = feat.geometry().area()
                 attributes = get_attributes(feat)
-                if area < 1:
+                if area < setup.warning_min_area:
                     attributes[field_ndx] = _("Check, area too small")
                     to_change[feat.id()] = attributes
-                if area > 30000:
+                if area > setup.warning_max_area:
                     attributes[field_ndx] = _("Check, area too big")
                     to_change[feat.id()] = attributes
         dlag = ', '.join(["%d: %d" % (l, c) for (l, c) in \

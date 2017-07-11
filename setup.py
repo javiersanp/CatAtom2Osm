@@ -4,7 +4,7 @@ import sys, os, locale
 import csv
 
 app_name = 'CatAtom2Osm'
-app_version = '2017-07-05'
+app_version = '2017-07-11'
 app_author = u'Javier Sánchez Portero'
 app_copyright = u'2017, Javier Sánchez Portero'
 app_desc = 'Tool to convert INSPIRE data sets from the Spanish Cadastre ATOM Services to OSM files'
@@ -26,6 +26,8 @@ acute_thr = 10 # Remove vertices with an angle smaller than this value
 min_area = 0.05 # Delete geometries with an area smaller than this value
 addr_thr = 10 # Distance in meters to merge address node with building footprint
 entrance_thr = 0.4 # Minimum distance in meters from a entrance to the nearest corner
+warning_min_area = 1 # Area in m2 for small area warning
+warning_max_area = 30000 # Area in m2 for big area warning
 
 changeset_tags = {
     'comment': "#Spanish_Cadastre_Buildings_Import",
