@@ -63,7 +63,8 @@ class TestTranslate(unittest.TestCase):
             'nature': None,
             'localId': 'foobar',
             'lev_above': 0,
-            'lev_below': 0
+            'lev_below': 0,
+            'fixme': 'check'
         }
         tags = building_tags(feat)
         self.assertEquals(tags['ref'], 'foobar')
@@ -72,6 +73,7 @@ class TestTranslate(unittest.TestCase):
         self.assertEquals(tags['building'], 'yes')
         self.assertNotIn('building:levels', tags)
         self.assertNotIn('building:levels:underground', tags)
+        self.assertEquals(tags['fixme'], 'check')
         use = random.randint(0, len(use_values)-1)
         feat['currentUse'] = None
         feat['condition'] = 'ruin'
@@ -79,6 +81,7 @@ class TestTranslate(unittest.TestCase):
         feat['lev_above'] = 1
         feat['lev_below'] = 2
         feat['localId'] = 'foobar_part1'
+        feat['fixme'] = ''
         tags = building_tags(feat)
         self.assertNotIn('ref', tags)
         self.assertEquals(tags['building'], 'ruins')
@@ -87,6 +90,7 @@ class TestTranslate(unittest.TestCase):
         self.assertEquals(tags['building:part'], 'yes')
         self.assertEquals(tags['building:levels'], '1')
         self.assertEquals(tags['building:levels:underground'], '2')
+        self.assertNotIn('fixme', tags)
         use = random.randint(0, len(use_values)-1)
         feat['currentUse'] = use_values[use]
         feat['condition'] = 'declined'

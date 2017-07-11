@@ -4,7 +4,7 @@
 import os
 import math
 import re
-from collections import defaultdict
+from collections import defaultdict, Counter, OrderedDict
 
 from qgis.core import *
 from PyQt4.QtCore import QVariant
@@ -746,7 +746,8 @@ class ConsLayer(PolygonLayer):
                 QgsField('lev_above', QVariant.Int),
                 QgsField('lev_below', QVariant.Int),
                 QgsField('nature', QVariant.String, len=254),
-                QgsField('task', QVariant.String, len=254)
+                QgsField('task', QVariant.String, len=254),
+                QgsField('fixme', QVariant.String, len=254)
             ])
             self.updateFields()
         self.rename = {
@@ -1054,6 +1055,41 @@ class ConsLayer(PolygonLayer):
             log.info(_("All features assigned to tasks in the '%s' layer"), 
                 self.name().decode('utf-8'))
 
+    def check_levels_and_area(self):
+        """Shows distribution of floors and put fixmes to buildings too small or big"""
+        max_level = {}
+        min_level = {}
+        to_change = {}
+        field_ndx = self.pendingFields().fieldNameIndex('fixme')
+        for feat in self.getFeatures():
+            if feat['lev_above'] > 0:
+                localid = feat['localId']
+                if localid not in max_level or feat['lev_above'] > max_level[localid]:
+                    max_level[localid] = feat['lev_above']
+            if feat['lev_below'] > 0:
+                if localid not in min_level or feat['lev_below'] > min_level[localid]:
+                    min_level[localid] = feat['lev_below']
+            if ConsLayer.is_building(feat):
+                area = feat.geometry().area()
+                attributes = get_attributes(feat)
+                if area < 1:
+                    attributes[field_ndx] = _("Check, area too small")
+                    to_change[feat.id()] = attributes
+                if area > 30000:
+                    attributes[field_ndx] = _("Check, area too big")
+                    to_change[feat.id()] = attributes
+        dlag = ', '.join(["%d: %d" % (l, c) for (l, c) in \
+            OrderedDict(Counter(max_level.values())).items()])
+        dlbg = ', '.join(["%d: %d" % (l, c) for (l, c) in \
+            OrderedDict(Counter(min_level.values())).items()])
+        log.info(_("Distribution of floors above ground %s"), dlag)
+        log.info(_("Distribution of floors below ground %s"), dlbg)
+        if to_change:
+            log.warning("Revisa %d etiquetas fixme", len(to_change))
+            self.startEditing()
+            self.writer.changeAttributeValues(to_change)
+            self.commitChanges()
+                
 
 class DebugWriter(QgsVectorFileWriter):
     """A QgsVectorFileWriter for debugging purposess."""

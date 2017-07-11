@@ -73,5 +73,7 @@ def building_tags(feature):
         tags['building:levels'] = str(feature['lev_above'])
     if feature['lev_below']:
         tags['building:levels:underground'] = str(feature['lev_below'])
+    if feature['fixme']:
+        tags['fixme'] = feature['fixme']
     return tags
 

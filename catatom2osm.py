@@ -143,6 +143,7 @@ class CatAtom2Osm:
             building.clean()
             if self.options.address:
                 building.move_address(address)
+            building.check_levels_and_area()
             building.reproject()
             if log.getEffectiveLevel() == logging.DEBUG:
                 self.export_layer(building, 'building.geojson', 'GeoJSON')
