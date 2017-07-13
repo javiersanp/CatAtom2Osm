@@ -473,17 +473,18 @@ class CatAtom2Osm:
 def list_municipalities(prov_code):
     """Get from the ATOM services a list of municipalities for a given province"""
     try:
-        url = setup.serv_url['BU']
+        url = setup.prov_url['BU'] % (prov_code, prov_code)
         response = download.get_response(url)
-        for row in response.iter_lines():
-            m = re.search(prov_code + " (.+)</title>", row)
-            if row.startswith(prov_code):
-                print row.split('<br/>')[0]
-            elif m:
-                title = _("Territorial office %s %s") % (prov_code, m.groups()[0])
-                print
-                print title
-                print "=" * len(title)
+        root = etree.fromstring(response.text[response.text.find('<feed'):])
+        ns = {'atom': 'http://www.w3.org/2005/Atom'}
+        office = root.find('atom:title', ns).text.split('Office ')[1]
+        title = _("Territorial office %s") % office
+        print
+        print title
+        print "=" * len(title)
+        for entry in root.xpath('atom:entry', namespaces=ns):
+            row = entry.find('atom:title', ns).text.replace('buildings', '')
+            print row
     except IOError as e:
         log.error(e)
     
