@@ -15,16 +15,21 @@ Sólo para fines de prueba. No subas ningún resultado en OSM.
 Requisitos
 ----------
 
+* fuzzywuzzy\[speedup\]
 * pyqgis
 * GDAL
 
 Instalación
 -----------
 
-Todos los requisitos se pueden instalar con los instaladores disponibles en el 
-sitio web de QGIS. http://qgis.org/
+FuzzyWuzzy es necesario para combinar los nombres de las calles, instálalo con:
 
-El código ha sido probado en Ubuntu 16.04.2, con QGIS 2.8.6wien y python 2.7.12.
+    sudo pip install -r requisites.txt
+
+(En Windows sudo no es necesario).
+
+Los requisitos principales (pyqgis, GDAL) deben ser proporcionados por QGIS 
+mediante los instaladores disponibles en http://qgis.org/
 
 Uso
 ---

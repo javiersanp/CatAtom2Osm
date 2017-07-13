@@ -9,6 +9,28 @@ import re
 import setup
 import csvtools
 
+try:
+    from fuzzywuzzy import fuzz
+except:
+    fuzz = None
+
+
+def normalize(text):
+    return text.lower().strip()
+
+def match(dataset, q, f):
+    max_ratio = 0
+    matching = None
+    for e in dataset:
+        if fuzz:
+            ratio = fuzz.ratio(normalize(q), normalize(f(e)))
+            if ratio > max_ratio:
+                max_ratio = ratio
+                matching = e
+        elif normalize(q) == normalize(f(e)):
+            matching = e
+            break
+    return matching
 
 def parse(name):
     """Transform the name of a street from Cadastre conventions to OSM ones."""

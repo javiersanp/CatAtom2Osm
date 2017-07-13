@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
+import mock
 import logging
 import gettext
 import os
@@ -18,6 +19,22 @@ qgs = QgsSingleton() #QgsApplication([], False)
 
 
 class TestHgwnames(unittest.TestCase):
+
+    def setUp(self):
+        self.temp_fuzz = hgwnames.fuzz
+        
+    def test_normalize(self):
+        self.assertEquals(hgwnames.normalize('  ABCD  '), 'abcd')
+
+    def test_fuzzy_match(self):
+        dataset = ['Foobar', 'Foo bar', 'Footaz']
+        self.assertEquals(hgwnames.match(dataset, 'FOOB', lambda x:x), 'Foobar')
+
+    @mock.patch('hgwnames.fuzz', None)
+    def test_match(self):
+        dataset = ['Foobar', 'Foo bar', 'Footaz']
+        self.assertEquals(hgwnames.match(dataset, 'FOOBAR', lambda x:x), 'Foobar')
+        self.assertEquals(hgwnames.match(dataset, 'FOO', lambda x:x), None)
 
     def test_parse(self):
         names = {
@@ -70,3 +87,6 @@ class TestHgwnames(unittest.TestCase):
         os.remove(highway_names_path)
         if os.path.exists(highway_types_path + '.bak'):
             os.rename(highway_types_path + '.bak', highway_types_path)
+
+    def tearDown(self):
+        hgwnames.fuzz = self.temp_fuzz

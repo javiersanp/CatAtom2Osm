@@ -6,6 +6,7 @@ import os
 import math
 import re
 import codecs
+import json
 import logging
 import zipfile
 from collections import defaultdict
@@ -14,14 +15,14 @@ from qgis.core import (QGis, QgsApplication, QgsVectorLayer,
     QgsCoordinateReferenceSystem)
 from osgeo import gdal
 
-import setup
-import layer
-import translate
-import osmxml
-from osmxml import etree
-import osm
 import download
 import hgwnames
+import layer
+import osm
+import osmxml
+from osmxml import etree
+import setup
+import translate
 
 try:
     _('_test')
@@ -78,7 +79,11 @@ class CatAtom2Osm:
     def run(self):
         """Launches the app"""
             
-        log.info(_("Start processing '%s' dataset"), self.zip_code)
+        log.info(_("Start processing '%s'"), self.zip_code)
+        if not hgwnames.fuzz:
+            log.warning(_("Failed to import fuzzywyzzy. Install requeriments for address conflation."))
+        self.get_boundary()
+        return
         if self.options.address:
             address_gml = self.read_gml_layer("address")
             if address_gml.fieldNameIndex('component_href') == -1:
@@ -469,22 +474,48 @@ class CatAtom2Osm:
                 zoning.writer.deleteFeatures(to_clean)
                 zoning.commitChanges()
 
+    def get_boundary(self):
+        url = setup.prov_url['BU'] % (self.prov_code, self.prov_code)
+        response = download.get_response(url)
+        root = etree.fromstring(response.text[response.text.find('<feed'):])
+        ns = {
+            'atom': 'http://www.w3.org/2005/Atom', 
+            'georss': 'http://www.georss.org/georss'
+        }
+        entry = root.xpath("atom:entry/atom:title[contains(text(), '%s')]/"
+            "parent::*" % self.zip_code, namespaces=ns)[0]
+        mun = entry.find('atom:title', ns).text.replace('buildings', '').strip()[6:]
+        poly = entry.find('georss:polygon', ns).text
+        lat = [float(lat) for lat in poly.strip().split(' ')[::2]]
+        lon = [float(lon) for lon in poly.strip().split(' ')[1:][::2]]
+        bbox_bltr = [min(lat)-0.1, max(lon)-0.1, min(lat)+0.1, max(lon)+0.1]
+        bbox = ','.join([str(i) for i in bbox_bltr])
+        response = download.get_response(setup.boundary_query % bbox)
+        data = json.loads(response.text)
+        self.boundary_id = None
+        self.boundary_name = mun
+        self.boundary_bbox = bbox_bltr
+        matching = hgwnames.match(data['elements'], mun, lambda e: e['tags']['name'])
+        if matching:
+            self.boundary_id = matching['id']
+            self.boundary_name = matching['tags']['name']
+            log.info(_("Municipality: '%s'"), self.boundary_name)
+        else:
+            log.warning(_("Failed to find boundary, falling back to bounding box"))
+
 
 def list_municipalities(prov_code):
     """Get from the ATOM services a list of municipalities for a given province"""
-    try:
-        url = setup.prov_url['BU'] % (prov_code, prov_code)
-        response = download.get_response(url)
-        root = etree.fromstring(response.text[response.text.find('<feed'):])
-        ns = {'atom': 'http://www.w3.org/2005/Atom'}
-        office = root.find('atom:title', ns).text.split('Office ')[1]
-        title = _("Territorial office %s") % office
-        print
-        print title
-        print "=" * len(title)
-        for entry in root.xpath('atom:entry', namespaces=ns):
-            row = entry.find('atom:title', ns).text.replace('buildings', '')
-            print row
-    except IOError as e:
-        log.error(e)
-    
+    url = setup.prov_url['BU'] % (prov_code, prov_code)
+    response = download.get_response(url)
+    root = etree.fromstring(response.text[response.text.find('<feed'):])
+    ns = {'atom': 'http://www.w3.org/2005/Atom'}
+    office = root.find('atom:title', ns).text.split('Office ')[1]
+    title = _("Territorial office %s") % office
+    print
+    print title
+    print "=" * len(title)
+    for entry in root.xpath('atom:entry', namespaces=ns):
+        row = entry.find('atom:title', ns).text.replace('buildings', '')
+        print row
+

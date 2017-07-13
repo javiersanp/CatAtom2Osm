@@ -13,16 +13,21 @@ Only for testing purposses. Don't upload any result to OSM.
 Requeriments
 ------------
 
+* fuzzywuzzy[speedup]
 * pyqgis
 * GDAL
 
 Instalation
 -----------
 
-Everything we need can be installed using the installers available on the QGIS 
-website. http://qgis.org/
+FuzzyWuzzy is needed for street names conflation, install it with the command:
 
-The code has been tested in Ubuntu 16.04.2, QGIS 2.8.6wien, python 2.7.12. 
+    sudo pip install -r requisites.txt 
+
+(In Windows sudo isn't necessary).
+
+The main requisites (pyqgis, GDAL) should be provided by QGIS using the 
+installers available on http://qgis.org/
 
 Usage
 -----

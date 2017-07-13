@@ -1,6 +1,7 @@
-pyqgis
-GDAL
+fuzzywuzzy[speedup]
 
-# Everything we need can be installed using the installers available on the QGIS 
-# website. http://qgis.org/
-# The code is tested in QGIS 2.8.6wien, python 2.7.12. 
+# sudo pip install -r requisites.txt
+#
+# fuzzywuzzy is needed for street names conflation
+# The main requisites (pyqgis, GDAL) should be provided by QGIS using the 
+# installers available on http://qgis.org/

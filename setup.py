@@ -56,6 +56,9 @@ prov_url = {
 
 valid_provinces = ["%02d" % i for i in range(2,57)]
 
+overpass_url = "http://overpass-api.de/api/interpreter?"
+boundary_query = overpass_url + "data=[out:json];rel[\"admin_level\"=\"8\"](%s);out;"
+
 language, encoding = locale.getdefaultlocale()
 app_path = os.path.dirname(__file__)
 localedir = os.path.join(app_path, 'locale', 'po')

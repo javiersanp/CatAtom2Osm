@@ -73,7 +73,10 @@ if __name__ == "__main__":
 
     if options.list:
         from catatom2osm import list_municipalities
-        list_municipalities(options.list)
+        try:
+            list_municipalities(options.list)
+        except IOError as e:
+            log.error(e)
     elif len(args) < 1:
         if options.version:
             print _("%s version %s") % (setup.app_name, setup.app_version)
