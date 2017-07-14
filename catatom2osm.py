@@ -24,11 +24,6 @@ from osmxml import etree
 import setup
 import translate
 
-try:
-    _('_test')
-except:
-    _ = lambda x:x
-
 log = logging.getLogger(setup.app_name + "." + __name__)
 if setup.silence_gdal:
     gdal.PushErrorHandler('CPLQuietErrorHandler')
@@ -81,9 +76,8 @@ class CatAtom2Osm:
             
         log.info(_("Start processing '%s'"), self.zip_code)
         if not hgwnames.fuzz:
-            log.warning(_("Failed to import fuzzywyzzy. Install requeriments for address conflation."))
+            log.warning(_("Failed to import FuzzyWuzzy. Install requeriments for address conflation."))
         self.get_boundary()
-        return
         if self.options.address:
             address_gml = self.read_gml_layer("address")
             if address_gml.fieldNameIndex('component_href') == -1:
@@ -102,6 +96,7 @@ class CatAtom2Osm:
                 del thoroughfarename, adminunitname, postaldescriptor
                 if log.getEffectiveLevel() == logging.DEBUG:
                     self.export_layer(address, 'address.shp')
+                current_osm = self.get_current_osm()
                 (highway_names, is_new) = hgwnames.get_translations(address, 
                     self.path, 'TN_text', 'designator')
                 address.translate_field('TN_text', highway_names)
@@ -474,7 +469,26 @@ class CatAtom2Osm:
                 zoning.writer.deleteFeatures(to_clean)
                 zoning.commitChanges()
 
+    def get_current_osm(self):
+        """Gets current OSM data needed for street names conflation"""
+        log.info(_("Downloading OSM data"))
+        ql = (
+            'way["highway"]["name"]',
+            'node["place"]'
+        )
+        current_query_by_bb = setup.json_query % ('(' + '({bb});'.join(ql) + '({bb}););')
+        current_query_by_id = setup.json_query % ('area(3600{id})->.mun;(' + '(area.mun);'.join(ql) + '(area.mun););')
+        url = current_query_by_id.format(id=self.boundary_id)
+        response = download.get_response(url)
+        data = json.loads(response.text)
+        log.info(_("Obtained %d elements"), len(data['elements']))
+        return data
+    
     def get_boundary(self):
+        """
+        Gets the bounding box of the municipality from the ATOM service
+        and the id of the OSM administrative boundary from Overpass
+        """
         url = setup.prov_url['BU'] % (self.prov_code, self.prov_code)
         response = download.get_response(url)
         root = etree.fromstring(response.text[response.text.find('<feed'):])
@@ -494,14 +508,14 @@ class CatAtom2Osm:
         data = json.loads(response.text)
         self.boundary_id = None
         self.boundary_name = mun
-        self.boundary_bbox = bbox_bltr
+        self.boundary_bbox = bbox
         matching = hgwnames.match(data['elements'], mun, lambda e: e['tags']['name'])
         if matching:
             self.boundary_id = matching['id']
             self.boundary_name = matching['tags']['name']
             log.info(_("Municipality: '%s'"), self.boundary_name)
         else:
-            log.warning(_("Failed to find boundary, falling back to bounding box"))
+            log.warning(_("Failed to find administrative boundary, falling back to bounding box"))
 
 
 def list_municipalities(prov_code):

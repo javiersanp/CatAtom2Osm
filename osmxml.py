@@ -7,11 +7,6 @@ import logging
 log = logging.getLogger(setup.app_name + "." + __name__)
 
 try:
-    _('_test')
-except:
-    _ = lambda x:x
-
-try:
     from lxml import etree
     log.debug(_("Running with lxml.etree"))
 except ImportError: # pragma: no cover
@@ -28,6 +23,7 @@ except ImportError: # pragma: no cover
                 log.debug(_("Running with ElementTree"))
             except ImportError:
                 raise ImportError(_("Failed to import ElementTree from any known place"))
+
 
 def serialize(data):
     """Output XML for an OSM data set"""

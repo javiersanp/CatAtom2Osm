@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-07-13 08:56+WEST\n"
+"POT-Creation-Date: 2017-07-14 08:44+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -17,31 +17,34 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: catatom2osm.py:27 osmxml.py:10
-msgid "_test"
-msgstr ""
-
-#: catatom2osm.py:60
+#: catatom2osm.py:56
 msgid "Last directory name must be a 5 digits ZIP code"
 msgstr "El nombre del último directorio debe ser un Código Postal de 5 dígitos"
 
-#: catatom2osm.py:65
+#: catatom2osm.py:61
 msgid "Province code '%s' don't exists"
 msgstr "El Código Provincial '%s' no existe"
 
-#: catatom2osm.py:69
+#: catatom2osm.py:65
 msgid "Not a directory: '%s'"
 msgstr "No es un directorio: '%s'"
 
-#: catatom2osm.py:76
+#: catatom2osm.py:72
 msgid "Initialized QGIS API"
 msgstr "Inicializada la API de QGIS"
 
-#: catatom2osm.py:81
-msgid "Start processing '%s' dataset"
-msgstr "Comienza el procesado del conjunto de datos '%s'"
+#: catatom2osm.py:77
+msgid "Start processing '%s'"
+msgstr "Comienza el procesado de '%s'"
 
-#: catatom2osm.py:85
+#: catatom2osm.py:79
+msgid ""
+"Failed to import FuzzyWuzzy. Install requeriments for address conflation."
+msgstr ""
+"No se pudo importar FuzzyWuzzy. Instala los requerimientos para combinar "
+"direcciones."
+
+#: catatom2osm.py:86
 msgid ""
 "Could not resolve joined tables for the '%s' layer, please try again with "
 "the zip file"
@@ -49,83 +52,100 @@ msgstr ""
 "No se pudieron resolver las tablas combinadas para la capa '%s', inténtalo "
 "de nuevo con el archivo zip"
 
-#: catatom2osm.py:107
+#: catatom2osm.py:108
 msgid "The translation file '%s' have been writen in '%s'"
 msgstr "El fichero de conversiones '%s' ha sido generado en '%s'"
 
-#: catatom2osm.py:109
+#: catatom2osm.py:110
 msgid "Please, check it and run again"
 msgstr "Por favor, compruébelo y ejecute de nuevo"
 
-#: catatom2osm.py:135 catatom2osm.py:313
+#: catatom2osm.py:136 catatom2osm.py:314
 msgid "The layer '%s' is empty"
 msgstr "La capa '%s' está vacía"
 
-#: catatom2osm.py:162
+#: catatom2osm.py:163
 msgid "Deleted %d addresses without house number"
 msgstr "Eliminadas %d direcciones sin número de portal"
 
-#: catatom2osm.py:199
+#: catatom2osm.py:200
 msgid "Finished!"
 msgstr "¡Terminado!"
 
-#: catatom2osm.py:200
+#: catatom2osm.py:201
 msgid "Only for testing purposses. Don't upload any result to OSM"
 msgstr "Sólo para fines de prueba. No cargue ningún resultado en OSM"
 
-#: catatom2osm.py:221
+#: catatom2osm.py:222
 msgid "Could not read date from '%s'"
 msgstr "No se puede determinar la fecha de '%s'"
 
-#: catatom2osm.py:230
+#: catatom2osm.py:231
 msgid "Searching the url for the '%s' layer of '%s'..."
 msgstr "Buscando la url para la capa '%s' de '%s'..."
 
-#: catatom2osm.py:235
+#: catatom2osm.py:236
 msgid "Zip code '%s' don't exists"
 msgstr "El Código Postal '%s' no existe"
 
-#: catatom2osm.py:239
+#: catatom2osm.py:240
 msgid "Downloading '%s'"
 msgstr "Descargando '%s'"
 
-#: catatom2osm.py:293
+#: catatom2osm.py:294
 msgid "Unknow layer name '%s'"
 msgstr "El nombre de capa '%s' es desconocido"
 
-#: catatom2osm.py:317
+#: catatom2osm.py:318
 msgid "Could not determine the CRS of '%s'"
 msgstr "No se puede determinar el CRS de '%s'"
 
-#: catatom2osm.py:322
+#: catatom2osm.py:323
 msgid "Failed to load layer '%s'"
 msgstr "Error al cargar la capa: '%s'"
 
-#: catatom2osm.py:324 layer.py:697 layer.py:699
+#: catatom2osm.py:325 layer.py:697 layer.py:699
 msgid "Loaded %d features in the '%s' layer"
 msgstr "Cargados %d elementos en la capa '%s'"
 
-#: catatom2osm.py:340 catatom2osm.py:402
+#: catatom2osm.py:341 catatom2osm.py:403
 msgid "Generated '%s'"
 msgstr "Generado '%s'"
 
-#: catatom2osm.py:342
+#: catatom2osm.py:343
 msgid "Failed to write layer: '%s'"
 msgstr "Error al escribir la capa: '%s'"
 
-#: catatom2osm.py:373
+#: catatom2osm.py:374
 msgid "Detected a %s geometry in the '%s' layer"
 msgstr "Detectada una geometría %s en la capa '%s'"
 
-#: catatom2osm.py:380
+#: catatom2osm.py:381
 msgid "Loaded %d nodes, %d ways, %d relations from '%s' layer"
 msgstr "Cargados %d nodos, %d vías, %d relaciones de la capa '%s'"
 
-#: catatom2osm.py:465
+#: catatom2osm.py:466
 msgid "Zone '%s' is empty"
 msgstr "La zona '%s' está vacía"
 
-#: catatom2osm.py:482
+#: catatom2osm.py:475
+msgid "Downloading OSM data"
+msgstr "Descargando datos de OSM"
+
+#: catatom2osm.py:485
+msgid "Obtained %d elements"
+msgstr "Obtenidos %d elementos"
+
+#: catatom2osm.py:517
+msgid "Municipality: '%s'"
+msgstr "Municipio: '%s'"
+
+#: catatom2osm.py:519
+msgid "Failed to find administrative boundary, falling back to bounding box"
+msgstr ""
+"No se pudo obtener el límite administrativo, se usará el recuadro delimitador"
+
+#: catatom2osm.py:529
 msgid "Territorial office %s"
 msgstr "Oficina territorial %s"
 
@@ -275,34 +295,34 @@ msgstr ""
 msgid "Invalid log level: %s"
 msgstr "Nivel de registro no válido: %s"
 
-#: main.py:79
+#: main.py:82
 msgid "%s version %s"
 msgstr "%s versión %s"
 
-#: main.py:83
+#: main.py:86
 msgid "Too many arguments, supply only a directory path."
 msgstr "Demasiados argumentos, proporcione sólo la ruta de un directorio."
 
-#: main.py:95
+#: main.py:98
 msgid "Please, install QGIS"
 msgstr "Por favor, instala QGIS"
 
-#: osmxml.py:16
+#: osmxml.py:11
 msgid "Running with lxml.etree"
 msgstr "Usando lxml.etree"
 
-#: osmxml.py:20
+#: osmxml.py:15
 msgid "Running with ElementTree on Python 2.5+"
 msgstr "Usando ElementTree en Python 2.5+"
 
-#: osmxml.py:24
+#: osmxml.py:19
 msgid "Running with cElementTree"
 msgstr "Usando cElementTree"
 
-#: osmxml.py:28
+#: osmxml.py:23
 msgid "Running with ElementTree"
 msgstr "Usando ElementTree"
 
-#: osmxml.py:30
+#: osmxml.py:25
 msgid "Failed to import ElementTree from any known place"
 msgstr "No se pudo importar ElementTree desde ningún lugar conocido"
