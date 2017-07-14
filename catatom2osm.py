@@ -85,7 +85,7 @@ class CatAtom2Osm:
                 if address_gml.fieldNameIndex('component_href') == -1:
                     log.error(_("Could not resolve joined tables for the '%s' layer"), 
                         address_gml.name().encode('utf-8'))
-                        return
+                    return
             address = layer.AddressLayer(source_date = address_gml.source_date)
             address.append(address_gml)
             adminunitname = self.read_gml_layer("adminunitname")
@@ -99,7 +99,7 @@ class CatAtom2Osm:
                 self.export_layer(address, 'address.shp')
             current_osm = self.get_current_osm()
             (highway_names, is_new) = hgwnames.get_translations(address, 
-                self.path, 'TN_text', 'designator')
+                current_osm, self.path, 'TN_text', 'designator')
             address.translate_field('TN_text', highway_names)
             if is_new:
                 address.reproject()
@@ -485,7 +485,7 @@ class CatAtom2Osm:
         response = download.get_response(url)
         data = json.loads(response.text)
         log.info(_("Obtained %d elements"), len(data['elements']))
-        return data
+        return data['elements']
     
     def get_boundary(self):
         """

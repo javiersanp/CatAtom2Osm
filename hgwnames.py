@@ -16,20 +16,33 @@ except:
 
 
 def normalize(text):
-    return text.lower().strip()
+    return re.sub(' *\(.*\)', '', text.lower().strip())
 
 def match(dataset, q, f):
+    """
+    Fuzzy search best match of string q in dataset
+    
+    Args:
+        dataset (iterable): Where to search for
+        q (str): String to look for
+        f (function): Function to obtain a string from a element of the dataset
+        
+    Returns:
+        First element with the maximun fuzzy ratio.
+    """
     max_ratio = 0
     matching = None
     for e in dataset:
         if fuzz:
-            ratio = fuzz.ratio(normalize(q), normalize(f(e)))
+            ratio = fuzz.token_set_ratio(normalize(q), normalize(f(e)))
             if ratio > max_ratio:
                 max_ratio = ratio
                 matching = e
         elif normalize(q) == normalize(f(e)):
             matching = e
             break
+    if matching:
+        matching['tags']['ratio'] = max_ratio
     return matching
 
 def parse(name):
@@ -61,7 +74,16 @@ def parse(name):
         result.append(new_word)
     return ' '.join(result).strip()
 
-def get_translations(address_layer, output_folder, street_fn, housenumber_fn):
+def conflate(name, current_osm):
+    """
+    Get from current_osm the best match for name
+    """
+    matching = match(current_osm, name, lambda e: e['tags']['name'])
+    if matching:
+        return "%s;%d" % (matching['tags']['name'], matching['tags']['ratio'])
+    return name
+
+def get_translations(address_layer, current_osm, output_folder, street_fn, housenumber_fn):
     """
     If there exists the configuration file 'highway_types.csv', read it, 
     else write one with default values. If don't exists the translations file 
@@ -76,6 +98,7 @@ def get_translations(address_layer, output_folder, street_fn, housenumber_fn):
     
     Args:
         address_layer (AddressLayer): Layer with addresses
+        current_osm (list): List of osm elements in json format
         output_folder (str): Directory where the source files are located
         street_fn (str): Name of the field for the address street name
         housenumber_fn (str): Name of the field for the address housenumber
@@ -98,7 +121,7 @@ def get_translations(address_layer, output_folder, street_fn, housenumber_fn):
             	highway_names[name] = ''
             if highway_names[name] == '' and \
             	not re.match(setup.no_number, feat[housenumber_fn]):
-		            highway_names[name] = parse(name)
+		            highway_names[name] = parse(name) + ';' + conflate(parse(name), current_osm)
             csvtools.dict2csv(highway_names_path, highway_names)
         return (highway_names, True)
     else:
