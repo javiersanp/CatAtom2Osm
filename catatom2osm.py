@@ -11,8 +11,7 @@ import logging
 import zipfile
 from collections import defaultdict
 
-from qgis.core import (QGis, QgsApplication, QgsVectorLayer, 
-    QgsCoordinateReferenceSystem)
+from qgis.core import *
 from osgeo import gdal
 
 import download
@@ -88,6 +87,9 @@ class CatAtom2Osm:
                     return
             address = layer.AddressLayer(source_date = address_gml.source_date)
             address.append(address_gml)
+            highway = self.get_current_osm()
+            highway.reproject(address.crs())
+            return
             adminunitname = self.read_gml_layer("adminunitname")
             postaldescriptor = self.read_gml_layer("postaldescriptor")
             thoroughfarename = self.read_gml_layer("thoroughfarename")
@@ -97,7 +99,7 @@ class CatAtom2Osm:
             del thoroughfarename, adminunitname, postaldescriptor
             if log.getEffectiveLevel() == logging.DEBUG:
                 self.export_layer(address, 'address.shp')
-            current_osm = self.get_current_osm()
+            highway = self.get_current_osm()
             (highway_names, is_new) = hgwnames.get_translations(address, 
                 current_osm, self.path, 'TN_text', 'designator')
             address.translate_field('TN_text', highway_names)
@@ -475,17 +477,18 @@ class CatAtom2Osm:
     def get_current_osm(self):
         """Gets current OSM data needed for street names conflation"""
         log.info(_("Downloading OSM data"))
-        ql = (
-            'way["highway"]["name"]',
-            'node["place"]'
-        )
-        current_query_by_bb = setup.json_query % ('(' + '({bb});'.join(ql) + '({bb}););')
-        current_query_by_id = setup.json_query % ('area(3600{id})->.mun;(' + '(area.mun);'.join(ql) + '(area.mun););')
-        url = current_query_by_id.format(id=self.boundary_id)
+        current_query_by_bb = setup.deep_query % 'way["highway"]["name"]({bb});'
+        current_query_by_id = setup.deep_query % 'area(3600{id})->.mun;way["highway"]["name"](area.mun);'
+        if self.boundary_id:
+            url = current_query_by_id.format(id=self.boundary_id)
+        else:
+            url = current_query_by_bb.format(bb=self.boundary_bbox)
         response = download.get_response(url)
         data = json.loads(response.text)
         log.info(_("Obtained %d elements"), len(data['elements']))
-        return data['elements']
+        highway = layer.HighwayLayer()
+        highway.read_json_osm(data)
+        return highway
     
     def get_boundary(self):
         """

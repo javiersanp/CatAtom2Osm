@@ -1088,6 +1088,38 @@ class ConsLayer(PolygonLayer):
             self.commitChanges()
                 
 
+class HighwayLayer(BaseLayer):
+    """Class for OSM highways"""
+
+    def __init__(self, path="LineString", baseName="highway", 
+            providerLib="memory"):
+        super(HighwayLayer, self).__init__(path, baseName, providerLib)
+        if self.pendingFields().isEmpty():
+            self.dataProvider().addAttributes([
+                QgsField('name', QVariant.String, len=254),
+            ])
+            self.updateFields()
+        self.setCrs(QgsCoordinateReferenceSystem(4326))
+
+    def read_json_osm(self, data):
+        """Get features from a json osm dataset"""
+        nodes = {}
+        to_add = []
+        for e in data['elements']:
+            if e['type'] == 'node':
+                nodes[e['id']] = e
+            elif e['type'] == 'way':
+                points = [QgsPoint(nodes[i]['lon'], nodes[i]['lat']) for i in e['nodes']]
+                geom = QgsGeometry.fromPolyline(points)
+                feat = QgsFeature(QgsFields(self.pendingFields()))
+                feat.setGeometry(geom)
+                feat.setAttribute("name", e['tags']['name'])
+                to_add.append(feat)
+        self.startEditing()
+        self.addFeatures(to_add)
+        self.commitChanges()
+
+
 class DebugWriter(QgsVectorFileWriter):
     """A QgsVectorFileWriter for debugging purposess."""
 

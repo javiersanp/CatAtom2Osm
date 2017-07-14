@@ -41,8 +41,6 @@ def match(dataset, q, f):
         elif normalize(q) == normalize(f(e)):
             matching = e
             break
-    if matching:
-        matching['tags']['ratio'] = max_ratio
     return matching
 
 def parse(name):
@@ -78,7 +76,9 @@ def conflate(name, current_osm):
     """
     Get from current_osm the best match for name
     """
-    matching = match(current_osm, name, lambda e: e['tags']['name'])
+    matching = None
+    if current_osm:
+        matching = match(current_osm, name, lambda e: e['tags']['name'])
     if matching:
         return "%s;%d" % (matching['tags']['name'], matching['tags']['ratio'])
     return name
@@ -121,7 +121,7 @@ def get_translations(address_layer, current_osm, output_folder, street_fn, house
             	highway_names[name] = ''
             if highway_names[name] == '' and \
             	not re.match(setup.no_number, feat[housenumber_fn]):
-		            highway_names[name] = parse(name) + ';' + conflate(parse(name), current_osm)
+		            highway_names[name] = conflate(parse(name), current_osm)
             csvtools.dict2csv(highway_names_path, highway_names)
         return (highway_names, True)
     else:
