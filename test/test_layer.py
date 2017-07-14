@@ -621,6 +621,27 @@ class TestAddressLayer(unittest.TestCase):
             self.assertEquals(feat[attr], value)
 
 
+class TestHighwayLayer(unittest.TestCase):
+
+    def test_init(self):
+        layer = HighwayLayer()
+        self.assertTrue(layer.isValid())
+        self.assertEquals(layer.pendingFields()[0].name(), 'name')
+        self.assertEquals(layer.crs().authid(), 'EPSG:4326')
+
+    def test_read_json_osm(self):
+        layer = HighwayLayer()
+        osm = {'elements': [
+            {'id': 1, 'type': 'node', 'lat': 10, 'lon': 10},
+            {'id': 2, 'type': 'node', 'lat': 15, 'lon': 15},
+            {'id': 3, 'type': 'way', 'nodes': [1,2], 'tags': {'name': 'FooBar'}},
+            {'id': 4, 'type': 'rel'}
+        ]}
+        layer.read_json_osm(osm)
+        feat = layer.getFeatures().next()
+        self.assertEquals(feat['name'], 'FooBar')
+        self.assertEquals(feat.geometry().asPolyline(), [QgsPoint(10, 10), QgsPoint(15, 15)])
+
 class TestDebugWriter(unittest.TestCase):
 
     def test_init(self):
