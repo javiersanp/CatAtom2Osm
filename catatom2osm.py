@@ -87,9 +87,6 @@ class CatAtom2Osm:
                     return
             address = layer.AddressLayer(source_date = address_gml.source_date)
             address.append(address_gml)
-            highway = self.get_current_osm()
-            highway.reproject(address.crs())
-            return
             adminunitname = self.read_gml_layer("adminunitname")
             postaldescriptor = self.read_gml_layer("postaldescriptor")
             thoroughfarename = self.read_gml_layer("thoroughfarename")
@@ -99,7 +96,8 @@ class CatAtom2Osm:
             del thoroughfarename, adminunitname, postaldescriptor
             if log.getEffectiveLevel() == logging.DEBUG:
                 self.export_layer(address, 'address.shp')
-            highway = self.get_current_osm()
+            current_osm = self.get_current_osm()
+            current_osm.reproject(address.crs())
             (highway_names, is_new) = hgwnames.get_translations(address, 
                 current_osm, self.path, 'TN_text', 'designator')
             address.translate_field('TN_text', highway_names)

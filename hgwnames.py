@@ -9,8 +9,11 @@ import re
 import setup
 import csvtools
 
+from qgis.core import QgsGeometry, QgsSpatialIndex
+
 try:
     from fuzzywuzzy import fuzz
+    from fuzzywuzzy import process
 except:
     fuzz = None
 
@@ -72,16 +75,21 @@ def parse(name):
         result.append(new_word)
     return ' '.join(result).strip()
 
-def conflate(name, current_osm):
+def conflate(name, address, current_osm, index):
     """
     Get from current_osm the best match for name
     """
-    matching = None
-    if current_osm:
-        matching = match(current_osm, name, lambda e: e['tags']['name'])
-    if matching:
-        return "%s;%d" % (matching['tags']['name'], matching['tags']['ratio'])
-    return name
+    points = [f.geometry().asPoint() for f in address.search("TN_text='%s'" % name)]
+    bbox = QgsGeometry().fromMultiPoint(points).boundingBox()
+    intersect = index.intersects(bbox)
+    current_osm.setSelectedFeatures(intersect)
+    selection = current_osm.selectedFeatures()
+    choices = [feat['name'] for feat in selection]
+    normalized = [normalize(c) for c in choices]
+    matching = process.extractOne(normalize(parse(name)), normalized, scorer=fuzz.token_sort_ratio)
+    if matching and matching[1] > 60:
+        return choices[normalized.index(matching[0])]
+    return parse(name)
 
 def get_translations(address_layer, current_osm, output_folder, street_fn, housenumber_fn):
     """
@@ -114,14 +122,19 @@ def get_translations(address_layer, current_osm, output_folder, street_fn, house
         csvtools.csv2dict(highway_types_path, setup.highway_types)
     highway_names_path = os.path.join(output_folder, 'highway_names.csv')
     if not os.path.exists(highway_names_path):
+        if current_osm:
+            index = QgsSpatialIndex(current_osm.getFeatures())
         highway_names = {}
         for feat in address_layer.getFeatures():
             name = feat[street_fn]
             if not name in highway_names:
-            	highway_names[name] = ''
+                highway_names[name] = ''
             if highway_names[name] == '' and \
-            	not re.match(setup.no_number, feat[housenumber_fn]):
-		            highway_names[name] = conflate(parse(name), current_osm)
+                    not re.match(setup.no_number, feat[housenumber_fn]):
+                if current_osm:
+                    highway_names[name] = conflate(name, address_layer, current_osm, index)
+                else:
+                    highway_names[name] = parse(name)
             csvtools.dict2csv(highway_names_path, highway_names)
         return (highway_names, True)
     else:
