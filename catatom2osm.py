@@ -81,33 +81,34 @@ class CatAtom2Osm:
         if self.options.address:
             address_gml = self.read_gml_layer("address")
             if address_gml.fieldNameIndex('component_href') == -1:
-                log.error(_("Could not resolve joined tables for the '%s' "
-                    "layer, please try again with the zip file"), 
-                    address_gml.name().encode('utf-8'))
-            else:
-                address = layer.AddressLayer(source_date = address_gml.source_date)
-                address.append(address_gml)
-                adminunitname = self.read_gml_layer("adminunitname")
-                postaldescriptor = self.read_gml_layer("postaldescriptor")
-                thoroughfarename = self.read_gml_layer("thoroughfarename")
-                address.join_field(thoroughfarename, 'TN_id', 'gml_id', ['text'], 'TN_')
-                address.join_field(adminunitname, 'AU_id', 'gml_id', ['text'], 'AU_')
-                address.join_field(postaldescriptor, 'PD_id', 'gml_id', ['postCode'])
-                del thoroughfarename, adminunitname, postaldescriptor
-                if log.getEffectiveLevel() == logging.DEBUG:
-                    self.export_layer(address, 'address.shp')
-                current_osm = self.get_current_osm()
-                (highway_names, is_new) = hgwnames.get_translations(address, 
-                    self.path, 'TN_text', 'designator')
-                address.translate_field('TN_text', highway_names)
-                if is_new:
-                    address.reproject()
-                    address_osm = self.osm_from_layer(address, translate.address_tags)
-                    self.write_osm(address_osm, "address.osm")
-                    log.info(_("The translation file '%s' have been writen in "
-                        "'%s'"), 'highway_names.csv', self.path)
-                    log.info(_("Please, check it and run again"))
-                    return
+                address_gml = self.read_gml_layer("address", force_zip=True)
+                if address_gml.fieldNameIndex('component_href') == -1:
+                    log.error(_("Could not resolve joined tables for the '%s' layer"), 
+                        address_gml.name().encode('utf-8'))
+                        return
+            address = layer.AddressLayer(source_date = address_gml.source_date)
+            address.append(address_gml)
+            adminunitname = self.read_gml_layer("adminunitname")
+            postaldescriptor = self.read_gml_layer("postaldescriptor")
+            thoroughfarename = self.read_gml_layer("thoroughfarename")
+            address.join_field(thoroughfarename, 'TN_id', 'gml_id', ['text'], 'TN_')
+            address.join_field(adminunitname, 'AU_id', 'gml_id', ['text'], 'AU_')
+            address.join_field(postaldescriptor, 'PD_id', 'gml_id', ['postCode'])
+            del thoroughfarename, adminunitname, postaldescriptor
+            if log.getEffectiveLevel() == logging.DEBUG:
+                self.export_layer(address, 'address.shp')
+            current_osm = self.get_current_osm()
+            (highway_names, is_new) = hgwnames.get_translations(address, 
+                self.path, 'TN_text', 'designator')
+            address.translate_field('TN_text', highway_names)
+            if is_new:
+                address.reproject()
+                address_osm = self.osm_from_layer(address, translate.address_tags)
+                self.write_osm(address_osm, "address.osm")
+                log.info(_("The translation file '%s' have been writen in "
+                    "'%s'"), 'highway_names.csv', self.path)
+                log.info(_("Please, check it and run again"))
+                return
 
         if self.options.zoning:        
             zoning_gml = self.read_gml_layer("cadastralzoning")
@@ -268,9 +269,9 @@ class CatAtom2Osm:
         
     def read_gml_layer(self, layername, allow_empty=False):
         """
-        Create a qgis vector layer for a Cadastre layername. Derives the GML 
-        filename from layername. If it don't exists, try with the ZIP file, if
-        it don't exists, try to download it.
+        Create a QGIS vector layer for a Cadastre layername. Derives the GML 
+        filename from layername. Downloads the file if not is present. First try
+        to read the ZIP file, if fails try with the GML file.
 
         Args:
             layername (str): Short name of the Cadastre layer. Any of 
@@ -279,6 +280,8 @@ class CatAtom2Osm:
                 'thoroughfarename', 'postaldescriptor', 'adminunitname'
             allow_empty (bool): If False (default), raise a exception for empty
                 layer, else returns None
+            force_zip (bool): Force to use ZIP file.
+                
         Returns:
             QgsVectorLayer: Vector layer.
         """
@@ -304,7 +307,7 @@ class CatAtom2Osm:
         gml_path = os.path.join(self.path, gml_fn)
         zip_path = os.path.join(self.path, zip_fn)
         vsizip_path = "/".join(('/vsizip', self.path, zip_fn, gml_fn))
-        if not os.path.exists(gml_path) and not os.path.exists(zip_path):
+        if not os.path.exists(zip_path) and (not os.path.exists(gml_path) or force_zip):
             self.get_atom_file(url)
         gml_date = self.get_gml_date(md_path, zip_path)
         (is_empty, crs) = self.get_crs_from_gml(gml_path, zip_path)

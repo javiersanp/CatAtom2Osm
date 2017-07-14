@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-07-14 08:44+WEST\n"
+"POT-Creation-Date: 2017-07-14 09:05+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -45,12 +45,8 @@ msgstr ""
 "direcciones."
 
 #: catatom2osm.py:86
-msgid ""
-"Could not resolve joined tables for the '%s' layer, please try again with "
-"the zip file"
-msgstr ""
-"No se pudieron resolver las tablas combinadas para la capa '%s', inténtalo "
-"de nuevo con el archivo zip"
+msgid "Could not resolve joined tables for the '%s' layer"
+msgstr "No se pudieron resolver las tablas combinadas para la capa '%s'"
 
 #: catatom2osm.py:108
 msgid "The translation file '%s' have been writen in '%s'"
@@ -60,7 +56,7 @@ msgstr "El fichero de conversiones '%s' ha sido generado en '%s'"
 msgid "Please, check it and run again"
 msgstr "Por favor, compruébelo y ejecute de nuevo"
 
-#: catatom2osm.py:136 catatom2osm.py:314
+#: catatom2osm.py:136 catatom2osm.py:316
 msgid "The layer '%s' is empty"
 msgstr "La capa '%s' está vacía"
 
@@ -92,60 +88,60 @@ msgstr "El Código Postal '%s' no existe"
 msgid "Downloading '%s'"
 msgstr "Descargando '%s'"
 
-#: catatom2osm.py:294
+#: catatom2osm.py:296
 msgid "Unknow layer name '%s'"
 msgstr "El nombre de capa '%s' es desconocido"
 
-#: catatom2osm.py:318
+#: catatom2osm.py:320
 msgid "Could not determine the CRS of '%s'"
 msgstr "No se puede determinar el CRS de '%s'"
 
-#: catatom2osm.py:323
+#: catatom2osm.py:325
 msgid "Failed to load layer '%s'"
 msgstr "Error al cargar la capa: '%s'"
 
-#: catatom2osm.py:325 layer.py:697 layer.py:699
+#: catatom2osm.py:327 layer.py:697 layer.py:699
 msgid "Loaded %d features in the '%s' layer"
 msgstr "Cargados %d elementos en la capa '%s'"
 
-#: catatom2osm.py:341 catatom2osm.py:403
+#: catatom2osm.py:343 catatom2osm.py:405
 msgid "Generated '%s'"
 msgstr "Generado '%s'"
 
-#: catatom2osm.py:343
+#: catatom2osm.py:345
 msgid "Failed to write layer: '%s'"
 msgstr "Error al escribir la capa: '%s'"
 
-#: catatom2osm.py:374
+#: catatom2osm.py:376
 msgid "Detected a %s geometry in the '%s' layer"
 msgstr "Detectada una geometría %s en la capa '%s'"
 
-#: catatom2osm.py:381
+#: catatom2osm.py:383
 msgid "Loaded %d nodes, %d ways, %d relations from '%s' layer"
 msgstr "Cargados %d nodos, %d vías, %d relaciones de la capa '%s'"
 
-#: catatom2osm.py:466
+#: catatom2osm.py:468
 msgid "Zone '%s' is empty"
 msgstr "La zona '%s' está vacía"
 
-#: catatom2osm.py:475
+#: catatom2osm.py:477
 msgid "Downloading OSM data"
 msgstr "Descargando datos de OSM"
 
-#: catatom2osm.py:485
+#: catatom2osm.py:487
 msgid "Obtained %d elements"
 msgstr "Obtenidos %d elementos"
 
-#: catatom2osm.py:517
+#: catatom2osm.py:519
 msgid "Municipality: '%s'"
 msgstr "Municipio: '%s'"
 
-#: catatom2osm.py:519
+#: catatom2osm.py:521
 msgid "Failed to find administrative boundary, falling back to bounding box"
 msgstr ""
 "No se pudo obtener el límite administrativo, se usará el recuadro delimitador"
 
-#: catatom2osm.py:529
+#: catatom2osm.py:531
 msgid "Territorial office %s"
 msgstr "Oficina territorial %s"
 
