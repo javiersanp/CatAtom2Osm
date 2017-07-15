@@ -1,6 +1,7 @@
 import unittest
 import random
 
+import main
 import osm
 import osmxml
 
@@ -48,3 +49,11 @@ class OsmxmlTest(unittest.TestCase):
         for (xmltag, osmtag) in zip(root.findall('relation/tag'), r.tags.items()):
             self.assertEquals(xmltag.attrib['k'], osmtag[0])
             self.assertEquals(xmltag.attrib['v'], osmtag[1])
+        self.assertEquals(root.find('note'), None)
+        self.assertEquals(root.find('meta'), None)
+        data.note = 'foobar'
+        data.meta = {'foo': 'bar'}
+        result = osmxml.serialize(data)
+        root = osmxml.etree.fromstring(result)
+        self.assertEquals(root.find('note').text, 'foobar')
+        self.assertEquals(root.find('meta').get('foo'), 'bar')

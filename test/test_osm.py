@@ -110,6 +110,23 @@ class TestOsmElement(OsmTestCase):
         e.id = random.randint(0,1000)
         self.assertTrue(e.is_uploaded())
 
+    def test_attr(self):
+        e = osm.Element(self.d)
+        self.assertEquals(e.attrs, dict(action=e.action, visible=e.visible))
+        e.id = 1
+        self.assertEquals(e.attrs['id'], '1')
+        e.version = '2'
+        self.assertEquals(e.attrs['version'], '2')
+        e.timestamp = '3'
+        self.assertEquals(e.attrs['timestamp'], '3')
+        e.changeset = '4'
+        self.assertEquals(e.attrs['changeset'], '4')
+        e.uid = '5'
+        self.assertEquals(e.attrs['uid'], '5')
+        e.user = '6'
+        self.assertEquals(e.attrs['user'], '6')
+
+
 class TestOsmNode(OsmTestCase):
     def test_init(self):
         n1 = self.d.Node(1, 2, {'foo': 'bar'})

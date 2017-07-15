@@ -16,6 +16,8 @@ class Osm(object):
         self.counter = 0
         self.elements = set()
         self.tags = {}
+        self.note = None
+        self.meta = None
 
     @property
     def nodes(self):
@@ -92,6 +94,11 @@ class Element(object):
         self.action = action
         self.visible = visible
         self.tags = dict((k,v) for (k,v) in tags.items())
+        self.version = None
+        self.timestamp = None
+        self.changeset = None
+        self.uid = None
+        self.user = None
         container.elements.add(self)
 
     def __eq__(self, other):
@@ -111,14 +118,26 @@ class Element(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    def is_uploaded(self):
+        """Returns false if this element is new to OSM"""
+        return hasattr(self, 'id') and self.id > 0
+
     def new_index(self):
-        """Assign a new unique index if the element is not uploaded (id < 0)"""
-        if not hasattr(self, 'id') or self.id <= 0:
+        """Assign a new unique index if the element is new"""
+        if not self.is_uploaded():
             self.container.counter -= 1
             self.id = self.container.counter
-    
-    def is_uploaded(self):
-        return hasattr(self, 'id') and self.id > 0
+
+    @property
+    def attrs(self):
+        attrs = dict(action=self.action, visible=self.visible)
+        if hasattr(self, 'id'): attrs['id'] = str(self.id)
+        if self.version is not None: attrs['version'] = self.version
+        if self.timestamp is not None: attrs['timestamp'] = self.timestamp
+        if self.changeset is not None: attrs['changeset'] = self.changeset
+        if self.uid is not None: attrs['uid'] = self.uid
+        if self.user is not None: attrs['user'] = self.user
+        return attrs
 
 
 class Node(Element):
@@ -147,6 +166,12 @@ class Node(Element):
 
     def geometry(self):
         return (self.x, self.y)
+
+    @property
+    def attrs(self):
+        attrs = super(Node, self).attrs
+        attrs.update(dict(lat=str(self.y), lon=str(self.x)))
+        return attrs
 
     def __str__(self):
         return str((self.x, self.y))
@@ -243,6 +268,11 @@ class Relation(Element):
         @property
         def ref(self):
             return self.element.id if hasattr(self.element, 'id') else None
+
+        @property
+        def attrs(self):
+            attrs = dict(type=self.type, ref=str(self.ref), role=self.role)
+            return attrs
 
 
 class Polygon(Relation):
