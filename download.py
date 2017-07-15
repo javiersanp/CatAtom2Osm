@@ -20,15 +20,15 @@ class ProgressBar():
     def update(self, step = 1):
         """Increments progress by step and displays the percent as a bar"""
         self.progress += step
-        if self.progress > self.total: self.progress = self.total
-        self.percent = round(100.0 * self.progress / float(self.total), 1)
-        filled_len = int(round(self.percent) * self.bar_len / 100.0)
-        bar = '#' * filled_len + '-' * (self.bar_len - filled_len)
-        sys.stdout.write('[%s] %s%%\r' % (bar, self.percent))
-        if self.progress == self.total:
-            sys.stdout.write('\n')
+        if self.total == 0:
+            sys.stdout.write(_('Progress: %.1fK\r') % (self.progress / 1024.0))
+        else:
+            if self.progress > self.total: self.progress = self.total
+            self.percent = round(100.0 * self.progress / float(self.total), 1)
+            filled_len = int(round(self.percent) * self.bar_len / 100.0)
+            bar = '#' * filled_len + '-' * (self.bar_len - filled_len)
+            sys.stdout.write('[%s] %s%%\r' % (bar, self.percent))
         sys.stdout.flush()
-        
 
 def get_response(url, stream=False):
     """Try many times to get a http response or raise exception"""
@@ -41,10 +41,11 @@ def get_response(url, stream=False):
 def wget(url, filename):
     """Download url to filename"""
     response = get_response(url, stream=True)
-    total = int(response.headers['Content-Length'])
+    total = 0
+    if 'Content-Length' in response.headers:
+        total = int(response.headers['Content-Length'])
     progress = ProgressBar(total)
     with open(filename, "wb") as f:
         for chunk in response.iter_content(chunk_size):
             progress.update(chunk_size)
             f.write(chunk)
-
