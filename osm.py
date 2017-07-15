@@ -13,11 +13,13 @@ class Osm(object):
     def __init__(self, upload='never'):
         self.upload = upload
         self.version = '0.6'
+        self.generator = None
         self.counter = 0
         self.elements = set()
         self.tags = {}
         self.note = None
         self.meta = None
+        self.attr_list = ('upload', 'version', 'generator')
 
     @property
     def nodes(self):
@@ -30,6 +32,12 @@ class Osm(object):
     @property
     def relations(self):
         return [e for e in self.elements if isinstance(e, Relation)]
+
+    @property
+    def attrs(self):
+        attrs = {k: getattr(self, k, None) for k in self.attr_list \
+            if getattr(self, k, None) is not None}
+        return attrs
 
     def merge_duplicated(self):
         """Merge elements with the same geometry."""
@@ -99,6 +107,10 @@ class Element(object):
         self.changeset = None
         self.uid = None
         self.user = None
+        self.attr_list = (
+            'id', 'action', 'visible', 'version', 
+            'timestamp', 'changeset', 'uid', 'user'
+        )
         container.elements.add(self)
 
     def __eq__(self, other):
@@ -130,14 +142,19 @@ class Element(object):
 
     @property
     def attrs(self):
-        attrs = dict(action=self.action, visible=self.visible)
-        if hasattr(self, 'id'): attrs['id'] = str(self.id)
-        if self.version is not None: attrs['version'] = self.version
-        if self.timestamp is not None: attrs['timestamp'] = self.timestamp
-        if self.changeset is not None: attrs['changeset'] = self.changeset
-        if self.uid is not None: attrs['uid'] = self.uid
-        if self.user is not None: attrs['user'] = self.user
+        """Returns the element attributes as a dictionary"""
+        attrs = {k: getattr(self, k, None) for k in self.attr_list \
+            if getattr(self, k, None) is not None}
+        if 'id' in attrs: attrs['id'] = str(attrs['id'])
         return attrs
+
+    @attrs.setter
+    def attrs(self, attrs):
+        """Sets the element attributes from a dictionary"""
+        for (k, v) in attrs.items():
+            if k == 'id': v = int(v)
+            if k in self.attr_list:
+                setattr(self, k, v)
 
 
 class Node(Element):
@@ -156,7 +173,7 @@ class Node(Element):
         if COOR_DIGITS:
             self.x = round(self.x, COOR_DIGITS)
             self.y = round(self.y, COOR_DIGITS)
-            
+        self.attr_list = self.attr_list + ('lon', 'lat')
 
     def __getitem__(self, key):
         """n[0], n[1] is equivalent to n.x, n.y"""
@@ -168,11 +185,21 @@ class Node(Element):
         return (self.x, self.y)
 
     @property
-    def attrs(self):
-        attrs = super(Node, self).attrs
-        attrs.update(dict(lat=str(self.y), lon=str(self.x)))
-        return attrs
+    def lon(self):
+        return str(self.x)
+    
+    @lon.setter
+    def lon(self, value):
+        self.x = float(value)
 
+    @property
+    def lat(self):
+        return str(self.y)
+    
+    @lat.setter
+    def lat(self, value):
+        self.y = float(value)
+    
     def __str__(self):
         return str((self.x, self.y))
 
@@ -271,7 +298,9 @@ class Relation(Element):
 
         @property
         def attrs(self):
-            attrs = dict(type=self.type, ref=str(self.ref), role=self.role)
+            attrs = dict(type=self.type, ref=str(self.ref))
+            if self.role is not None:
+                attrs['role'] = self.role
             return attrs
 
 

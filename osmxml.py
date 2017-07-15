@@ -3,6 +3,7 @@
 
 import setup
 import logging
+import osm
 log = logging.getLogger(setup.app_name + "." + __name__)
 
 # See http://lxml.de/tutorial.html for the source of the includes
@@ -27,21 +28,21 @@ except ImportError: # pragma: no cover
 
 def serialize(data):
     """Output XML for an OSM data set"""
-    attrs = dict(upload=data.upload, version=data.version, generator=setup.app_name.lower())
-    root = etree.Element('osm', attrs)
-    if data.note:
+    root = etree.Element('osm', data.attrs)
+    if data.note is not None:
         nxml = etree.Element('note')
         nxml.text = data.note
         root.append(nxml)
-    if data.meta:
+    if data.meta is not None:
         mxml = etree.Element('meta')
         for (k, v) in data.meta.items():
             mxml.set(k, v)
         root.append(mxml)
-    csxml = etree.Element('changeset')
-    for key, value in data.tags.items():
-        csxml.append(etree.Element('tag', dict(k=key, v=value)))
-    root.append(csxml)
+    if data.tags:
+        csxml = etree.Element('changeset')
+        for key, value in data.tags.items():
+            csxml.append(etree.Element('tag', dict(k=key, v=value)))
+        root.append(csxml)
     for node in data.nodes:
         nodexml = etree.Element('node', node.attrs)
         for key, value in node.tags.items():
@@ -66,4 +67,40 @@ def serialize(data):
     except TypeError: # pragma: no cover
         result = etree.tostring(root)
     return result
-    
+
+def deserialize(root, data=None):
+    """Generates or append to an OSM data set from OSM XML"""
+    if data is None:
+        data = osm.Osm()
+    data.upload = root.get('upload')
+    data.version = root.get('version')
+    data.generator = root.get('generator')
+    elements = {}
+    note = root.find('note')
+    if note is not None: data.note = note.text
+    meta = root.find('meta')
+    if meta is not None: data.meta = meta.attrib
+    for tag in root.iterfind('changeset/tag'):
+        data.tags[tag.get('k')] = tag.get('v')
+    for node in root.iter('node'):
+        n = data.Node(float(node.get('lon')), float(node.get('lat')))
+        n.attrs = dict(node.attrib)
+        for t in node.iter('tag'):
+            n.tags[t.get('k')] = t.get('v')
+        elements['n' + node.get('id')] = n
+    for way in root.iter('way'):
+        points = [elements['n' + nd.get('ref')] for nd in way.iter('nd')]
+        w = data.Way(points)
+        w.attrs = dict(way.attrib)
+        for t in way.iter('tag'):
+            w.tags[t.get('k')] = t.get('v')
+        elements['w' + way.get('id')] = w
+    for rel in root.iter('relation'):
+        members = [osm.Relation.Member(elements[m.get('type')[0] + m.get('ref')], m.get('role')) \
+            for m in rel.iter('member')]
+        r = data.Relation(members)
+        r.attrs = dict(rel.attrib)
+        for t in rel.iter('tag'):
+            r.tags[t.get('k')] = t.get('v')
+        elements['r' + rel.get('id')] = r
+    return data

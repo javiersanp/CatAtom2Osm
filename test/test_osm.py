@@ -22,7 +22,6 @@ class TestOsm(OsmTestCase):
         with self.assertRaises(AttributeError):
             self.d.node
         
-
     def test_properties(self):
         n1 = self.d.Node(1,1)
         n2 = self.d.Node(0,0)
@@ -73,6 +72,11 @@ class TestOsm(OsmTestCase):
         self.assertIn(n8, self.d.elements)
         self.assertIn(n9, self.d.elements)
 
+    def test_attrs(self):
+        self.assertEquals(self.d.attrs, dict(upload='never', version='0.6'))
+        self.d.generator = 'yo'
+        self.assertEquals(self.d.attrs['generator'], 'yo')
+
     def test_new_indexes(self):
         w = self.d.Way([(1,1), (1,0), (2,2), (3,2)])
         self.d.new_indexes()
@@ -110,7 +114,7 @@ class TestOsmElement(OsmTestCase):
         e.id = random.randint(0,1000)
         self.assertTrue(e.is_uploaded())
 
-    def test_attr(self):
+    def test_attrs(self):
         e = osm.Element(self.d)
         self.assertEquals(e.attrs, dict(action=e.action, visible=e.visible))
         e.id = 1
@@ -125,6 +129,13 @@ class TestOsmElement(OsmTestCase):
         self.assertEquals(e.attrs['uid'], '5')
         e.user = '6'
         self.assertEquals(e.attrs['user'], '6')
+        
+    def test_set_attrs(self):
+        e = osm.Element(self.d)
+        e.attrs = dict(id=1, action='Delete', visible='False', foo='bar')
+        self.assertEquals(e.id, 1)
+        self.assertEquals(e.action, 'Delete')
+        self.assertFalse(hasattr(e, 'foo'))
 
 
 class TestOsmNode(OsmTestCase):
@@ -177,10 +188,33 @@ class TestOsmNode(OsmTestCase):
         with self.assertRaises(IndexError):
             n[2]
 
+    def test_latlon(self):
+        n = self.d.Node(1,2)
+        self.assertEquals(n.lon, '1')
+        self.assertEquals(n.lat, '2')
+        n.lon = 2
+        n.lat = 1
+        self.assertEquals(n.lon, '2.0')
+        self.assertEquals(n.lat, '1.0')
+
     def test_geometry(self):
         n = self.d.Node(1,2)
         self.assertEquals(n.geometry(), (1,2))
         
+    def test_attrs(self):
+        n = self.d.Node(1, 2)
+        n.id = 3
+        self.assertEquals(n.attrs['lon'], '1')
+        self.assertEquals(n.attrs['lat'], '2')
+        self.assertEquals(n.attrs['id'], '3')
+
+    def test_set_attrs(self):
+        n = self.d.Node(0, 0)
+        n.attrs = dict(id='1', lon='2', lat='3')
+        self.assertEquals(n.id, 1)
+        self.assertEquals(n.x, 2)
+        self.assertEquals(n.y, 3)
+
     def test_str(self):
         n = self.d.Node(1, 2)
         self.assertEquals(str(n), str((n.x, n.y)))
@@ -318,12 +352,19 @@ class TestOsmRelation(OsmTestCase):
         self.assertEquals(m.type, 'relation')
     
     def test_ref(self):
-        n1 = self.d.Node(1,1)
-        m = osm.Relation.Member(n1)
+        n = self.d.Node(1,1)
+        m = osm.Relation.Member(n)
         self.assertEquals(m.ref, None)
-        n1.id = 100
+        n.id = 100
         self.assertEquals(m.ref, 100)
 
+    def test_member_attrs(self):
+        n = self.d.Node(1,1)
+        n.id = -1
+        m = osm.Relation.Member(n)
+        self.assertEquals(m.attrs, dict(type='node', ref=str(n.id)))
+        m.role = 'outter'
+        self.assertEquals(m.attrs['role'], m.role)
 
 class TestOsmPolygon(OsmTestCase):
 
