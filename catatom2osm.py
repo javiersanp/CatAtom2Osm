@@ -498,18 +498,22 @@ class CatAtom2Osm:
 
     def get_highway(self):
         """Gets current OSM highways needed for street names conflation"""
+        ql = 'way["highway"]["name"]({bb});' \
+             'relation["highway"]["name"]({bb});' \
+             'way["place"="square"]["name"]({bb});' \
+             'relation["place"="square"]["name"]({bb});'
         if self.boundary_id:
-            query = setup.xml_query % 'area(3600{id})->.mun;way["highway"]["name"](area.mun);'
-            url = query.format(id=self.boundary_id)
+            query = setup.xml_query % ('area(3600{id})->.mun;' + ql)
+            url = query.format(id=self.boundary_id, bb='area.mun')
         else:
-            query = setup.xml_query % 'way["highway"]["name"]({bb});'
+            query = setup.xml_query % ql
             url = query.format(bb=self.boundary_bbox)
         highway_osm = self.read_osm(url, 'current_highway.osm')
         highway = layer.HighwayLayer()
         highway.read_from_osm(highway_osm)
         del highway_osm
         return highway
-    
+
     def get_boundary(self):
         """
         Gets the bounding box of the municipality from the ATOM service
