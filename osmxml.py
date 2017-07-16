@@ -75,7 +75,6 @@ def deserialize(root, data=None):
     data.upload = root.get('upload')
     data.version = root.get('version')
     data.generator = root.get('generator')
-    elements = {}
     note = root.find('note')
     if note is not None: data.note = note.text
     meta = root.find('meta')
@@ -83,24 +82,19 @@ def deserialize(root, data=None):
     for tag in root.iterfind('changeset/tag'):
         data.tags[tag.get('k')] = tag.get('v')
     for node in root.iter('node'):
-        n = data.Node(float(node.get('lon')), float(node.get('lat')))
-        n.attrs = dict(node.attrib)
+        n = data.Node(float(node.get('lon')), float(node.get('lat')), 
+            attrs=dict(node.attrib))
         for t in node.iter('tag'):
             n.tags[t.get('k')] = t.get('v')
-        elements['n' + node.get('id')] = n
     for way in root.iter('way'):
-        points = [elements['n' + nd.get('ref')] for nd in way.iter('nd')]
-        w = data.Way(points)
-        w.attrs = dict(way.attrib)
+        points = [data.get(nd.get('ref')) for nd in way.iter('nd')]
+        w = data.Way(points, attrs=dict(way.attrib))
         for t in way.iter('tag'):
             w.tags[t.get('k')] = t.get('v')
-        elements['w' + way.get('id')] = w
     for rel in root.iter('relation'):
-        members = [osm.Relation.Member(elements[m.get('type')[0] + m.get('ref')], m.get('role')) \
-            for m in rel.iter('member')]
-        r = data.Relation(members)
-        r.attrs = dict(rel.attrib)
+        members = [osm.Relation.Member(data.get(m.get('ref'), m.get('type')), \
+            m.get('role')) for m in rel.iter('member')]
+        r = data.Relation(members, attrs=dict(rel.attrib))
         for t in rel.iter('tag'):
             r.tags[t.get('k')] = t.get('v')
-        elements['r' + rel.get('id')] = r
     return data

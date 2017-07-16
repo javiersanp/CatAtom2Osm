@@ -39,6 +39,7 @@ class TestOsm(OsmTestCase):
         self.assertNotIn(n1, self.d.elements)
         self.assertIn(n2, self.d.elements)
         self.assertEquals(n2.container, self.d)
+        self.assertEquals(self.d.get(n2.id), n2)
 
     def test_merge_duplicated(self):
         n1 = self.d.Node(1,1)
@@ -77,14 +78,22 @@ class TestOsm(OsmTestCase):
         self.d.generator = 'yo'
         self.assertEquals(self.d.attrs['generator'], 'yo')
 
-    def test_new_indexes(self):
-        w = self.d.Way([(1,1), (1,0), (2,2), (3,2)])
-        self.d.new_indexes()
-        indexes = []
-        for e in self.d.elements:
-            self.assertNotIn(e.id, indexes)
-            self.assertLess(e.id, 0)
-            indexes.append(e.id)
+    def test_index(self):
+        n = self.d.Node(1,1)
+        w = self.d.Way([n])
+        r = self.d.Relation([w,n])
+        self.assertEquals(self.d.index['n-1'], n)
+        self.assertEquals(self.d.index['w-2'], w)
+        self.assertEquals(self.d.index['r-3'], r)
+
+    def test_get(self):
+        n = self.d.Node(1,1)
+        w = self.d.Way([n])
+        r = self.d.Relation([w,n])
+        self.assertEquals(self.d.get(-1), n)
+        self.assertEquals(self.d.get('-1'), n)
+        self.assertEquals(self.d.get('w-2'), w)
+        self.assertEquals(self.d.get('-3', 'Relation'), r)
 
 
 class TestOsmElement(OsmTestCase):
@@ -94,29 +103,23 @@ class TestOsmElement(OsmTestCase):
         e2 = osm.Element(self.d)
         self.assertEquals(e1.container, self.d)
         self.assertEquals(e1.tags['foo'], 'bar')
-
-    def test_new_index(self):
-        e1 = osm.Element(self.d)
-        e2 = osm.Element(self.d)
-        e1.new_index()
-        e2.new_index()
         self.assertEquals(e1.id, -1)
         self.assertEquals(e2.id, -2)
-        e1.id = 1
-        e1.new_index()
-        self.assertEquals(e1.id, 1)
+        e3 = osm.Element(self.d, attrs={'id': '4'})
+        self.assertEquals(e3.id, 4)
+        self.assertEquals(self.d.counter, -2)
 
-    def test_is_uploaded(self):
+    def test_is_new(self):
         e = osm.Element(self.d)
-        self.assertFalse(e.is_uploaded())
+        self.assertTrue(e.is_new())
         e.id = -random.randint(0,1000)
-        self.assertFalse(e.is_uploaded())
+        self.assertTrue(e.is_new())
         e.id = random.randint(0,1000)
-        self.assertTrue(e.is_uploaded())
+        self.assertFalse(e.is_new())
 
     def test_attrs(self):
         e = osm.Element(self.d)
-        self.assertEquals(e.attrs, dict(action=e.action, visible=e.visible))
+        self.assertEquals(e.attrs, dict(action=e.action, visible=e.visible, id='-1'))
         e.id = 1
         self.assertEquals(e.attrs['id'], '1')
         e.version = '2'
@@ -143,6 +146,7 @@ class TestOsmNode(OsmTestCase):
         n1 = self.d.Node(1, 2, {'foo': 'bar'})
         self.assertEquals(n1.tags['foo'], 'bar')
         self.assertEquals((n1.x, n1.y), (1, 2))
+        self.assertEquals(n1.fid, 'n%d' % n1.id)
         n2 = self.d.Node((2,3), tags={'a': 'b'})
         self.assertEquals(n2.tags['a'], 'b')
         self.assertEquals((n2.x, n2.y), (2, 3))
@@ -228,6 +232,7 @@ class TestOsmWay(OsmTestCase):
         n3 = self.d.Node(3,4)
         w = self.d.Way([(1,2), n2, (3,4)])
         self.assertEquals(w.nodes, [n1, n2, n3])
+        self.assertEquals(w.fid, 'w%d' % w.id)
 
     def test_replace(self):
         n1 = self.d.Node(1,1)
@@ -277,6 +282,7 @@ class TestOsmRelation(OsmTestCase):
         self.assertEquals(r.members[1].element, w)
         self.assertEquals(r.members[2].element, n2)
         self.assertEquals(r.container, self.d)
+        self.assertEquals(r.fid, 'r%d' % r.id)
         
     def test_append(self):
         n1 = self.d.Node(1,1)
@@ -354,7 +360,7 @@ class TestOsmRelation(OsmTestCase):
     def test_ref(self):
         n = self.d.Node(1,1)
         m = osm.Relation.Member(n)
-        self.assertEquals(m.ref, None)
+        self.assertEquals(m.ref, n.id)
         n.id = 100
         self.assertEquals(m.ref, 100)
 

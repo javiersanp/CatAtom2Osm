@@ -16,6 +16,7 @@ class Osm(object):
         self.generator = None
         self.counter = 0
         self.elements = set()
+        self.index = {} # elements by id
         self.tags = {}
         self.note = None
         self.meta = None
@@ -62,22 +63,23 @@ class Osm(object):
                     if el is not dupes[i] and el == dupes[i]: 
                         for parent in parents[el]:
                             parent.replace(el, dupes[i])
+        for way in self.ways:
+            way.clean_duplicated_nodes()
 
-    def new_indexes(self, merge=True):
-        """Assign new unique index to each element in the dataset"""
-        if merge:   # pragma: no cover
-            self.merge_duplicated()
-            for way in self.ways:
-                way.clean_duplicated_nodes()
-        for el in self.elements:
-            el.new_index()
+    def get(self, eid, etype='n'):
+        """Returns element by its id"""
+        eid = str(eid)
+        if eid[0] not in 'nwr': eid = etype[0].lower() + eid
+        return self.index[eid]
 
     def replace(self, n1, n2):
         """Replaces n1 witn n2 in elements."""
         n1.container = None
         self.elements.discard(n1)
+        del self.index[n1.fid]
         n2.container = self
         self.elements.add(n2)
+        self.index[n2.fid] = n2
 
     def __getattr__(self, name):
         """
@@ -96,11 +98,11 @@ class Osm(object):
 class Element(object):
     """Base class for Osm elements"""
 
-    def __init__(self, container, tags={}, action='modify', visible='true'):
+    def __init__(self, container, tags={}, attrs = None):
         """Each element must belong to a container OSM dataset"""
         self.container = container
-        self.action = action
-        self.visible = visible
+        self.action = 'modify'
+        self.visible = 'true'
         self.tags = dict((k,v) for (k,v) in tags.items())
         self.version = None
         self.timestamp = None
@@ -111,35 +113,38 @@ class Element(object):
             'id', 'action', 'visible', 'version', 
             'timestamp', 'changeset', 'uid', 'user'
         )
+        if attrs is not None: self.attrs = attrs
+        if not hasattr(self, 'id'):
+            container.counter -= 1
+            self.id = container.counter
         container.elements.add(self)
+        container.index[self.fid] = self
 
     def __eq__(self, other):
         """Used to determine if two elements could be merged."""
         if isinstance(other, self.__class__):
             a = dict(self.__dict__)
             b = dict(other.__dict__)
-            a['id'] = 0 if 'id' not in b or b['id'] <= 0 else a['id'] if 'id' in a else 0
-            b['id'] = 0 if 'id' not in a or a['id'] <= 0 else b['id'] if 'id' in b else 0
-            a['tags'] = {} if b['tags'] == {} else a['tags']
-            b['tags'] = {} if a['tags'] == {} else b['tags']
+            if other.is_new() or self.is_new(): a['id'] = 0
+            if other.is_new() or self.is_new(): b['id'] = 0
+            if b['tags'] == {}: a['tags'] = {}
+            if a['tags'] == {}: b['tags'] = {}
             return a == b
-        elif not self.is_uploaded() and self.tags == {}:
+        elif self.is_new() and self.tags == {}:
             return self.geometry() == other
         return False
 
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def is_uploaded(self):
-        """Returns false if this element is new to OSM"""
-        return hasattr(self, 'id') and self.id > 0
+    def is_new(self):
+        """Returns true if this element is new to OSM"""
+        return self.id <= 0
 
-    def new_index(self):
-        """Assign a new unique index if the element is new"""
-        if not self.is_uploaded():
-            self.container.counter -= 1
-            self.id = self.container.counter
-
+    @property
+    def fid(self):
+        return self.__class__.__name__[0].lower() + str(self.id)
+        
     @property
     def attrs(self):
         """Returns the element attributes as a dictionary"""
@@ -260,7 +265,7 @@ class Relation(Element):
         self.members.append(Relation.Member(element, role))
 
     def replace(self, e1, e2):
-        """Replaces first occurence of node n1 with n2"""
+        """Replaces first occurence of element e1 with e2"""
         self.members = [Relation.Member(e2, m.role) 
             if m.element == e1 else m for m in self.members]
 

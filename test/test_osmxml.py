@@ -22,7 +22,6 @@ class OsmxmlTest(unittest.TestCase):
             [(8,1), (9,1), (9,2), (8,2), (8,1)]
         ]])
         r.tags['building'] = 'residential'
-        data.new_indexes()
         result = osmxml.serialize(data)
         root = etree.fromstring(result)
         self.assertEquals(root.xpath('count(//way)'), 3)
