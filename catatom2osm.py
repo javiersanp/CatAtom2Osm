@@ -110,6 +110,21 @@ class CatAtom2Osm:
                     "'%s'"), 'highway_names.csv', self.path)
                 log.info(_("Please, check it and run again"))
                 return
+            if log.getEffectiveLevel() == logging.DEBUG:
+                self.export_layer(address, 'address.geojson', 'GeoJSON')
+            current_address = self.get_address()
+            address.startEditing()
+            to_clean = [feat.id() for feat in address.getFeatures() \
+                if feat['TN_text'] + feat['designator'] in current_address]
+            if to_clean:
+                address.writer.deleteFeatures(to_clean)
+                log.info(_("Refused %d addresses existing in OSM") % len(to_clean))
+            to_clean = [feat.id() for feat in address.search("designator = '%s'" \
+                % setup.no_number)]
+            if to_clean:
+                address.writer.deleteFeatures(to_clean)
+                log.info(_("Deleted %d addresses without house number") % len(to_clean))
+            address.commitChanges()
 
         if self.options.zoning:        
             zoning_gml = self.read_gml_layer("cadastralzoning")
@@ -151,18 +166,11 @@ class CatAtom2Osm:
                 self.export_layer(building, 'building.geojson', 'GeoJSON')
             building_osm = self.osm_from_layer(building, translate.building_tags)
 
+        address_osm = None
         if self.options.address: 
             address.reproject()
-            if log.getEffectiveLevel() == logging.DEBUG:
-                self.export_layer(address, 'address.geojson', 'GeoJSON')
-            to_clean = [feat.id() for feat in address.search("designator = '%s'" \
-                % setup.no_number)]
-            if to_clean:
-                address.startEditing()
-                address.writer.deleteFeatures(to_clean)
-                address.commitChanges()
-                log.info(_("Deleted %d addresses without house number") % len(to_clean))
             address_osm = self.osm_from_layer(address, translate.address_tags)
+            self.write_osm(address_osm, "address.osm")
 
         if self.options.building: 
             if self.options.address:
@@ -170,9 +178,6 @@ class CatAtom2Osm:
             self.write_osm(building_osm, "building.osm")
         elif self.options.tasks:
             self.split_building_in_tasks(building, urban_zoning, rustic_zoning, address_osm)
-
-        if self.options.address:
-            self.write_osm(address_osm, "address.osm")
 
         if self.options.zoning:
             urban_zoning.clean()
@@ -386,18 +391,24 @@ class CatAtom2Osm:
             layer.name().encode('utf-8'))
         return data
         
-    def read_osm(self, url, filename):
+    def read_osm(self, ql, filename):
         """
         Reads a OSM data set from a OSM XML file. If the file not exists, 
         downloads data from url
         
         Args:
-            url (str): Url to read if filename not exists
-            filename (str): Url to read/write
+            ql (str): Query to put in the url 
+            filename (str): File to read/write
         
         Returns
             Osm: OSM data set
         """
+        if self.boundary_id:
+            query = setup.xml_query % ('area(3600{id})->.mun;' + ql)
+            url = query.format(id=self.boundary_id, bb='area.mun')
+        else:
+            query = setup.xml_query % ql
+            url = query.format(bb=self.boundary_bbox)
         osm_path = os.path.join(self.path, filename)
         if not os.path.exists(osm_path):
             log.info(_("Downloading '%s'") % filename)
@@ -470,7 +481,7 @@ class CatAtom2Osm:
                         bu.tags.update(ad.tags)
                     
 
-    def split_building_in_tasks(self, building, urban_zoning, rustic_zoning, address_osm):
+    def split_building_in_tasks(self, building, urban_zoning, rustic_zoning, address_osm=None):
         """Generates osm files to import with the task manager"""
         base_path = os.path.join(self.path, 'tasks')
         if not os.path.exists(base_path):
@@ -485,7 +496,7 @@ class CatAtom2Osm:
                 if task.featureCount() > 0:
                     task_path = os.path.join('tasks', label + '.osm')
                     task_osm = self.osm_from_layer(task, translate.building_tags, 'yes')
-                    if self.options.address:
+                    if address_osm is not None:
                         self.merge_address(task_osm, address_osm)
                     self.write_osm(task_osm, task_path)
                 else:
@@ -497,22 +508,33 @@ class CatAtom2Osm:
                 zoning.commitChanges()
 
     def get_highway(self):
-        """Gets current OSM highways needed for street names conflation"""
+        """Gets OSM highways needed for street names conflation"""
         ql = 'way["highway"]["name"]({bb});' \
              'relation["highway"]["name"]({bb});' \
              'way["place"="square"]["name"]({bb});' \
              'relation["place"="square"]["name"]({bb});'
-        if self.boundary_id:
-            query = setup.xml_query % ('area(3600{id})->.mun;' + ql)
-            url = query.format(id=self.boundary_id, bb='area.mun')
-        else:
-            query = setup.xml_query % ql
-            url = query.format(bb=self.boundary_bbox)
-        highway_osm = self.read_osm(url, 'current_highway.osm')
+        highway_osm = self.read_osm(ql, 'current_highway.osm')
         highway = layer.HighwayLayer()
         highway.read_from_osm(highway_osm)
         del highway_osm
         return highway
+
+    def get_address(self):
+        """Gets OSM address for address conflation"""
+        ql = 'node["addr:street"]["addr:housenumber"]({bb});' \
+             'way["addr:street"]["addr:housenumber"]({bb});' \
+             'relation["addr:street"]["addr:housenumber"]({bb});' \
+             'node["addr:place"]["addr:housenumber"]({bb});' \
+             'way["addr:place"]["addr:housenumber"]({bb});' \
+             'relation["addr:place"]["addr:housenumber"]({bb});'
+        address_osm = self.read_osm(ql, 'current_address.osm')
+        current_address = set()
+        for d in address_osm.elements:
+            if 'addr:street' in d.tags:
+                current_address.add(d.tags['addr:street'] + d.tags['addr:housenumber'])
+            elif 'addr:place' in d.tags:
+                current_address.add(d.tags['addr:place'] + d.tags['addr:housenumber'])
+        return current_address
 
     def get_boundary(self):
         """
