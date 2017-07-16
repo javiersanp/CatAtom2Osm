@@ -75,7 +75,8 @@ class CatAtom2Osm:
             
         log.info(_("Start processing '%s'"), self.zip_code)
         if not hgwnames.fuzz:
-            log.warning(_("Failed to import FuzzyWuzzy. Install requeriments for address conflation."))
+            log.warning(_("Failed to import FuzzyWuzzy. "
+                "Install requeriments for address conflation."))
         self.get_boundary()
         if self.options.address:
             address_gml = self.read_gml_layer("address")
@@ -96,10 +97,10 @@ class CatAtom2Osm:
             del thoroughfarename, adminunitname, postaldescriptor
             if log.getEffectiveLevel() == logging.DEBUG:
                 self.export_layer(address, 'address.shp')
-            current_osm = self.get_current_osm()
-            current_osm.reproject(address.crs())
+            highway = self.get_highway()
+            highway.reproject(address.crs())
             (highway_names, is_new) = hgwnames.get_translations(address, 
-                current_osm, self.path, 'TN_text', 'designator')
+                highway, self.path, 'TN_text', 'designator')
             address.translate_field('TN_text', highway_names)
             if is_new:
                 address.reproject()
@@ -385,9 +386,31 @@ class CatAtom2Osm:
             layer.name().encode('utf-8'))
         return data
         
+    def read_osm(self, url, filename):
+        """
+        Reads a OSM data set from a OSM XML file. If the file not exists, 
+        downloads data from url
+        
+        Args:
+            url (str): Url to read if filename not exists
+            filename (str): Url to read/write
+        
+        Returns
+            Osm: OSM data set
+        """
+        osm_path = os.path.join(self.path, filename)
+        if not os.path.exists(osm_path):
+            log.info(_("Downloading '%s'") % filename)
+            download.wget(url, osm_path)
+        tree = etree.parse(osm_path)
+        data = osmxml.deserialize(tree.getroot())
+        log.info(_("Read '%s': %d nodes, %d ways, %d relations"), 
+            filename, len(data.nodes), len(data.ways), len(data.relations))
+        return data
+
     def write_osm(self, data, filename):
         """
-        Generates a OSM XML file for a Osm data set.
+        Generates a OSM XML file for a OSM data set.
 
         Args:
             data (Osm): OSM data set
@@ -397,12 +420,13 @@ class CatAtom2Osm:
             if 'ref' in e.tags:
                 del e.tags['ref']
         osm_path = os.path.join(self.path, filename)
-        data.new_indexes()
+        data.merge_duplicated()
         with codecs.open(osm_path,"w", "utf-8") as file_obj:
             file_obj.write("<?xml version='1.0' encoding='UTF-8'?>\n")
             file_obj.write(osmxml.serialize(data))
             file_obj.close()
-        log.info(_("Generated '%s'"), filename)
+        log.info(_("Generated '%s': %d nodes, %d ways, %d relations"), 
+            filename, len(data.nodes), len(data.ways), len(data.relations))
 
     def merge_address(self, building_osm, address_osm):
         """
@@ -412,12 +436,12 @@ class CatAtom2Osm:
             building_osm (Osm): OSM data set with addresses
             address_osm (Osm): OSM data set with buildings
         """
+        if 'source:date' in address_osm.tags:
+            building_osm.tags['source:date:addr'] = address_osm.tags['source:date']
         address_index = {}
         for ad in address_osm.nodes:
             address_index[ad.tags['ref']] = ad
         building_index = defaultdict(list)
-        if 'source:date' in address_osm.tags:
-            building_osm.tags['source:date:addr'] = address_osm.tags['source:date']
         for bu in building_osm.elements:
             if 'ref' in bu.tags:
                 building_index[bu.tags['ref']].append(bu)
@@ -472,20 +496,18 @@ class CatAtom2Osm:
                 zoning.writer.deleteFeatures(to_clean)
                 zoning.commitChanges()
 
-    def get_current_osm(self):
-        """Gets current OSM data needed for street names conflation"""
-        log.info(_("Downloading OSM data"))
-        current_query_by_bb = setup.deep_query % 'way["highway"]["name"]({bb});'
-        current_query_by_id = setup.deep_query % 'area(3600{id})->.mun;way["highway"]["name"](area.mun);'
+    def get_highway(self):
+        """Gets current OSM highways needed for street names conflation"""
         if self.boundary_id:
-            url = current_query_by_id.format(id=self.boundary_id)
+            query = setup.xml_query % 'area(3600{id})->.mun;way["highway"]["name"](area.mun);'
+            url = query.format(id=self.boundary_id)
         else:
-            url = current_query_by_bb.format(bb=self.boundary_bbox)
-        response = download.get_response(url)
-        data = json.loads(response.text)
-        log.info(_("Obtained %d elements"), len(data['elements']))
+            query = setup.xml_query % 'way["highway"]["name"]({bb});'
+            url = query.format(bb=self.boundary_bbox)
+        highway_osm = self.read_osm(url, 'current_highway.osm')
         highway = layer.HighwayLayer()
-        highway.read_json_osm(data)
+        highway.read_from_osm(highway_osm)
+        del highway_osm
         return highway
     
     def get_boundary(self):
@@ -494,8 +516,7 @@ class CatAtom2Osm:
         and the id of the OSM administrative boundary from Overpass
         """
         url = setup.prov_url['BU'] % (self.prov_code, self.prov_code)
-        response = download.get_response(url)
-        root = etree.fromstring(response.text[response.text.find('<feed'):])
+        root = etree.parse(url).getroot()
         ns = {
             'atom': 'http://www.w3.org/2005/Atom', 
             'georss': 'http://www.georss.org/georss'
@@ -525,8 +546,7 @@ class CatAtom2Osm:
 def list_municipalities(prov_code):
     """Get from the ATOM services a list of municipalities for a given province"""
     url = setup.prov_url['BU'] % (prov_code, prov_code)
-    response = download.get_response(url)
-    root = etree.fromstring(response.text[response.text.find('<feed'):])
+    root = etree.parse(url).getroot()
     ns = {'atom': 'http://www.w3.org/2005/Atom'}
     office = root.find('atom:title', ns).text.split('Office ')[1]
     title = _("Territorial office %s") % office

@@ -1101,20 +1101,16 @@ class HighwayLayer(BaseLayer):
             self.updateFields()
         self.setCrs(QgsCoordinateReferenceSystem(4326))
 
-    def read_json_osm(self, data):
-        """Get features from a json osm dataset"""
-        nodes = {}
+    def read_from_osm(self, data):
+        """Get features from a osm dataset"""
         to_add = []
-        for e in data['elements']:
-            if e['type'] == 'node':
-                nodes[e['id']] = e
-            elif e['type'] == 'way':
-                points = [QgsPoint(nodes[i]['lon'], nodes[i]['lat']) for i in e['nodes']]
-                geom = QgsGeometry.fromPolyline(points)
-                feat = QgsFeature(QgsFields(self.pendingFields()))
-                feat.setGeometry(geom)
-                feat.setAttribute("name", e['tags']['name'])
-                to_add.append(feat)
+        for w in data.ways:
+            points = [QgsPoint(n.x, n.y) for n in w.nodes]
+            geom = QgsGeometry.fromPolyline(points)
+            feat = QgsFeature(QgsFields(self.pendingFields()))
+            feat.setGeometry(geom)
+            feat.setAttribute("name", w.tags['name'])
+            to_add.append(feat)
         self.startEditing()
         self.addFeatures(to_add)
         self.commitChanges()
