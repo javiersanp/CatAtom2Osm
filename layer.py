@@ -1104,6 +1104,10 @@ class HighwayLayer(BaseLayer):
     def read_from_osm(self, data):
         """Get features from a osm dataset"""
         to_add = []
+        for r in data.relations:
+            for m in r.members:
+                if m.type=='way':
+                    m.element.tags['name'] = r.tags['name']
         for w in data.ways:
             points = [QgsPoint(n.x, n.y) for n in w.nodes]
             geom = QgsGeometry.fromPolyline(points)
