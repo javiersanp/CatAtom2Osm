@@ -536,6 +536,12 @@ class CatAtom2Osm:
                 current_address.add(d.tags['addr:place'] + d.tags['addr:housenumber'])
         return current_address
 
+    def get_building(self):
+        """Gets OSM buildings for building conflation"""
+        ql = 'way["building"]({bb});relation["building"]({bb});'
+        current_bu_osm = self.read_osm(ql, 'current_building.osm')
+        return current_bu_osm
+
     def get_boundary(self):
         """
         Gets the bounding box of the municipality from the ATOM service
