@@ -173,7 +173,6 @@ class CatAtom2Osm:
         if self.options.address: 
             address.reproject()
             address_osm = self.osm_from_layer(address, translate.address_tags)
-            self.write_osm(address_osm, "address.osm")
 
         if self.options.building: 
             if self.options.address:
@@ -181,6 +180,9 @@ class CatAtom2Osm:
             self.write_osm(building_osm, "building.osm")
         elif self.options.tasks:
             self.split_building_in_tasks(building, urban_zoning, rustic_zoning, address_osm)
+
+        if self.options.address: 
+            self.write_osm(address_osm, "address.osm")
 
         if self.options.zoning:
             urban_zoning.clean()
