@@ -165,6 +165,9 @@ class CatAtom2Osm:
             if log.getEffectiveLevel() == logging.DEBUG:
                 self.export_layer(building, 'building.geojson', 'GeoJSON')
             building_osm = self.osm_from_layer(building, translate.building_tags)
+            current_bu_osm = self.get_building()
+            building.conflate(current_bu_osm)
+            self.write_osm(current_bu_osm, 'current_building.osm')
 
         address_osm = None
         if self.options.address: 

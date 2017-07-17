@@ -1099,12 +1099,12 @@ class ConsLayer(PolygonLayer):
     def conflate(self, current_bu_osm):
         """Removes from current_bu_osm the buildings that don't have conflicts"""
         index = QgsSpatialIndex(self.getFeatures())
-        for e in current_bu_osm.elements:
+        for el in frozenset(current_bu_osm.elements):
             poly = None
-            if e.type == 'way' and 'building' in e.tags:
-                poly = [[Point(p) for p in e.geometry()]]
-            elif e.type == 'relation':
-                poly = [[Point(p) for p in r] for r in e.geometry()]
+            if el.type == 'way' and 'building' in el.tags:
+                poly = [[Point(p) for p in el.geometry()]]
+            elif el.type == 'relation':
+                poly = [[Point(p) for p in r] for r in el.geometry()]
             if poly is not None:
                 geom = QgsGeometry().fromPolygon(poly)
                 fids = index.intersects(geom.boundingBox())
@@ -1115,7 +1115,8 @@ class ConsLayer(PolygonLayer):
                             geom.overlaps(feat.geometry()):
                         conflict = True
                         break    
-                e.tags['conflict'] = str(conflict)
+                if not conflict:
+                    current_bu_osm.remove(el)
                 
 
 class HighwayLayer(BaseLayer):
