@@ -9,6 +9,7 @@ import gdal
 from qgis.core import *
 from PyQt4.QtCore import QVariant
 
+import osm
 import setup
 from layer import *
 from unittest_main import QgsSingleton
@@ -636,18 +637,22 @@ class TestHighwayLayer(unittest.TestCase):
         self.assertEquals(layer.pendingFields()[0].name(), 'name')
         self.assertEquals(layer.crs().authid(), 'EPSG:4326')
 
-    def test_read_json_osm(self):
+    def test_read_from_osm(self):
         layer = HighwayLayer()
-        osm = {'elements': [
-            {'id': 1, 'type': 'node', 'lat': 10, 'lon': 10},
-            {'id': 2, 'type': 'node', 'lat': 15, 'lon': 15},
-            {'id': 3, 'type': 'way', 'nodes': [1,2], 'tags': {'name': 'FooBar'}},
-            {'id': 4, 'type': 'rel'}
-        ]}
-        layer.read_json_osm(osm)
-        feat = layer.getFeatures().next()
-        self.assertEquals(feat['name'], 'FooBar')
-        self.assertEquals(feat.geometry().asPolyline(), [QgsPoint(10, 10), QgsPoint(15, 15)])
+        data = osm.Osm()
+        w1 = data.Way(((10,10), (15,15)), {'name': 'FooBar'})
+        w2 = data.Way(((20,20), (30,30)))
+        r = data.Relation([w2], {'name': 'BarTaz'})
+        layer.read_from_osm(data)
+        self.assertEquals(layer.featureCount(), 2)
+        names = [feat['name'] for feat in layer.getFeatures()]
+        self.assertIn('BarTaz', names)
+        self.assertIn('FooBar', names)
+        for f in layer.getFeatures():
+            if f['name'] == 'FooBar':
+                self.assertEquals(f.geometry().asPolyline(), [QgsPoint(10, 10), QgsPoint(15, 15)])
+            if f['name'] == 'BarTaz':
+                self.assertEquals(f.geometry().asPolyline(), [QgsPoint(20, 20), QgsPoint(30, 30)])
 
 class TestDebugWriter(unittest.TestCase):
 
