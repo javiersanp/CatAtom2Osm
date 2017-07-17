@@ -542,7 +542,8 @@ class CatAtom2Osm:
         and the id of the OSM administrative boundary from Overpass
         """
         url = setup.prov_url['BU'] % (self.prov_code, self.prov_code)
-        root = etree.parse(url).getroot()
+        response = download.get_response(url)
+        root = etree.fromstring(response.content)
         ns = {
             'atom': 'http://www.w3.org/2005/Atom', 
             'georss': 'http://www.georss.org/georss'
@@ -572,7 +573,8 @@ class CatAtom2Osm:
 def list_municipalities(prov_code):
     """Get from the ATOM services a list of municipalities for a given province"""
     url = setup.prov_url['BU'] % (prov_code, prov_code)
-    root = etree.parse(url).getroot()
+    response = download.get_response(url)
+    root = etree.fromstring(response.content)
     ns = {'atom': 'http://www.w3.org/2005/Atom'}
     office = root.find('atom:title', ns).text.split('Office ')[1]
     title = _("Territorial office %s") % office
