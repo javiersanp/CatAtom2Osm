@@ -24,6 +24,13 @@ qgs = QgsSingleton() #QgsApplication([], False)
 
 class TestPoint(unittest.TestCase):
 
+    def test_init(self):
+        p = Point(1, 2)
+        q = Point(p)
+        r = Point((1,2))
+        self.assertEquals(q.x(), r.x())
+        self.assertEquals(q.y(), r.y())
+
     def test_boundigBox(self):
         radius = random.uniform(0, 100)
         point = Point(random.uniform(0, 100), random.uniform(0, 100))

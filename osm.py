@@ -142,9 +142,13 @@ class Element(object):
         return self.id <= 0
 
     @property
+    def type(self):
+        return self.__class__.__name__.lower()
+
+    @property
     def fid(self):
-        return self.__class__.__name__[0].lower() + str(self.id)
-        
+        return self.type[0] + str(self.id)
+
     @property
     def attrs(self):
         """Returns the element attributes as a dictionary"""

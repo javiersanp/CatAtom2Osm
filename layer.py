@@ -23,6 +23,15 @@ get_attributes = lambda feat: \
 class Point(QgsPoint):
     """Extends QgsPoint with some utility methods"""
 
+    def __init__(self, arg1, arg2=None):
+        if arg2 is None:
+            try:
+                super(Point, self).__init__(arg1[0], arg1[1])
+            except:
+                super(Point, self).__init__(arg1)
+        else:
+            super(Point, self).__init__(arg1, arg2)
+    
     def boundingBox(self, radius):
         """Returns a bounding box of 2*radius centered in point."""
         return QgsRectangle(self.x() - radius, self.y() - radius,
@@ -1086,6 +1095,27 @@ class ConsLayer(PolygonLayer):
             self.startEditing()
             self.writer.changeAttributeValues(to_change)
             self.commitChanges()
+
+    def conflate(self, current_bu_osm):
+        """Removes from current_bu_osm the buildings that don't have conflicts"""
+        index = QgsSpatialIndex(self.getFeatures())
+        for e in current_bu_osm.elements:
+            poly = None
+            if e.type == 'way' and 'building' in e.tags:
+                poly = [[Point(p) for p in e.geometry()]]
+            elif e.type == 'relation':
+                poly = [[Point(p) for p in r] for r in e.geometry()]
+            if poly is not None:
+                geom = QgsGeometry().fromPolygon(poly)
+                fids = index.intersects(geom.boundingBox())
+                self.setSelectedFeatures(fids)
+                conflict = False
+                for feat in self.selectedFeatures():
+                    if geom.contains(feat.geometry()) or \
+                            geom.overlaps(feat.geometry()):
+                        conflict = True
+                        break    
+                e.tags['conflict'] = str(conflict)
                 
 
 class HighwayLayer(BaseLayer):

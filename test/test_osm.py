@@ -142,11 +142,13 @@ class TestOsmElement(OsmTestCase):
 
 
 class TestOsmNode(OsmTestCase):
+
     def test_init(self):
         n1 = self.d.Node(1, 2, {'foo': 'bar'})
         self.assertEquals(n1.tags['foo'], 'bar')
         self.assertEquals((n1.x, n1.y), (1, 2))
         self.assertEquals(n1.fid, 'n%d' % n1.id)
+        self.assertEquals(n1.type, 'node')
         n2 = self.d.Node((2,3), tags={'a': 'b'})
         self.assertEquals(n2.tags['a'], 'b')
         self.assertEquals((n2.x, n2.y), (2, 3))
@@ -233,6 +235,7 @@ class TestOsmWay(OsmTestCase):
         w = self.d.Way([(1,2), n2, (3,4)])
         self.assertEquals(w.nodes, [n1, n2, n3])
         self.assertEquals(w.fid, 'w%d' % w.id)
+        self.assertEquals(w.type, 'way')
 
     def test_replace(self):
         n1 = self.d.Node(1,1)
@@ -283,7 +286,8 @@ class TestOsmRelation(OsmTestCase):
         self.assertEquals(r.members[2].element, n2)
         self.assertEquals(r.container, self.d)
         self.assertEquals(r.fid, 'r%d' % r.id)
-        
+        self.assertEquals(r.type, 'relation')
+
     def test_append(self):
         n1 = self.d.Node(1,1)
         r = self.d.Relation()
