@@ -24,53 +24,43 @@ class Osm(object):
 
     @property
     def nodes(self):
+        """Returns list of nodes in elements"""
         return [e for e in self.elements if isinstance(e, Node)]
 
     @property
     def ways(self):
+        """Returns list of ways in elements"""
         return [e for e in self.elements if isinstance(e, Way)]
 
     @property
     def relations(self):
+        """Returns list of relations in elements"""
         return [e for e in self.elements if isinstance(e, Relation)]
 
     @property
     def attrs(self):
+        """Returns dictionary of properties in self.attr_list"""
         attrs = {k: getattr(self, k, None) for k in self.attr_list \
             if getattr(self, k, None) is not None}
         return attrs
-
-    def merge_duplicated(self):
-        """Merge elements with the same geometry."""
-        parents = defaultdict(list)  # a dict of parents for each node
-        for el in self.elements:
-            parents[el].append(self)
-            if isinstance(el, Way):
-                for node in el.nodes:
-                    parents[node].append(el)
-            elif isinstance(el, Relation):
-                for m in el.members:
-                    parents[m.element].append(el)
-        geomdupes = defaultdict(list)
-        for el in self.elements:
-            geomdupes[el.geometry()].append(el)
-        for geom, dupes in geomdupes.items():
-            if len(dupes) > 1:
-                i = 0   # first element in dupes with different tags or id
-                while i < len(dupes)-1 and dupes[i] == geom:
-                    i += 1  # see __eq__ method of Element
-                for el in dupes:
-                    if el is not dupes[i] and el == dupes[i]: 
-                        for parent in parents[el]:
-                            parent.replace(el, dupes[i])
-        for way in self.ways:
-            way.clean_duplicated_nodes()
 
     def get(self, eid, etype='n'):
         """Returns element by its id"""
         eid = str(eid)
         if eid[0] not in 'nwr': eid = etype[0].lower() + eid
         return self.index[eid]
+
+    def remove(self, el):
+        """Remove el from element, from its parents and its orphand childs"""
+        self.elements.discard(el)
+        del self.index[el.fid]
+        parents = self.get_parents()
+        for parent in parents[el]:
+            parent.remove(el)
+        for child in el.childs:
+            if not parents[child]:
+                self.elements.discard(child)
+                del self.index[child.fid]
 
     def replace(self, n1, n2):
         """Replaces n1 witn n2 in elements."""
@@ -80,6 +70,38 @@ class Osm(object):
         n2.container = self
         self.elements.add(n2)
         self.index[n2.fid] = n2
+
+    def get_parents(self):
+        """Returns a dict of parents for each element"""
+        parents = defaultdict(list)
+        for el in self.elements:
+            if isinstance(el, Way):
+                for node in el.nodes:
+                    parents[node].append(el)
+            elif isinstance(el, Relation):
+                for m in el.members:
+                    parents[m.element].append(el)
+        return parents
+
+    def merge_duplicated(self):
+        """Merge elements with the same geometry."""
+        parents = self.get_parents()
+        geomdupes = defaultdict(list)
+        for el in self.elements:
+            geomdupes[el.geometry()].append(el)
+        for geom, dupes in geomdupes.items():
+            if len(dupes) > 1:
+                i = 0   # first element in dupes with different tags or id
+                while i < len(dupes) -  1 and dupes[i] == geom:
+                    i += 1  # see __eq__ method of Element
+                for el in dupes:
+                    if el is not dupes[i] and el == dupes[i]: 
+                        #for parent in el.parents:
+                        for parent in parents[el]:
+                            parent.replace(el, dupes[i])
+                        self.replace(el, dupes[i])
+        for way in self.ways:
+            way.clean_duplicated_nodes()
 
     def __getattr__(self, name):
         """
@@ -143,10 +165,12 @@ class Element(object):
 
     @property
     def type(self):
+        """Returns class name as string"""
         return self.__class__.__name__.lower()
 
     @property
     def fid(self):
+        """Returns id as unique string"""
         return self.type[0] + str(self.id)
 
     @property
@@ -191,22 +215,32 @@ class Node(Element):
         return self.x if key == 0 else self.y
 
     def geometry(self):
+        """Returns pair of coordinates"""
         return (self.x, self.y)
 
     @property
+    def childs(self):
+        """Only for simetry with ways and relations"""
+        return set()
+
+    @property
     def lon(self):
+        """Returns longitude as string"""
         return str(self.x)
     
     @lon.setter
     def lon(self, value):
+        """Sets longitude from string"""
         self.x = float(value)
 
     @property
     def lat(self):
+        """Returns latitude as string"""
         return str(self.y)
     
     @lat.setter
     def lat(self, value):
+        """Sets latitude from string"""
         self.y = float(value)
     
     def __str__(self):
@@ -228,14 +262,25 @@ class Way(Element):
         self.nodes = [n if isinstance(n, Node) else Node(container, n) 
             for n in nodes]
 
+    @property
+    def childs(self):
+        """Returns set of unique nodes"""
+        return set(self.nodes)
+
+    def remove(self, n):
+        """Remove n from nodes"""
+        self.nodes = [o for o in self.nodes if o is not n]
+
     def replace(self, n1, n2):
         """Replaces first occurence of node n1 with n2"""
-        self.nodes = [n2 if n == n1 else n for n in self.nodes]
+        self.nodes = [n2 if n is n1 else n for n in self.nodes]
 
     def geometry(self):
+        """Returns tuple of coordinates"""
         return tuple(n.geometry() for n in self.nodes)
     
     def clean_duplicated_nodes(self):
+        """Removes consecutive duplicate nodes"""
         if self.nodes:
             merged = [self.nodes[0]]
             for i, n in enumerate(self.nodes[1:]):
@@ -265,8 +310,18 @@ class Relation(Element):
             else:
                 self.append(m)
 
+    @property
+    def childs(self):
+        """Returns set of unique members elements"""
+        return set([m.element for m in self.members])
+
     def append(self, element, role=None):
+        """Adds a member"""
         self.members.append(Relation.Member(element, role))
+
+    def remove(self, e):
+        """Remove e from members"""
+        self.members = [m for m in self.members if m.element is not e]
 
     def replace(self, e1, e2):
         """Replaces first occurence of element e1 with e2"""
@@ -274,6 +329,7 @@ class Relation(Element):
             if m.element == e1 else m for m in self.members]
 
     def geometry(self):
+        """Returns tuple of coordinates"""
         return tuple(m.element.geometry() for m in self.members)
 
     class Member(object):
