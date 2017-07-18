@@ -14,6 +14,7 @@ from collections import defaultdict
 from qgis.core import *
 from osgeo import gdal
 
+import csvtools
 import download
 import hgwnames
 import layer
@@ -28,6 +29,21 @@ if setup.silence_gdal:
     gdal.PushErrorHandler('CPLQuietErrorHandler')
 
 
+class QgsSingleton(QgsApplication):
+    """Keeps a unique instance of QGIS for the application (and tests)"""
+    _qgs = None
+    
+    def __new__(cls):
+        if QgsSingleton._qgs is None:
+            # Init qGis API
+            QgsSingleton._qgs = QgsApplication([], False)
+            QgsSingleton._qgs.initQgis()
+            # sets GDAL to convert xlink references to fields but not resolve
+            gdal.SetConfigOption('GML_ATTRIBUTES_TO_OGR_FIELDS', 'YES')
+            gdal.SetConfigOption('GML_SKIP_RESOLVE_ELEMS', 'ALL')
+        return QgsSingleton._qgs
+
+    
 class CatAtom2Osm:
     """
     Main application class for a tool to convert the data sets from the 
@@ -62,12 +78,7 @@ class CatAtom2Osm:
             os.makedirs(a_path)
         if not os.path.isdir(a_path):
             raise IOError(_("Not a directory: '%s'") % a_path)
-        # Init qGis API
-        self.qgs = QgsApplication([], False)
-        self.qgs.initQgis()
-        # sets GDAL to convert xlink references to fields but not resolve
-        gdal.SetConfigOption('GML_ATTRIBUTES_TO_OGR_FIELDS', 'YES')
-        gdal.SetConfigOption('GML_SKIP_RESOLVE_ELEMS', 'ALL')
+        self.qgs = QgsSingleton()
         log.debug(_("Initialized QGIS API"))
 
     def run(self):
@@ -99,8 +110,7 @@ class CatAtom2Osm:
                 self.export_layer(address, 'address.shp')
             highway = self.get_highway()
             highway.reproject(address.crs())
-            (highway_names, is_new) = hgwnames.get_translations(address, 
-                highway, self.path, 'TN_text', 'designator')
+            (highway_names, is_new) = self.get_translations(address, highway)
             address.translate_field('TN_text', highway_names)
             if is_new:
                 address.reproject()
@@ -512,6 +522,40 @@ class CatAtom2Osm:
                 zoning.writer.deleteFeatures(to_clean)
                 zoning.commitChanges()
 
+    def get_translations(self, address_layer, highway):
+        """
+        If there exists the configuration file 'highway_types.csv', read it, 
+        else write one with default values. If don't exists the translations file 
+        'highway_names.csv', creates one parsing names_layer, else reads and returns
+        it as a dictionary.
+        
+        * 'highway_types.csv' is List of osm elements in json formatlocated in the application path and contains 
+          translations from abreviaturs to full types of highways.
+
+        * 'highway_names.csv' is located in the outputh folder and contains 
+          corrections for original highway names.
+        
+        Args:
+            address_layer (AddressLayer): Layer with addresses
+            highway (HighwayLayer): Layer with OSM highways
+        
+        Returns:
+            (dict, bool): Dictionary with highway names translations and a flag to
+            alert if it's new (there wasen't a previous translations file)
+        """
+        highway_types_path = os.path.join(setup.app_path, 'highway_types.csv')
+        if not os.path.exists(highway_types_path):
+            csvtools.dict2csv(highway_types_path, setup.highway_types)
+        else:
+            csvtools.csv2dict(highway_types_path, setup.highway_types)
+        highway_names_path = os.path.join(self.path, 'highway_names.csv')
+        if not os.path.exists(highway_names_path):
+            highway_names = address_layer.get_highway_names(highway)
+            csvtools.dict2csv(highway_names_path, highway_names)
+            return (highway_names, True)
+        else:
+            return (csvtools.csv2dict(highway_names_path, {}), False)
+
     def get_highway(self):
         """Gets OSM highways needed for street names conflation"""
         ql = 'way["highway"]["name"]({bb});' \
@@ -572,7 +616,7 @@ class CatAtom2Osm:
         self.boundary_id = None
         self.boundary_name = mun
         self.boundary_bbox = bbox
-        matching = hgwnames.match(data['elements'], mun, lambda e: e['tags']['name'])
+        matching = hgwnames.dsmatch(mun, data['elements'], lambda e: e['tags']['name'])
         if matching:
             self.boundary_id = matching['id']
             self.boundary_name = matching['tags']['name']

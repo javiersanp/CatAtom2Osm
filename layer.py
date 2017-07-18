@@ -9,6 +9,7 @@ from collections import defaultdict, Counter, OrderedDict
 from qgis.core import *
 from PyQt4.QtCore import QVariant
 
+import hgwnames
 import setup
 import logging
 log = logging.getLogger(setup.app_name + "." + __name__)
@@ -733,6 +734,52 @@ class AddressLayer(BaseLayer):
             'AU_id': ('component_href', '[\w\.]+AU[\.0-9]+')
         }
         self.source_date = source_date
+
+    def conflate(self, name, highway, index):
+        """
+        Get from highway the best match for name
+        
+        Args:
+            name (str): Name of a street
+            highway (HighwayLayer): Current OSM highway data
+            index (QgsSpatialIndex): Spatial index with all features in highway
+        
+        Returns:
+            (str): Best match for name in highway
+        """
+        points = [f.geometry().asPoint() for f in self.search("TN_text='%s'" % name)]
+        bbox = QgsGeometry().fromMultiPoint(points).boundingBox()
+        intersect = index.intersects(bbox)
+        highway.setSelectedFeatures(intersect)
+        selection = highway.selectedFeatures()
+        choices = [feat['name'] for feat in selection]
+        return hgwnames.match(name, choices)
+
+    def get_highway_names(self, highway=None):
+        """
+        Returns a dictionary with the translation for each street name.
+        If highway is provided take the best match from it.
+        
+        Args:
+            highway (HighwayLayer): Current OSM highway data
+        
+        Returns:
+            (dict) highway names translations
+        """
+        if highway:
+            index = QgsSpatialIndex(highway.getFeatures())
+        highway_names = {}
+        for feat in self.getFeatures():
+            name = feat['TN_text']
+            if not name in highway_names:
+                highway_names[name] = ''
+            if highway_names[name] == '' and \
+                    not re.match(setup.no_number, feat['designator']):
+                if highway:
+                    highway_names[name] = self.conflate(name, highway, index)
+                else:
+                    highway_names[name] = hgwnames.parse(name)
+        return highway_names
 
 
 class ConsLayer(PolygonLayer):

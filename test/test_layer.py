@@ -9,18 +9,12 @@ import gdal
 from qgis.core import *
 from PyQt4.QtCore import QVariant
 
+import main
 import osm
 import setup
 from layer import *
-from unittest_main import QgsSingleton
-
-import gettext
-if setup.platform.startswith('win'):
-    if os.getenv('LANG') is None:
-        os.environ['LANG'] = setup.language
-gettext.install(setup.app_name.lower(), localedir=setup.localedir)
-
-qgs = QgsSingleton() #QgsApplication([], False)
+from catatom2osm import QgsSingleton
+qgs = QgsSingleton()
 
 
 class TestPoint(unittest.TestCase):

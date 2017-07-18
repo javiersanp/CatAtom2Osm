@@ -7,9 +7,6 @@ import os
 import re
 
 import setup
-import csvtools
-
-from qgis.core import QgsGeometry, QgsSpatialIndex
 
 try:
     from fuzzywuzzy import fuzz
@@ -17,34 +14,11 @@ try:
 except:
     fuzz = None
 
+MATCH_THR = 60
+
 
 def normalize(text):
     return re.sub(' *\(.*\)', '', text.lower().strip())
-
-def match(dataset, q, f):
-    """
-    Fuzzy search best match of string q in dataset
-    
-    Args:
-        dataset (iterable): Where to search for
-        q (str): String to look for
-        f (function): Function to obtain a string from a element of the dataset
-        
-    Returns:
-        First element with the maximun fuzzy ratio.
-    """
-    max_ratio = 0
-    matching = None
-    for e in dataset:
-        if fuzz:
-            ratio = fuzz.token_set_ratio(normalize(q), normalize(f(e)))
-            if ratio > max_ratio:
-                max_ratio = ratio
-                matching = e
-        elif normalize(q) == normalize(f(e)):
-            matching = e
-            break
-    return matching
 
 def parse(name):
     """Transform the name of a street from Cadastre conventions to OSM ones."""
@@ -75,68 +49,45 @@ def parse(name):
         result.append(new_word)
     return ' '.join(result).strip()
 
-def conflate(name, address, current_osm, index):
+def match(name, choices):
     """
-    Get from current_osm the best match for name
-    """
-    points = [f.geometry().asPoint() for f in address.search("TN_text='%s'" % name)]
-    bbox = QgsGeometry().fromMultiPoint(points).boundingBox()
-    intersect = index.intersects(bbox)
-    current_osm.setSelectedFeatures(intersect)
-    selection = current_osm.selectedFeatures()
-    choices = [feat['name'] for feat in selection]
-    normalized = [normalize(c) for c in choices]
-    matching = process.extractOne(normalize(parse(name)), normalized, scorer=fuzz.token_sort_ratio)
-    if matching and matching[1] > 60:
-        return choices[normalized.index(matching[0])]
-    return parse(name)
-
-def get_translations(address_layer, current_osm, output_folder, street_fn, housenumber_fn):
-    """
-    If there exists the configuration file 'highway_types.csv', read it, 
-    else write one with default values. If don't exists the translations file 
-    'highway_names.csv', creates one parsing names_layer, else reads and returns
-    it as a dictionary.
-    
-    * 'highway_types.csv' is located in the application path and contains 
-      translations from abreviaturs to full types of highways.
-
-    * 'highway_names.csv' is located in the outputh folder and contains 
-      corrections for original highway names.
+    Fuzzy search best match for string name in iterable choices, if the result
+    is not good enough returns the name parsed
     
     Args:
-        address_layer (AddressLayer): Layer with addresses
-        current_osm (list): List of osm elements in json format
-        output_folder (str): Directory where the source files are located
-        street_fn (str): Name of the field for the address street name
-        housenumber_fn (str): Name of the field for the address housenumber
-    
-    Returns:
-        (dict, bool): Dictionary with highway names translations and a flag to
-        alert if it's new (there wasen't a previous translations file)
+        name (str): String to look for
+        choices (list): Iterable with choices
     """
-    highway_types_path = os.path.join(setup.app_path, 'highway_types.csv')
-    if not os.path.exists(highway_types_path):
-        csvtools.dict2csv(highway_types_path, setup.highway_types)
-    else:
-        csvtools.csv2dict(highway_types_path, setup.highway_types)
-    highway_names_path = os.path.join(output_folder, 'highway_names.csv')
-    if not os.path.exists(highway_names_path):
-        if current_osm:
-            index = QgsSpatialIndex(current_osm.getFeatures())
-        highway_names = {}
-        for feat in address_layer.getFeatures():
-            name = feat[street_fn]
-            if not name in highway_names:
-                highway_names[name] = ''
-            if highway_names[name] == '' and \
-                    not re.match(setup.no_number, feat[housenumber_fn]):
-                if current_osm:
-                    highway_names[name] = conflate(name, address_layer, current_osm, index)
-                else:
-                    highway_names[name] = parse(name)
-            csvtools.dict2csv(highway_names_path, highway_names)
-        return (highway_names, True)
-    else:
-        return (csvtools.csv2dict(highway_names_path, {}), False)
+    if fuzz:
+        normalized = [normalize(c) for c in choices]
+        matching = process.extractOne(normalize(parse(name)), 
+            normalized, scorer=fuzz.token_sort_ratio)
+        if matching and matching[1] > MATCH_THR:
+            return choices[normalized.index(matching[0])]
+    return parse(name)
+
+def dsmatch(name, dataset, fn):
+    """
+    Fuzzy search best matching object for string name in dataset
+    
+    Args:
+        name (str): String to look for
+        dataset (list): List of objects to search for
+        fn (function): Function to obtain a string from a element of the dataset
+        
+    Returns:
+        First element with the maximun fuzzy ratio.
+    """
+    max_ratio = 0
+    matching = None
+    for e in dataset:
+        if fuzz:
+            ratio = fuzz.token_set_ratio(normalize(name), normalize(fn(e)))
+            if ratio > max_ratio:
+                max_ratio = ratio
+                matching = e
+        elif normalize(name) == normalize(fn(e)):
+            matching = e
+            break
+    return matching
 

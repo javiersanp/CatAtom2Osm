@@ -1,40 +1,24 @@
 # -*- coding: utf-8 -*-
 import unittest
 import mock
-import logging
-import gettext
-import os
-from tempfile import gettempdir
 
-from qgis.core import *
-
-import setup
 import hgwnames
-from layer import AddressLayer
-from unittest_main import QgsSingleton
-
-logging.disable(logging.WARNING)
-
-qgs = QgsSingleton() #QgsApplication([], False)
 
 
 class TestHgwnames(unittest.TestCase):
 
     def setUp(self):
         self.temp_fuzz = hgwnames.fuzz
+        self.ds = [
+            {'id':1, 'n':'Foobar'}, 
+            {'id':2, 'n':'Foo bar'}, 
+            {'id':3, 'n':'Footaz'}
+        ]
+        self.fn = lambda x:x['n']
+        self.choices = ['Foobar', 'Foo bar', 'Footaz']
         
     def test_normalize(self):
         self.assertEquals(hgwnames.normalize('  ABCD  '), 'abcd')
-
-    def test_fuzzy_match(self):
-        dataset = ['Foobar', 'Foo bar', 'Footaz']
-        self.assertEquals(hgwnames.match(dataset, 'FOOB', lambda x:x), 'Foobar')
-
-    @mock.patch('hgwnames.fuzz', None)
-    def test_match(self):
-        dataset = ['Foobar', 'Foo bar', 'Footaz']
-        self.assertEquals(hgwnames.match(dataset, 'FOOBAR', lambda x:x), 'Foobar')
-        self.assertEquals(hgwnames.match(dataset, 'FOO', lambda x:x), None)
 
     def test_parse(self):
         names = {
@@ -57,36 +41,20 @@ class TestHgwnames(unittest.TestCase):
         for (inp, out) in names.items():
             self.assertEquals(hgwnames.parse(inp), out)
 
-    def test_get_names(self):
-        address_gml = QgsVectorLayer('test/address.gml|layername=address', 'tn', 'ogr')
-        layer = AddressLayer()
-        self.assertTrue(layer.isValid(), "Init QGIS")
-        layer.append(address_gml)
-        thoroughfarename = QgsVectorLayer('test/address.gml|layername=thoroughfarename', 'tn', 'ogr')
-        layer.join_field(thoroughfarename, 'TN_id', 'gml_id', ['text'], 'TN_')
-        translations = {}
-        for feat in layer.getFeatures():
-            if feat['designator'] == 'S-N':
-                translations[feat['TN_text']] = ''
-            else:
-                translations[feat['TN_text']] = hgwnames.parse(feat['TN_text'])
-        a_path = gettempdir()
-        highway_types_path = os.path.join(setup.app_path, 'highway_types.csv')
-        highway_names_path = os.path.join(a_path, 'highway_names.csv')
-        if os.path.exists(highway_types_path):
-            os.rename(highway_types_path, highway_types_path + '.bak')
-        (names, is_new) = hgwnames.get_translations(layer, None, a_path, 'TN_text', 'designator')
-        self.assertTrue(os.path.exists(highway_names_path))
-        self.assertTrue(os.path.exists(highway_types_path))
-        self.assertEquals(translations, names)
-        self.assertTrue(is_new)
-        (names, is_new) = hgwnames.get_translations(layer, None, a_path, 'TN_text', 'designator')
-        self.assertEquals(translations, names)
-        self.assertFalse(is_new)
-        os.remove(highway_types_path)
-        os.remove(highway_names_path)
-        if os.path.exists(highway_types_path + '.bak'):
-            os.rename(highway_types_path + '.bak', highway_types_path)
+    def test_fuzzy_match(self):
+        self.assertEquals(hgwnames.match('FOOB', self.choices), 'Foobar')
+
+    @mock.patch('hgwnames.fuzz', None)
+    def test_nonfyzzy_match(self):
+        self.assertEquals(hgwnames.match('CL FOOBAR', self.choices), 'Calle Foobar')
+
+    def test_fuzzy_dsmatch(self):
+        self.assertEquals(hgwnames.dsmatch('FOOB', self.ds, self.fn)['id'], 1)
+
+    @mock.patch('hgwnames.fuzz', None)
+    def test_nonfuzzy_match(self):
+        self.assertEquals(hgwnames.dsmatch('FOOBAR', self.ds, self.fn)['id'], 1)
+        self.assertEquals(hgwnames.dsmatch('FOO', self.ds, self.fn), None)
 
     def tearDown(self):
         hgwnames.fuzz = self.temp_fuzz
