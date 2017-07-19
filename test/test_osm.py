@@ -416,14 +416,25 @@ class TestOsmRelation(OsmTestCase):
         self.assertEquals(r.geometry(), (g1, g2, (4,4)))
 
     def test_childs(self):
-        r = self.d.Relation(((1,1), (2,2), (3,3), (4,4), (3,3), (5,5)))
+        n = self.d.Node(3,3)
+        r = self.d.Relation()
+        for i in range(1,7):
+            if i in (3,5):
+                r.append(n)
+            else:
+                r.append(self.d.Node(i, i))
         self.assertEquals(len(r.childs), 5)
         for m in r.members:
             self.assertIn(m.element, r.childs)
 
     def test_remove(self):
         n = self.d.Node(3,3)
-        r = self.d.Relation(((1,1), (2,2), n, (4,4), n, (5,5)))
+        r = self.d.Relation()
+        for i in range(1,7):
+            if i in (3,5):
+                r.append(n)
+            else:
+                r.append(self.d.Node(i, i))
         self.assertEquals(len(r.members), 6)
         r.remove(n)
         self.assertEquals(len(r.members), 4)
