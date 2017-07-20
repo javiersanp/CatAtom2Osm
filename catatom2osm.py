@@ -108,8 +108,7 @@ class CatAtom2Osm:
             del thoroughfarename, adminunitname, postaldescriptor
             if log.getEffectiveLevel() == logging.DEBUG:
                 self.export_layer(address, 'address.shp')
-            highway = self.get_highway()
-            highway.reproject(address.crs())
+            highway = self.get_highway(address.crs())
             (highway_names, is_new) = self.get_translations(address, highway)
             address.translate_field('TN_text', highway_names)
             if is_new:
@@ -123,18 +122,7 @@ class CatAtom2Osm:
             if log.getEffectiveLevel() == logging.DEBUG:
                 self.export_layer(address, 'address.geojson', 'GeoJSON')
             current_address = self.get_address()
-            address.startEditing()
-            to_clean = [feat.id() for feat in address.getFeatures() \
-                if feat['TN_text'] + feat['designator'] in current_address]
-            if to_clean:
-                address.writer.deleteFeatures(to_clean)
-                log.info(_("Refused %d addresses existing in OSM") % len(to_clean))
-            to_clean = [feat.id() for feat in address.search("designator = '%s'" \
-                % setup.no_number)]
-            if to_clean:
-                address.writer.deleteFeatures(to_clean)
-                log.info(_("Deleted %d addresses without house number") % len(to_clean))
-            address.commitChanges()
+            address.conflate(current_address)
 
         if self.options.zoning:        
             zoning_gml = self.read_gml_layer("cadastralzoning")
@@ -556,7 +544,7 @@ class CatAtom2Osm:
         else:
             return (csvtools.csv2dict(highway_names_path, {}), False)
 
-    def get_highway(self):
+    def get_highway(self, crs):
         """Gets OSM highways needed for street names conflation"""
         ql = 'way["highway"]["name"]({bb});' \
              'relation["highway"]["name"]({bb});' \
@@ -566,6 +554,7 @@ class CatAtom2Osm:
         highway = layer.HighwayLayer()
         highway.read_from_osm(highway_osm)
         del highway_osm
+        highway.reproject(crs)
         return highway
 
     def get_address(self):

@@ -735,7 +735,27 @@ class AddressLayer(BaseLayer):
         }
         self.source_date = source_date
 
-    def conflate(self, name, highway, index):
+    def conflate(self, current_address):
+        """
+        Delete address existing in current_address
+        
+        Args:
+            current_address (OSM): dataset
+        """
+        self.startEditing()
+        to_clean = [feat.id() for feat in self.getFeatures() \
+            if feat['TN_text'] + feat['designator'] in current_address]
+        if to_clean:
+            self.writer.deleteFeatures(to_clean)
+            log.info(_("Refused %d addresses existing in OSM") % len(to_clean))
+        to_clean = [feat.id() for feat in self.search("designator = '%s'" \
+            % setup.no_number)]
+        if to_clean:
+            self.writer.deleteFeatures(to_clean)
+            log.info(_("Deleted %d addresses without house number") % len(to_clean))
+        self.commitChanges()
+
+    def _best_match(self, name, highway, index):
         """
         Get from highway the best match for name
         
@@ -776,7 +796,7 @@ class AddressLayer(BaseLayer):
             if highway_names[name] == '' and \
                     not re.match(setup.no_number, feat['designator']):
                 if highway:
-                    highway_names[name] = self.conflate(name, highway, index)
+                    highway_names[name] = self._best_match(name, highway, index)
                 else:
                     highway_names[name] = hgwnames.parse(name)
         return highway_names

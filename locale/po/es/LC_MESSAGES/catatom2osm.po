@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-07-16 15:38+WEST\n"
+"POT-Creation-Date: 2017-07-20 08:10+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -17,135 +17,127 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: catatom2osm.py:55
+#: catatom2osm.py:71
 msgid "Last directory name must be a 5 digits ZIP code"
 msgstr "El nombre del último directorio debe ser un Código Postal de 5 dígitos"
 
-#: catatom2osm.py:60
+#: catatom2osm.py:76
 msgid "Province code '%s' don't exists"
 msgstr "El Código Provincial '%s' no existe"
 
-#: catatom2osm.py:64
+#: catatom2osm.py:80
 msgid "Not a directory: '%s'"
 msgstr "No es un directorio: '%s'"
 
-#: catatom2osm.py:71
+#: catatom2osm.py:82
 msgid "Initialized QGIS API"
 msgstr "Inicializada la API de QGIS"
 
-#: catatom2osm.py:76
+#: catatom2osm.py:87
 msgid "Start processing '%s'"
 msgstr "Comienza el procesado de '%s'"
 
-#: catatom2osm.py:78
+#: catatom2osm.py:89
 msgid ""
 "Failed to import FuzzyWuzzy. Install requeriments for address conflation."
 msgstr ""
 "No se pudo importar FuzzyWuzzy. Instala los requerimientos para combinar "
 "direcciones."
 
-#: catatom2osm.py:86
+#: catatom2osm.py:97
 msgid "Could not resolve joined tables for the '%s' layer"
 msgstr "No se pudieron resolver las tablas combinadas para la capa '%s'"
 
-#: catatom2osm.py:109
+#: catatom2osm.py:118
 msgid "The translation file '%s' have been writen in '%s'"
 msgstr "El fichero de conversiones '%s' ha sido generado en '%s'"
 
-#: catatom2osm.py:111
+#: catatom2osm.py:120
 msgid "Please, check it and run again"
 msgstr "Por favor, compruébelo y ejecute de nuevo"
 
-#: catatom2osm.py:122
-msgid "Refused %d addresses existing in OSM"
-msgstr "Rechazadas %d direcciones existentes en OSM"
-
-#: catatom2osm.py:127
-msgid "Deleted %d addresses without house number"
-msgstr "Eliminadas %d direcciones sin número de portal"
-
-#: catatom2osm.py:153 catatom2osm.py:322
+#: catatom2osm.py:150 catatom2osm.py:325
 msgid "The layer '%s' is empty"
 msgstr "La capa '%s' está vacía"
 
-#: catatom2osm.py:206
+#: catatom2osm.py:209
 msgid "Finished!"
 msgstr "¡Terminado!"
 
-#: catatom2osm.py:207
+#: catatom2osm.py:210
 msgid "Only for testing purposses. Don't upload any result to OSM"
 msgstr "Sólo para fines de prueba. No cargue ningún resultado en OSM"
 
-#: catatom2osm.py:228
+#: catatom2osm.py:231
 msgid "Could not read date from '%s'"
 msgstr "No se puede determinar la fecha de '%s'"
 
-#: catatom2osm.py:237
+#: catatom2osm.py:240
 msgid "Searching the url for the '%s' layer of '%s'..."
 msgstr "Buscando la url para la capa '%s' de '%s'..."
 
-#: catatom2osm.py:242
+#: catatom2osm.py:245
 msgid "Zip code '%s' don't exists"
 msgstr "El Código Postal '%s' no existe"
 
-#: catatom2osm.py:246 catatom2osm.py:414
+#: catatom2osm.py:249 catatom2osm.py:417
 msgid "Downloading '%s'"
 msgstr "Descargando '%s'"
 
-#: catatom2osm.py:302
+#: catatom2osm.py:305
 msgid "Unknow layer name '%s'"
 msgstr "El nombre de capa '%s' es desconocido"
 
-#: catatom2osm.py:326
+#: catatom2osm.py:329
 msgid "Could not determine the CRS of '%s'"
 msgstr "No se puede determinar el CRS de '%s'"
 
-#: catatom2osm.py:331
+#: catatom2osm.py:334
 msgid "Failed to load layer '%s'"
 msgstr "Error al cargar la capa: '%s'"
 
-#: catatom2osm.py:333 layer.py:697 layer.py:699
+#: catatom2osm.py:336 layer.py:707 layer.py:709
 msgid "Loaded %d features in the '%s' layer"
 msgstr "Cargados %d elementos en la capa '%s'"
 
-#: catatom2osm.py:349
+#: catatom2osm.py:352
 msgid "Generated '%s'"
 msgstr "Generado '%s'"
 
-#: catatom2osm.py:351
+#: catatom2osm.py:354
 msgid "Failed to write layer: '%s'"
 msgstr "Error al escribir la capa: '%s'"
 
-#: catatom2osm.py:382
+#: catatom2osm.py:385
 msgid "Detected a %s geometry in the '%s' layer"
 msgstr "Detectada una geometría %s en la capa '%s'"
 
-#: catatom2osm.py:389
+#: catatom2osm.py:392
 msgid "Loaded %d nodes, %d ways, %d relations from '%s' layer"
 msgstr "Cargados %d nodos, %d vías, %d relaciones de la capa '%s'"
 
-#: catatom2osm.py:418
+#: catatom2osm.py:421
 msgid "Read '%s': %d nodes, %d ways, %d relations"
 msgstr "Leido '%s': %d nodos, %d vías, %d relaciones"
 
-#: catatom2osm.py:439
+#: catatom2osm.py:442
 msgid "Generated '%s': %d nodes, %d ways, %d relations"
 msgstr "Generado '%s': %d nodos, %d vías, %d relaciones"
 
-#: catatom2osm.py:503
+#: catatom2osm.py:506
 msgid "Zone '%s' is empty"
 msgstr "La zona '%s' está vacía"
 
-#: catatom2osm.py:567
+#: catatom2osm.py:612
 msgid "Municipality: '%s'"
 msgstr "Municipio: '%s'"
 
-#: catatom2osm.py:569
+#: catatom2osm.py:614
 msgid "Failed to find administrative boundary, falling back to bounding box"
 msgstr ""
 "No se pudo obtener el límite administrativo, se usará el recuadro delimitador"
 
-#: catatom2osm.py:578
+#: catatom2osm.py:624
 msgid "Territorial office %s"
 msgstr "Oficina territorial %s"
 
@@ -153,83 +145,91 @@ msgstr "Oficina territorial %s"
 msgid "Progress: %.1fK\r"
 msgstr "Progreso: %.1fK\r"
 
-#: layer.py:183
+#: layer.py:193
 msgid "Reprojected the '%s' layer to '%s' CRS"
 msgstr "Reproyectada la capa '%s' al CRS '%s'"
 
-#: layer.py:310
+#: layer.py:320
 msgid "%d multi-polygons splited into %d polygons in the '%s' layer"
 msgstr "%d multipolígonos divididos a %d poligonos en la capa '%s'"
 
-#: layer.py:430
+#: layer.py:440
 msgid "Merged %d close vertices in the '%s' layer"
 msgstr "Fusionados %d vértices próximos en la capa '%s'"
 
-#: layer.py:465
+#: layer.py:475
 msgid "Merged %d duplicated vertices of polygons in the '%s' layer"
 msgstr "Fusionados %d vértices de polígono duplicados en la capa '%s'"
 
-#: layer.py:469 layer.py:564
+#: layer.py:479 layer.py:574
 msgid "Deleted %d invalid geometries in the '%s' layer"
 msgstr "Eliminadas %d geometrías no válidas en la capa '%s'"
 
-#: layer.py:513
+#: layer.py:523
 msgid "Created %d topological points in the '%s' layer"
 msgstr "Creados %d puntos topológicos en la capa '%s'"
 
-#: layer.py:599
+#: layer.py:609
 msgid "Simplified %d vertices in the '%s' layer"
 msgstr "Simplificados %d vértices en la capa '%s'"
 
-#: layer.py:619
+#: layer.py:629
 msgid "%d adjacent polygons merged into %d polygons in the '%s' layer"
 msgstr "%d polígonos adyacentes fusionados a %d polígonos en la capa '%s'"
 
-#: layer.py:782
+#: layer.py:750
+msgid "Refused %d addresses existing in OSM"
+msgstr "Rechazadas %d direcciones existentes en OSM"
+
+#: layer.py:755
+msgid "Deleted %d addresses without house number"
+msgstr "Eliminadas %d direcciones sin número de portal"
+
+#: layer.py:858
 msgid "Deleted %d building parts with no floors above ground"
 msgstr "Eliminadas %d partes de edificio sin plantas sobre el nivel del suelo"
 
-#: layer.py:806
+#: layer.py:882
 msgid "Removed %d building parts outside the footprint"
 msgstr "Eliminadas %d partes de edificio fuera del contorno"
 
-#: layer.py:890
+#: layer.py:966
 msgid "Merged %d building parts to footprint"
 msgstr "Fusionados %d partes de edificios al contorno"
 
-#: layer.py:925
+#: layer.py:1001
 msgid "Removed %d duplicated inner rings"
 msgstr "Eliminados %d anillos interiores duplicados"
 
-#: layer.py:1005
+#: layer.py:1081
 msgid "Deleted %d addresses of %d, %d moved"
 msgstr "Eliminadas %d direcciones de %d, %d desplazadas"
 
-#: layer.py:1015
+#: layer.py:1091
 msgid "Assigning task number to each construction"
 msgstr "Asignando número de tarea a cada construcción"
 
-#: layer.py:1049
+#: layer.py:1125
 msgid "%d features unassigned to a task in the '%s' layer"
 msgstr "%d elementos sin asignar a tarea en la capa '%s'"
 
-#: layer.py:1052
+#: layer.py:1128
 msgid "All features assigned to tasks in the '%s' layer"
 msgstr "Todos los elementos asignados a tareas en la capa '%s'"
 
-#: layer.py:1073
+#: layer.py:1149
 msgid "Check, area too small"
 msgstr "Comprobar, área demasiado pequeña"
 
-#: layer.py:1076
+#: layer.py:1152
 msgid "Check, area too big"
 msgstr "Comprobar, área demasiado grande"
 
-#: layer.py:1082
+#: layer.py:1158
 msgid "Distribution of floors above ground %s"
 msgstr "Distribución de plantas sobre rasante %s"
 
-#: layer.py:1083
+#: layer.py:1159
 msgid "Distribution of floors below ground %s"
 msgstr "Distribución de plantas bajo rasante %s"
 
