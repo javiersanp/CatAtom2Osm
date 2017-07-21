@@ -161,9 +161,12 @@ class BaseLayer(QgsVectorLayer):
         for feature in layer.getFeatures():
             if not query or query(feature):
                 to_add.append(self.copy_feature(feature, rename, resolve))
-        self.startEditing()
-        self.addFeatures(to_add)
-        self.commitChanges()
+        if to_add:
+            self.startEditing()
+            self.addFeatures(to_add)
+            self.commitChanges()
+            log.info(_("Loaded %d features in '%s' from '%s'"), len(to_add),
+                self.name().encode('utf-8'), layer.name().encode('utf-8'))
 
     def reproject(self, target_crs=None):
         """Reproject all features in this layer to a new CRS.
@@ -231,9 +234,12 @@ class BaseLayer(QgsVectorLayer):
                     value = source_values[feature[target_field_name]][attr]
                 attrs[fieldId] = value 
             to_change[feature.id()] = attrs
-        self.startEditing()
-        self.writer.changeAttributeValues(to_change)
-        self.commitChanges()
+        if to_change:
+            self.startEditing()
+            self.writer.changeAttributeValues(to_change)
+            self.commitChanges()
+            log.info(_("Joined '%s' to '%s'"), source_layer.name().encode('utf-8'),
+                self.name().encode('utf-8'))
 
     def translate_field(self, field_name, translations, clean=True):
         """
@@ -686,29 +692,6 @@ class ZoningLayer(PolygonLayer):
             i += 1
         self.writer.changeAttributeValues(to_change)
         self.commitChanges()
-
-    @staticmethod
-    def clasify_zoning(zoning):
-        """Splits zones acording to levelName. 'MANZANA' zones corresponds to 
-        Urban Cadastre and 'POLIGONO' zones to Rustic Cadastre.
-
-        Args:
-            zoning (QgsVectorLayer): CadastralZoning data set
-        
-        Returns:
-            (ZoningLayer) Urban zoning, (ZoningLayer) Rustic zoning
-        """
-        urban_zoning = ZoningLayer(baseName='urbanzoning')
-        rustic_zoning = ZoningLayer(baseName='rusticzoning')
-        urban_query = lambda feat: feat['levelName'][3] == 'M' # "(1:MANZANA )"
-        rustic_query = lambda feat: feat['levelName'][3] == 'P' # "(1:POLIGONO )"
-        urban_zoning.append(zoning, query=urban_query)
-        rustic_zoning.append(zoning, query=rustic_query)
-        log.info(_("Loaded %d features in the '%s' layer"), 
-            urban_zoning.featureCount(), urban_zoning.name().encode('utf-8'))
-        log.info(_("Loaded %d features in the '%s' layer"), 
-            rustic_zoning.featureCount(), rustic_zoning.name().encode('utf-8'))
-        return urban_zoning, rustic_zoning
 
 
 class AddressLayer(BaseLayer):

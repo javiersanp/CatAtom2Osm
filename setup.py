@@ -57,6 +57,7 @@ prov_url = {
 valid_provinces = ["%02d" % i for i in range(2,57)]
 
 overpass_url = "http://overpass-api.de/api/interpreter?"
+#overpass_url = "http://overpass.osm.rambler.ru/cgi/interpreter?"
 json_query = overpass_url + "data=[out:json];%sout;"
 boundary_query = json_query % "rel[\"admin_level\"=\"8\"](%s);"
 deep_query = overpass_url + "data=[out:json];%s(._;>;);out;"

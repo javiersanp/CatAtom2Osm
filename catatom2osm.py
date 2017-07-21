@@ -89,6 +89,21 @@ class CatAtom2Osm:
             log.warning(_("Failed to import FuzzyWuzzy. "
                 "Install requeriments for address conflation."))
         self.get_boundary()
+        if self.options.zoning:
+            zoning_gml = self.read_gml_layer("cadastralzoning")
+            urban_zoning = layer.ZoningLayer(baseName='urbanzoning')
+            rustic_zoning = layer.ZoningLayer(baseName='rusticzoning')
+            urban_query = lambda feat: feat['levelName'][3] == 'M' # "(1:MANZANA )"
+            rustic_query = lambda feat: feat['levelName'][3] == 'P' # "(1:POLIGONO )"
+            urban_zoning.append(zoning_gml, query=urban_query)
+            rustic_zoning.append(zoning_gml, query=rustic_query)
+            del zoning_gml
+            urban_zoning.explode_multi_parts()
+            rustic_zoning.explode_multi_parts()
+            urban_zoning.merge_adjacents()
+            urban_zoning.set_labels('%05d')
+            rustic_zoning.set_labels('%03d')
+
         if self.options.address:
             address_gml = self.read_gml_layer("address")
             if address_gml.fieldNameIndex('component_href') == -1:
@@ -100,11 +115,11 @@ class CatAtom2Osm:
             address = layer.AddressLayer(source_date = address_gml.source_date)
             address.append(address_gml)
             adminunitname = self.read_gml_layer("adminunitname")
+            address.join_field(adminunitname, 'AU_id', 'gml_id', ['text'], 'AU_')
             postaldescriptor = self.read_gml_layer("postaldescriptor")
+            address.join_field(postaldescriptor, 'PD_id', 'gml_id', ['postCode'])
             thoroughfarename = self.read_gml_layer("thoroughfarename")
             address.join_field(thoroughfarename, 'TN_id', 'gml_id', ['text'], 'TN_')
-            address.join_field(adminunitname, 'AU_id', 'gml_id', ['text'], 'AU_')
-            address.join_field(postaldescriptor, 'PD_id', 'gml_id', ['postCode'])
             del thoroughfarename, adminunitname, postaldescriptor
             if log.getEffectiveLevel() == logging.DEBUG:
                 self.export_layer(address, 'address.shp')
@@ -124,16 +139,6 @@ class CatAtom2Osm:
             current_address = self.get_address()
             address.conflate(current_address)
 
-        if self.options.zoning:        
-            zoning_gml = self.read_gml_layer("cadastralzoning")
-            (urban_zoning, rustic_zoning) = layer.ZoningLayer.clasify_zoning(zoning_gml)
-            urban_zoning.explode_multi_parts()
-            rustic_zoning.explode_multi_parts()
-            urban_zoning.merge_adjacents()
-            del zoning_gml
-            urban_zoning.set_labels('%05d')
-            rustic_zoning.set_labels('%03d')
-        
         if self.options.building or self.options.tasks:
             building_gml = self.read_gml_layer("building")
             building = layer.ConsLayer(source_date = building_gml.source_date)
@@ -327,14 +332,13 @@ class CatAtom2Osm:
                 return None
         if not crs.isValid():
             raise IOError(_("Could not determine the CRS of '%s'") % gml_path)
-        layer = QgsVectorLayer(vsizip_path, layername, "ogr")
+        layer = QgsVectorLayer(vsizip_path, layername+'.gml', 'ogr')
         if not layer.isValid():
-            layer = QgsVectorLayer(gml_path, layername, "ogr")
+            layer = QgsVectorLayer(gml_path, layername+'.gml', 'ogr')
             if not layer.isValid():
                 raise IOError(_("Failed to load layer '%s'") % gml_path)
         layer.setCrs(crs)
-        log.info(_("Loaded %d features in the '%s' layer"), layer.featureCount(), 
-            layer.name().encode('utf-8'))
+        log.info(_("Read '%s'"), gml_path.encode('utf-8'))
         layer.source_date = gml_date
         return layer
     
