@@ -89,20 +89,7 @@ class CatAtom2Osm:
             log.warning(_("Failed to import FuzzyWuzzy. "
                 "Install requeriments for address conflation."))
         self.get_boundary()
-        if self.options.zoning:
-            zoning_gml = self.read_gml_layer("cadastralzoning")
-            urban_zoning = layer.ZoningLayer(baseName='urbanzoning')
-            rustic_zoning = layer.ZoningLayer(baseName='rusticzoning')
-            urban_query = lambda feat: feat['levelName'][3] == 'M' # "(1:MANZANA )"
-            rustic_query = lambda feat: feat['levelName'][3] == 'P' # "(1:POLIGONO )"
-            urban_zoning.append(zoning_gml, query=urban_query)
-            rustic_zoning.append(zoning_gml, query=rustic_query)
-            del zoning_gml
-            urban_zoning.explode_multi_parts()
-            rustic_zoning.explode_multi_parts()
-            urban_zoning.merge_adjacents()
-            urban_zoning.set_labels('%05d')
-            rustic_zoning.set_labels('%03d')
+        self.get_zoning()
 
         if self.options.address:
             address_gml = self.read_gml_layer("address")
@@ -159,7 +146,7 @@ class CatAtom2Osm:
             building.explode_multi_parts()
             building.remove_parts_below_ground()
             if self.options.tasks:
-                building.set_tasks(urban_zoning, rustic_zoning)
+                building.set_tasks(self.urban_zoning, self.rustic_zoning)
             building.clean()
             if self.options.address:
                 building.move_address(address)
@@ -182,21 +169,21 @@ class CatAtom2Osm:
                 self.merge_address(building_osm, address_osm)
             self.write_osm(building_osm, "building.osm")
         elif self.options.tasks:
-            self.split_building_in_tasks(building, urban_zoning, rustic_zoning, address_osm)
+            self.split_building_in_tasks(building, address_osm)
 
         if self.options.address: 
             self.write_osm(address_osm, "address.osm")
 
         if self.options.zoning:
-            urban_zoning.clean()
-            rustic_zoning.clean()
-            urban_zoning.reproject()
-            rustic_zoning.reproject()
-            self.export_layer(urban_zoning, 'urban_zoning.geojson', 'GeoJSON')
-            self.export_layer(rustic_zoning, 'rustic_zoning.geojson', 'GeoJSON')
+            self.urban_zoning.clean()
+            self.rustic_zoning.clean()
+            self.urban_zoning.reproject()
+            self.rustic_zoning.reproject()
+            self.export_layer(self.urban_zoning, 'urban_zoning.geojson', 'GeoJSON')
+            self.export_layer(self.rustic_zoning, 'rustic_zoning.geojson', 'GeoJSON')
             if log.getEffectiveLevel() == logging.DEBUG:
-                self.export_layer(urban_zoning, 'urban_zoning.shp')
-                self.export_layer(urban_zoning, 'rustic_zoning.shp')
+                self.export_layer(self.urban_zoning, 'urban_zoning.shp')
+                self.export_layer(self.urban_zoning, 'rustic_zoning.shp')
 
         if self.options.parcel:
             parcel = layer.ParcelLayer(source_date = building_gml.source_date)
@@ -448,6 +435,25 @@ class CatAtom2Osm:
         log.info(_("Generated '%s': %d nodes, %d ways, %d relations"), 
             filename, len(data.nodes), len(data.ways), len(data.relations))
 
+    def get_zoning(self):
+        """
+        Reads cadastralzoning and splits in 'MANZANA' (urban) and 'POLIGONO' 
+        (rustic)
+        """
+        zoning_gml = self.read_gml_layer("cadastralzoning")
+        self.urban_zoning = layer.ZoningLayer(baseName='urbanzoning')
+        self.rustic_zoning = layer.ZoningLayer(baseName='rusticzoning')
+        urban_query = lambda feat: feat['levelName'][3] == 'M' # "(1:MANZANA )"
+        rustic_query = lambda feat: feat['levelName'][3] == 'P' # "(1:POLIGONO )"
+        self.urban_zoning.append(zoning_gml, query=urban_query)
+        self.rustic_zoning.append(zoning_gml, query=rustic_query)
+        del zoning_gml
+        self.urban_zoning.explode_multi_parts()
+        self.rustic_zoning.explode_multi_parts()
+        self.urban_zoning.merge_adjacents()
+        self.urban_zoning.set_labels('%05d')
+        self.rustic_zoning.set_labels('%03d')
+
     def merge_address(self, building_osm, address_osm):
         """
         Copy address from address_osm to building_osm
@@ -490,12 +496,12 @@ class CatAtom2Osm:
                         bu.tags.update(ad.tags)
                     
 
-    def split_building_in_tasks(self, building, urban_zoning, rustic_zoning, address_osm=None):
+    def split_building_in_tasks(self, building, address_osm=None):
         """Generates osm files to import with the task manager"""
         base_path = os.path.join(self.path, 'tasks')
         if not os.path.exists(base_path):
             os.makedirs(base_path)
-        for zoning in (urban_zoning, rustic_zoning):
+        for zoning in (self.urban_zoning, self.rustic_zoning):
             to_clean = []
             for zone in zoning.getFeatures():
                 label = zoning.name()[0].upper() + zone['label']
