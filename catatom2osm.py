@@ -418,6 +418,8 @@ class CatAtom2Osm:
             download.wget(url, osm_path)
         tree = etree.parse(osm_path)
         data = osmxml.deserialize(tree.getroot())
+        if len(data.elements) == 0:
+            raise IOError(_("No OSM data were obtained for '%s'") % filename)
         log.info(_("Read '%s': %d nodes, %d ways, %d relations"), 
             filename, len(data.nodes), len(data.ways), len(data.relations))
         return data

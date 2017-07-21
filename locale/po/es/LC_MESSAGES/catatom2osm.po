@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-07-20 08:10+WEST\n"
+"POT-Creation-Date: 2017-07-21 08:18+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -116,28 +116,32 @@ msgstr "Detectada una geometría %s en la capa '%s'"
 msgid "Loaded %d nodes, %d ways, %d relations from '%s' layer"
 msgstr "Cargados %d nodos, %d vías, %d relaciones de la capa '%s'"
 
-#: catatom2osm.py:421
+#: catatom2osm.py:422
+msgid "No OSM data were obtained for '%s'"
+msgstr "No se obtuvieron datos de OSM para '%s'"
+
+#: catatom2osm.py:423
 msgid "Read '%s': %d nodes, %d ways, %d relations"
 msgstr "Leido '%s': %d nodos, %d vías, %d relaciones"
 
-#: catatom2osm.py:442
+#: catatom2osm.py:444
 msgid "Generated '%s': %d nodes, %d ways, %d relations"
 msgstr "Generado '%s': %d nodos, %d vías, %d relaciones"
 
-#: catatom2osm.py:506
+#: catatom2osm.py:508
 msgid "Zone '%s' is empty"
 msgstr "La zona '%s' está vacía"
 
-#: catatom2osm.py:612
+#: catatom2osm.py:614
 msgid "Municipality: '%s'"
 msgstr "Municipio: '%s'"
 
-#: catatom2osm.py:614
+#: catatom2osm.py:616
 msgid "Failed to find administrative boundary, falling back to bounding box"
 msgstr ""
 "No se pudo obtener el límite administrativo, se usará el recuadro delimitador"
 
-#: catatom2osm.py:624
+#: catatom2osm.py:626
 msgid "Territorial office %s"
 msgstr "Oficina territorial %s"
 
@@ -185,51 +189,51 @@ msgstr "Rechazadas %d direcciones existentes en OSM"
 msgid "Deleted %d addresses without house number"
 msgstr "Eliminadas %d direcciones sin número de portal"
 
-#: layer.py:858
+#: layer.py:843
 msgid "Deleted %d building parts with no floors above ground"
 msgstr "Eliminadas %d partes de edificio sin plantas sobre el nivel del suelo"
 
-#: layer.py:882
+#: layer.py:867
 msgid "Removed %d building parts outside the footprint"
 msgstr "Eliminadas %d partes de edificio fuera del contorno"
 
-#: layer.py:966
+#: layer.py:951
 msgid "Merged %d building parts to footprint"
 msgstr "Fusionados %d partes de edificios al contorno"
 
-#: layer.py:1001
+#: layer.py:986
 msgid "Removed %d duplicated inner rings"
 msgstr "Eliminados %d anillos interiores duplicados"
 
-#: layer.py:1081
+#: layer.py:1066
 msgid "Deleted %d addresses of %d, %d moved"
 msgstr "Eliminadas %d direcciones de %d, %d desplazadas"
 
-#: layer.py:1091
+#: layer.py:1076
 msgid "Assigning task number to each construction"
 msgstr "Asignando número de tarea a cada construcción"
 
-#: layer.py:1125
+#: layer.py:1110
 msgid "%d features unassigned to a task in the '%s' layer"
 msgstr "%d elementos sin asignar a tarea en la capa '%s'"
 
-#: layer.py:1128
+#: layer.py:1113
 msgid "All features assigned to tasks in the '%s' layer"
 msgstr "Todos los elementos asignados a tareas en la capa '%s'"
 
-#: layer.py:1149
+#: layer.py:1134
 msgid "Check, area too small"
 msgstr "Comprobar, área demasiado pequeña"
 
-#: layer.py:1152
+#: layer.py:1137
 msgid "Check, area too big"
 msgstr "Comprobar, área demasiado grande"
 
-#: layer.py:1158
+#: layer.py:1143
 msgid "Distribution of floors above ground %s"
 msgstr "Distribución de plantas sobre rasante %s"
 
-#: layer.py:1159
+#: layer.py:1144
 msgid "Distribution of floors below ground %s"
 msgstr "Distribución de plantas bajo rasante %s"
 
