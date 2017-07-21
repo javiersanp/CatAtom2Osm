@@ -755,26 +755,6 @@ class AddressLayer(BaseLayer):
             log.info(_("Deleted %d addresses without house number") % len(to_clean))
         self.commitChanges()
 
-    def _best_match(self, name, highway, index):
-        """
-        Get from highway the best match for name
-        
-        Args:
-            name (str): Name of a street
-            highway (HighwayLayer): Current OSM highway data
-            index (QgsSpatialIndex): Spatial index with all features in highway
-        
-        Returns:
-            (str): Best match for name in highway
-        """
-        points = [f.geometry().asPoint() for f in self.search("TN_text='%s'" % name)]
-        bbox = QgsGeometry().fromMultiPoint(points).boundingBox()
-        intersect = index.intersects(bbox)
-        highway.setSelectedFeatures(intersect)
-        selection = highway.selectedFeatures()
-        choices = [feat['name'] for feat in selection]
-        return hgwnames.match(name, choices)
-
     def get_highway_names(self, highway=None):
         """
         Returns a dictionary with the translation for each street name.
@@ -788,6 +768,7 @@ class AddressLayer(BaseLayer):
         """
         if highway:
             index = QgsSpatialIndex(highway.getFeatures())
+            features = {feat.id(): feat for feat in highway.getFeatures()}
         highway_names = {}
         for feat in self.getFeatures():
             name = feat['TN_text']
@@ -796,7 +777,11 @@ class AddressLayer(BaseLayer):
             if highway_names[name] == '' and \
                     not re.match(setup.no_number, feat['designator']):
                 if highway:
-                    highway_names[name] = self._best_match(name, highway, index)
+                    query = self.search("TN_text='%s'" % name)
+                    points = [f.geometry().asPoint() for f in query]
+                    bbox = QgsGeometry().fromMultiPoint(points).boundingBox()
+                    choices = [features[fid]['name'] for fid in index.intersects(bbox)]
+                    highway_names[name] = hgwnames.match(name, choices)
                 else:
                     highway_names[name] = hgwnames.parse(name)
         return highway_names
