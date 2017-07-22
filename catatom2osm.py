@@ -92,8 +92,8 @@ class CatAtom2Osm:
         self.get_zoning()
         self.read_address()
         self.building_gml = self.read_gml_layer("building")
+        self.building_osm = osm.Osm()
         processed = set()
-        return
         for zoning in (self.urban_zoning, self.rustic_zoning):
             for zone in zoning.getFeatures():
                 log.info(_("Processing %s '%s' of '%s'"), 
@@ -111,7 +111,11 @@ class CatAtom2Osm:
                     address = layer.AddressLayer(source_date = self.address_gml.source_date)
                     address.append(self.address_gml, task=task)
                     del address
+                    building.reproject()
+                    self.building_osm = self.osm_from_layer(building, 
+                        translate.building_tags, data=self.building_osm)
                 del building
+        self.write_osm(self.building_osm, 'building.osm')
         return
         
         if self.options.address:
@@ -363,7 +367,8 @@ class CatAtom2Osm:
             raise IOError(_("Failed to write layer: '%s'") % filename)
         
     
-    def osm_from_layer(self, layer, tags_translation=translate.all_tags, upload='never'):
+    def osm_from_layer(self, layer, tags_translation=translate.all_tags, 
+            data=None, upload='never'):
         """
         Create a Osm data set from a vector layer.
 
@@ -376,7 +381,8 @@ class CatAtom2Osm:
         Returns:
             Osm: OSM data set
         """
-        data = osm.Osm(upload)
+        if data is None:
+            data = osm.Osm(upload)
         for feature in layer.getFeatures(): 
             geom = feature.geometry()
             e = None
