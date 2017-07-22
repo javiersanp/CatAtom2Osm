@@ -80,6 +80,7 @@ class CatAtom2Osm:
             raise IOError(_("Not a directory: '%s'") % a_path)
         self.qgs = QgsSingleton()
         log.debug(_("Initialized QGIS API"))
+        self.address_gml = None
 
     def run(self):
         """Launches the app"""
@@ -88,24 +89,37 @@ class CatAtom2Osm:
         if not hgwnames.fuzz:
             log.warning(_("Failed to import FuzzyWuzzy. "
                 "Install requeriments for address conflation."))
-        self.get_boundary()
         self.get_zoning()
-
+        self.read_address()
+        self.building_gml = self.read_gml_layer("building")
+        processed = set()
+        return
+        for zoning in (self.urban_zoning, self.rustic_zoning):
+            for zone in zoning.getFeatures():
+                log.info(_("Processing %s '%s' of '%s'"), 
+                    zone['levelName'].encode('utf-8').lower().translate(None, '(1:) '), 
+                    zone['label'], zoning.name().encode('utf-8'))
+                building = layer.ConsLayer(source_date = self.building_gml.source_date)
+                building.append(self.building_gml, zone, processed)
+                task = set()
+                if building.featureCount() == 0:
+                    log.info(_("Zone '%s' is empty"), zone['label'].encode('utf-8'))
+                else:
+                    for feat in building.getFeatures():
+                        processed.add(feat['localId'])
+                        task.add(feat['localId'])
+                    address = layer.AddressLayer(source_date = self.address_gml.source_date)
+                    address.append(self.address_gml, task=task)
+                    del address
+                del building
+        return
+        
         if self.options.address:
-            address_gml = self.read_gml_layer("address")
-            if address_gml.fieldNameIndex('component_href') == -1:
-                address_gml = self.read_gml_layer("address", force_zip=True)
-                if address_gml.fieldNameIndex('component_href') == -1:
-                    log.error(_("Could not resolve joined tables for the '%s' layer"), 
-                        address_gml.name().encode('utf-8'))
-                    return
+            self.read_address()
             address = layer.AddressLayer(source_date = address_gml.source_date)
             address.append(address_gml)
-            adminunitname = self.read_gml_layer("adminunitname")
             address.join_field(adminunitname, 'AU_id', 'gml_id', ['text'], 'AU_')
-            postaldescriptor = self.read_gml_layer("postaldescriptor")
             address.join_field(postaldescriptor, 'PD_id', 'gml_id', ['postCode'])
-            thoroughfarename = self.read_gml_layer("thoroughfarename")
             address.join_field(thoroughfarename, 'TN_id', 'gml_id', ['text'], 'TN_')
             del thoroughfarename, adminunitname, postaldescriptor
             if log.getEffectiveLevel() == logging.DEBUG:
@@ -123,7 +137,7 @@ class CatAtom2Osm:
                 return
             if log.getEffectiveLevel() == logging.DEBUG:
                 self.export_layer(address, 'address.geojson', 'GeoJSON')
-            current_address = self.get_address()
+            current_address = self.get_current_ad_osm()
             address.conflate(current_address)
 
         if self.options.building or self.options.tasks:
@@ -198,6 +212,9 @@ class CatAtom2Osm:
                 self.export_layer(parcel, 'parcel.shp')
 
     def exit(self):
+        for propname in dir(self):
+            if isinstance(getattr(self, propname), QgsVectorLayer):
+                delattr(self, propname)
         log.info(_("Finished!"))
         log.warning(_("Only for testing purposses. Don't upload any result to OSM"))
         if hasattr(self, 'qgs'):
@@ -319,15 +336,16 @@ class CatAtom2Osm:
                 return None
         if not crs.isValid():
             raise IOError(_("Could not determine the CRS of '%s'") % gml_path)
-        layer = QgsVectorLayer(vsizip_path, layername+'.gml', 'ogr')
-        if not layer.isValid():
-            layer = QgsVectorLayer(gml_path, layername+'.gml', 'ogr')
-            if not layer.isValid():
+        gml = layer.BaseLayer(vsizip_path, layername+'.gml', 'ogr')
+        if not gml.isValid():
+            gml = layer.BaseLayer(gml_path, layername+'.gml', 'ogr')
+            if not gml.isValid():
                 raise IOError(_("Failed to load layer '%s'") % gml_path)
-        layer.setCrs(crs)
-        log.info(_("Read '%s'"), gml_path.encode('utf-8'))
-        layer.source_date = gml_date
-        return layer
+        gml.setCrs(crs)
+        log.info(_("Read %d features in '%s'"), gml.featureCount(), 
+            gml_path.encode('utf-8'))
+        gml.source_date = gml_date
+        return gml
     
     def export_layer(self, layer, filename, driver_name='ESRI Shapefile'):
         """
@@ -443,16 +461,26 @@ class CatAtom2Osm:
         zoning_gml = self.read_gml_layer("cadastralzoning")
         self.urban_zoning = layer.ZoningLayer(baseName='urbanzoning')
         self.rustic_zoning = layer.ZoningLayer(baseName='rusticzoning')
-        urban_query = lambda feat: feat['levelName'][3] == 'M' # "(1:MANZANA )"
-        rustic_query = lambda feat: feat['levelName'][3] == 'P' # "(1:POLIGONO )"
+        urban_query = lambda feat, kwargs: feat['levelName'][3] == 'M' # "(1:MANZANA )"
+        rustic_query = lambda feat, kwargs: feat['levelName'][3] == 'P' # "(1:POLIGONO )"
         self.urban_zoning.append(zoning_gml, query=urban_query)
         self.rustic_zoning.append(zoning_gml, query=rustic_query)
         del zoning_gml
         self.urban_zoning.explode_multi_parts()
         self.rustic_zoning.explode_multi_parts()
         self.urban_zoning.merge_adjacents()
-        self.urban_zoning.set_labels('%05d')
-        self.rustic_zoning.set_labels('%03d')
+
+    def read_address(self):
+        """Reads Address GML dataset"""
+        self.address_gml = self.read_gml_layer("address")
+        """if self.address_gml.fieldNameIndex('component_href') == -1:
+            self.address_gml = self.read_gml_layer("address", force_zip=True)
+            if self.address_gml.fieldNameIndex('component_href') == -1:
+                raise IOError(_("Could not resolve joined tables for the "
+                    "'%s' layer") % self.address_gml.name())
+        self.adminunitname = self.read_gml_layer("adminunitname")
+        self.postaldescriptor = self.read_gml_layer("postaldescriptor")
+        self.thoroughfarename = self.read_gml_layer("thoroughfarename")"""
 
     def merge_address(self, building_osm, address_osm):
         """
@@ -569,7 +597,7 @@ class CatAtom2Osm:
         highway.reproject(crs)
         return highway
 
-    def get_address(self):
+    def get_current_ad_osm(self):
         """Gets OSM address for address conflation"""
         ql = 'node["addr:street"]["addr:housenumber"]({bb});' \
              'way["addr:street"]["addr:housenumber"]({bb});' \

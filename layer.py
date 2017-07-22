@@ -139,27 +139,30 @@ class BaseLayer(QgsVectorLayer):
                     dst_ft[dst_attr] = feature[src_attr]
         return dst_ft
     
-    def append(self, layer, rename=None, resolve=None, query=None):
+    def append(self, layer, rename=None, resolve=None, query=None, **kwargs):
         """Copy all features from layer.
 
         Args:
             layer (QgsVectorLayer): Source layer
             rename (dict): Translation of attributes names
             resolve (dict): xlink reference fields
-            query (func):
+            query (func): function with args feature and kwargs that returns
+                a boolean deciding if each feature will be included or not
+            kwargs: aditional arguments for query function
 
         Examples:
 
-            >>> query = lambda feat: feat['foo']=='bar'
-            
+            >>> query = lambda feat, kwargs: feat['foo']=='bar'
             Will copy only features with a value 'bar' in the field 'foo'.
+            >>> query = lambda feat, kwargs: layer.is_inside(feat, kwargs['zone'])
+            Will copy only features inside zone.
             
             See also copy_feature().
         """
         self.setCrs(layer.crs())
         to_add = []
         for feature in layer.getFeatures():
-            if not query or query(feature):
+            if not query or query(feature, kwargs):
                 to_add.append(self.copy_feature(feature, rename, resolve))
         if to_add:
             self.startEditing()
@@ -718,6 +721,11 @@ class AddressLayer(BaseLayer):
         }
         self.source_date = source_date
 
+    def append(self, layer, task):
+        """Append features of layer including task localId's"""
+        query = lambda f, kwargs: f['localId'].split('.')[-1] in kwargs['including']
+        super(AddressLayer, self).append(layer, query=query, including=task)
+
     def conflate(self, current_address):
         """
         Delete address existing in current_address
@@ -816,6 +824,12 @@ class ConsLayer(PolygonLayer):
     def is_pool(feature):
         """Pool features have '_PI.' in its localId field"""
         return '_PI.' in feature['localId']
+
+    def append(self, layer, zone, processed):
+        """Append features of layer inside zone excluding processed localId's'"""
+        query = lambda f, kwargs: \
+            f['localId'] not in kwargs['excluding'] and is_inside(f, kwargs['zone'])
+        super(ConsLayer, self).append(layer, query=query, zone=zone, excluding=processed)
 
     def remove_parts_below_ground(self):
         """Remove all parts with 'lev_above' field equal 0."""
