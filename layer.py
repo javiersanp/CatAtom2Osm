@@ -825,6 +825,11 @@ class ConsLayer(PolygonLayer):
             f['localId'] not in kwargs['excluding'] and is_inside(f, kwargs['zone'])
         super(ConsLayer, self).append(layer, query=query, zone=zone, excluding=processed)
 
+    def append_task(self, layer, task):
+        """Append features of layer including task localId's'"""
+        query = lambda f, kwargs: f['localId'].split('_')[0] in kwargs['including']
+        super(ConsLayer, self).append(layer, query=query, including=task)
+
     def remove_parts_below_ground(self):
         """Remove all parts with 'lev_above' field equal 0."""
         self.startEditing()

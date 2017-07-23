@@ -89,31 +89,7 @@ class CatAtom2Osm:
         if self.is_new: return
         for zoning in (self.urban_zoning, self.rustic_zoning):
             for zone in zoning.getFeatures():
-                log.info(_("Processing %s '%s' of '%s'"), 
-                    zone['levelName'].encode('utf-8').lower().translate(None, '(1:) '), 
-                    zone['label'], zoning.name().encode('utf-8'))
-                building = layer.ConsLayer(source_date = self.building_gml.source_date)
-                building.append(self.building_gml, zone, self.processed)
-                task = set()
-                if building.featureCount() == 0:
-                    log.info(_("Zone '%s' is empty"), zone['label'].encode('utf-8'))
-                else:
-                    for feat in building.getFeatures():
-                        self.processed.add(feat['localId'])
-                        task.add(feat['localId'])
-                    temp_address = None
-                    if self.options.address:
-                        temp_address = layer.BaseLayer(path="Point", baseName="address",
-                            providerLib="memory")
-                        temp_address.source_date = False
-                        temp_address.append(self.address, task)
-                        temp_address.reproject()
-                    building.reproject()
-                    self.write_task(zoning, building, temp_address)
-                    self.building_osm = self.osm_from_layer(building, 
-                        translate.building_tags, data=self.building_osm)
-                    del temp_address
-                del building
+                self.process(zone, zoning)
         self.write_osm(self.building_osm, 'building.osm')
         if self.options.address:
             address_osm = self.osm_from_layer(self.address, translate.address_tags)
@@ -121,19 +97,6 @@ class CatAtom2Osm:
         return
         
         if self.options.building or self.options.tasks:
-            building_gml = self.read_gml_layer("building")
-            building = layer.ConsLayer(source_date = building_gml.source_date)
-            building.append(building_gml)
-            del building_gml
-            part_gml = self.read_gml_layer("buildingpart")
-            building.append(part_gml)
-            del part_gml
-            other_gml = self.read_gml_layer("otherconstruction", True)
-            if other_gml:
-                building.append(other_gml)
-                del other_gml
-            else:
-                log.info(_("The layer '%s' is empty"), 'otherconstruction')
             if log.getEffectiveLevel() == logging.DEBUG:
                 self.export_layer(building, 'building.shp')
             building.remove_outside_parts()
@@ -215,10 +178,45 @@ class CatAtom2Osm:
             current_address = self.get_current_ad_osm()
             self.address.conflate(current_address)
             self.address_osm = osm.Osm()
-        self.building_gml = self.read_gml_layer("building")
-        self.building_osm = osm.Osm()
-        self.processed = set()
-        self.utaskn = self.rtaskn = 1
+        if self.options.building:
+            self.building_gml = self.read_gml_layer("building")
+            self.part_gml = self.read_gml_layer("buildingpart")
+            self.other_gml = self.read_gml_layer("otherconstruction", True)
+            self.building_osm = osm.Osm()
+            self.processed = set()
+            self.utaskn = self.rtaskn = 1
+
+    def process(self, zone, zoning):
+        """Process data in zone"""
+        log.info(_("Processing %s '%s' of '%s'"), 
+            zone['levelName'].encode('utf-8').lower().translate(None, '(1:) '), 
+            zone['label'], zoning.name().encode('utf-8'))
+        if self.options.building:
+            building = layer.ConsLayer(source_date = self.building_gml.source_date)
+            building.append(self.building_gml, zone, self.processed)
+            if building.featureCount() == 0:
+                log.info(_("Zone '%s' is empty"), zone['label'].encode('utf-8'))
+            else:
+                task = set()
+                for feat in building.getFeatures():
+                    self.processed.add(feat['localId'])
+                    task.add(feat['localId'])
+                building.append_task(self.part_gml, task)
+                if self.other_gml:
+                    building.append_task(self.other_gml, task)
+                temp_address = None
+                if self.options.address:
+                    temp_address = layer.BaseLayer(path="Point", baseName="address",
+                        providerLib="memory")
+                    temp_address.source_date = False
+                    temp_address.append(self.address, task)
+                    temp_address.reproject()
+                building.reproject()
+                self.write_task(zoning, building, temp_address)
+                self.building_osm = self.osm_from_layer(building, 
+                    translate.building_tags, data=self.building_osm)
+                del temp_address
+            del building
 
     def exit(self):
         for propname in dir(self):
@@ -342,6 +340,7 @@ class CatAtom2Osm:
             if not allow_empty:
                 raise IOError(_("The layer '%s' is empty") % gml_path)
             else:
+                log.info(_("The layer '%s' is empty"), gml_path.encode('utf-8'))
                 return None
         if not crs.isValid():
             raise IOError(_("Could not determine the CRS of '%s'") % gml_path)
