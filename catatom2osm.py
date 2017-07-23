@@ -84,75 +84,42 @@ class CatAtom2Osm:
 
     def run(self):
         """Launches the app"""
-            
-        log.info(_("Start processing '%s'"), self.zip_code)
-        if not hgwnames.fuzz:
-            log.warning(_("Failed to import FuzzyWuzzy. "
-                "Install requeriments for address conflation."))
-        self.get_zoning()
-        self.read_address()
-        self.building_gml = self.read_gml_layer("building")
-        self.building_osm = osm.Osm()
-        self.address_osm = osm.Osm()
-        processed = set()
-        self.utaskn = self.rtaskn = 1
+        
+        self.start()
+        if self.is_new: return
         for zoning in (self.urban_zoning, self.rustic_zoning):
             for zone in zoning.getFeatures():
                 log.info(_("Processing %s '%s' of '%s'"), 
                     zone['levelName'].encode('utf-8').lower().translate(None, '(1:) '), 
                     zone['label'], zoning.name().encode('utf-8'))
                 building = layer.ConsLayer(source_date = self.building_gml.source_date)
-                building.append(self.building_gml, zone, processed)
+                building.append(self.building_gml, zone, self.processed)
                 task = set()
                 if building.featureCount() == 0:
                     log.info(_("Zone '%s' is empty"), zone['label'].encode('utf-8'))
                 else:
                     for feat in building.getFeatures():
-                        processed.add(feat['localId'])
+                        self.processed.add(feat['localId'])
                         task.add(feat['localId'])
-                    address = layer.AddressLayer(source_date = self.address_gml.source_date)
-                    address.append(self.address_gml, task=task)
-                    address.join_field(self.adminunitname, 'AU_id', 'gml_id', ['text'], 'AU_')
-                    address.join_field(self.postaldescriptor, 'PD_id', 'gml_id', ['postCode'])
-                    address.join_field(self.thoroughfarename, 'TN_id', 'gml_id', ['text'], 'TN_')
+                    temp_address = None
+                    if self.options.address:
+                        temp_address = layer.BaseLayer(path="Point", baseName="address",
+                            providerLib="memory")
+                        temp_address.source_date = False
+                        temp_address.append(self.address, task)
+                        temp_address.reproject()
                     building.reproject()
-                    address.reproject()
-                    self.write_task(zoning, building, address)
+                    self.write_task(zoning, building, temp_address)
                     self.building_osm = self.osm_from_layer(building, 
                         translate.building_tags, data=self.building_osm)
-                    self.address_osm = self.osm_from_layer(address, 
-                        translate.address_tags, data=self.address_osm)
-                    del address
+                    del temp_address
                 del building
         self.write_osm(self.building_osm, 'building.osm')
+        if self.options.address:
+            address_osm = self.osm_from_layer(self.address, translate.address_tags)
+            self.write_osm(address_osm, 'address.osm')
         return
         
-        if self.options.address:
-            self.read_address()
-            address = layer.AddressLayer(source_date = address_gml.source_date)
-            address.append(address_gml)
-            address.join_field(adminunitname, 'AU_id', 'gml_id', ['text'], 'AU_')
-            address.join_field(postaldescriptor, 'PD_id', 'gml_id', ['postCode'])
-            address.join_field(thoroughfarename, 'TN_id', 'gml_id', ['text'], 'TN_')
-            del thoroughfarename, adminunitname, postaldescriptor
-            if log.getEffectiveLevel() == logging.DEBUG:
-                self.export_layer(address, 'address.shp')
-            highway = self.get_highway(address.crs())
-            (highway_names, is_new) = self.get_translations(address, highway)
-            address.translate_field('TN_text', highway_names)
-            if is_new:
-                address.reproject()
-                address_osm = self.osm_from_layer(address, translate.address_tags)
-                self.write_osm(address_osm, "address.osm")
-                log.info(_("The translation file '%s' have been writen in "
-                    "'%s'"), 'highway_names.csv', self.path)
-                log.info(_("Please, check it and run again"))
-                return
-            if log.getEffectiveLevel() == logging.DEBUG:
-                self.export_layer(address, 'address.geojson', 'GeoJSON')
-            current_address = self.get_current_ad_osm()
-            address.conflate(current_address)
-
         if self.options.building or self.options.tasks:
             building_gml = self.read_gml_layer("building")
             building = layer.ConsLayer(source_date = building_gml.source_date)
@@ -223,6 +190,35 @@ class CatAtom2Osm:
             if log.getEffectiveLevel() == logging.DEBUG:
                 self.export_layer(parcel, 'parcel.geojson', 'GeoJSON')
                 self.export_layer(parcel, 'parcel.shp')
+
+    def start(self):
+        log.info(_("Start processing '%s'"), self.zip_code)
+        if not hgwnames.fuzz:
+            log.warning(_("Failed to import FuzzyWuzzy. "
+                "Install requeriments for address conflation."))
+        self.get_boundary()
+        self.get_zoning()
+        self.is_new = False
+        if self.options.address:
+            self.read_address()
+            self.get_highway()
+            self.get_translations()
+            self.address.translate_field('TN_text', self.highway_names)
+            if self.is_new:
+                self.address.reproject()
+                address_osm = self.osm_from_layer(self.address, translate.address_tags)
+                self.write_osm(address_osm, "address.osm")
+                log.info(_("The translation file '%s' have been writen in "
+                    "'%s'"), 'highway_names.csv', self.path)
+                log.info(_("Please, check it and run again"))
+                return
+            current_address = self.get_current_ad_osm()
+            self.address.conflate(current_address)
+            self.address_osm = osm.Osm()
+        self.building_gml = self.read_gml_layer("building")
+        self.building_osm = osm.Osm()
+        self.processed = set()
+        self.utaskn = self.rtaskn = 1
 
     def exit(self):
         for propname in dir(self):
@@ -487,15 +483,20 @@ class CatAtom2Osm:
 
     def read_address(self):
         """Reads Address GML dataset"""
-        self.address_gml = self.read_gml_layer("address")
-        if self.address_gml.fieldNameIndex('component_href') == -1:
-            self.address_gml = self.read_gml_layer("address", force_zip=True)
-            if self.address_gml.fieldNameIndex('component_href') == -1:
+        address_gml = self.read_gml_layer("address")
+        if address_gml.fieldNameIndex('component_href') == -1:
+            address_gml = self.read_gml_layer("address", force_zip=True)
+            if address_gml.fieldNameIndex('component_href') == -1:
                 raise IOError(_("Could not resolve joined tables for the "
-                    "'%s' layer") % self.address_gml.name())
-        self.adminunitname = self.read_gml_layer("adminunitname")
-        self.postaldescriptor = self.read_gml_layer("postaldescriptor")
-        self.thoroughfarename = self.read_gml_layer("thoroughfarename")
+                    "'%s' layer") % address_gml.name())
+        adminunitname = self.read_gml_layer("adminunitname")
+        postaldescriptor = self.read_gml_layer("postaldescriptor")
+        thoroughfarename = self.read_gml_layer("thoroughfarename")
+        self.address = layer.AddressLayer(source_date = address_gml.source_date)
+        self.address.append(address_gml)
+        self.address.join_field(adminunitname, 'AU_id', 'gml_id', ['text'], 'AU_')
+        self.address.join_field(postaldescriptor, 'PD_id', 'gml_id', ['postCode'])
+        self.address.join_field(thoroughfarename, 'TN_id', 'gml_id', ['text'], 'TN_')
 
     def merge_address(self, building_osm, address_osm):
         """
@@ -556,7 +557,7 @@ class CatAtom2Osm:
             self.merge_address(task_osm, address_osm)
         self.write_osm(task_osm, task_path)
 
-    def get_translations(self, address_layer, highway):
+    def get_translations(self):
         """
         If there exists the configuration file 'highway_types.csv', read it, 
         else write one with default values. If don't exists the translations file 
@@ -568,14 +569,6 @@ class CatAtom2Osm:
 
         * 'highway_names.csv' is located in the outputh folder and contains 
           corrections for original highway names.
-        
-        Args:
-            address_layer (AddressLayer): Layer with addresses
-            highway (HighwayLayer): Layer with OSM highways
-        
-        Returns:
-            (dict, bool): Dictionary with highway names translations and a flag to
-            alert if it's new (there wasen't a previous translations file)
         """
         highway_types_path = os.path.join(setup.app_path, 'highway_types.csv')
         if not os.path.exists(highway_types_path):
@@ -584,24 +577,24 @@ class CatAtom2Osm:
             csvtools.csv2dict(highway_types_path, setup.highway_types)
         highway_names_path = os.path.join(self.path, 'highway_names.csv')
         if not os.path.exists(highway_names_path):
-            highway_names = address_layer.get_highway_names(highway)
-            csvtools.dict2csv(highway_names_path, highway_names)
-            return (highway_names, True)
+            self.highway_names = self.address.get_highway_names(self.highway)
+            csvtools.dict2csv(highway_names_path, self.highway_names)
+            self.is_new = True
         else:
-            return (csvtools.csv2dict(highway_names_path, {}), False)
+            self.highway_names = csvtools.csv2dict(highway_names_path, {})
+            self.is_new = False
 
-    def get_highway(self, crs):
+    def get_highway(self):
         """Gets OSM highways needed for street names conflation"""
         ql = 'way["highway"]["name"]({bb});' \
              'relation["highway"]["name"]({bb});' \
              'way["place"="square"]["name"]({bb});' \
              'relation["place"="square"]["name"]({bb});'
         highway_osm = self.read_osm(ql, 'current_highway.osm')
-        highway = layer.HighwayLayer()
-        highway.read_from_osm(highway_osm)
+        self.highway = layer.HighwayLayer()
+        self.highway.read_from_osm(highway_osm)
         del highway_osm
-        highway.reproject(crs)
-        return highway
+        self.highway.reproject(self.address.crs())
 
     def get_current_ad_osm(self):
         """Gets OSM address for address conflation"""

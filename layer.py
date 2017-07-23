@@ -721,10 +721,13 @@ class AddressLayer(BaseLayer):
         }
         self.source_date = source_date
 
-    def append(self, layer, task):
+    def append(self, layer, task=None):
         """Append features of layer including task localId's"""
-        query = lambda f, kwargs: f['localId'].split('.')[-1] in kwargs['including']
-        super(AddressLayer, self).append(layer, query=query, including=task)
+        if task is None:
+            super(AddressLayer, self).append(layer)
+        else:
+            query = lambda f, kwargs: f['localId'].split('.')[-1] in kwargs['including']
+            super(AddressLayer, self).append(layer, query=query, including=task)
 
     def conflate(self, current_address):
         """
@@ -746,10 +749,9 @@ class AddressLayer(BaseLayer):
             log.info(_("Deleted %d addresses without house number") % len(to_clean))
         self.commitChanges()
 
-    def get_highway_names(self, highway=None):
+    def get_highway_names(self, highway):
         """
         Returns a dictionary with the translation for each street name.
-        If highway is provided take the best match from it.
         
         Args:
             highway (HighwayLayer): Current OSM highway data
@@ -757,24 +759,16 @@ class AddressLayer(BaseLayer):
         Returns:
             (dict) highway names translations
         """
-        if highway:
-            index = QgsSpatialIndex(highway.getFeatures())
-            features = {feat.id(): feat for feat in highway.getFeatures()}
+        index = QgsSpatialIndex(highway.getFeatures())
+        features = {feat.id(): feat for feat in highway.getFeatures()}
         highway_names = {}
         for feat in self.getFeatures():
             name = feat['TN_text']
-            if not name in highway_names:
-                highway_names[name] = ''
-            if highway_names[name] == '' and \
-                    not re.match(setup.no_number, feat['designator']):
-                if highway:
-                    query = self.search("TN_text='%s'" % name)
-                    points = [f.geometry().asPoint() for f in query]
-                    bbox = QgsGeometry().fromMultiPoint(points).boundingBox()
-                    choices = [features[fid]['name'] for fid in index.intersects(bbox)]
-                    highway_names[name] = hgwnames.match(name, choices)
-                else:
-                    highway_names[name] = hgwnames.parse(name)
+            query = self.search("TN_text='%s'" % name)
+            points = [f.geometry().asPoint() for f in query]
+            bbox = QgsGeometry().fromMultiPoint(points).boundingBox()
+            choices = [features[fid]['name'] for fid in index.intersects(bbox)]
+            highway_names[name] = hgwnames.match(name, choices)
         return highway_names
 
 
