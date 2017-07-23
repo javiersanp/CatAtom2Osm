@@ -196,7 +196,7 @@ class BaseLayer(QgsVectorLayer):
         self.setCrs(target_crs)
         self.commitChanges()
         self.updateExtents()
-        log.info(_("Reprojected the '%s' layer to '%s' CRS"), 
+        log.debug(_("Reprojected the '%s' layer to '%s' CRS"), 
             self.name().encode('utf-8'), target_crs.description())
     
     def join_field(self, source_layer, target_field_name, join_field_name, 
@@ -241,7 +241,7 @@ class BaseLayer(QgsVectorLayer):
             self.startEditing()
             self.writer.changeAttributeValues(to_change)
             self.commitChanges()
-            log.info(_("Joined '%s' to '%s'"), source_layer.name().encode('utf-8'),
+            log.debug(_("Joined '%s' to '%s'"), source_layer.name().encode('utf-8'),
                 self.name().encode('utf-8'))
 
     def translate_field(self, field_name, translations, clean=True):

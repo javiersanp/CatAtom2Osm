@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-07-22 23:12+WEST\n"
+"POT-Creation-Date: 2017-07-23 07:19+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -44,104 +44,108 @@ msgstr ""
 "No se pudo importar FuzzyWuzzy. Instala los requerimientos para combinar "
 "direcciones."
 
-#: catatom2osm.py:98
+#: catatom2osm.py:101
 msgid "Processing %s '%s' of '%s'"
 msgstr "Procesando %s '%s' de '%s'"
 
-#: catatom2osm.py:105 catatom2osm.py:544
+#: catatom2osm.py:108
 msgid "Zone '%s' is empty"
 msgstr "La zona '%s' está vacía"
 
-#: catatom2osm.py:133
+#: catatom2osm.py:147
 msgid "The translation file '%s' have been writen in '%s'"
 msgstr "El fichero de conversiones '%s' ha sido generado en '%s'"
 
-#: catatom2osm.py:135
+#: catatom2osm.py:149
 msgid "Please, check it and run again"
 msgstr "Por favor, compruébelo y ejecute de nuevo"
 
-#: catatom2osm.py:155 catatom2osm.py:333
+#: catatom2osm.py:169 catatom2osm.py:347
 msgid "The layer '%s' is empty"
 msgstr "La capa '%s' está vacía"
 
-#: catatom2osm.py:217
+#: catatom2osm.py:231
 msgid "Finished!"
 msgstr "¡Terminado!"
 
-#: catatom2osm.py:218
+#: catatom2osm.py:232
 msgid "Only for testing purposses. Don't upload any result to OSM"
 msgstr "Sólo para fines de prueba. No cargue ningún resultado en OSM"
 
-#: catatom2osm.py:239
+#: catatom2osm.py:253
 msgid "Could not read date from '%s'"
 msgstr "No se puede determinar la fecha de '%s'"
 
-#: catatom2osm.py:248
+#: catatom2osm.py:262
 msgid "Searching the url for the '%s' layer of '%s'..."
 msgstr "Buscando la url para la capa '%s' de '%s'..."
 
-#: catatom2osm.py:253
+#: catatom2osm.py:267
 msgid "Zip code '%s' don't exists"
 msgstr "El Código Postal '%s' no existe"
 
-#: catatom2osm.py:257 catatom2osm.py:424
+#: catatom2osm.py:271 catatom2osm.py:441
 msgid "Downloading '%s'"
 msgstr "Descargando '%s'"
 
-#: catatom2osm.py:313
+#: catatom2osm.py:327
 msgid "Unknow layer name '%s'"
 msgstr "El nombre de capa '%s' es desconocido"
 
-#: catatom2osm.py:337
+#: catatom2osm.py:351
 msgid "Could not determine the CRS of '%s'"
 msgstr "No se puede determinar el CRS de '%s'"
 
-#: catatom2osm.py:342
+#: catatom2osm.py:356
 msgid "Failed to load layer '%s'"
 msgstr "Error al cargar la capa: '%s'"
 
-#: catatom2osm.py:344
+#: catatom2osm.py:358
 msgid "Read %d features in '%s'"
 msgstr "Leidos %d elementos en '%s'"
 
-#: catatom2osm.py:359
+#: catatom2osm.py:374
 msgid "Generated '%s'"
 msgstr "Generado '%s'"
 
-#: catatom2osm.py:361
+#: catatom2osm.py:376
 msgid "Failed to write layer: '%s'"
 msgstr "Error al escribir la capa: '%s'"
 
-#: catatom2osm.py:392
+#: catatom2osm.py:409
 msgid "Detected a %s geometry in the '%s' layer"
 msgstr "Detectada una geometría %s en la capa '%s'"
 
-#: catatom2osm.py:399
+#: catatom2osm.py:416
 msgid "Loaded %d nodes, %d ways, %d relations from '%s' layer"
 msgstr "Cargados %d nodos, %d vías, %d relaciones de la capa '%s'"
 
-#: catatom2osm.py:429
+#: catatom2osm.py:446
 msgid "No OSM data were obtained for '%s'"
 msgstr "No se obtuvieron datos de OSM para '%s'"
 
-#: catatom2osm.py:430
+#: catatom2osm.py:447
 msgid "Read '%s': %d nodes, %d ways, %d relations"
 msgstr "Leido '%s': %d nodos, %d vías, %d relaciones"
 
-#: catatom2osm.py:451
+#: catatom2osm.py:468
 msgid "Generated '%s': %d nodes, %d ways, %d relations"
 msgstr "Generado '%s': %d nodos, %d vías, %d relaciones"
 
-#: catatom2osm.py:650
+#: catatom2osm.py:494
+msgid "Could not resolve joined tables for the '%s' layer"
+msgstr "No se pudieron resolver las tablas combinadas para la capa '%s'"
+
+#: catatom2osm.py:658
 msgid "Municipality: '%s'"
 msgstr "Municipio: '%s'"
 
-#: catatom2osm.py:652
+#: catatom2osm.py:660
 msgid "Failed to find administrative boundary, falling back to bounding box"
 msgstr ""
 "No se pudo obtener el límite administrativo, se usará el recuadro delimitador"
 
-#: catatom2osm.py:662
+#: catatom2osm.py:670
 msgid "Territorial office %s"
 msgstr "Oficina territorial %s"
 
@@ -345,9 +349,6 @@ msgstr "No se pudo importar ElementTree desde ningún lugar conocido"
 
 #~ msgid "Read '%s'"
 #~ msgstr "Leido '%s'"
-
-#~ msgid "Could not resolve joined tables for the '%s' layer"
-#~ msgstr "No se pudieron resolver las tablas combinadas para la capa '%s'"
 
 #~ msgid "Downloading OSM data"
 #~ msgstr "Descargando datos de OSM"

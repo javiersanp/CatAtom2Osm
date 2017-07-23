@@ -93,7 +93,9 @@ class CatAtom2Osm:
         self.read_address()
         self.building_gml = self.read_gml_layer("building")
         self.building_osm = osm.Osm()
+        self.address_osm = osm.Osm()
         processed = set()
+        self.utaskn = self.rtaskn = 1
         for zoning in (self.urban_zoning, self.rustic_zoning):
             for zone in zoning.getFeatures():
                 log.info(_("Processing %s '%s' of '%s'"), 
@@ -110,10 +112,17 @@ class CatAtom2Osm:
                         task.add(feat['localId'])
                     address = layer.AddressLayer(source_date = self.address_gml.source_date)
                     address.append(self.address_gml, task=task)
-                    del address
+                    address.join_field(self.adminunitname, 'AU_id', 'gml_id', ['text'], 'AU_')
+                    address.join_field(self.postaldescriptor, 'PD_id', 'gml_id', ['postCode'])
+                    address.join_field(self.thoroughfarename, 'TN_id', 'gml_id', ['text'], 'TN_')
                     building.reproject()
+                    address.reproject()
+                    self.write_task(zoning, building, address)
                     self.building_osm = self.osm_from_layer(building, 
                         translate.building_tags, data=self.building_osm)
+                    self.address_osm = self.osm_from_layer(address, 
+                        translate.address_tags, data=self.address_osm)
+                    del address
                 del building
         self.write_osm(self.building_osm, 'building.osm')
         return
@@ -479,14 +488,14 @@ class CatAtom2Osm:
     def read_address(self):
         """Reads Address GML dataset"""
         self.address_gml = self.read_gml_layer("address")
-        """if self.address_gml.fieldNameIndex('component_href') == -1:
+        if self.address_gml.fieldNameIndex('component_href') == -1:
             self.address_gml = self.read_gml_layer("address", force_zip=True)
             if self.address_gml.fieldNameIndex('component_href') == -1:
                 raise IOError(_("Could not resolve joined tables for the "
                     "'%s' layer") % self.address_gml.name())
         self.adminunitname = self.read_gml_layer("adminunitname")
         self.postaldescriptor = self.read_gml_layer("postaldescriptor")
-        self.thoroughfarename = self.read_gml_layer("thoroughfarename")"""
+        self.thoroughfarename = self.read_gml_layer("thoroughfarename")
 
     def merge_address(self, building_osm, address_osm):
         """
@@ -529,32 +538,23 @@ class CatAtom2Osm:
                     else:
                         bu.tags.update(ad.tags)
                     
-
-    def split_building_in_tasks(self, building, address_osm=None):
-        """Generates osm files to import with the task manager"""
+    def write_task(self, zoning, building, address=None):
+        """Generates osm file for a task"""
+        if zoning is self.urban_zoning:
+            fn = 'u%05d.osm' % self.utaskn
+            self.utaskn += 1
+        else:
+            fn = 'r%03d.osm' % self.rtaskn
+            self.rtaskn += 1
         base_path = os.path.join(self.path, 'tasks')
         if not os.path.exists(base_path):
             os.makedirs(base_path)
-        for zoning in (self.urban_zoning, self.rustic_zoning):
-            to_clean = []
-            for zone in zoning.getFeatures():
-                label = zoning.name()[0].upper() + zone['label']
-                task = layer.ConsLayer(baseName=label)
-                query = lambda feat: feat['task'] == label
-                task.append(building, rename={}, query=query)
-                if task.featureCount() > 0:
-                    task_path = os.path.join('tasks', label + '.osm')
-                    task_osm = self.osm_from_layer(task, translate.building_tags, 'yes')
-                    if address_osm is not None:
-                        self.merge_address(task_osm, address_osm)
-                    self.write_osm(task_osm, task_path)
-                else:
-                    log.info(_("Zone '%s' is empty"), label.encode('utf-8'))
-                    to_clean.append(zone.id())
-            if to_clean:
-                zoning.startEditing()
-                zoning.writer.deleteFeatures(to_clean)
-                zoning.commitChanges()
+        task_path = os.path.join('tasks', fn)
+        task_osm = self.osm_from_layer(building, translate.building_tags, upload='yes')
+        if address is not None:
+            address_osm = self.osm_from_layer(address, translate.address_tags)
+            self.merge_address(task_osm, address_osm)
+        self.write_osm(task_osm, task_path)
 
     def get_translations(self, address_layer, highway):
         """
