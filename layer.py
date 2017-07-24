@@ -162,13 +162,16 @@ class BaseLayer(QgsVectorLayer):
         self.setCrs(layer.crs())
         to_add = []
         for feature in layer.getFeatures():
+            #if self.name()=='building':
+            #    if is_inside(feature    , kwargs['zone']) and feature['localId'] in kwargs['excluding']:
+            #        print feature['localId']
             if not query or query(feature, kwargs):
                 to_add.append(self.copy_feature(feature, rename, resolve))
         if to_add:
             self.startEditing()
             self.addFeatures(to_add)
             self.commitChanges()
-            log.info(_("Loaded %d features in '%s' from '%s'"), len(to_add),
+            log.debug (_("Loaded %d features in '%s' from '%s'"), len(to_add),
                 self.name().encode('utf-8'), layer.name().encode('utf-8'))
 
     def reproject(self, target_crs=None):
@@ -326,7 +329,7 @@ class PolygonLayer(BaseLayer):
         if to_clean:
             self.writer.deleteFeatures(to_clean)
             self.writer.addFeatures(to_add)
-            log.info(_("%d multi-polygons splited into %d polygons in "
+            log.debug(_("%d multi-polygons splited into %d polygons in "
                 "the '%s' layer"), len(to_clean), len(to_add), 
                 self.name().encode('utf-8'))
         self.commitChanges()
@@ -446,7 +449,7 @@ class PolygonLayer(BaseLayer):
         self.startEditing()
         if to_change:
             self.writer.changeGeometryValues(to_change)
-            log.info(_("Merged %d close vertices in the '%s' layer"), dupes, 
+            log.debug(_("Merged %d close vertices in the '%s' layer"), dupes, 
                 self.name().encode('utf-8'))
         self.commitChanges()
 
@@ -481,11 +484,11 @@ class PolygonLayer(BaseLayer):
         self.startEditing()
         if to_change:
             self.writer.changeGeometryValues(to_change)
-            log.info(_("Merged %d duplicated vertices of polygons in "
+            log.debug(_("Merged %d duplicated vertices of polygons in "
                 "the '%s' layer"), dupes, self.name().encode('utf-8'))
         if to_clean:
             self.writer.deleteFeatures(to_clean)
-            log.info(_("Deleted %d invalid geometries in the '%s' layer"),
+            log.debug(_("Deleted %d invalid geometries in the '%s' layer"),
                 len(to_clean), self.name().encode('utf-8'))
         self.commitChanges()
 
@@ -529,7 +532,7 @@ class PolygonLayer(BaseLayer):
         self.startEditing()
         if to_change:
             self.writer.changeGeometryValues(to_change)
-            log.info (_("Created %d topological points in the '%s' layer"), 
+            log.debug(_("Created %d topological points in the '%s' layer"), 
                 tp, self.name().encode('utf-8'))
         self.commitChanges()
         if log.getEffectiveLevel() <= logging.DEBUG:
@@ -580,7 +583,7 @@ class PolygonLayer(BaseLayer):
         self.startEditing()
         if to_clean:
             self.writer.deleteFeatures(to_clean)
-            log.info(_("Deleted %d invalid geometries in the '%s' layer"), 
+            log.debug(_("Deleted %d invalid geometries in the '%s' layer"), 
                 len(to_clean), self.name().encode('utf-8'))
         self.commitChanges()
         # Clean non corners
@@ -615,7 +618,7 @@ class PolygonLayer(BaseLayer):
         self.startEditing()
         if to_change:
             self.writer.changeGeometryValues(to_change)
-            log.info(_("Simplified %d vertices in the '%s' layer"), killed, 
+            log.debug(_("Simplified %d vertices in the '%s' layer"), killed, 
                 self.name().encode('utf-8'))
         self.commitChanges()
 
@@ -635,7 +638,7 @@ class PolygonLayer(BaseLayer):
         if to_clean:
             self.writer.deleteFeatures(to_clean)
             self.writer.changeGeometryValues(to_change)
-            log.info(_("%d adjacent polygons merged into %d polygons in the '%s' "
+            log.debug(_("%d adjacent polygons merged into %d polygons in the '%s' "
                 "layer"), len(to_clean), len(to_change), self.name().encode('utf-8'))
         self.commitChanges()
 
@@ -720,14 +723,6 @@ class AddressLayer(BaseLayer):
             'AU_id': ('component_href', '[\w\.]+AU[\.0-9]+')
         }
         self.source_date = source_date
-
-    def append(self, layer, task=None):
-        """Append features of layer including task localId's"""
-        if task is None:
-            super(AddressLayer, self).append(layer)
-        else:
-            query = lambda f, kwargs: f['localId'].split('.')[-1] in kwargs['including']
-            super(AddressLayer, self).append(layer, query=query, including=task)
 
     def conflate(self, current_address):
         """
@@ -819,11 +814,10 @@ class ConsLayer(PolygonLayer):
         """Pool features have '_PI.' in its localId field"""
         return '_PI.' in feature['localId']
 
-    def append(self, layer, zone, processed):
+    def append(self, layer, zone):
         """Append features of layer inside zone excluding processed localId's'"""
-        query = lambda f, kwargs: \
-            f['localId'] not in kwargs['excluding'] and is_inside(f, kwargs['zone'])
-        super(ConsLayer, self).append(layer, query=query, zone=zone, excluding=processed)
+        query = lambda f, kwargs: is_inside(f, kwargs['zone'])
+        super(ConsLayer, self).append(layer, query=query, zone=zone)
 
     def append_task(self, layer, task):
         """Append features of layer including task localId's'"""
@@ -836,7 +830,7 @@ class ConsLayer(PolygonLayer):
         to_clean = [f.id() for f in self.search('lev_above=0')]
         if to_clean:
             self.writer.deleteFeatures(to_clean)
-            log.info(_("Deleted %d building parts with no floors above ground"), 
+            log.debug(_("Deleted %d building parts with no floors above ground"), 
                 len(to_clean))
         self.commitChanges()
 
@@ -860,7 +854,7 @@ class ConsLayer(PolygonLayer):
                         to_clean.append(part.id())
         if to_clean:
             self.writer.deleteFeatures(to_clean)
-            log.info(_("Removed %d building parts outside the footprint"), len(to_clean))
+            log.debug(_("Removed %d building parts outside the footprint"), len(to_clean))
         self.commitChanges()
             
     def merge_greatest_part(self, footprint, parts):
@@ -944,7 +938,7 @@ class ConsLayer(PolygonLayer):
         if to_clean:
             self.writer.changeAttributeValues(to_change)
             self.writer.deleteFeatures(to_clean)
-            log.info(_("Merged %d building parts to footprint"), len(to_clean))
+            log.debug(_("Merged %d building parts to footprint"), len(to_clean))
         self.commitChanges()
 
     def remove_duplicated_holes(self):
@@ -979,7 +973,7 @@ class ConsLayer(PolygonLayer):
                     to_change[feature.id()] = geom
         if ip:
             self.writer.changeGeometryValues(to_change)            
-            log.info(_("Removed %d duplicated inner rings"), ip)
+            log.debug(_("Removed %d duplicated inner rings"), ip)
         self.commitChanges()
                     
     def clean(self):

@@ -2,9 +2,9 @@
 """
 Tool to convert INSPIRE data sets from the Spanish Cadastre ATOM Services to OSM files
 """
-import os
 import math
 import re
+import os
 import codecs
 import json
 import logging
@@ -84,16 +84,46 @@ class CatAtom2Osm:
 
     def run(self):
         """Launches the app"""
-        
         self.start()
-        if self.is_new: return
-        for zoning in (self.urban_zoning, self.rustic_zoning):
-            for zone in zoning.getFeatures():
-                self.process(zone, zoning)
-        self.write_osm(self.building_osm, 'building.osm')
+        if self.options.building:
+            for rzone in self.rustic_zoning.getFeatures():
+                self.processed = set()
+                rbuilding = layer.ConsLayer(source_date = self.building_gml.source_date)
+                rbuilding.append(self.building_gml, rzone)
+                rbuilding.append(self.part_gml, rzone)
+                if self.other_gml:
+                    rbuilding.append(self.other_gml, rzone)
+                for uzone in self.urban_zoning.getFeatures():
+                    if layer.is_inside(uzone, rzone):
+                        log.info(_("Processing %s '%s' of '%s'"), 'manzana',
+                            uzone['label'], 'urban_zoning')
+                        ubuilding = layer.ConsLayer(source_date = self.building_gml.source_date)
+                        ubuilding.append(rbuilding, uzone)
+                        self.process(ubuilding, uzone, self.urban_zoning)
+                        del ubuilding
+                log.info(_("Processing %s '%s' of '%s'"), u'polígono',
+                    rzone['label'], 'rustic_zoning')
+                rbuilding.startEditing()
+                to_clean = [f.id() for f in rbuilding.getFeatures() \
+                    if f['localId'] in self.processed]
+                rbuilding.writer.deleteFeatures(to_clean)
+                rbuilding.commitChanges()
+                self.process(rbuilding, rzone, self.rustic_zoning)
+                del rbuilding
+            self.write_osm(self.building_osm, 'building.osm')
         if self.options.address:
+            self.address.reproject()
             address_osm = self.osm_from_layer(self.address, translate.address_tags)
             self.write_osm(address_osm, 'address.osm')
+        if self.options.zoning:
+            self.urban_zoning.reproject()
+            self.rustic_zoning.reproject()
+            self.export_layer(self.urban_zoning, 'urban_zoning.geojson', 'GeoJSON')
+            self.export_layer(self.rustic_zoning, 'rustic_zoning.geojson', 'GeoJSON')
+        if self.is_new:
+            log.info(_("The translation file '%s' have been writen in "
+                "'%s'"), 'highway_names.csv', self.path)
+            log.info(_("Please, check it and run again"))
         return
         
         if self.options.building or self.options.tasks:
@@ -168,55 +198,43 @@ class CatAtom2Osm:
             self.get_translations()
             self.address.translate_field('TN_text', self.highway_names)
             if self.is_new:
-                self.address.reproject()
-                address_osm = self.osm_from_layer(self.address, translate.address_tags)
-                self.write_osm(address_osm, "address.osm")
-                log.info(_("The translation file '%s' have been writen in "
-                    "'%s'"), 'highway_names.csv', self.path)
-                log.info(_("Please, check it and run again"))
+                self.options.building = False
                 return
             current_address = self.get_current_ad_osm()
             self.address.conflate(current_address)
             self.address_osm = osm.Osm()
         if self.options.building:
+            base_path = os.path.join(self.path, 'tasks')
+            if not os.path.exists(base_path):
+                os.makedirs(base_path)
             self.building_gml = self.read_gml_layer("building")
             self.part_gml = self.read_gml_layer("buildingpart")
             self.other_gml = self.read_gml_layer("otherconstruction", True)
             self.building_osm = osm.Osm()
-            self.processed = set()
             self.utaskn = self.rtaskn = 1
 
-    def process(self, zone, zoning):
+    def process(self, building, zone, zoning):
         """Process data in zone"""
-        log.info(_("Processing %s '%s' of '%s'"), 
-            zone['levelName'].encode('utf-8').lower().translate(None, '(1:) '), 
-            zone['label'], zoning.name().encode('utf-8'))
-        if self.options.building:
-            building = layer.ConsLayer(source_date = self.building_gml.source_date)
-            building.append(self.building_gml, zone, self.processed)
-            if building.featureCount() == 0:
-                log.info(_("Zone '%s' is empty"), zone['label'].encode('utf-8'))
-            else:
-                task = set()
-                for feat in building.getFeatures():
-                    self.processed.add(feat['localId'])
-                    task.add(feat['localId'])
-                building.append_task(self.part_gml, task)
-                if self.other_gml:
-                    building.append_task(self.other_gml, task)
-                temp_address = None
-                if self.options.address:
-                    temp_address = layer.BaseLayer(path="Point", baseName="address",
-                        providerLib="memory")
-                    temp_address.source_date = False
-                    temp_address.append(self.address, task)
-                    temp_address.reproject()
-                building.reproject()
-                self.write_task(zoning, building, temp_address)
-                self.building_osm = self.osm_from_layer(building, 
-                    translate.building_tags, data=self.building_osm)
-                del temp_address
-            del building
+        if building.featureCount() == 0:
+            log.info(_("Zone '%s' is empty"), zone['label'].encode('utf-8'))
+        else:
+            task = set()
+            for feat in building.getFeatures():
+                self.processed.add(feat['localId'])
+                task.add(feat['localId'])
+            temp_address = None
+            if self.options.address:
+                temp_address = layer.BaseLayer(path="Point", baseName="address",
+                    providerLib="memory")
+                temp_address.source_date = False
+                query = lambda f, kwargs: f['localId'].split('.')[-1] in kwargs['including']
+                temp_address.append(self.address, query=query, including=task)
+                temp_address.reproject()
+            building.reproject()
+            self.write_task(zoning, building, temp_address)
+            self.building_osm = self.osm_from_layer(building, 
+                translate.building_tags, data=self.building_osm)
+            del temp_address
 
     def exit(self):
         for propname in dir(self):
@@ -350,7 +368,7 @@ class CatAtom2Osm:
             if not gml.isValid():
                 raise IOError(_("Failed to load layer '%s'") % gml_path)
         gml.setCrs(crs)
-        log.info(_("Read %d features in '%s'"), gml.featureCount(), 
+        log.debug(_("Read %d features in '%s'"), gml.featureCount(), 
             gml_path.encode('utf-8'))
         gml.source_date = gml_date
         return gml
@@ -387,6 +405,11 @@ class CatAtom2Osm:
         """
         if data is None:
             data = osm.Osm(upload)
+            nodes = ways = relations = 0
+        else:
+            nodes = len(data.nodes)
+            ways = len(data.ways)
+            relations = len(data.relations)
         for feature in layer.getFeatures(): 
             geom = feature.geometry()
             e = None
@@ -408,9 +431,9 @@ class CatAtom2Osm:
             data.tags[key] = value
         if layer.source_date:
             data.tags['source:date'] = layer.source_date
-        log.info(_("Loaded %d nodes, %d ways, %d relations from '%s' layer"), 
-            len(data.nodes), len(data.ways), len(data.relations), 
-            layer.name().encode('utf-8'))
+        log.debug(_("Loaded %d nodes, %d ways, %d relations from '%s' layer"), 
+            len(data.nodes) - nodes, len(data.ways) - ways, 
+            len(data.relations) - relations, layer.name().encode('utf-8'))
         return data
         
     def read_osm(self, ql, filename):
@@ -478,6 +501,9 @@ class CatAtom2Osm:
         del zoning_gml
         self.urban_zoning.explode_multi_parts()
         self.rustic_zoning.explode_multi_parts()
+        #self.urban_zoning.clean()
+        self.urban_zoning.add_topological_points()
+        #self.rustic_zoning.clean()
         self.urban_zoning.merge_adjacents()
 
     def read_address(self):
@@ -547,8 +573,6 @@ class CatAtom2Osm:
             fn = 'r%03d.osm' % self.rtaskn
             self.rtaskn += 1
         base_path = os.path.join(self.path, 'tasks')
-        if not os.path.exists(base_path):
-            os.makedirs(base_path)
         task_path = os.path.join('tasks', fn)
         task_osm = self.osm_from_layer(building, translate.building_tags, upload='yes')
         if address is not None:
