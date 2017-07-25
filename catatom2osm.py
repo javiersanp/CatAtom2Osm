@@ -196,6 +196,7 @@ class CatAtom2Osm:
                 temp_address.source_date = False
                 query = lambda f, kwargs: f['localId'].split('.')[-1] in kwargs['including']
                 temp_address.append(self.address, query=query, including=task)
+                building.move_address(temp_address)
                 temp_address.reproject()
             building.reproject()
             building.conflate(self.current_bu_osm)

@@ -731,12 +731,12 @@ class AddressLayer(BaseLayer):
             if feat['TN_text'] + feat['designator'] in current_address]
         if to_clean:
             self.writer.deleteFeatures(to_clean)
-            log.info(_("Refused %d addresses existing in OSM") % len(to_clean))
+            log.debug(_("Refused %d addresses existing in OSM") % len(to_clean))
         to_clean = [feat.id() for feat in self.search("designator = '%s'" \
             % setup.no_number)]
         if to_clean:
             self.writer.deleteFeatures(to_clean)
-            log.info(_("Deleted %d addresses without house number") % len(to_clean))
+            log.debug(_("Deleted %d addresses without house number") % len(to_clean))
         self.commitChanges()
 
     def get_highway_names(self, highway):
@@ -1049,55 +1049,8 @@ class ConsLayer(PolygonLayer):
         self.startEditing()
         self.writer.changeGeometryValues(to_insert)
         self.commitChanges()
-        log.info(_("Deleted %d addresses of %d, %d moved"), len(to_clean), 
+        log.debug(_("Deleted %d addresses of %d, %d moved"), len(to_clean), 
             ad_count, len(to_move))
-
-    def set_tasks(self, urban_zoning, rustic_zoning):
-        """Assings to the 'task' field the label of the zone that each feature 
-        is contained. Buildings within or adjacent to an urban zone receives an 
-        urban zone label, buildings within an rustic zone that have not been
-        previously labeled receives a rustic zone label. Building task label
-        is propagated to its parts.
-        """
-        log.info (_("Assigning task number to each construction"))
-        (buildings, parts) = self.index_of_building_and_parts()
-        features = {feat.id(): feat for feat in self.getFeatures()}
-        index = QgsSpatialIndex(self.getFeatures())
-        self.startEditing()
-        to_change = {}
-        prefix = urban_zoning.name()[0].upper()
-        tf = self.fieldNameIndex('task')
-        for task in urban_zoning.getFeatures():
-            zone = task.geometry()
-            for fid in index.intersects(zone.boundingBox()):
-                candidate = features[fid]
-                if not candidate['task'] and is_inside(candidate, task):
-                    candidate['task'] = prefix + task['label']
-                    attributes = get_attributes(candidate)
-                    to_change[fid] = attributes
-                    if self.is_building(candidate):
-                        for part in parts[candidate['localId']]:
-                            part['task'] = prefix + task['label']
-                            attributes = get_attributes(part)
-                            to_change[part.id()] = attributes
-        prefix = rustic_zoning.name()[0].upper()
-        for task in rustic_zoning.getFeatures():
-            zone = task.geometry()
-            for fid in index.intersects(zone.boundingBox()):
-                candidate = features[fid]
-                if not candidate['task'] and is_inside(candidate, task):
-                    candidate['task'] = prefix + task['label']
-                    attributes = get_attributes(candidate)
-                    to_change[fid] = attributes
-        self.writer.changeAttributeValues(to_change)
-        self.commitChanges()
-        nt = self.featureCount() - len(to_change)
-        if nt:
-            log.warning(_("%d features unassigned to a task in the '%s' layer"),
-                nt, self.name().decode('utf-8'))
-        else:
-            log.info(_("All features assigned to tasks in the '%s' layer"), 
-                self.name().decode('utf-8'))
 
     def check_levels_and_area(self):
         """Shows distribution of floors and put fixmes to buildings too small or big"""
