@@ -197,12 +197,12 @@ class CatAtom2Osm:
             building.clean()
             temp_address = None
             if self.options.address:
+                #building.move_address(self.address)
                 temp_address = layer.BaseLayer(path="Point", baseName="address",
                     providerLib="memory")
                 temp_address.source_date = False
                 query = lambda f, kwargs: f['localId'].split('.')[-1] in kwargs['including']
                 temp_address.append(self.address, query=query, including=task)
-                building.move_address(temp_address)
                 temp_address.reproject()
             building.reproject()
             building.conflate(self.current_bu_osm, delete=False)
@@ -226,7 +226,7 @@ class CatAtom2Osm:
         building.remove_parts_below_ground()
         building.clean()
         if self.options.address:
-            building.move_address(self.address) # !!
+            building.move_address(self.address)
         building.check_levels_and_area() # !!
         building.reproject()
         building.conflate(self.current_bu_osm)

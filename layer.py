@@ -984,7 +984,22 @@ class ConsLayer(PolygonLayer):
         self.remove_duplicated_holes()
         self.simplify()
 
-    def move_address(self, address):
+    def del_address(self, address):
+        """Delete the address if there aren't any associated building."""
+        to_clean = []
+        (buildings, parts) = self.index_of_building_and_parts()
+        for ad in address.getFeatures():
+            refcat = ad['localId'].split('.')[-1]
+            building_count = len(buildings[refcat])
+            if building_count == 0:
+                to_clean.append(ad.id())
+        if to_clean:
+            address.startEditing()
+            address.writer.deleteFeatures(to_clean)
+            address.commitChanges()
+            log.info(_("Deleted %d addresses"), len(to_clean))
+
+    def move_address(self, address, delete=True):
         """
         Move each address to the nearest point in the footprint of its 
         associated building (same cadastral reference), but only if:
@@ -994,8 +1009,8 @@ class ConsLayer(PolygonLayer):
         * The address specification is Entrance.
         
         * The new position is enough close and is not a corner
-        
-        Delete the address if there aren't any associated building.
+
+        If delete is True, remove the address if there aren't any associated building.
         """
         ad_count = 0
         to_clean = []
@@ -1009,7 +1024,7 @@ class ConsLayer(PolygonLayer):
             refcat = ad['localId'].split('.')[-1]
             building_count = len(buildings[refcat])
             if building_count == 0:
-                to_clean.append(ad.id())
+                if delete: to_clean.append(ad.id())
             elif building_count == 1:
                 building = buildings[refcat][0]
                 if ad['spec'] == 'Entrance':
@@ -1043,14 +1058,13 @@ class ConsLayer(PolygonLayer):
                 to_change[ad.id()] = attributes
         address.startEditing()
         address.writer.changeAttributeValues(to_change)
-        address.writer.deleteFeatures(to_clean)
         address.writer.changeGeometryValues(to_move)
         address.commitChanges()
         self.startEditing()
         self.writer.changeGeometryValues(to_insert)
         self.commitChanges()
-        log.debug(_("Deleted %d addresses of %d, %d moved"), len(to_clean), 
-            ad_count, len(to_move))
+        log.debug(_("Deleted %d addresses, %d changed, %d moved"), len(to_clean), 
+            len(to_change), len(to_move))
 
     def check_levels_and_area(self):
         """Shows distribution of floors and put fixmes to buildings too small or big"""
