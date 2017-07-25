@@ -4,7 +4,7 @@
 import os
 import math
 import re
-from collections import defaultdict, Counter, OrderedDict
+from collections import defaultdict
 
 from qgis.core import *
 from PyQt4.QtCore import QVariant
@@ -1066,10 +1066,8 @@ class ConsLayer(PolygonLayer):
         log.debug(_("Deleted %d addresses, %d changed, %d moved"), len(to_clean), 
             len(to_change), len(to_move))
 
-    def check_levels_and_area(self):
+    def check_levels_and_area(self, min_level, max_level):
         """Shows distribution of floors and put fixmes to buildings too small or big"""
-        max_level = {}
-        min_level = {}
         to_change = {}
         field_ndx = self.pendingFields().fieldNameIndex('fixme')
         for feat in self.getFeatures():
@@ -1089,14 +1087,7 @@ class ConsLayer(PolygonLayer):
                 if area > setup.warning_max_area:
                     attributes[field_ndx] = _("Check, area too big")
                     to_change[feat.id()] = attributes
-        dlag = ', '.join(["%d: %d" % (l, c) for (l, c) in \
-            OrderedDict(Counter(max_level.values())).items()])
-        dlbg = ', '.join(["%d: %d" % (l, c) for (l, c) in \
-            OrderedDict(Counter(min_level.values())).items()])
-        log.info(_("Distribution of floors above ground %s"), dlag)
-        log.info(_("Distribution of floors below ground %s"), dlbg)
         if to_change:
-            log.warning("Revisa %d etiquetas fixme", len(to_change))
             self.startEditing()
             self.writer.changeAttributeValues(to_change)
             self.commitChanges()

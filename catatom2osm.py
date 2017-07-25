@@ -9,7 +9,7 @@ import codecs
 import json
 import logging
 import zipfile
-from collections import defaultdict
+from collections import defaultdict, Counter, OrderedDict
 
 from qgis.core import *
 from osgeo import gdal
@@ -97,7 +97,6 @@ class CatAtom2Osm:
                         del el.tags['conflict']
             if self.options.address:
                 self.address.del_address(self.building_osm)
-            self.write_osm(self.building_osm, 'building.osm')
             del self.building_gml
             del self.part_gml
             del self.other_gml
@@ -109,13 +108,8 @@ class CatAtom2Osm:
             del self.address
             if self.options.building:
                 self.merge_address(self.building_osm, address_osm)
-                self.write_osm(self.building_osm, 'building.osm')
             self.write_osm(address_osm, 'address.osm')
             del address_osm
-        if self.options.tasks or self.options.building:
-            self.write_osm(self.current_bu_osm, 'current_building.osm')
-            del self.building_osm
-            del self.current_bu_osm
         if self.options.zoning:
             self.urban_zoning.clean()
             self.rustic_zoning.clean()
@@ -125,6 +119,22 @@ class CatAtom2Osm:
             self.export_layer(self.rustic_zoning, 'rustic_zoning.geojson', 'GeoJSON')
         del self.urban_zoning
         del self.rustic_zoning
+        if self.options.tasks or self.options.building:
+            self.write_osm(self.building_osm, 'building.osm')
+            for el in self.building_osm.elements:
+                if 'fixme' in el.tags:
+                    self.fixmes += 1
+            del self.building_osm
+            self.write_osm(self.current_bu_osm, 'current_building.osm')
+            del self.current_bu_osm
+            dlag = ', '.join(["%d: %d" % (l, c) for (l, c) in \
+                OrderedDict(Counter(self.max_level.values())).items()])
+            dlbg = ', '.join(["%d: %d" % (l, c) for (l, c) in \
+                OrderedDict(Counter(self.min_level.values())).items()])
+            log.info(_("Distribution of floors above ground %s"), dlag)
+            log.info(_("Distribution of floors below ground %s"), dlbg)
+        if self.fixmes:
+            log.warning("Revisa %d etiquetas fixme", self.fixmes)
         if self.is_new:
             log.info(_("The translation file '%s' have been writen in "
                 "'%s'"), 'highway_names.csv', self.path)
@@ -175,6 +185,9 @@ class CatAtom2Osm:
             self.building_osm = osm.Osm()
             self.utaskn = self.rtaskn = 1
         self.processed = set()
+        self.fixmes = 0
+        self.min_level = {}
+        self.max_level = {}
 
     def process_zone(self, zone, zoning):
         """Process data in zone"""
@@ -208,6 +221,7 @@ class CatAtom2Osm:
                 temp_address.reproject()
             building.reproject()
             building.conflate(self.current_bu_osm, delete=False)
+            building.check_levels_and_area(self.min_level, self.max_level)
             self.write_task(zoning, building, temp_address)
             self.building_osm = self.osm_from_layer(building, 
                 translate.building_tags, data=self.building_osm)
@@ -229,10 +243,10 @@ class CatAtom2Osm:
         building.clean()
         if self.options.address:
             building.move_address(self.address)
-        building.check_levels_and_area() # !!
         building.reproject()
         building.conflate(self.current_bu_osm)
         self.building_osm = self.osm_from_layer(building, translate.building_tags)
+        building.check_levels_and_area(self.min_level, self.max_level)
         
     def exit(self):
         """Ends properly"""
