@@ -739,6 +739,21 @@ class AddressLayer(BaseLayer):
             log.debug(_("Deleted %d addresses without house number") % len(to_clean))
         self.commitChanges()
 
+    def del_address(self, building_osm):
+        """Delete the address if there aren't any associated building."""
+        to_clean = []
+        building_refs = (el.tags['ref'] for el in building_osm.elements \
+            if 'ref' in el.tags)
+        for ad in self.getFeatures():
+            ref = ad['localId'].split('.')[-1]
+            if ref in building_refs:
+                to_clean.append(ad.id())
+        if to_clean:
+            self.startEditing()
+            self.writer.deleteFeatures(to_clean)
+            self.commitChanges()
+            log.info(_("Deleted %d addresses"), len(to_clean))
+
     def get_highway_names(self, highway):
         """
         Returns a dictionary with the translation for each street name.
@@ -983,21 +998,6 @@ class ConsLayer(PolygonLayer):
         self.merge_building_parts()
         self.remove_duplicated_holes()
         self.simplify()
-
-    def del_address(self, address):
-        """Delete the address if there aren't any associated building."""
-        to_clean = []
-        (buildings, parts) = self.index_of_building_and_parts()
-        for ad in address.getFeatures():
-            refcat = ad['localId'].split('.')[-1]
-            building_count = len(buildings[refcat])
-            if building_count == 0:
-                to_clean.append(ad.id())
-        if to_clean:
-            address.startEditing()
-            address.writer.deleteFeatures(to_clean)
-            address.commitChanges()
-            log.info(_("Deleted %d addresses"), len(to_clean))
 
     def move_address(self, address, delete=True):
         """

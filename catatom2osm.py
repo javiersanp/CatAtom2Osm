@@ -95,6 +95,8 @@ class CatAtom2Osm:
                         self.current_bu_osm.remove(el)
                     else:
                         del el.tags['conflict']
+            if self.options.address:
+                self.address.del_address(self.building_osm)
             self.write_osm(self.building_osm, 'building.osm')
             del self.building_gml
             del self.part_gml
@@ -197,7 +199,7 @@ class CatAtom2Osm:
             building.clean()
             temp_address = None
             if self.options.address:
-                #building.move_address(self.address)
+                building.move_address(self.address, delete=False)
                 temp_address = layer.BaseLayer(path="Point", baseName="address",
                     providerLib="memory")
                 temp_address.source_date = False
