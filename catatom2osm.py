@@ -85,15 +85,29 @@ class CatAtom2Osm:
     def run(self):
         """Launches the app"""
         self.start()
-        if self.options.building:
+        if self.options.tasks:
             for zoning in (self.urban_zoning, self.rustic_zoning):
                 for zone in zoning.getFeatures():
-                    self.process(zone, zoning)
+                    self.process_zone(zone, zoning)
             self.write_osm(self.building_osm, 'building.osm')
+            del self.building_gml
+            del self.part_gml
+            del self.other_gml
+        elif self.options.building:
+            self.process_building()
         if self.options.address:
             self.address.reproject()
             address_osm = self.osm_from_layer(self.address, translate.address_tags)
+            del self.address
+            if self.options.building:
+                self.merge_address(self.building_osm, address_osm)
+                self.write_osm(self.building_osm, 'building.osm')
             self.write_osm(address_osm, 'address.osm')
+            del address_osm
+        if self.options.tasks or self.options.building:
+            self.write_osm(self.current_bu_osm, 'current_building.osm')
+            del self.building_osm
+            del self.current_bu_osm
         if self.options.zoning:
             self.urban_zoning.clean()
             self.rustic_zoning.clean()
@@ -101,6 +115,8 @@ class CatAtom2Osm:
             self.rustic_zoning.reproject()
             self.export_layer(self.urban_zoning, 'urban_zoning.geojson', 'GeoJSON')
             self.export_layer(self.rustic_zoning, 'rustic_zoning.geojson', 'GeoJSON')
+        del self.urban_zoning
+        del self.rustic_zoning
         if self.is_new:
             log.info(_("The translation file '%s' have been writen in "
                 "'%s'"), 'highway_names.csv', self.path)
@@ -120,6 +136,7 @@ class CatAtom2Osm:
                 self.export_layer(parcel, 'parcel.shp')
 
     def start(self):
+        """Initializes data sets"""
         log.info(_("Start processing '%s'"), self.zip_code)
         if not hgwnames.fuzz:
             log.warning(_("Failed to import FuzzyWuzzy. "
@@ -129,33 +146,35 @@ class CatAtom2Osm:
         self.is_new = False
         if self.options.address:
             self.read_address()
-            self.get_highway()
-            self.get_translations()
-            self.address.translate_field('TN_text', self.highway_names)
+            highway = self.get_highway()
+            highway_names = self.get_translations(highway)
+            self.address.translate_field('TN_text', highway_names)
             if self.is_new:
+                self.options.tasks = False
                 self.options.building = False
                 return
             current_address = self.get_current_ad_osm()
             self.address.conflate(current_address)
             self.address_osm = osm.Osm()
-        if self.options.building:
+        if self.options.building or self.options.tasks:
             base_path = os.path.join(self.path, 'tasks')
             if not os.path.exists(base_path):
                 os.makedirs(base_path)
             self.building_gml = self.read_gml_layer("building")
             self.part_gml = self.read_gml_layer("buildingpart")
             self.other_gml = self.read_gml_layer("otherconstruction", True)
+            self.current_bu_osm = self.get_current_bu_osm()
             self.building_osm = osm.Osm()
             self.utaskn = self.rtaskn = 1
         self.processed = set()
 
-    def process(self, zone, zoning):
+    def process_zone(self, zone, zoning):
         """Process data in zone"""
         log.info(_("Processing %s '%s' of '%s'"), 
             zone['levelName'].encode('utf-8').lower().translate(None, '(1:) '), 
             zone['label'], zoning.name().encode('utf-8'))
         building = layer.ConsLayer(source_date = self.building_gml.source_date)
-        building.append(self.building_gml, zone, self.processed)
+        building.append_zone(self.building_gml, zone, self.processed)
         if building.featureCount() == 0:
             log.info(_("Zone '%s' is empty"), zone['label'].encode('utf-8'))
         else:
@@ -179,12 +198,35 @@ class CatAtom2Osm:
                 temp_address.append(self.address, query=query, including=task)
                 temp_address.reproject()
             building.reproject()
+            building.conflate(self.current_bu_osm)
             self.write_task(zoning, building, temp_address)
             self.building_osm = self.osm_from_layer(building, 
                 translate.building_tags, data=self.building_osm)
             del temp_address
 
+    def process_building(self):
+        """Process all buildings dataset"""
+        building = layer.ConsLayer(source_date = self.building_gml.source_date)
+        building.append(self.building_gml)
+        del self.building_gml
+        building.append(self.part_gml)
+        del self.part_gml
+        if self.other_gml:
+            building.append(self.other_gml)
+        del self.other_gml
+        building.remove_outside_parts()
+        building.explode_multi_parts()
+        building.remove_parts_below_ground()
+        building.clean()
+        if self.options.address:
+            building.move_address(self.address) # !!
+        building.check_levels_and_area() # !!
+        building.reproject()
+        building.conflate(self.current_bu_osm)
+        self.building_osm = self.osm_from_layer(building, translate.building_tags)
+        
     def exit(self):
+        """Ends properly"""
         for propname in dir(self):
             if isinstance(getattr(self, propname), QgsVectorLayer):
                 delattr(self, propname)
@@ -526,7 +568,7 @@ class CatAtom2Osm:
             self.merge_address(task_osm, address_osm)
         self.write_osm(task_osm, task_path)
 
-    def get_translations(self):
+    def get_translations(self, highway):
         """
         If there exists the configuration file 'highway_types.csv', read it, 
         else write one with default values. If don't exists the translations file 
@@ -546,12 +588,13 @@ class CatAtom2Osm:
             csvtools.csv2dict(highway_types_path, setup.highway_types)
         highway_names_path = os.path.join(self.path, 'highway_names.csv')
         if not os.path.exists(highway_names_path):
-            self.highway_names = self.address.get_highway_names(self.highway)
-            csvtools.dict2csv(highway_names_path, self.highway_names)
+            highway_names = self.address.get_highway_names(highway)
+            csvtools.dict2csv(highway_names_path, highway_names)
             self.is_new = True
         else:
-            self.highway_names = csvtools.csv2dict(highway_names_path, {})
+            highway_names = csvtools.csv2dict(highway_names_path, {})
             self.is_new = False
+        return highway_names
 
     def get_highway(self):
         """Gets OSM highways needed for street names conflation"""
@@ -560,10 +603,11 @@ class CatAtom2Osm:
              'way["place"="square"]["name"]({bb});' \
              'relation["place"="square"]["name"]({bb});'
         highway_osm = self.read_osm(ql, 'current_highway.osm')
-        self.highway = layer.HighwayLayer()
-        self.highway.read_from_osm(highway_osm)
+        highway = layer.HighwayLayer()
+        highway.read_from_osm(highway_osm)
         del highway_osm
-        self.highway.reproject(self.address.crs())
+        highway.reproject(self.address.crs())
+        return highway
 
     def get_current_ad_osm(self):
         """Gets OSM address for address conflation"""
@@ -582,7 +626,7 @@ class CatAtom2Osm:
                 current_address.add(d.tags['addr:place'] + d.tags['addr:housenumber'])
         return current_address
 
-    def get_building(self):
+    def get_current_bu_osm(self):
         """Gets OSM buildings for building conflation"""
         ql = 'way["building"]({bb});relation["building"]({bb});'
         current_bu_osm = self.read_osm(ql, 'current_building.osm')

@@ -809,7 +809,7 @@ class ConsLayer(PolygonLayer):
         """Pool features have '_PI.' in its localId field"""
         return '_PI.' in feature['localId']
 
-    def append(self, layer, zone, processed):
+    def append_zone(self, layer, zone, processed):
         """Append features of layer inside zone excluding processed localId's'"""
         query = lambda f, kwargs: \
             f['localId'] not in kwargs['excluding'] and is_inside(f, kwargs['zone'])
