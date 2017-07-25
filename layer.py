@@ -1087,8 +1087,11 @@ class ConsLayer(PolygonLayer):
             self.writer.changeAttributeValues(to_change)
             self.commitChanges()
 
-    def conflate(self, current_bu_osm):
-        """Removes from current_bu_osm the buildings that don't have conflicts"""
+    def conflate(self, current_bu_osm, delete=True):
+        """
+        Removes from current_bu_osm the buildings that don't have conflicts.
+        If delete=False, only mark buildings with conflicts
+        """
         index = QgsSpatialIndex(self.getFeatures())
         for el in frozenset(current_bu_osm.elements):
             poly = None
@@ -1106,8 +1109,10 @@ class ConsLayer(PolygonLayer):
                             geom.overlaps(feat.geometry()):
                         conflict = True
                         break    
-                if not conflict:
+                if delete and not conflict:
                     current_bu_osm.remove(el)
+                elif conflict:
+                    el.tags['conflict'] = 'yes'
                 
 
 class HighwayLayer(BaseLayer):

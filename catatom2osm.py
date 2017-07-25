@@ -89,6 +89,12 @@ class CatAtom2Osm:
             for zoning in (self.urban_zoning, self.rustic_zoning):
                 for zone in zoning.getFeatures():
                     self.process_zone(zone, zoning)
+            for el in frozenset(self.current_bu_osm.elements):
+                if 'building' in el.tags:
+                    if 'conflict' not in el.tags:
+                        self.current_bu_osm.remove(el)
+                    else:
+                        del el.tags['conflict']
             self.write_osm(self.building_osm, 'building.osm')
             del self.building_gml
             del self.part_gml
@@ -199,7 +205,7 @@ class CatAtom2Osm:
                 building.move_address(temp_address)
                 temp_address.reproject()
             building.reproject()
-            building.conflate(self.current_bu_osm)
+            building.conflate(self.current_bu_osm, delete=False)
             self.write_task(zoning, building, temp_address)
             self.building_osm = self.osm_from_layer(building, 
                 translate.building_tags, data=self.building_osm)
