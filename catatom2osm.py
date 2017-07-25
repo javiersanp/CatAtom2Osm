@@ -81,6 +81,7 @@ class CatAtom2Osm:
         self.qgs = QgsSingleton()
         log.debug(_("Initialized QGIS API"))
         self.address_gml = None
+        self.debug = log.getEffectiveLevel() == logging.DEBUG
 
     def run(self):
         """Launches the app"""
@@ -127,6 +128,16 @@ class CatAtom2Osm:
             del self.building_osm
             self.write_osm(self.current_bu_osm, 'current_building.osm')
             del self.current_bu_osm
+        if self.options.parcel:
+            parcel_gml = self.read_gml_layer("cadastralparcel")
+            parcel = layer.ParcelLayer(source_date = parcel_gml.source_date)
+            parcel.append(parcel_gml)
+            del parcel_gml
+            if self.debug: self.export_layer(self.parcel, 'address.shp')
+            parcel.reproject()
+            parcel_osm = self.osm_from_layer(parcel)
+            self.write_osm(parcel_osm, "parcel.osm")
+        if self.options.tasks or self.options.building:
             dlag = ', '.join(["%d: %d" % (l, c) for (l, c) in \
                 OrderedDict(Counter(self.max_level.values())).items()])
             dlbg = ', '.join(["%d: %d" % (l, c) for (l, c) in \
@@ -139,19 +150,6 @@ class CatAtom2Osm:
             log.info(_("The translation file '%s' have been writen in "
                 "'%s'"), 'highway_names.csv', self.path)
             log.info(_("Please, check it and run again"))
-        return
-        
-        if self.options.parcel:
-            parcel = layer.ParcelLayer(source_date = building_gml.source_date)
-            parcel_gml = self.read_gml_layer("cadastralparcel")
-            parcel.append(parcel_gml)
-            del parcel_gml
-            parcel.reproject()
-            parcel_osm = self.osm_from_layer(parcel)
-            self.write_osm(parcel_osm, "parcel.osm")
-            if log.getEffectiveLevel() == logging.DEBUG:
-                self.export_layer(parcel, 'parcel.geojson', 'GeoJSON')
-                self.export_layer(parcel, 'parcel.shp')
 
     def start(self):
         """Initializes data sets"""
@@ -237,6 +235,7 @@ class CatAtom2Osm:
         if self.other_gml:
             building.append(self.other_gml)
         del self.other_gml
+        if self.debug: self.export_layer(self.building, 'address.shp')
         building.remove_outside_parts()
         building.explode_multi_parts()
         building.remove_parts_below_ground()
@@ -533,6 +532,7 @@ class CatAtom2Osm:
         self.address.join_field(adminunitname, 'AU_id', 'gml_id', ['text'], 'AU_')
         self.address.join_field(postaldescriptor, 'PD_id', 'gml_id', ['postCode'])
         self.address.join_field(thoroughfarename, 'TN_id', 'gml_id', ['text'], 'TN_')
+        if self.debug: self.export_layer(self.address, 'address.shp')
 
     def merge_address(self, building_osm, address_osm):
         """
