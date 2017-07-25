@@ -162,9 +162,6 @@ class BaseLayer(QgsVectorLayer):
         self.setCrs(layer.crs())
         to_add = []
         for feature in layer.getFeatures():
-            #if self.name()=='building':
-            #    if is_inside(feature    , kwargs['zone']) and feature['localId'] in kwargs['excluding']:
-            #        print feature['localId']
             if not query or query(feature, kwargs):
                 to_add.append(self.copy_feature(feature, rename, resolve))
         if to_add:
@@ -296,6 +293,21 @@ class BaseLayer(QgsVectorLayer):
         exp = QgsExpression(expression)
         request = QgsFeatureRequest(exp)
         return self.getFeatures(request)
+
+    def get_child_features(self, child_layer):
+        """Returns a dictionary of lists with the features in child_layer
+        contained in each feature of this layer
+
+        Args:
+            child_layer (QgsVectorLayer): Layer that is contained
+        """
+        child_features = {}
+        for f1 in self.getFeatures():
+            child_features[f1.id()] = []
+            for f2 in child_layer.getFeatures():
+                if f2.id() not in child_features[f1.id()] and is_inside(f2, f1):
+                    child_features[f1.id()].append(f2.id())
+        return child_features
 
 
 class PolygonLayer(BaseLayer):
@@ -682,23 +694,6 @@ class ZoningLayer(PolygonLayer):
         self.rename = {'localId': 'inspireId_localId'}
         self.source_date = source_date
 
-    def set_labels(self, str_format):
-        """Asigns a sequence of integers to the label field.
-
-        Args:
-            str_format (string): Text format for the label field.
-        """
-        self.startEditing()
-        i = 1
-        to_change = {}
-        for feat in self.getFeatures():
-            attributes = get_attributes(feat)
-            attributes[self.fieldNameIndex('label')] = str_format % i
-            to_change[feat.id()] = attributes
-            i += 1
-        self.writer.changeAttributeValues(to_change)
-        self.commitChanges()
-
 
 class AddressLayer(BaseLayer):
     """Class for address"""
@@ -814,10 +809,11 @@ class ConsLayer(PolygonLayer):
         """Pool features have '_PI.' in its localId field"""
         return '_PI.' in feature['localId']
 
-    def append(self, layer, zone):
+    def append(self, layer, zone, processed):
         """Append features of layer inside zone excluding processed localId's'"""
-        query = lambda f, kwargs: is_inside(f, kwargs['zone'])
-        super(ConsLayer, self).append(layer, query=query, zone=zone)
+        query = lambda f, kwargs: \
+            f['localId'] not in kwargs['excluding'] and is_inside(f, kwargs['zone'])
+        super(ConsLayer, self).append(layer, query=query, zone=zone, excluding=processed)
 
     def append_task(self, layer, task):
         """Append features of layer including task localId's'"""

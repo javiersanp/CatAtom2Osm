@@ -86,36 +86,17 @@ class CatAtom2Osm:
         """Launches the app"""
         self.start()
         if self.options.building:
-            for rzone in self.rustic_zoning.getFeatures():
-                self.processed = set()
-                rbuilding = layer.ConsLayer(source_date = self.building_gml.source_date)
-                rbuilding.append(self.building_gml, rzone)
-                rbuilding.append(self.part_gml, rzone)
-                if self.other_gml:
-                    rbuilding.append(self.other_gml, rzone)
-                for uzone in self.urban_zoning.getFeatures():
-                    if layer.is_inside(uzone, rzone):
-                        log.info(_("Processing %s '%s' of '%s'"), 'manzana',
-                            uzone['label'], 'urban_zoning')
-                        ubuilding = layer.ConsLayer(source_date = self.building_gml.source_date)
-                        ubuilding.append(rbuilding, uzone)
-                        self.process(ubuilding, uzone, self.urban_zoning)
-                        del ubuilding
-                log.info(_("Processing %s '%s' of '%s'"), u'polígono',
-                    rzone['label'], 'rustic_zoning')
-                rbuilding.startEditing()
-                to_clean = [f.id() for f in rbuilding.getFeatures() \
-                    if f['localId'] in self.processed]
-                rbuilding.writer.deleteFeatures(to_clean)
-                rbuilding.commitChanges()
-                self.process(rbuilding, rzone, self.rustic_zoning)
-                del rbuilding
+            for zoning in (self.urban_zoning, self.rustic_zoning):
+                for zone in zoning.getFeatures():
+                    self.process(zone, zoning)
             self.write_osm(self.building_osm, 'building.osm')
         if self.options.address:
             self.address.reproject()
             address_osm = self.osm_from_layer(self.address, translate.address_tags)
             self.write_osm(address_osm, 'address.osm')
         if self.options.zoning:
+            self.urban_zoning.clean()
+            self.rustic_zoning.clean()
             self.urban_zoning.reproject()
             self.rustic_zoning.reproject()
             self.export_layer(self.urban_zoning, 'urban_zoning.geojson', 'GeoJSON')
@@ -126,52 +107,6 @@ class CatAtom2Osm:
             log.info(_("Please, check it and run again"))
         return
         
-        if self.options.building or self.options.tasks:
-            if log.getEffectiveLevel() == logging.DEBUG:
-                self.export_layer(building, 'building.shp')
-            building.remove_outside_parts()
-            building.explode_multi_parts()
-            building.remove_parts_below_ground()
-            if self.options.tasks:
-                building.set_tasks(self.urban_zoning, self.rustic_zoning)
-            building.clean()
-            if self.options.address:
-                building.move_address(address)
-            building.check_levels_and_area()
-            building.reproject()
-            if log.getEffectiveLevel() == logging.DEBUG:
-                self.export_layer(building, 'building.geojson', 'GeoJSON')
-            building_osm = self.osm_from_layer(building, translate.building_tags)
-            current_bu_osm = self.get_building()
-            building.conflate(current_bu_osm)
-            self.write_osm(current_bu_osm, 'current_building.osm')
-
-        address_osm = None
-        if self.options.address: 
-            address.reproject()
-            address_osm = self.osm_from_layer(address, translate.address_tags)
-
-        if self.options.building: 
-            if self.options.address:
-                self.merge_address(building_osm, address_osm)
-            self.write_osm(building_osm, "building.osm")
-        elif self.options.tasks:
-            self.split_building_in_tasks(building, address_osm)
-
-        if self.options.address: 
-            self.write_osm(address_osm, "address.osm")
-
-        if self.options.zoning:
-            self.urban_zoning.clean()
-            self.rustic_zoning.clean()
-            self.urban_zoning.reproject()
-            self.rustic_zoning.reproject()
-            self.export_layer(self.urban_zoning, 'urban_zoning.geojson', 'GeoJSON')
-            self.export_layer(self.rustic_zoning, 'rustic_zoning.geojson', 'GeoJSON')
-            if log.getEffectiveLevel() == logging.DEBUG:
-                self.export_layer(self.urban_zoning, 'urban_zoning.shp')
-                self.export_layer(self.urban_zoning, 'rustic_zoning.shp')
-
         if self.options.parcel:
             parcel = layer.ParcelLayer(source_date = building_gml.source_date)
             parcel_gml = self.read_gml_layer("cadastralparcel")
@@ -212,9 +147,15 @@ class CatAtom2Osm:
             self.other_gml = self.read_gml_layer("otherconstruction", True)
             self.building_osm = osm.Osm()
             self.utaskn = self.rtaskn = 1
+        self.processed = set()
 
-    def process(self, building, zone, zoning):
+    def process(self, zone, zoning):
         """Process data in zone"""
+        log.info(_("Processing %s '%s' of '%s'"), 
+            zone['levelName'].encode('utf-8').lower().translate(None, '(1:) '), 
+            zone['label'], zoning.name().encode('utf-8'))
+        building = layer.ConsLayer(source_date = self.building_gml.source_date)
+        building.append(self.building_gml, zone, self.processed)
         if building.featureCount() == 0:
             log.info(_("Zone '%s' is empty"), zone['label'].encode('utf-8'))
         else:
@@ -222,6 +163,13 @@ class CatAtom2Osm:
             for feat in building.getFeatures():
                 self.processed.add(feat['localId'])
                 task.add(feat['localId'])
+            building.append_task(self.part_gml, task)
+            if self.other_gml:
+                building.append_task(self.other_gml, task)
+            building.remove_outside_parts()
+            building.explode_multi_parts()
+            building.remove_parts_below_ground()
+            building.clean()
             temp_address = None
             if self.options.address:
                 temp_address = layer.BaseLayer(path="Point", baseName="address",
@@ -368,7 +316,7 @@ class CatAtom2Osm:
             if not gml.isValid():
                 raise IOError(_("Failed to load layer '%s'") % gml_path)
         gml.setCrs(crs)
-        log.debug(_("Read %d features in '%s'"), gml.featureCount(), 
+        log.info(_("Read %d features in '%s'"), gml.featureCount(), 
             gml_path.encode('utf-8'))
         gml.source_date = gml_date
         return gml
@@ -501,9 +449,7 @@ class CatAtom2Osm:
         del zoning_gml
         self.urban_zoning.explode_multi_parts()
         self.rustic_zoning.explode_multi_parts()
-        #self.urban_zoning.clean()
         self.urban_zoning.add_topological_points()
-        #self.rustic_zoning.clean()
         self.urban_zoning.merge_adjacents()
 
     def read_address(self):
