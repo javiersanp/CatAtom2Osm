@@ -1122,13 +1122,14 @@ class ConsLayer(PolygonLayer):
                 self.setSelectedFeatures(fids)
                 conflict = False
                 for feat in self.selectedFeatures():
-                    if geom.contains(feat.geometry()) or \
+                    fg = feat.geometry()
+                    if geom.contains(fg) or fg.contains(geom) or \
                             geom.overlaps(feat.geometry()):
                         conflict = True
                         break    
                 if delete and not conflict:
                     current_bu_osm.remove(el)
-                elif conflict:
+                if not delete and conflict:
                     el.tags['conflict'] = 'yes'
                 
 
