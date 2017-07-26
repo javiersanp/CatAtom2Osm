@@ -1057,6 +1057,7 @@ class ConsLayer(PolygonLayer):
                 attributes[ad.fieldNameIndex('spec')] = 'relation'
                 to_change[ad.id()] = attributes
         address.startEditing()
+        if delete: address.writer.deleteFeatures(to_clean)
         address.writer.changeAttributeValues(to_change)
         address.writer.changeGeometryValues(to_move)
         address.commitChanges()

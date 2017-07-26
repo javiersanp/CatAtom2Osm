@@ -2,6 +2,7 @@
 import unittest
 import mock
 import random
+from collections import Counter
 import logging
 logging.disable(logging.WARNING)
 
@@ -123,7 +124,7 @@ class TestBaseLayer(unittest.TestCase):
     def test_append_with_query(self):
         layer = BaseLayer("Polygon", "test", "memory")
         self.assertTrue(layer.isValid())
-        declined_filter = lambda feat: feat['conditionOfConstruction'] == 'declined'
+        declined_filter = lambda feat, kwargs: feat['conditionOfConstruction'] == 'declined'
         layer.append(self.fixture, query=declined_filter)
         self.assertTrue(layer.featureCount(), 2)
     
@@ -313,30 +314,10 @@ class TestZoningLayer(unittest.TestCase):
                 if group != other:
                     self.assertTrue(all(p not in other for p in group))
 
-    def test_clasify_zoning(self):
-        (urban_zoning, rustic_zoning) = ZoningLayer.clasify_zoning(self.fixture)
-        tc = urban_zoning.featureCount() + rustic_zoning.featureCount()
-        self.assertGreaterEqual(self.fixture.featureCount(), tc)
-        self.assertTrue(all([f['levelName'][3] == 'P' 
-            for f in rustic_zoning.getFeatures()]))
-        self.assertTrue(all([f['levelName'][3] == 'M' 
-            for f in urban_zoning.getFeatures()]))
-        
-        
     def test_merge_adjacents(self):
         self.layer.merge_adjacents()
         (groups, features) = self.layer.get_adjacents_and_features()
         self.assertEquals(len(groups), 0)
-        #self.layer.setCrs(QgsCoordinateReferenceSystem(32628))
-        #self.layer.reproject()
-        #self.layer.export('zoning.geojson', 'GeoJSON')
-
-    def test_set_labels(self):
-        self.layer.set_labels('%05d')
-        i = 1
-        for feat in self.layer.getFeatures():
-            self.assertEquals(feat['label'], '%05d' % i)
-            i += 1
 
 
 class TestConsLayer(unittest.TestCase):
@@ -514,15 +495,6 @@ class TestConsLayer(unittest.TestCase):
             self.assertTrue(geom.isGeosValid(), feat['localId'])
         layer.merge_building_parts()
 
-    def test_set_tasks(self):
-        zoning = QgsVectorLayer('test/zoning.gml', 'zoning', 'ogr')
-        (urban_zoning, rustic_zoning) = ZoningLayer.clasify_zoning(zoning)
-        urban_zoning.explode_multi_parts()
-        urban_zoning.merge_adjacents()
-        rustic_zoning.explode_multi_parts()
-        self.layer.set_tasks(urban_zoning, rustic_zoning)
-        self.assertTrue(all([f['task'] != 'NULL' for f in self.layer.getFeatures()]))
-
     def test_remove_duplicated_holes_parts(self):
         exp = QgsExpression('localId ILIKE \'%_part%\'')
         request = QgsFeatureRequest(exp)
@@ -575,12 +547,15 @@ class TestConsLayer(unittest.TestCase):
                 building = self.layer.search("localId = '%s'" % refcat).next()
                 self.assertTrue(ad.geometry().touches(building.geometry()))
 
-    @mock.patch('layer.log')
-    def test_check_levels_and_area(self, mock_lock):
+    def test_check_levels_and_area(self):
+        min_level = {}
+        max_level = {}
         refs = ['7239208CS5273N', '38012A00400007']
-        self.layer.check_levels_and_area()
-        self.assertEquals(mock_lock.info.mock_calls[0][1][1], '1: 465, 2: 244, 3: 97, 4: 18, 5: 1')
-        self.assertEquals(mock_lock.info.mock_calls[1][1][1], '1: 153, 2: 7')
+        self.layer.check_levels_and_area(min_level, max_level)
+        for (l, v) in {1: 465, 2: 244, 3: 97, 4: 18, 5: 1}.items():
+            self.assertEquals(Counter(max_level.values())[l], v)
+        for (l, v) in {1: 153, 2: 7}.items():
+            self.assertEquals(Counter(min_level.values())[l], v)
         for ref in refs:
             exp = QgsExpression("localId = '%s'" % ref)
             request = QgsFeatureRequest(exp)
