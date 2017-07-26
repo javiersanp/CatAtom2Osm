@@ -235,7 +235,7 @@ class CatAtom2Osm:
         if self.other_gml:
             building.append(self.other_gml)
         del self.other_gml
-        if self.debug: self.export_layer(self.building, 'address.shp')
+        if self.debug: self.export_layer(building, 'address.shp')
         building.remove_outside_parts()
         building.explode_multi_parts()
         building.remove_parts_below_ground()

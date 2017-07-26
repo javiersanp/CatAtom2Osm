@@ -267,6 +267,14 @@ class Way(Element):
         """Returns set of unique nodes"""
         return set(self.nodes)
 
+    def is_closed(self):
+        """Returns true if the way is closed"""
+        return len(self.nodes > 2) and self.nodes[0] == self.nodes[-1]
+
+    def is_open(self):
+        """Returns true if the way is closed"""
+        return not self.is_closed()
+
     def remove(self, n):
         """Remove n from nodes"""
         self.nodes = [o for o in self.nodes if o is not n]

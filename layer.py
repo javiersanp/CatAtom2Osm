@@ -1093,6 +1093,22 @@ class ConsLayer(PolygonLayer):
             self.writer.changeAttributeValues(to_change)
             self.commitChanges()
 
+    @staticmethod
+    def get_footprint(el):
+        poly = None
+        geom = None
+        if el.type == 'way' and 'building' in el.tags:
+            poly = [[Point(p) for p in el.geometry()]]
+        elif el.type == 'relation':
+            outp = [m.element for m in el.members if m.type=='way' and m.role=='outter']
+            poly = [[[Point(p) for p in w.geometry()]] for w in outp]
+            if any([w.is_open() for w in outp]):
+                geom = QgsGeometry().fromMultiLine(poly)
+                return geom
+        if poly is not None:
+            geom = QgsGeometry().fromPolygon(poly)
+        return geom
+
     def conflate(self, current_bu_osm, delete=True):
         """
         Removes from current_bu_osm the buildings that don't have conflicts.
@@ -1100,13 +1116,8 @@ class ConsLayer(PolygonLayer):
         """
         index = QgsSpatialIndex(self.getFeatures())
         for el in frozenset(current_bu_osm.elements):
-            poly = None
-            if el.type == 'way' and 'building' in el.tags:
-                poly = [[Point(p) for p in el.geometry()]]
-            elif el.type == 'relation':
-                poly = [[Point(p) for p in r] for r in el.geometry()]
-            if poly is not None:
-                geom = QgsGeometry().fromPolygon(poly)
+            geom = ConsLayer.get_footprint(el)
+            if geom is not None:
                 fids = index.intersects(geom.boundingBox())
                 self.setSelectedFeatures(fids)
                 conflict = False
