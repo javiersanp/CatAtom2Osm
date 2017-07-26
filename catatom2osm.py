@@ -217,9 +217,9 @@ class CatAtom2Osm:
                 query = lambda f, kwargs: f['localId'].split('.')[-1] in kwargs['including']
                 temp_address.append(self.address, query=query, including=task)
                 temp_address.reproject()
+            building.check_levels_and_area(self.min_level, self.max_level)
             building.reproject()
             building.conflate(self.current_bu_osm, delete=False)
-            building.check_levels_and_area(self.min_level, self.max_level)
             self.write_task(zoning, building, temp_address)
             self.building_osm = self.osm_from_layer(building, 
                 translate.building_tags, data=self.building_osm)
@@ -242,10 +242,10 @@ class CatAtom2Osm:
         building.clean()
         if self.options.address:
             building.move_address(self.address)
+        building.check_levels_and_area(self.min_level, self.max_level)
         building.reproject()
         building.conflate(self.current_bu_osm)
         self.building_osm = self.osm_from_layer(building, translate.building_tags)
-        building.check_levels_and_area(self.min_level, self.max_level)
         
     def exit(self):
         """Ends properly"""
