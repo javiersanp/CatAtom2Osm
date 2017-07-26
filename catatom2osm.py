@@ -163,7 +163,7 @@ class CatAtom2Osm:
         if self.options.address:
             self.read_address()
             highway = self.get_highway()
-            highway_names = self.get_translations(highway)
+            (highway_names, self.is_new) = self.get_translations(self.address, highway)
             self.address.translate_field('TN_text', highway_names)
             if self.is_new:
                 self.options.tasks = False
@@ -591,7 +591,7 @@ class CatAtom2Osm:
             self.merge_address(task_osm, address_osm)
         self.write_osm(task_osm, task_path)
 
-    def get_translations(self, highway):
+    def get_translations(self, address, highway):
         """
         If there exists the configuration file 'highway_types.csv', read it, 
         else write one with default values. If don't exists the translations file 
@@ -611,13 +611,13 @@ class CatAtom2Osm:
             csvtools.csv2dict(highway_types_path, setup.highway_types)
         highway_names_path = os.path.join(self.path, 'highway_names.csv')
         if not os.path.exists(highway_names_path):
-            highway_names = self.address.get_highway_names(highway)
+            highway_names = address.get_highway_names(highway)
             csvtools.dict2csv(highway_names_path, highway_names)
-            self.is_new = True
+            is_new = True
         else:
             highway_names = csvtools.csv2dict(highway_names_path, {})
-            self.is_new = False
-        return highway_names
+            is_new = False
+        return (highway_names, is_new)
 
     def get_highway(self):
         """Gets OSM highways needed for street names conflation"""

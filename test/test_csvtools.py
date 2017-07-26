@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
 from tempfile import mkstemp
-import mock
-import random
 
 import csv
 import codecs
