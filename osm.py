@@ -268,7 +268,7 @@ class Way(Element):
 
     def is_closed(self):
         """Returns true if the way is closed"""
-        return len(self.nodes > 2) and self.nodes[0] == self.nodes[-1]
+        return (len(self.nodes) > 2) and self.nodes[0] == self.nodes[-1]
 
     def is_open(self):
         """Returns true if the way is closed"""

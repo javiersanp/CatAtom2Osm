@@ -4,7 +4,7 @@
 import os
 import math
 import re
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 from qgis.core import *
 from PyQt4.QtCore import QVariant
@@ -1097,17 +1097,26 @@ class ConsLayer(PolygonLayer):
     def get_footprint(el):
         poly = None
         geom = None
-        if el.type == 'way' and 'building' in el.tags:
-            poly = [[Point(p) for p in el.geometry()]]
-        elif el.type == 'relation':
-            outp = [m.element for m in el.members if m.type=='way' and m.role=='outter']
-            poly = [[[Point(p) for p in w.geometry()]] for w in outp]
-            if any([w.is_open() for w in outp]):
-                geom = QgsGeometry().fromMultiLine(poly)
-                return geom
+        if el.type == 'way' and el.is_closed() and 'building' in el.tags:
+            poly = [[[Point(p) for p in el.geometry()]]]
+        elif el.type == 'relation' and all([m.type == 'way' for m in el.members]):
+            outp = [m.element for m in el.members if m.type=='way' and m.role=='outer']
+            poly = [[[Point(p) for p in w.geometry()]] for w in outp if w.is_closed()]
+            if poly is not None and len(poly) < len(outp):
+                ml = [[Point(p) for p in w.geometry()] for w in outp if w.is_open()]
+                ends = [l[i] for i in (0, -1) for l in ml]
+                is_conected = all([c == 2 for c in Counter(ends).values()])
+                if is_conected:
+                    wg = QgsGeometry().fromMultiPolyline(ml)
+                    if wg is not None:
+                        poly.append(wg.convexHull().asPolygon())
+                else:
+                    poly = None
         if poly is not None:
-            geom = QgsGeometry().fromPolygon(poly)
-        return geom
+            geom = QgsGeometry().fromMultiPolygon(poly)
+            if geom.isGeosValid(): 
+                return geom
+        return None
 
     def conflate(self, current_bu_osm, delete=True):
         """
