@@ -39,7 +39,7 @@ class TestOsm(OsmTestCase):
         n4 = self.d.Node(2,0)
         n5 = self.d.Node(2,1)
         n6 = self.d.Node(1,0.5)
-        w1 = self.d.Way((n1, n0, n3, n4))
+        w1 = self.d.Way((n1, n0, n3, n2))
         w2 = self.d.Way((n1, n6, n2))
         w3 = self.d.Way((n1, n4, n5, n2))
         r1 = self.d.Relation((w1, w2))
@@ -55,9 +55,11 @@ class TestOsm(OsmTestCase):
         self.assertEquals(len(self.d.elements), 9)
         self.assertNotIn(n2, self.d.elements)
         self.d.remove(r2)
-        self.assertEquals(len(self.d.elements), 7)
+        self.assertEquals(len(self.d.elements), 5)
         self.assertNotIn(w3, self.d.elements)
         self.assertNotIn(r2, self.d.elements)
+        self.assertNotIn(n4, self.d.elements)
+        self.assertNotIn(n5, self.d.elements)
 
     def test_replace(self):
         n1 = self.d.Node(1,1)
