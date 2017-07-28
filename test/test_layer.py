@@ -703,6 +703,33 @@ class TestAddressLayer(unittest.TestCase):
         self.layer.join_field(self.tn_gml, 'TN_id', 'gml_id', ['text'], 'TN_')
         self.assertEquals(self.layer.featureCount(), 0)        
 
+    def test_conflate(self):
+        self.layer.append(self.address_gml)
+        self.layer.join_field(self.tn_gml, 'TN_id', 'gml_id', ['text'], 'TN_')
+        self.layer.join_field(self.au_gml, 'AU_id', 'gml_id', ['text'], 'AU_')
+        self.layer.join_field(self.pd_gml, 'PD_id', 'gml_id', ['postCode'])
+        current_address = ["CJ CALLEJON (FASNIA)12", "CJ CALLEJON (FASNIA)13"]
+        self.assertEquals(self.layer.featureCount(), 14)
+        self.layer.conflate(current_address)
+        self.assertEquals(self.layer.featureCount(), 10)
+        self.layer.conflate(current_address)
+        self.assertEquals(self.layer.featureCount(), 10)
+
+    def test_del_address(self):
+        self.layer.append(self.address_gml)
+        building_osm = osm.Osm()
+        building_osm.Node(0,0, dict(ref='8345806CS5284S'))
+        building_osm.Node(0,0, dict(ref='8643403CS5284S'))
+        building_osm.Node(0,0, dict(ref='8745401CS5284N'))
+        building_osm.Node(0,0, dict(ref='8842304CS5284S'))
+        building_osm.Node(0,0, dict(ref='8842306CS5284S'))
+        building_osm.Node(0,0, dict(ref='8643407CS5284S'))
+        self.assertEquals(self.layer.featureCount(), 14)
+        self.layer.del_address(building_osm)
+        self.assertEquals(self.layer.featureCount(), 6)
+        self.layer.del_address(building_osm)
+        self.assertEquals(self.layer.featureCount(), 6)
+
 
 class TestHighwayLayer(unittest.TestCase):
 

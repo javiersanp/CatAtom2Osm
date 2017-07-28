@@ -739,11 +739,11 @@ class AddressLayer(BaseLayer):
     def del_address(self, building_osm):
         """Delete the address if there aren't any associated building."""
         to_clean = []
-        building_refs = (el.tags['ref'] for el in building_osm.elements \
-            if 'ref' in el.tags)
+        building_refs = {el.tags['ref'] for el in building_osm.elements \
+            if 'ref' in el.tags}
         for ad in self.getFeatures():
             ref = ad['localId'].split('.')[-1]
-            if ref in building_refs:
+            if ref not in building_refs:
                 to_clean.append(ad.id())
         if to_clean:
             self.startEditing()
