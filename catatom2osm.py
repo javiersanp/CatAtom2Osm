@@ -451,7 +451,7 @@ class CatAtom2Osm:
     def read_osm(self, ql, filename):
         """
         Reads a OSM data set from a OSM XML file. If the file not exists, 
-        downloads data from url
+        downloads data from overpass using ql query
         
         Args:
             ql (str): Query to put in the url 
@@ -461,7 +461,7 @@ class CatAtom2Osm:
             Osm: OSM data set
         """
         if self.boundary_id:
-            query = setup.xml_query % ('area(3600{id})->.mun;' + ql)
+            query = setup.xml_query % ('area(36{id:>08})->.mun;' + ql)
             url = query.format(id=self.boundary_id, bb='area.mun')
         else:
             query = setup.xml_query % ql
