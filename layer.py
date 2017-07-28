@@ -26,10 +26,7 @@ class Point(QgsPoint):
 
     def __init__(self, arg1, arg2=None):
         if arg2 is None:
-            try:
-                super(Point, self).__init__(arg1[0], arg1[1])
-            except:
-                super(Point, self).__init__(arg1)
+            super(Point, self).__init__(arg1[0], arg1[1])
         else:
             super(Point, self).__init__(arg1, arg2)
     
@@ -119,7 +116,7 @@ class BaseLayer(QgsVectorLayer):
         rename = rename if rename is not None else self.rename
         resolve = resolve if resolve is not None else self.resolve
         if self.pendingFields().isEmpty():
-            self.dataProvider().addAttributes(feature.fields().toList())
+            self.writer.addAttributes(feature.fields().toList())
             self.updateFields()
         dst_ft = QgsFeature(self.pendingFields())
         dst_ft.setGeometry(feature.geometry())
@@ -216,10 +213,10 @@ class BaseLayer(QgsVectorLayer):
         target_attrs = [f.name() for f in self.pendingFields()]
         for attr in field_names_subset:
             field = source_layer.pendingFields().field(attr)
-            if field.length > 254:
-                field.setLength(254)
             field.setName(prefix + attr)
             if field.name() not in target_attrs:
+                if field.length() > 254:
+                    field.setLength(254)
                 fields.append(field)
         self.writer.addAttributes(fields)
         self.updateFields()
@@ -435,7 +432,7 @@ class PolygonLayer(BaseLayer):
         same position vertices nearest than 'dup_thr' meters.
         """
         dup_thr = self.dup_thr
-        if log.getEffectiveLevel() <= logging.DEBUG:
+        if log.getEffectiveLevel() <= logging.DEBUG: # pragma: no cover
             debshp = DebugWriter("debug_duplicated.shp", self.crs())
         (parents_per_vertex, features) = self.get_parents_per_vertex_and_features()
         dupes = 0
@@ -448,14 +445,14 @@ class PolygonLayer(BaseLayer):
                     feat = features[fid]
                     geom = feat.geometry()
                     (p, ndx, ndxa, ndxb, dist) = geom.closestVertex(dup)
-                    if geom.moveVertex(point.x(), point.y(), ndx):
-                        note = "refused by isGeosValid"
-                        if geom.isGeosValid():
-                            note = "Merge. %s" % feat['localId']
-                            dupes += 1
-                            to_change[fid] = geom
-                        if log.getEffectiveLevel() <= logging.DEBUG:
-                            debshp.add_point(p, note)
+                    geom.moveVertex(point.x(), point.y(), ndx)
+                    note = "refused by isGeosValid"
+                    if geom.isGeosValid():
+                        note = "Merge. %s" % feat['localId']
+                        dupes += 1
+                        to_change[fid] = geom
+                    if log.getEffectiveLevel() <= logging.DEBUG: # pragma: no cover
+                        debshp.add_point(p, note)
                 if dup in duplist:
                     duplist.remove(dup)
         self.startEditing()
@@ -509,7 +506,7 @@ class PolygonLayer(BaseLayer):
         threshold = self.dist_thr # Distance threshold to create nodes
         straight_thr = self.straight_thr
         tp = 0
-        if log.getEffectiveLevel() <= logging.DEBUG:
+        if log.getEffectiveLevel() <= logging.DEBUG: # pragma: no cover
             debshp = DebugWriter("debug_topology.shp", self.crs())
         index = QgsSpatialIndex(self.getFeatures())
         features = {feat.id(): feat for feat in self.getFeatures()}
@@ -539,7 +536,7 @@ class PolygonLayer(BaseLayer):
                                         note = "accepted"
                                         tp += 1
                                         to_change[fid] = g
-                            if log.getEffectiveLevel() <= logging.DEBUG:
+                            if log.getEffectiveLevel() <= logging.DEBUG: # pragma: no cover
                                 debshp.add_point(point, note)
         self.startEditing()
         if to_change:
@@ -547,7 +544,7 @@ class PolygonLayer(BaseLayer):
             log.debug(_("Created %d topological points in the '%s' layer"), 
                 tp, self.name().encode('utf-8'))
         self.commitChanges()
-        if log.getEffectiveLevel() <= logging.DEBUG:
+        if log.getEffectiveLevel() <= logging.DEBUG: # pragma: no cover
             del debshp
 
     def simplify(self):
@@ -564,7 +561,7 @@ class PolygonLayer(BaseLayer):
 
         * Delete invalid geometries
         """
-        if log.getEffectiveLevel() <= logging.DEBUG:
+        if log.getEffectiveLevel() <= logging.DEBUG: # pragma: no cover
             debshp = DebugWriter("debug_simplify.shp", self.crs())
         killed = 0
         to_change = {}
@@ -589,7 +586,7 @@ class PolygonLayer(BaseLayer):
                     else:
                         to_clean.append(fid)
                         if fid in to_change: del to_change[fid]
-                        if log.getEffectiveLevel() <= logging.DEBUG:
+                        if log.getEffectiveLevel() <= logging.DEBUG: # pragma: no cover
                             debshp.add_point(c, "invalid geometry")
                         break
         self.startEditing()
@@ -623,9 +620,9 @@ class PolygonLayer(BaseLayer):
                         feat.setGeometry(geom)
                         parents.remove(fid)
                         to_change[fid] = geom
-                if log.getEffectiveLevel() <= logging.DEBUG:
+                if log.getEffectiveLevel() <= logging.DEBUG: # pragma: no cover
                     debshp.add_point(point, "Deleted. %s" % msg)
-            elif log.getEffectiveLevel() <= logging.DEBUG:
+            elif log.getEffectiveLevel() <= logging.DEBUG: # pragma: no cover
                 debshp.add_point(point, "Keep. %s" % msg)
         self.startEditing()
         if to_change:
@@ -668,8 +665,8 @@ class ParcelLayer(BaseLayer):
             providerLib="memory", source_date=None):
         super(ParcelLayer, self).__init__(path, baseName, providerLib)
         if self.pendingFields().isEmpty():
-            self.dataProvider().addAttributes([
-                    QgsField('localId', QVariant.String, len=254),
+            self.writer.addAttributes([
+                QgsField('localId', QVariant.String, len=254),
                 QgsField('label', QVariant.String, len=254),
             ])
             self.updateFields()
@@ -684,7 +681,7 @@ class ZoningLayer(PolygonLayer):
             providerLib="memory", source_date=None):
         super(ZoningLayer, self).__init__(path, baseName, providerLib)
         if self.pendingFields().isEmpty():
-            self.dataProvider().addAttributes([
+            self.writer.addAttributes([
                 QgsField('localId', QVariant.String, len=254),
                 QgsField('label', QVariant.String, len=254),
                 QgsField('level', QVariant.String, len=254),
@@ -702,7 +699,7 @@ class AddressLayer(BaseLayer):
             source_date=None):
         super(AddressLayer, self).__init__(path, baseName, providerLib)
         if self.pendingFields().isEmpty():
-            self.dataProvider().addAttributes([
+            self.writer.addAttributes([
                 QgsField('localId', QVariant.String, len=254),
                 QgsField('spec', QVariant.String, len=254),
                 QgsField('designator', QVariant.String, len=254),
@@ -784,7 +781,7 @@ class ConsLayer(PolygonLayer):
             providerLib = "memory", source_date=None):
         super(ConsLayer, self).__init__(path, baseName, providerLib)
         if self.pendingFields().isEmpty():
-            self.dataProvider().addAttributes([
+            self.writer.addAttributes([
                 QgsField('localId', QVariant.String, len=254),
                 QgsField('condition', QVariant.String, len=254),
                 QgsField('link', QVariant.String, len=254),
@@ -1149,7 +1146,7 @@ class HighwayLayer(BaseLayer):
             providerLib="memory"):
         super(HighwayLayer, self).__init__(path, baseName, providerLib)
         if self.pendingFields().isEmpty():
-            self.dataProvider().addAttributes([
+            self.writer.addAttributes([
                 QgsField('name', QVariant.String, len=254),
             ])
             self.updateFields()

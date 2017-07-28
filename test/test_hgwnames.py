@@ -3,7 +3,7 @@ import unittest
 import mock
 
 import hgwnames
-
+import hgwnames as nonfuzzy_hgwnames
 
 class TestHgwnames(unittest.TestCase):
 
@@ -43,6 +43,7 @@ class TestHgwnames(unittest.TestCase):
 
     def test_fuzzy_match(self):
         self.assertEquals(hgwnames.match('FOOB', self.choices), 'Foobar')
+        self.assertEquals(hgwnames.match('CL FRANCIA', self.choices), 'Calle Francia')
 
     @mock.patch('hgwnames.fuzz', None)
     def test_nonfyzzy_match(self):

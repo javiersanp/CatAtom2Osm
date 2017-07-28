@@ -11,7 +11,7 @@ import setup
 try:
     from fuzzywuzzy import fuzz
     from fuzzywuzzy import process
-except:
+except: # pragma: no cover
     fuzz = None
 
 MATCH_THR = 60

@@ -85,6 +85,15 @@ class TestBaseLayer(unittest.TestCase):
         self.writer.addAttributes(fields1)
         self.layer.updateFields()
 
+    def test_copy_feature_with_resolve(self):
+        feature = self.fixture.getFeatures().next()
+        resolve = { 'A': ('gml_id', '[0-9]+[A-Z]+[0-9]+[A-Z]') }
+        new_fet = self.layer.copy_feature(feature, resolve=resolve)
+        self.assertEquals(feature['localId'], new_fet['A'])
+        resolve = { 'A': ('gml_id', 'Foo[0-9]+') }
+        new_fet = self.layer.copy_feature(feature, resolve=resolve)
+        self.assertEquals(new_fet['A'], None)
+    
     def test_copy_feature_with_rename(self):
         feature = self.fixture.getFeatures().next()
         rename = {"A": "gml_id", "B": "value"}
@@ -126,7 +135,14 @@ class TestBaseLayer(unittest.TestCase):
         self.assertTrue(layer.isValid())
         declined_filter = lambda feat, kwargs: feat['conditionOfConstruction'] == 'declined'
         layer.append(self.fixture, query=declined_filter)
-        self.assertTrue(layer.featureCount(), 2)
+        self.assertEquals(layer.featureCount(), 2)
+    
+    def test_append_void(self):
+        layer = BaseLayer("Polygon", "test", "memory")
+        self.assertTrue(layer.isValid())
+        declined_filter = lambda feat, kwargs: feat['conditionOfConstruction'] == 'foobar'
+        layer.append(self.fixture, query=declined_filter)
+        self.assertEquals(layer.featureCount(), 0)
     
     def test_translate_field(self):
         ascii_uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -157,12 +173,21 @@ class TestBaseLayer(unittest.TestCase):
         layer.append(self.fixture)
         features_before = layer.featureCount()
         feature_in = layer.getFeatures().next()
+        geom_in = feature_in.geometry()
         crs_before = layer.crs()
         layer.reproject()
         feature_out = layer.getFeatures().next()
         self.assertEquals(layer.featureCount(), features_before)
-        self.assertNotEquals(layer.crs(), crs_before)
-        self.assertNotEquals(feature_in.geometry(), feature_out.geometry())
+        self.assertEquals(layer.crs(), QgsCoordinateReferenceSystem(4326))
+        crs_transform = QgsCoordinateTransform(layer.crs(), crs_before)
+        geom_out = feature_out.geometry()
+        geom_out.transform(crs_transform)
+        self.assertLess(abs(geom_in.area() - geom_out.area()), 1E8)
+        self.assertEquals(feature_in.attributes(), feature_out.attributes())
+        layer.reproject(crs_before)
+        feature_out = layer.getFeatures().next()
+        geom_out = feature_out.geometry()
+        self.assertLess(abs(geom_in.area() - geom_out.area()), 1E8)
         self.assertEquals(feature_in.attributes(), feature_out.attributes())
     
     @mock.patch('layer.QgsVectorFileWriter')
@@ -185,6 +210,18 @@ class TestBaseLayer(unittest.TestCase):
         self.layer.export('foobar', 'foo', overwrite=False)
         mock_os.remove.assert_called_once_with('foobar')
 
+    def test_get_child_features(self):
+        layer1 = BaseLayer('test/geom1.gml', 'geom1', 'ogr')
+        layer2 = BaseLayer('test/geom2.gml', 'geom2', 'ogr')
+        self.assertTrue(layer1.isValid())
+        self.assertTrue(layer2.isValid())
+        result = layer1.get_child_features(layer2)
+        self.assertEquals(len(result), 10)
+        for i in (0, 1, 3, 7, 9):
+            self.assertEquals(result[i], [])
+        for i in (2, 4, 5, 6, 8):
+            self.assertEquals(result[i], [i])
+        
 
 class TestPolygonLayer(unittest.TestCase):
 
@@ -623,6 +660,8 @@ class TestAddressLayer(unittest.TestCase):
     def setUp(self):
         self.layer = AddressLayer()
         self.assertTrue(self.layer.isValid(), "Init QGIS")
+        self.layer.dataProvider().addAttributes([QgsField('TN_text', QVariant.String, len=254)])
+        self.layer.updateFields()
         self.address_gml = QgsVectorLayer('test/address.gml', 'address', 'ogr')
         self.assertTrue(self.address_gml.isValid(), "Loading address")
         self.tn_gml = QgsVectorLayer('test/address.gml|layername=thoroughfarename', 'tn', 'ogr')
@@ -651,6 +690,18 @@ class TestAddressLayer(unittest.TestCase):
         values = ['MC ABASTOS (RESTO)', 'FASNIA', 38570]
         for (attr, value) in zip(attrs, values):
             self.assertEquals(feat[attr], value)
+
+    def test_join_field_size(self):
+        layer = PolygonLayer('Point', 'test', 'memory')
+        layer.dataProvider().addAttributes([QgsField('A', QVariant.String, len=255)])
+        layer.updateFields()
+        self.layer.append(self.address_gml)
+        self.layer.join_field(layer, 'TN_id', 'gml_id', ['A'], 'TN_')
+        self.assertEquals(self.layer.pendingFields().field('TN_A').length(), 254)
+
+    def test_join_void(self):
+        self.layer.join_field(self.tn_gml, 'TN_id', 'gml_id', ['text'], 'TN_')
+        self.assertEquals(self.layer.featureCount(), 0)        
 
 
 class TestHighwayLayer(unittest.TestCase):
