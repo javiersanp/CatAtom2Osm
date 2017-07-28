@@ -730,6 +730,19 @@ class TestAddressLayer(unittest.TestCase):
         self.layer.del_address(building_osm)
         self.assertEquals(self.layer.featureCount(), 6)
 
+    def test_get_highway_names(self):
+        layer = AddressLayer('test/address.geojson', 'address', 'ogr')
+        highway = HighwayLayer('test/highway.geojson', 'highway', 'ogr')
+        highway_names = layer.get_highway_names(highway)
+        test = {
+            'AV PAZ (FASNIA)': 'Avenida la Paz', 
+            'CL SAN JOAQUIN (FASNIA)': u'Calle San Joaquín',
+            'CL HOYO (FASNIA)': 'Calle el Hoyo', 
+            'CJ CALLEJON (FASNIA)': u'Calleja/Callejón Callejon (Fasnia)'
+        }
+        for (k, v) in highway_names.items():
+            self.assertEquals(v, test[k])
+
 
 class TestHighwayLayer(unittest.TestCase):
 
