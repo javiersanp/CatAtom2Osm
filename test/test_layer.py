@@ -413,6 +413,37 @@ class TestConsLayer(unittest.TestCase):
         self.assertEquals(feature['constructionNature'], new_fet['nature'])
         self.assertEquals(feature['localId'], new_fet['localId'])
 
+    def test_append_zone(self):
+        layer = ConsLayer()
+        self.assertTrue(layer.isValid(), "Init QGIS")
+        fixture = QgsVectorLayer('test/building.gml', 'building', 'ogr')
+        self.assertTrue(fixture.isValid())
+        poly = [(357485.75, 3124157.86), (357483.21, 3124119.41), (357512.30, 
+            3124116.16), (357514.54, 3124154.81), (357485.75, 3124157.86)]
+        geom = QgsGeometry().fromPolygon([[QgsPoint(p[0], p[1]) for p in poly]])
+        zone = QgsFeature(self.layer.pendingFields())
+        zone.setGeometry(geom)
+        layer.append_zone(fixture, zone, [])
+        self.assertEquals(layer.featureCount(), 4)
+        processed = ['7541401CS5274S', '7541412CS5274S', '7541413CS5274S', 
+            '7541415CS5274S']
+        for f in layer.getFeatures():
+            self.assertIn(f['localId'], processed)
+        layer = ConsLayer()
+        layer.append_zone(fixture, zone, processed)
+        self.assertEquals(layer.featureCount(), 0)
+
+    def test_append_task(self):
+        layer = ConsLayer()
+        self.assertTrue(layer.isValid(), "Init QGIS")
+        fixture = QgsVectorLayer('test/buildingpart.gml', 'part', 'ogr')
+        self.assertTrue(fixture.isValid())
+        processed = ['7541401CS5274S', '7541412CS5274S', '7541413CS5274S', 
+            '7541415CS5274S']
+        layer.append_task(fixture, processed)
+        self.assertEquals(layer.featureCount(), 5)
+        
+
     def test_remove_parts_below_ground(self):
         to_clean = [f.id() for f in self.layer.search('lev_above=0')]
         self.assertGreater(len(to_clean), 0, 'There are parts below ground')
