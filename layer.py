@@ -1090,31 +1090,6 @@ class ConsLayer(PolygonLayer):
             self.writer.changeAttributeValues(to_change)
             self.commitChanges()
 
-    @staticmethod
-    def get_footprint(el):
-        poly = None
-        geom = None
-        if el.type == 'way' and el.is_closed() and 'building' in el.tags:
-            poly = [[[Point(p) for p in el.geometry()]]]
-        elif el.type == 'relation' and all([m.type == 'way' for m in el.members]):
-            outp = [m.element for m in el.members if m.type=='way' and m.role=='outer']
-            poly = [[[Point(p) for p in w.geometry()]] for w in outp if w.is_closed()]
-            if poly is not None and len(poly) < len(outp):
-                ml = [[Point(p) for p in w.geometry()] for w in outp if w.is_open()]
-                ends = [l[i] for i in (0, -1) for l in ml]
-                is_conected = all([c == 2 for c in Counter(ends).values()])
-                if is_conected:
-                    wg = QgsGeometry().fromMultiPolyline(ml)
-                    if wg is not None:
-                        poly.append(wg.convexHull().asPolygon())
-                else:
-                    poly = None
-        if poly is not None:
-            geom = QgsGeometry().fromMultiPolygon(poly)
-            if geom.isGeosValid(): 
-                return geom
-        return None
-
     def conflate(self, current_bu_osm, delete=True):
         """
         Removes from current_bu_osm the buildings that don't have conflicts.
@@ -1122,21 +1097,26 @@ class ConsLayer(PolygonLayer):
         """
         index = QgsSpatialIndex(self.getFeatures())
         for el in frozenset(current_bu_osm.elements):
-            geom = ConsLayer.get_footprint(el)
-            if geom is not None:
-                fids = index.intersects(geom.boundingBox())
-                self.setSelectedFeatures(fids)
-                conflict = False
-                for feat in self.selectedFeatures():
-                    fg = feat.geometry()
-                    if geom.contains(fg) or fg.contains(geom) or \
-                            geom.overlaps(feat.geometry()):
-                        conflict = True
-                        break    
-                if delete and not conflict:
-                    current_bu_osm.remove(el)
-                if not delete and conflict:
-                    el.tags['conflict'] = 'yes'
+            poly = None
+            if el.type == 'way' and el.is_closed() and 'building' in el.tags:
+                poly = [[map(Point, el.geometry())]]
+            elif el.type == 'relation' and 'building' in el.tags:
+                poly = el.outer_geometry()
+            if poly is not None:
+                geom = QgsGeometry().fromMultiPolygon(poly)
+                if geom.isGeosValid():
+                    fids = index.intersects(geom.boundingBox())
+                    self.setSelectedFeatures(fids)
+                    conflict = False
+                    for feat in self.selectedFeatures():
+                        fg = feat.geometry()
+                        if geom.contains(fg) or fg.contains(geom) or geom.overlaps(fg):
+                            conflict = True
+                            break
+                    if delete and not conflict:
+                        current_bu_osm.remove(el)
+                    if not delete and conflict:
+                        el.tags['conflict'] = 'yes'
                 
 
 class HighwayLayer(BaseLayer):

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """OpenStreetMap data model"""
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 # Number of significant decimal digits. 0 to cancel rounding. With a value 
 # greater than 7, JOSM give duplicated points errors
@@ -272,7 +272,7 @@ class Way(Element):
 
     def is_open(self):
         """Returns true if the way is closed"""
-        return not self.is_closed()
+        return (len(self.nodes) > 1) and self.nodes[0] != self.nodes[-1]
 
     def remove(self, n):
         """Remove n from nodes"""
@@ -335,9 +335,50 @@ class Relation(Element):
         self.members = [Relation.Member(e2, m.role) 
             if m.element == e1 else m for m in self.members]
 
+    def is_valid_multipolygon(self):
+        """Returns true if this is valid as a multipolygon relation"""
+        ends = []
+        for m in self.members:
+            if m.role not in ('outer', 'inner') or m.type != 'way':
+                return False
+            w = m.element
+            if len(w.nodes) < 2:
+                return False
+            ends.append(w.nodes[0].geometry())
+            ends.append(w.nodes[-1].geometry())
+        is_conected = all([c == 2 for c in Counter(ends).values()])
+        return is_conected
+
     def geometry(self):
         """Returns tuple of coordinates"""
         return tuple(m.element.geometry() for m in self.members)
+
+    def outer_geometry(self):
+        """If this is a valid multipolygon returns the outer rings
+        with every open way conected as areas"""
+        if not self.is_valid_multipolygon():
+            return None
+        outer = [m.element.geometry() for m in self.members if m.role == 'outer']
+        i = 0
+        while i < len(outer):
+            w1 = outer[i]
+            if len(w1) > 1 and w1[0] != w1[-1]:
+                match = True
+                while match:
+                    match = False
+                    for w2 in frozenset(outer[i+1:]):
+                        w1 = outer[i]
+                        if len(w2) > 1 and w2[0] != w2[-1]:
+                            if w2[0] == w1[-1]:
+                                outer[i] = w1 + w2[1:]
+                                outer.remove(w2)
+                                match = True
+                            elif w2[-1] == w1[-1]:
+                                outer[i] = w1 + w2[-2::-1]
+                                outer.remove(w2)
+                                match = True
+            i += 1
+        return outer
 
     class Member(object):
         """A element is member of a relation with a role."""

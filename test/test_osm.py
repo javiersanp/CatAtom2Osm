@@ -330,6 +330,15 @@ class TestOsmWay(OsmTestCase):
         n.tags['foo'] = 'bar'
         self.assertEquals(w1, w2)
         
+    def test_is_open(self):
+        w = self.d.Way(((1,1), (2,2)))
+        self.assertTrue(w.is_open())
+        self.assertFalse(w.is_closed())
+        w.nodes.append(self.d.Node(1,2))
+        w.nodes.append(self.d.Node(1,1))
+        self.assertFalse(w.is_open())
+        self.assertTrue(w.is_closed())
+
     def test_geometry(self):
         g = ((1,1), (2,2), (3,3))
         w = self.d.Way(g)
@@ -476,6 +485,53 @@ class TestOsmRelation(OsmTestCase):
         self.assertEquals(m.attrs, dict(type='node', ref=str(n.id)))
         m.role = 'outter'
         self.assertEquals(m.attrs['role'], m.role)
+    
+    def test_is_valid_multipolygon(self):
+        n0 = self.d.Node(0,0)
+        r0 = self.d.Relation([n0])
+        self.assertFalse(r0.is_valid_multipolygon())
+        w0 = self.d.Way([(0,0)])
+        r1 = self.d.Relation()
+        r1.append(w0, 'outer')
+        self.assertFalse(r1.is_valid_multipolygon())
+        w0.nodes += [self.d.Node(5,0), self.d.Node(5,5), self.d.Node(0,0)]
+        self.assertTrue(r1.is_valid_multipolygon())
+        r1.members[0].role = 'foobar'
+        self.assertFalse(r1.is_valid_multipolygon())
+        r1.members[0].role = 'outer'
+        self.assertTrue(r1.is_valid_multipolygon())
+        w1 = self.d.Way(((1,1), (2,1), (2,2)))
+        w2 = self.d.Way(((1,1), (2,2)))
+        r1.append(w1, 'inner')
+        self.assertFalse(r1.is_valid_multipolygon())
+        r1.append(w2, 'inner')
+        self.assertTrue(r1.is_valid_multipolygon())
+        r1.append(r0)
+        self.assertFalse(r1.is_valid_multipolygon())
+
+    def test_outer_geometry(self):
+        r = self.d.Relation()
+        w0 = ((0,0), (1,0), (1,1), (0,0))
+        r.append(self.d.Way(w0), 'outer')
+        self.assertEquals(r.outer_geometry(), [w0])
+        w1 = ((2,0), (4,0), (4,4), (2,4), (2,0))
+        r.append(self.d.Way(w1[:3]), 'outer')
+        r.append(self.d.Way(w1[2:]), 'outer')
+        self.assertEquals(r.outer_geometry(), [w0, w1])
+        w2 = ((2,10), (4,10), (4,14), (2,14), (2,10))
+        r.append(self.d.Way(w2[:3]), 'outer')
+        r.append(self.d.Way(w2[:1:-1]), 'outer')
+        self.assertEquals(r.outer_geometry(), [w0, w1, w2])
+        w3 = ((4, 24), (4, 20), (2, 20), (2, 24), (4, 24))
+        r.append(self.d.Way(w3[:2]), 'outer')
+        r.append(self.d.Way(w3[:2:-1]), 'outer')
+        self.assertEquals(r.outer_geometry(), None)
+        w4 = ((0,30), (1,30), (1,31), (0,30))
+        r.append(self.d.Way(w4), 'outer')
+        r.append(self.d.Way(w3[2:4]), 'outer')
+        r.append(self.d.Way(w3[1:3]), 'outer')
+        self.assertEquals(r.outer_geometry(), [w0, w1, w2, w3, w4])
+
 
 class TestOsmPolygon(OsmTestCase):
 
