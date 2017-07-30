@@ -19,8 +19,8 @@ is_inside = lambda f1, f2: \
 
 get_attributes = lambda feat: \
     dict([(i, feat[i]) for i in range(len(feat.fields().toList()))])
-    
-    
+
+
 class Point(QgsPoint):
     """Extends QgsPoint with some utility methods"""
 
@@ -432,7 +432,7 @@ class PolygonLayer(BaseLayer):
         same position vertices nearest than 'dup_thr' meters.
         """
         dup_thr = self.dup_thr
-        if log.getEffectiveLevel() <= logging.DEBUG: # pragma: no cover
+        if log.getEffectiveLevel() <= logging.DEBUG:
             debshp = DebugWriter("debug_duplicated.shp", self.crs())
         (parents_per_vertex, features) = self.get_parents_per_vertex_and_features()
         dupes = 0
@@ -451,7 +451,7 @@ class PolygonLayer(BaseLayer):
                         note = "Merge. %s" % feat['localId']
                         dupes += 1
                         to_change[fid] = geom
-                    if log.getEffectiveLevel() <= logging.DEBUG: # pragma: no cover
+                    if log.getEffectiveLevel() <= logging.DEBUG:
                         debshp.add_point(p, note)
                 if dup in duplist:
                     duplist.remove(dup)
@@ -506,7 +506,7 @@ class PolygonLayer(BaseLayer):
         threshold = self.dist_thr # Distance threshold to create nodes
         straight_thr = self.straight_thr
         tp = 0
-        if log.getEffectiveLevel() <= logging.DEBUG: # pragma: no cover
+        if log.getEffectiveLevel() <= logging.DEBUG:
             debshp = DebugWriter("debug_topology.shp", self.crs())
         index = QgsSpatialIndex(self.getFeatures())
         features = {feat.id(): feat for feat in self.getFeatures()}
@@ -536,7 +536,7 @@ class PolygonLayer(BaseLayer):
                                         note = "accepted"
                                         tp += 1
                                         to_change[fid] = g
-                            if log.getEffectiveLevel() <= logging.DEBUG: # pragma: no cover
+                            if log.getEffectiveLevel() <= logging.DEBUG:
                                 debshp.add_point(point, note)
         self.startEditing()
         if to_change:
@@ -544,7 +544,7 @@ class PolygonLayer(BaseLayer):
             log.debug(_("Created %d topological points in the '%s' layer"), 
                 tp, self.name().encode('utf-8'))
         self.commitChanges()
-        if log.getEffectiveLevel() <= logging.DEBUG: # pragma: no cover
+        if log.getEffectiveLevel() <= logging.DEBUG:
             del debshp
 
     def simplify(self):
@@ -561,7 +561,7 @@ class PolygonLayer(BaseLayer):
 
         * Delete invalid geometries
         """
-        if log.getEffectiveLevel() <= logging.DEBUG: # pragma: no cover
+        if log.getEffectiveLevel() <= logging.DEBUG:
             debshp = DebugWriter("debug_simplify.shp", self.crs())
         killed = 0
         to_change = {}
@@ -586,7 +586,7 @@ class PolygonLayer(BaseLayer):
                     else:
                         to_clean.append(fid)
                         if fid in to_change: del to_change[fid]
-                        if log.getEffectiveLevel() <= logging.DEBUG: # pragma: no cover
+                        if log.getEffectiveLevel() <= logging.DEBUG:
                             debshp.add_point(c, "invalid geometry")
                         break
         self.startEditing()
@@ -620,9 +620,9 @@ class PolygonLayer(BaseLayer):
                         feat.setGeometry(geom)
                         parents.remove(fid)
                         to_change[fid] = geom
-                if log.getEffectiveLevel() <= logging.DEBUG: # pragma: no cover
+                if log.getEffectiveLevel() <= logging.DEBUG:
                     debshp.add_point(point, "Deleted. %s" % msg)
-            elif log.getEffectiveLevel() <= logging.DEBUG: # pragma: no cover
+            elif log.getEffectiveLevel() <= logging.DEBUG:
                 debshp.add_point(point, "Keep. %s" % msg)
         self.startEditing()
         if to_change:

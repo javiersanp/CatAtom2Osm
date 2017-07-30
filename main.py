@@ -3,7 +3,8 @@
 from optparse import OptionParser
 import logging
 import gettext
-import sys, os
+import sys
+import os
 from zipfile import BadZipfile
 import setup
 
@@ -29,8 +30,8 @@ The directory name shall start with 5 digits (GGMMM) matching the Cadastral
 Provincial Office and Municipality Code. If the program don't find the input 
 files it will download them for you from the INSPIRE Services of the Spanish 
 Cadastre.""")
-  
-if __name__ == "__main__":
+
+def run():
     parser = OptionParser(usage=usage)
     parser.add_option("-v", "--version", dest="version", default=False,
         action="store_true", help=_("Print CatAtom2Osm version and exit"))
@@ -69,7 +70,8 @@ if __name__ == "__main__":
     log_level = getattr(logging, options.log_level.upper(), None)
     if log_level == None:
         log.error(_('Invalid log level: %s') % options.log_level)
-    log.setLevel(log_level)
+    else:
+        log.setLevel(log_level)
 
     if options.list:
         from catatom2osm import list_municipalities
@@ -90,10 +92,10 @@ if __name__ == "__main__":
             app = CatAtom2Osm(args[0], options)
             app.run()
             app.exit()
-        except (IOError, OSError, ValueError, BadZipfile) as e:
-            log.error(e.message)
-        except ImportError as e:
+        except (ImportError, IOError, OSError, ValueError, BadZipfile) as e:
             log.error(e.message)
             if 'qgis' in e.message or 'core' in e.message or 'osgeo' in e.message:
                 log.error(_("Please, install QGIS"))
 
+if __name__ == "__main__":
+    run()

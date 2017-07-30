@@ -81,7 +81,7 @@ class TestWget(unittest.TestCase):
         mock_open.return_value.__enter__.return_value = file_mock
         wget('foo', 'bar')
         self.assertEquals(file_mock.write.call_count, chunk_size)
-        self.assertTrue(mock_pb.called_with(99999))
+        mock_pb.assert_called_once_with(99999)
     
     @mock.patch('download.get_response')
     @mock.patch('download.ProgressBar')
@@ -95,5 +95,5 @@ class TestWget(unittest.TestCase):
         mock_open.return_value.__enter__.return_value = file_mock
         wget('foo', 'bar')
         self.assertEquals(file_mock.write.call_count, chunk_size)
-        self.assertTrue(mock_pb.called_with(0))
+        mock_pb.assert_called_with(0)
 
