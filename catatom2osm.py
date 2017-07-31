@@ -80,7 +80,6 @@ class CatAtom2Osm:
             raise IOError(_("Not a directory: '%s'") % a_path)
         self.qgs = QgsSingleton()
         log.debug(_("Initialized QGIS API"))
-        self.address_gml = None
         self.debug = log.getEffectiveLevel() == logging.DEBUG
 
     def run(self):
@@ -154,6 +153,7 @@ class CatAtom2Osm:
     def start(self):
         """Initializes data sets"""
         log.info(_("Start processing '%s'"), self.zip_code)
+        self.address_gml = None
         if not hgwnames.fuzz:
             log.warning(_("Failed to import FuzzyWuzzy. "
                 "Install requeriments for address conflation."))
@@ -536,8 +536,19 @@ class CatAtom2Osm:
 
     def merge_address(self, building_osm, address_osm):
         """
-        Copy address from address_osm to building_osm
+        Copy address from address_osm to building_osm using 'ref' tag. 
+        
+        * If there exists one building with the same 'ref' that an address, copy
+        the address tags to the building if isn't a 'entrace' type address or 
+        else to the entrance if there exist a node with the address coordinates 
+        in the building.
 
+        * If there exists many buildings withe the same 'ref' than an address,
+        creates a multipolygon relation and copy the address tags to it. Each 
+        building will be a member with outer role in the relation if it's a way.
+        If it's a relation, each outer member of it is aggregated to the address
+        relation.      
+        
         Args:
             building_osm (Osm): OSM data set with addresses
             address_osm (Osm): OSM data set with buildings

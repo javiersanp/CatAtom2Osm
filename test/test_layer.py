@@ -687,63 +687,6 @@ class TestConsLayer(unittest.TestCase):
         self.assertEquals({e.tags['ref'] for e in d.ways if 'ref' in e.tags}, 
             {'3', '4', '5', '6', '7', '8'})
 
-    """
-    def test_get_footprint_way(self):
-        d = osm.Osm()
-        n0 = d.Node(28.4064821, -16.5513413)
-        n1 = d.Node(28.4067302, -16.5508834)
-        n2 = d.Node(28.4066154, -16.550803)
-        n3 = d.Node(28.4063674, -16.551261)
-        w0 = d.Way([n0, n1, n2, n3, n0], dict(building='yes'))
-        w1 = d.Way([n0, n2, n1, n3, n0], dict(building='yes'))
-        w2 = d.Way([n0, n1, n2, n3], dict(building='yes'))
-        fp = ConsLayer.get_footprint(w0)
-        wg = w0.geometry()
-        poly = fp.asMultiPolygon()
-        self.assertEquals(len(poly), 1)
-        self.assertEquals(len(poly[0]), 1)
-        for (po, pq) in zip(wg, poly[0][0]):
-            self.assertEquals(po[0], pq.x())
-            self.assertEquals(po[1], pq.y())
-        fp = ConsLayer.get_footprint(w1)
-        self.assertEquals(fp, None)
-        fp = ConsLayer.get_footprint(w2)
-        self.assertEquals(fp, None)
-
-    def test_get_footprint_rel(self):
-        d = osm.Osm()
-        n0 = d.Node(28.4064889, -16.5505461)
-        n1 = d.Node(28.4065847, -16.5505371)
-        n2 = d.Node(28.4065632, -16.550241)
-        n3 = d.Node(28.4064674, -16.55025)
-        n4 = d.Node(28.4064622, -16.5501788)
-        n5 = d.Node(28.4061178, -16.5502112)
-        n6 = d.Node(28.4061227, -16.5502787)
-        n7 = d.Node(28.4063536, -16.5505564)
-        w0 = d.Way([n0, n1, n2, n3])
-        w1 = d.Way([n3, n0])
-        w2 = d.Way([n3, n4, n5, n6, n3])
-        r0 = d.Relation(tags=dict(building='yes'))
-        r0.append(w0, 'outer')
-        r0.append(w1, 'outer')
-        r0.append(w2, 'outer')
-        fp = ConsLayer.get_footprint(r0)
-        wg = [p.geometry() for p in [n0, n1, n2, n3]]
-        wg2 = w2.geometry()
-        poly = fp.asMultiPolygon()
-        self.assertEquals(len(poly), 2)
-        for (po, pq) in zip(wg2, poly[0][0]):
-            self.assertEquals(po[0], pq.x())
-            self.assertEquals(po[1], pq.y())
-        self.assertEquals(len(poly[1][0]), 5)
-        self.assertEquals(poly[1][0][0], poly[1][0][-1])
-        for p in poly[1][0]:
-            self.assertIn((p.x(), p.y()), wg)
-        r0.append(n7, 'outer')
-        fp = ConsLayer.get_footprint(r0)
-        self.assertEquals(fp, None)
-    """
-
 
 class TestAddressLayer(unittest.TestCase):
 
