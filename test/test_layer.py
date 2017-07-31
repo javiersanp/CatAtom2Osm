@@ -356,6 +356,18 @@ class TestZoningLayer(unittest.TestCase):
         (groups, features) = self.layer.get_adjacents_and_features()
         self.assertEquals(len(groups), 0)
 
+    def test_append(self):
+        layer1 = ZoningLayer()
+        layer1.append(self.fixture, 'M')
+        layer2 = ZoningLayer()
+        layer2.append(self.fixture, 'P')
+        self.assertEquals(layer1.featureCount() + layer2.featureCount(), 
+            self.fixture.featureCount())
+        for f in layer1.getFeatures():
+            self.assertEquals(f['levelName'][3], 'M')
+        for f in layer2.getFeatures():
+            self.assertEquals(f['levelName'][3], 'P')
+
 
 class TestConsLayer(unittest.TestCase):
 

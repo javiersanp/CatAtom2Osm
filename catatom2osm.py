@@ -491,10 +491,9 @@ class CatAtom2Osm:
                 del e.tags['ref']
         osm_path = os.path.join(self.path, filename)
         data.merge_duplicated()
-        with codecs.open(osm_path,"w", "utf-8") as file_obj:
+        with codecs.open(osm_path, "w", "utf-8") as file_obj:
             file_obj.write("<?xml version='1.0' encoding='UTF-8'?>\n")
             file_obj.write(osmxml.serialize(data))
-            file_obj.close()
         log.info(_("Generated '%s': %d nodes, %d ways, %d relations"), 
             filename, len(data.nodes), len(data.ways), len(data.relations))
 
@@ -506,10 +505,8 @@ class CatAtom2Osm:
         zoning_gml = self.read_gml_layer("cadastralzoning")
         self.urban_zoning = layer.ZoningLayer(baseName='urbanzoning')
         self.rustic_zoning = layer.ZoningLayer(baseName='rusticzoning')
-        urban_query = lambda feat, kwargs: feat['levelName'][3] == 'M' # "(1:MANZANA )"
-        rustic_query = lambda feat, kwargs: feat['levelName'][3] == 'P' # "(1:POLIGONO )"
-        self.urban_zoning.append(zoning_gml, query=urban_query)
-        self.rustic_zoning.append(zoning_gml, query=rustic_query)
+        self.urban_zoning.append(zoning_gml, level='M')
+        self.rustic_zoning.append(zoning_gml, level='P')
         del zoning_gml
         self.urban_zoning.explode_multi_parts()
         self.rustic_zoning.explode_multi_parts()
@@ -569,13 +566,15 @@ class CatAtom2Osm:
                     r = building_osm.Relation()
                     r.tags.update(ad.tags)
                     r.tags['type'] = 'multipolygon'
+                    if 'entrance' in r.tags: del r.tags['entrance']
+                    if 'ref' in r.tags: del r.tags['ref']
                     for bu in group:
                         if isinstance(bu, osm.Relation):
                             map(lambda m: r.append(m.element, 'outer'),  
                                 [m for m in bu.members if m.role == 'outer'])
                         else:
                             r.append(bu, 'outer')
-                elif len(group) == 1:
+                else:
                     bu = group[0]
                     if 'entrance' in ad.tags:
                         footprint = bu if isinstance(bu, osm.Way) \

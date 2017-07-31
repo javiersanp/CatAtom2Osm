@@ -691,6 +691,14 @@ class ZoningLayer(PolygonLayer):
         self.rename = {'localId': 'inspireId_localId'}
         self.source_date = source_date
 
+    def append(self, layer, level=None):
+        """Append features of layer with levelName 'M' for rustic or 'P' for urban"""
+        if level is None:
+            super(ZoningLayer, self).append(layer)
+        else:
+            query = lambda feat, kwargs: feat['levelName'][3] == kwargs['level']
+            super(ZoningLayer, self).append(layer, query=query, level=level)
+
 
 class AddressLayer(BaseLayer):
     """Class for address"""

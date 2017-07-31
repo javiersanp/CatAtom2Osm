@@ -148,6 +148,80 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.assertTrue(m_log.warning.called)
         m_os.makedirs.assert_called_once_with('foo/tasks')
 
+    @mock.patch('catatom2osm.os')
+    @mock.patch('catatom2osm.etree')
+    @mock.patch('catatom2osm.osmxml')
+    @mock.patch('catatom2osm.download')
+    def test_read_osm(self, m_download, m_xml, m_etree, m_os):
+        self.m_app.read_osm = cat.CatAtom2Osm.read_osm.__func__
+        m_os.path.join = lambda *args: '/'.join(args)
+        m_os.path.exists.return_value = True
+        m_xml.deserialize.return_value.elements = []
+        m_etree.parse.return_value.getroot.return_value = 123
+        with self.assertRaises(IOError):
+            self.m_app.read_osm(self.m_app, 'bar({bb})', 'taz')
+        m_download.wget.assert_not_called()
+        m_etree.parse.assert_called_with('foo/taz')
+        m_xml.deserialize.assert_called_once_with(123)
+
+        m_xml.deserialize.return_value.elements = [1]
+        self.m_app.boundary_id = 'foobar'
+        m_os.path.exists.return_value = False
+        data = self.m_app.read_osm(self.m_app, 'bar({bb})', 'taz')
+        url = m_download.wget.call_args_list[0][0][0]
+        self.assertIn('3600foobar)->.mun;bar(area.mun)', url)
+        self.assertEquals(data.elements, [1])
+        
+        self.m_app.boundary_id = False
+        self.m_app.boundary_bbox = 'bartaz'
+        data = self.m_app.read_osm(self.m_app, 'bar({bb})', 'taz')
+        url = m_download.wget.call_args_list[1][0][0]
+        self.assertIn('bar(bartaz)', url)
+
+    @mock.patch('catatom2osm.os')
+    @mock.patch('catatom2osm.osmxml')
+    @mock.patch('catatom2osm.codecs')
+    def test_write_osm(self, m_codecs, m_xml, m_os):
+        m_os.path.join = lambda *args: '/'.join(args)
+        m_xml.serialize.return_value = 'taz'
+        data = osm.Osm()
+        data.Node(0,0, {'ref': '1'})
+        data.Node(1,1, {'ref': '2'})
+        data.Node(2,2)
+        self.m_app.write_osm = cat.CatAtom2Osm.write_osm.__func__
+        self.m_app.write_osm(self.m_app, data, 'bar')
+        self.assertNotIn('ref', [k for el in data.elements for k in el.tags.keys()])
+        m_codecs.open.assert_called_once_with('foo/bar', 'w', 'utf-8')
+        m_xml.serialize.assert_called_once_with(data)
+        m_codecs.open().__enter__.return_value.write.assert_called_with('taz')
+
+    @mock.patch('catatom2osm.layer')
+    def test_get_zoning(self, m_layer):
+        self.m_app.read_gml_layer.return_value = 'foobar'
+        m_layer.ZoningLayer.side_effect = [mock.MagicMock(), mock.MagicMock()]
+        self.m_app.get_zoning = cat.CatAtom2Osm.get_zoning.__func__
+        self.m_app.get_zoning(self.m_app)
+        self.m_app.urban_zoning.append.assert_called_once_with('foobar', level='M')
+        self.m_app.rustic_zoning.append.assert_called_once_with('foobar', level='P')
+        self.m_app.urban_zoning.explode_multi_parts.called_once_with()
+        self.m_app.rustic_zoning.explode_multi_parts.called_once_with()
+        self.m_app.urban_zoning.add_topological_points.called_once_with()
+        self.m_app.urban_zoning.merge_adjacents.called_once_with()
+
+    @mock.patch('catatom2osm.layer')
+    def test_read_address(self, m_layer):
+        self.m_app.read_address = cat.CatAtom2Osm.read_address.__func__
+        self.m_app.read_gml_layer.return_value.fieldNameIndex.return_value = 0
+        self.m_app.read_address(self.m_app)
+        self.m_app.address.append.assert_called_once_with(self.m_app.read_gml_layer())
+        self.m_app.address.append.reset_mock()
+        self.m_app.read_gml_layer.return_value.fieldNameIndex.return_value = -1
+        with self.assertRaises(IOError):
+            self.m_app.read_address(self.m_app)
+        self.m_app.read_gml_layer.return_value.fieldNameIndex.side_effect = [-1, 0]
+        self.m_app.read_address(self.m_app)
+        self.m_app.address.append.assert_called_once_with(self.m_app.read_gml_layer())
+
     def test_merge_address(self):
         address = osm.Osm()
         address.Node(0,0, {'ref': '1', 'addrtags': 'address1'})
@@ -156,16 +230,39 @@ class TestCatAtom2Osm(unittest.TestCase):
         address.Node(6,0, {'ref': '4', 'addrtags': 'address4', 'entrance': 'yes'})
         building = osm.Osm()
         w0 = building.Way([], {'ref': '0'}) # building with ref not in address
-        w1 = building.Way([(0,0), (1,0), (1,1), (0,0)], {'ref': '1'}) # no entrance address, tags to way
-        w2 = building.Way([(2,0), (3,0), (3,1), (2,0)], {'ref': '2'}) # entrance exists, tags to node
-        w3 = building.Way([(4,1), (5,0), (5,1), (4,1)], {'ref': '3'}) # entrance don't exists, no tags
-        w4 = building.Way([(6,0), (7,0), (7,1), (6,0)], {'ref': '4'}) # many buildings, tags to relation
-        w5 = building.Way([(6,2), (7,2), (7,3), (6,2)], {'ref': '3'})
+        # no entrance address, tags to way
+        w1 = building.Way([(0,0), (1,0), (1,1), (0,0)], {'ref': '1'})
+        # entrance exists, tags to node
+        n2 = building.Node(2,0)
+        w2 = building.Way([n2, (3,0), (3,1), (2,0)], {'ref': '2'})
+        # entrance don't exists, no tags
+        w3 = building.Way([(4,1), (5,0), (5,1), (4,1)], {'ref': '3'})
+        # many buildings, tags to relation
+        w4 = building.Way([(6,0), (7,0), (7,1), (6,0)], {'ref': '4'})
+        w5 = building.Way([(6,2), (7,2), (7,3), (6,2)], {'ref': '4'})
         w6 = building.Way([(6,4), (9,4), (9,7), (6,7), (6,4)])
         w7 = building.Way([(7,5), (8,5), (8,6), (7,6), (7,5)])
         r = building.Relation(tags = {'ref': '4'})
         r.append(w6, 'outer') # outer members to address relation
         r.append(w7, 'inner')
+        self.m_app.merge_address = cat.CatAtom2Osm.merge_address.__func__
+        self.m_app.merge_address(self.m_app, building, address)
+        self.assertNotIn('addrtags', w0.tags)
+        self.assertEquals(w1.tags['addrtags'], 'address1')
+        self.assertEquals(n2.tags['addrtags'], 'address2')
+        self.assertNotIn('addrtags', w3.tags)
+        self.assertNotIn('addrtags', [k for n in w3.nodes for k in n.tags.keys()])
+        ar = building.index['r' + str(building.counter)]
+        self.assertEquals(ar.tags['addrtags'], 'address4')
+        self.assertNotIn('entrance', ar.tags)
+        self.assertNotIn('ref', ar.tags)
+        self.assertEquals(len(ar.members), 3)
+        o = [m.element for m in ar.members if m.role == 'outer']
+        self.assertEquals(len(o), 3)
+        self.assertEquals(set(o), {w4, w5, w6})
+        address.tags['source:date'] = 'foobar'
+        self.m_app.merge_address(self.m_app, building, address)
+        self.assertEquals(building.tags['source:date:addr'], address.tags['source:date'])
 
     def test_write_task(self):
         self.m_app.write_task = cat.CatAtom2Osm.write_task.__func__
