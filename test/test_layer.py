@@ -642,6 +642,25 @@ class TestConsLayer(unittest.TestCase):
             feat = self.layer.getFeatures(request).next()
             self.assertNotEquals(feat['fixme'], '')
 
+    def test_to_osm(self):
+        data = self.layer.to_osm(upload='always')
+        self.assertEquals(data.upload, 'always')
+        ways = 0
+        rels = 0
+        c = Counter()
+        for feat in self.layer.getFeatures():
+            g = feat.geometry()
+            if g.wkbType() == QGis.WKBPolygon:
+                p = g.asPolygon()
+                ways += len(p)
+                rels += (1 if len(p) > 1 else 0)
+            else:
+                p = g.asMultiPolygon()
+                ways += sum([len(s) for s in p])
+                rels += (1 if len(p) > 1 else 0)
+        self.assertEquals(ways, len(data.ways))
+        self.assertEquals(rels, len(data.relations))
+
     def test_conflate(self):
         self.layer.reproject()
         d = osm.Osm()
@@ -747,6 +766,24 @@ class TestAddressLayer(unittest.TestCase):
     def test_join_void(self):
         self.layer.join_field(self.tn_gml, 'TN_id', 'gml_id', ['text'], 'TN_')
         self.assertEquals(self.layer.featureCount(), 0)        
+
+    def test_to_osm(self):
+        self.layer.append(self.address_gml)
+        self.layer.join_field(self.tn_gml, 'TN_id', 'gml_id', ['text'], 'TN_')
+        self.layer.join_field(self.au_gml, 'AU_id', 'gml_id', ['text'], 'AU_')
+        self.layer.join_field(self.pd_gml, 'PD_id', 'gml_id', ['postCode'])
+        self.layer.source_date = 'foobar'
+        data = osm.Osm(upload='ifyoudare')
+        data.Node(0,0)
+        data = self.layer.to_osm(data=data)
+        self.assertEquals(data.upload, 'ifyoudare')
+        self.assertEquals(data.tags['source:date'], 'foobar')
+        self.assertEquals(len(data.elements), self.layer.featureCount() + 1)
+        address = {n.tags['ref']: n.tags['addr:street']+n.tags['addr:housenumber'] \
+            for n in data.nodes if 'ref' in n.tags}
+        for feat in self.layer.getFeatures():
+            t = address[feat['localId'].split('.')[-1]]
+            self.assertEquals(feat['TN_text']+feat['designator'], t)
 
     def test_conflate(self):
         self.layer.append(self.address_gml)

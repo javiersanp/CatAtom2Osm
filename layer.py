@@ -5,13 +5,15 @@ import os
 import math
 import re
 from collections import defaultdict, Counter
+import logging
 
 from qgis.core import *
 from PyQt4.QtCore import QVariant
 
 import hgwnames
+import osm
 import setup
-import logging
+import translate
 log = logging.getLogger(setup.app_name + "." + __name__)
 
 is_inside = lambda f1, f2: \
@@ -284,6 +286,52 @@ class BaseLayer(QgsVectorLayer):
         return QgsVectorFileWriter.writeAsVectorFormat(self, path, "utf-8", 
                 self.crs(), driver_name) == QgsVectorFileWriter.NoError
 
+    def to_osm(self, tags_translation=translate.all_tags, data=None, upload='never'):
+        """
+        Export this layer to an Osm data set
+
+        Args:
+            tags_translation (function): Function to translate fields to tags. 
+                By defaults convert all fields.
+            data (Osm): OSM data set to append. By default creates a new one.
+            upload (str): upload attribute of the osm dataset, default 'never'
+
+        Returns:
+            Osm: OSM data set
+        """
+        if data is None:
+            data = osm.Osm(upload)
+            nodes = ways = relations = 0
+        else:
+            nodes = len(data.nodes)
+            ways = len(data.ways)
+            relations = len(data.relations)
+        for feature in self.getFeatures(): 
+            geom = feature.geometry()
+            e = None
+            if geom.wkbType() == QGis.WKBPolygon:
+                pol = geom.asPolygon()
+                if len(pol) == 1:
+                    e = data.Way(pol[0])
+                else:
+                    e = data.Polygon(pol)
+            elif geom.wkbType() == QGis.WKBMultiPolygon:
+                e = data.MultiPolygon(geom.asMultiPolygon())
+            elif geom.wkbType() == QGis.WKBPoint:
+                e = data.Node(geom.asPoint())
+            else:
+                log.warning(_("Detected a %s geometry in the '%s' layer"), 
+                    geom.wkbType(), self.name().encode('utf-8'))
+            if e: e.tags.update(tags_translation(feature))
+        for (key, value) in setup.changeset_tags.items():
+            data.tags[key] = value
+        if self.source_date:
+            data.tags['source:date'] = self.source_date
+        log.debug(_("Loaded %d nodes, %d ways, %d relations from '%s' layer"), 
+            len(data.nodes) - nodes, len(data.ways) - ways, 
+            len(data.relations) - relations, self.name().encode('utf-8'))
+        return data
+        
     def search(self, expression):
         """Returns a features list for this search expression
         """
@@ -724,6 +772,10 @@ class AddressLayer(BaseLayer):
         }
         self.source_date = source_date
 
+    def to_osm(self, data=None, upload='never'):
+        """Export to OSM"""
+        return super(AddressLayer, self).to_osm(translate.address_tags, data, upload)
+
     def conflate(self, current_address):
         """
         Delete address existing in current_address
@@ -849,6 +901,10 @@ class ConsLayer(PolygonLayer):
             log.debug(_("Deleted %d building parts with no floors above ground"), 
                 len(to_clean))
         self.commitChanges()
+
+    def to_osm(self, data=None, upload='never'):
+        """Export to OSM"""
+        return super(ConsLayer, self).to_osm(translate.building_tags, data, upload)
 
     def remove_outside_parts(self):
         """

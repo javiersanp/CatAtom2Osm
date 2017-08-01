@@ -22,7 +22,6 @@ import osm
 import osmxml
 from osmxml import etree
 import setup
-import translate
 
 log = logging.getLogger(setup.app_name + "." + __name__)
 if setup.silence_gdal:
@@ -81,6 +80,10 @@ class CatAtom2Osm:
         self.qgs = QgsSingleton()
         log.debug(_("Initialized QGIS API"))
         self.debug = log.getEffectiveLevel() == logging.DEBUG
+        self.processed = set()
+        self.fixmes = 0
+        self.min_level = {}
+        self.max_level = {}
 
     def run(self):
         """Launches the app"""
@@ -104,7 +107,7 @@ class CatAtom2Osm:
             self.process_building()
         if self.options.address:
             self.address.reproject()
-            address_osm = self.osm_from_layer(self.address, translate.address_tags)
+            address_osm = self.address.to_osm()
             del self.address
             if self.options.building:
                 self.merge_address(self.building_osm, address_osm)
@@ -134,7 +137,7 @@ class CatAtom2Osm:
             del parcel_gml
             if self.debug: self.export_layer(self.parcel, 'address.shp')
             parcel.reproject()
-            parcel_osm = self.osm_from_layer(parcel)
+            parcel_osm = parcel.to_osm()
             self.write_osm(parcel_osm, "parcel.osm")
         if self.options.tasks or self.options.building:
             dlag = ', '.join(["%d: %d" % (l, c) for (l, c) in \
@@ -143,12 +146,15 @@ class CatAtom2Osm:
                 OrderedDict(Counter(self.min_level.values())).items()])
             log.info(_("Distribution of floors above ground %s"), dlag)
             log.info(_("Distribution of floors below ground %s"), dlbg)
-        if self.fixmes:
+        if self.fixmes: 
             log.warning("Revisa %d etiquetas fixme", self.fixmes)
         if self.is_new:
             log.info(_("The translation file '%s' have been writen in "
                 "'%s'"), 'highway_names.csv', self.path)
             log.info(_("Please, check it and run again"))
+        else:
+            log.info(_("Finished!"))
+            log.warning(_("Only for testing purposses. Don't upload any result to OSM"))
 
     def start(self):
         """Initializes data sets"""
@@ -182,10 +188,6 @@ class CatAtom2Osm:
             self.current_bu_osm = self.get_current_bu_osm()
             self.building_osm = osm.Osm()
             self.utaskn = self.rtaskn = 1
-        self.processed = set()
-        self.fixmes = 0
-        self.min_level = {}
-        self.max_level = {}
 
     def process_zone(self, zone, zoning):
         """Process data in zone"""
@@ -221,8 +223,7 @@ class CatAtom2Osm:
             building.reproject()
             building.conflate(self.current_bu_osm, delete=False)
             self.write_task(zoning, building, temp_address)
-            self.building_osm = self.osm_from_layer(building, 
-                translate.building_tags, data=self.building_osm)
+            self.building_osm = building.to_osm(data=self.building_osm)
             del temp_address
 
     def process_building(self):
@@ -245,15 +246,13 @@ class CatAtom2Osm:
         building.check_levels_and_area(self.min_level, self.max_level)
         building.reproject()
         building.conflate(self.current_bu_osm)
-        self.building_osm = self.osm_from_layer(building, translate.building_tags)
+        self.building_osm = building.to_osm()
         
     def exit(self):
         """Ends properly"""
         for propname in dir(self):
             if isinstance(getattr(self, propname), QgsVectorLayer):
                 delattr(self, propname)
-        log.info(_("Finished!"))
-        log.warning(_("Only for testing purposses. Don't upload any result to OSM"))
         if hasattr(self, 'qgs'):
             self.qgs.exitQgis()
         
@@ -401,53 +400,6 @@ class CatAtom2Osm:
             raise IOError(_("Failed to write layer: '%s'") % filename)
         
     
-    def osm_from_layer(self, layer, tags_translation=translate.all_tags, 
-            data=None, upload='never'):
-        """
-        Create a Osm data set from a vector layer.
-
-        Args:
-            layer (QgsVectorLayer): Source layer.
-            tags_translation (function): Function to translate fields to tags. 
-                By defaults convert all fields.
-            upload (str): upload attribute of the osm dataset, default 'never'
-
-        Returns:
-            Osm: OSM data set
-        """
-        if data is None:
-            data = osm.Osm(upload)
-            nodes = ways = relations = 0
-        else:
-            nodes = len(data.nodes)
-            ways = len(data.ways)
-            relations = len(data.relations)
-        for feature in layer.getFeatures(): 
-            geom = feature.geometry()
-            e = None
-            if geom.wkbType() == QGis.WKBPolygon:
-                pol = geom.asPolygon()
-                if len(pol) == 1:
-                    e = data.Way(pol[0])
-                else:
-                    e = data.Polygon(pol)
-            elif geom.wkbType() == QGis.WKBMultiPolygon:
-                e = data.MultiPolygon(geom.asMultiPolygon())
-            elif geom.wkbType() == QGis.WKBPoint:
-                e = data.Node(geom.asPoint())
-            else:
-                log.warning(_("Detected a %s geometry in the '%s' layer"), 
-                    geom.wkbType(), layer.name().encode('utf-8'))
-            if e: e.tags.update(tags_translation(feature))
-        for (key, value) in setup.changeset_tags.items():
-            data.tags[key] = value
-        if layer.source_date:
-            data.tags['source:date'] = layer.source_date
-        log.debug(_("Loaded %d nodes, %d ways, %d relations from '%s' layer"), 
-            len(data.nodes) - nodes, len(data.ways) - ways, 
-            len(data.relations) - relations, layer.name().encode('utf-8'))
-        return data
-        
     def read_osm(self, ql, filename):
         """
         Reads a OSM data set from a OSM XML file. If the file not exists, 
@@ -595,9 +547,9 @@ class CatAtom2Osm:
             self.rtaskn += 1
         base_path = os.path.join(self.path, 'tasks')
         task_path = os.path.join('tasks', fn)
-        task_osm = self.osm_from_layer(building, translate.building_tags, upload='yes')
+        task_osm = building.to_osm(upload='yes')
         if address is not None:
-            address_osm = self.osm_from_layer(address, translate.address_tags)
+            address_osm = address.to_osm()
             self.merge_address(task_osm, address_osm)
         self.write_osm(task_osm, task_path)
 

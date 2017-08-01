@@ -121,18 +121,16 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.options.tasks = True
         self.m_app.options.building = True
         self.m_app.get_translations.return_value = ([], True)
-        self.m_app.fixmes = 1
         self.m_app.start(self.m_app)
         self.m_app.read_address.assert_called_once_with()
         self.assertFalse(self.m_app.options.tasks)
         self.m_app.get_current_ad_osm.assert_not_called()
-        self.assertEquals(self.m_app.fixmes, 1)
         m_log.warning.assert_not_called()
         # not new, continue, not buildings or tasks
         self.m_app.get_translations.return_value = ([], False)
         self.m_app.options.building = False
         self.m_app.start(self.m_app)
-        self.assertEquals(self.m_app.fixmes, 0)
+        self.m_app.get_current_bu_osm.assert_not_called()
         #base path exists
         self.m_app.options.address = False
         self.m_app.options.tasks = True
@@ -269,16 +267,17 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.urban_zoning = 0
         self.m_app.utaskn = 100
         self.m_app.rtaskn = 1
-        self.m_app.osm_from_layer.return_value = 'foo'
+        m_bu = mock.MagicMock()
+        m_bu.to_osm.return_value = 'foo'
         self.m_app.merge_address.return_value = 'bar'
-        self.m_app.write_task(self.m_app, 0, None)
+        self.m_app.write_task(self.m_app, 0, m_bu)
         self.m_app.write_osm.assert_called_once_with('foo', 'tasks/u00100.osm')
-        self.m_app.write_task(self.m_app, 1, None, '')
+        self.m_app.write_task(self.m_app, 1, m_bu, m_bu)
         self.m_app.write_osm.assert_called_with('foo', 'tasks/r001.osm')
         self.m_app.merge_address.called_once_with('foo', 'bar')
-        self.m_app.write_task(self.m_app, 0, None)
+        self.m_app.write_task(self.m_app, 0, m_bu)
         self.m_app.write_osm.assert_called_with('foo', 'tasks/u00101.osm')
-        self.m_app.write_task(self.m_app, 1, None)
+        self.m_app.write_task(self.m_app, 1, m_bu)
         self.m_app.write_osm.assert_called_with('foo', 'tasks/r002.osm')
 
     @mock.patch('catatom2osm.os')
