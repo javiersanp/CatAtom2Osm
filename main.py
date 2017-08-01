@@ -74,7 +74,7 @@ def run():
         log.setLevel(log_level)
 
     if options.list:
-        from catatom2osm import list_municipalities
+        from catatom import list_municipalities
         try:
             list_municipalities(options.list)
         except IOError as e:

@@ -2,21 +2,16 @@
 """
 Tool to convert INSPIRE data sets from the Spanish Cadastre ATOM Services to OSM files
 """
-import math
-import re
 import os
 import codecs
-import json
 import logging
-import zipfile
 from collections import defaultdict, Counter, OrderedDict
 
 from qgis.core import *
 from osgeo import gdal
 
+import catatom
 import csvtools
-import download
-import hgwnames
 import layer
 import osm
 import osmxml
@@ -48,12 +43,6 @@ class CatAtom2Osm:
     """
     Main application class for a tool to convert the data sets from the 
     Spanish Cadastre ATOM Services to OSM files.
-    
-    Attributes:
-        path (str): Directory where the source files are located.
-        zip_code (str): Five digits (GGMMM) Zip Code matching Province (GG) 
-                       and Municipality (MMM) codes.
-        qgs (QgsApplication): Instance of qGis API.
     """
     
     def __init__(self, a_path, options):
@@ -64,20 +53,10 @@ class CatAtom2Osm:
             a_path (str): Directory where the source files are located.
             options (dict): Dictionary of options.
         """
-        # Gets path of data directory and Zip Code value
         self.options = options
-        m = re.match("^\d{5}$", os.path.split(a_path)[-1])
-        if not m:
-            raise ValueError(_("Last directory name must be a 5 digits ZIP code"))
-        self.path = a_path
-        self.zip_code = m.group()
-        self.prov_code = self.zip_code[0:2]
-        if self.prov_code not in setup.valid_provinces:
-            raise ValueError(_("Province code '%s' don't exists") % self.prov_code)
-        if not os.path.exists(a_path):
-            os.makedirs(a_path)
-        if not os.path.isdir(a_path):
-            raise IOError(_("Not a directory: '%s'") % a_path)
+        self.cat = catatom.Reader(a_path)
+        self.path = self.cat.path
+        self.zip_code = self.cat.zip_code
         self.qgs = QgsSingleton()
         log.debug(_("Initialized QGIS API"))
         self.debug = log.getEffectiveLevel() == logging.DEBUG
@@ -132,7 +111,7 @@ class CatAtom2Osm:
             self.write_osm(self.current_bu_osm, 'current_building.osm')
             del self.current_bu_osm
         if self.options.parcel:
-            parcel_gml = self.read_gml_layer("cadastralparcel")
+            parcel_gml = self.cat.read("cadastralparcel")
             parcel = layer.ParcelLayer(source_date = parcel_gml.source_date)
             parcel.append(parcel_gml)
             del parcel_gml
@@ -161,10 +140,7 @@ class CatAtom2Osm:
         """Initializes data sets"""
         log.info(_("Start processing '%s'"), self.zip_code)
         self.address_gml = None
-        if not hgwnames.fuzz:
-            log.warning(_("Failed to import FuzzyWuzzy. "
-                "Install requeriments for address conflation."))
-        self.get_boundary()
+        self.cat.get_boundary()
         self.get_zoning()
         self.is_new = False
         if self.options.address:
@@ -183,9 +159,9 @@ class CatAtom2Osm:
             base_path = os.path.join(self.path, 'tasks')
             if not os.path.exists(base_path):
                 os.makedirs(base_path)
-            self.building_gml = self.read_gml_layer("building")
-            self.part_gml = self.read_gml_layer("buildingpart")
-            self.other_gml = self.read_gml_layer("otherconstruction", True)
+            self.building_gml = self.cat.read("building")
+            self.part_gml = self.cat.read("buildingpart")
+            self.other_gml = self.cat.read("otherconstruction", True)
             self.current_bu_osm = self.get_current_bu_osm()
             self.building_osm = osm.Osm()
             self.utaskn = self.rtaskn = 1
@@ -256,135 +232,7 @@ class CatAtom2Osm:
                 delattr(self, propname)
         if hasattr(self, 'qgs'):
             self.qgs.exitQgis()
-        
-    def get_gml_date(self, md_path, zip_path=""):
-        """Get the source file production date from the metadata."""
-        if os.path.exists(md_path):
-            text = open(md_path, 'r').read()
-        else:
-            zip = zipfile.ZipFile(zip_path)
-            text = zip.read(os.path.basename(md_path))
-        root = etree.fromstring(text)
-        is_empty = len(root) == 0 or len(root[0]) == 0
-        namespace = {
-            'gco': 'http://www.isotc211.org/2005/gco', 
-            'gmd': 'http://www.isotc211.org/2005/gmd'
-        }
-        if hasattr(root, 'nsmap'):
-            namespace = root.nsmap
-        gml_date = root.find('gmd:dateStamp/gco:Date', namespace)
-        if is_empty or gml_date == None:
-            raise IOError(_("Could not read date from '%s'") % md_path)
-        return gml_date.text
 
-    def get_atom_file(self, url):
-        """
-        Given the url of a Cadastre ATOM service, tries to download the ZIP
-        file for self.zip_code
-        """
-        s = re.search('INSPIRE/(\w+)/', url)
-        log.info(_("Searching the url for the '%s' layer of '%s'..."), 
-            s.group(1), self.zip_code)
-        response = download.get_response(url)
-        s = re.search('http.+/%s.+zip' % self.zip_code, response.text)
-        if not s:
-            raise ValueError(_("Zip code '%s' don't exists") % self.zip_code)
-        url = s.group(0)
-        filename = url.split('/')[-1]
-        out_path = os.path.join(self.path, filename)
-        log.info(_("Downloading '%s'"), out_path)
-        download.wget(url, out_path)
-
-    def get_crs_from_gml(self, gml_path, zip_path=""):
-        """
-        Determines the CRS of a GML file. This is necessary because QGIS don't
-            detect correctly the CRS of the parcel and zoning layers.
-                    
-        Args:
-            gml_path (str): path to the file
-            zip_path (str): optionally zip file that contains the gml
-
-        Returns:
-            is_empty (bool): True if the GML file contains no feature
-            crs (QgsCoordinateReferenceSystem): CRS of the file
-        """
-        gml_path = gml_path.split('|')[0]
-        if os.path.exists(gml_path):
-            text = open(gml_path, 'r').read()
-        else:
-            zip = zipfile.ZipFile(zip_path)
-            text = zip.read(os.path.basename(gml_path))
-        root = etree.fromstring(text)
-        is_empty = len(root) == 0 or len(root[0]) == 0
-        crs_ref = None
-        if not is_empty:
-            crs_ref = int(root.find('.//*[@srsName]').get('srsName').split(':')[-1])
-        crs = QgsCoordinateReferenceSystem(crs_ref)
-        return (is_empty, crs)
-        
-    def read_gml_layer(self, layername, allow_empty=False):
-        """
-        Create a QGIS vector layer for a Cadastre layername. Derives the GML 
-        filename from layername. Downloads the file if not is present. First try
-        to read the ZIP file, if fails try with the GML file.
-
-        Args:
-            layername (str): Short name of the Cadastre layer. Any of 
-                'building', 'buildingpart', 'otherconstruction', 
-                'cadastralparcel', 'cadastralzoning', 'address', 
-                'thoroughfarename', 'postaldescriptor', 'adminunitname'
-            allow_empty (bool): If False (default), raise a exception for empty
-                layer, else returns None
-            force_zip (bool): Force to use ZIP file.
-                
-        Returns:
-            QgsVectorLayer: Vector layer.
-        """
-        if layername in ['building', 'buildingpart', 'otherconstruction']:
-            group = 'BU'
-        elif layername in ['cadastralparcel', 'cadastralzoning']:
-            group = 'CP'
-        elif layername in ['address', 'thoroughfarename', 'postaldescriptor', 
-                'adminunitname']:
-            group = 'AD' 
-        else:
-            raise ValueError(_("Unknow layer name '%s'") % layername)
-        url = setup.prov_url[group] % (self.prov_code, self.prov_code)
-        gml_fn = ".".join((setup.fn_prefix, group, self.zip_code, layername, "gml"))
-        if group == 'AD':    
-            gml_fn = ".".join((setup.fn_prefix, group, self.zip_code, 
-                "gml|layername=%s" % layername))
-        md_fn = ".".join((setup.fn_prefix, group, "MD", self.zip_code, "xml"))
-        if group == 'CP':
-            md_fn = ".".join((setup.fn_prefix, group, "MD.", self.zip_code, "xml"))
-        zip_fn = ".".join((setup.fn_prefix, group, self.zip_code, "zip"))
-        md_path = os.path.join(self.path, md_fn)
-        gml_path = os.path.join(self.path, gml_fn)
-        zip_path = os.path.join(self.path, zip_fn)
-        vsizip_path = "/".join(('/vsizip', self.path, zip_fn, gml_fn))
-        if not os.path.exists(zip_path) and (not os.path.exists(gml_path) or force_zip):
-            self.get_atom_file(url)
-        gml_date = self.get_gml_date(md_path, zip_path)
-        (is_empty, crs) = self.get_crs_from_gml(gml_path, zip_path)
-        if is_empty:
-            if not allow_empty:
-                raise IOError(_("The layer '%s' is empty") % gml_path)
-            else:
-                log.info(_("The layer '%s' is empty"), gml_path.encode('utf-8'))
-                return None
-        if not crs.isValid():
-            raise IOError(_("Could not determine the CRS of '%s'") % gml_path)
-        gml = layer.BaseLayer(vsizip_path, layername+'.gml', 'ogr')
-        if not gml.isValid():
-            gml = layer.BaseLayer(gml_path, layername+'.gml', 'ogr')
-            if not gml.isValid():
-                raise IOError(_("Failed to load layer '%s'") % gml_path)
-        gml.setCrs(crs)
-        log.info(_("Read %d features in '%s'"), gml.featureCount(), 
-            gml_path.encode('utf-8'))
-        gml.source_date = gml_date
-        return gml
-    
     def export_layer(self, layer, filename, driver_name='ESRI Shapefile'):
         """
         Export a vector layer.
@@ -416,7 +264,7 @@ class CatAtom2Osm:
         osm_path = os.path.join(self.path, filename)
         if not os.path.exists(osm_path):
             log.info(_("Downloading '%s'") % filename)
-            query = overpass.Query(self.boundary_search_area).add(ql)
+            query = overpass.Query(self.cat.boundary_search_area).add(ql)
             query.download(osm_path)
         tree = etree.parse(osm_path)
         data = osmxml.deserialize(tree.getroot())
@@ -451,7 +299,7 @@ class CatAtom2Osm:
         Reads cadastralzoning and splits in 'MANZANA' (urban) and 'POLIGONO' 
         (rustic)
         """
-        zoning_gml = self.read_gml_layer("cadastralzoning")
+        zoning_gml = self.cat.read("cadastralzoning")
         self.urban_zoning = layer.ZoningLayer(baseName='urbanzoning')
         self.rustic_zoning = layer.ZoningLayer(baseName='rusticzoning')
         self.urban_zoning.append(zoning_gml, level='M')
@@ -464,15 +312,15 @@ class CatAtom2Osm:
 
     def read_address(self):
         """Reads Address GML dataset"""
-        address_gml = self.read_gml_layer("address")
+        address_gml = self.cat.read("address")
         if address_gml.fieldNameIndex('component_href') == -1:
-            address_gml = self.read_gml_layer("address", force_zip=True)
+            address_gml = self.cat.read("address", force_zip=True)
             if address_gml.fieldNameIndex('component_href') == -1:
                 raise IOError(_("Could not resolve joined tables for the "
                     "'%s' layer") % address_gml.name())
-        adminunitname = self.read_gml_layer("adminunitname")
-        postaldescriptor = self.read_gml_layer("postaldescriptor")
-        thoroughfarename = self.read_gml_layer("thoroughfarename")
+        adminunitname = self.cat.read("adminunitname")
+        postaldescriptor = self.cat.read("postaldescriptor")
+        thoroughfarename = self.cat.read("thoroughfarename")
         self.address = layer.AddressLayer(source_date = address_gml.source_date)
         self.address.append(address_gml)
         self.address.join_field(adminunitname, 'AU_id', 'gml_id', ['text'], 'AU_')
@@ -614,53 +462,4 @@ class CatAtom2Osm:
         ql = 'way["building"];relation["building"];'
         current_bu_osm = self.read_osm(ql, 'current_building.osm')
         return current_bu_osm
-
-    def get_boundary(self):
-        """
-        Gets the bounding box of the municipality from the ATOM service
-        and the id of the OSM administrative boundary from Overpass
-        """
-        url = setup.prov_url['BU'] % (self.prov_code, self.prov_code)
-        response = download.get_response(url)
-        root = etree.fromstring(response.content)
-        ns = {
-            'atom': 'http://www.w3.org/2005/Atom', 
-            'georss': 'http://www.georss.org/georss'
-        }
-        entry = root.xpath("atom:entry/atom:title[contains(text(), '%s')]/"
-            "parent::*" % self.zip_code, namespaces=ns)[0]
-        mun = entry.find('atom:title', ns).text.replace('buildings', '').strip()[6:]
-        poly = entry.find('georss:polygon', ns).text
-        lat = [float(lat) for lat in poly.strip().split(' ')[::2]]
-        lon = [float(lon) for lon in poly.strip().split(' ')[1:][::2]]
-        bbox_bltr = [min(lat)-0.1, max(lon)-0.1, min(lat)+0.1, max(lon)+0.1]
-        bbox = ','.join([str(i) for i in bbox_bltr])
-        query = overpass.Query(bbox, 'json', False, False)
-        query.add('rel["admin_level"="8"]')
-        data = json.loads(query.read())
-        self.boundary_name = mun
-        self.boundary_search_area = bbox
-        matching = hgwnames.dsmatch(mun, data['elements'], lambda e: e['tags']['name'])
-        if matching:
-            self.boundary_search_area = str(matching['id'])
-            self.boundary_name = matching['tags']['name']
-            log.info(_("Municipality: '%s'"), self.boundary_name)
-        else:
-            log.warning(_("Failed to find administrative boundary, falling back to bounding box"))
-
-
-def list_municipalities(prov_code):
-    """Get from the ATOM services a list of municipalities for a given province"""
-    url = setup.prov_url['BU'] % (prov_code, prov_code)
-    response = download.get_response(url)
-    root = etree.fromstring(response.content)
-    ns = {'atom': 'http://www.w3.org/2005/Atom'}
-    office = root.find('atom:title', ns).text.split('Office ')[1]
-    title = _("Territorial office %s") % office
-    print
-    print title
-    print "=" * len(title)
-    for entry in root.xpath('atom:entry', namespaces=ns):
-        row = entry.find('atom:title', ns).text.replace('buildings', '')
-        print row
 
