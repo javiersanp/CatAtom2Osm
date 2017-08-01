@@ -425,9 +425,10 @@ class CatAtom2Osm:
         tree = etree.parse(osm_path)
         data = osmxml.deserialize(tree.getroot())
         if len(data.elements) == 0:
-            raise IOError(_("No OSM data were obtained for '%s'") % filename)
-        log.info(_("Read '%s': %d nodes, %d ways, %d relations"), 
-            filename, len(data.nodes), len(data.ways), len(data.relations))
+            log.warning(_("No OSM data were obtained from '%s'") % filename)
+        else:
+            log.info(_("Read '%s': %d nodes, %d ways, %d relations"), 
+                filename, len(data.nodes), len(data.ways), len(data.relations))
         return data
 
     def write_osm(self, data, filename):

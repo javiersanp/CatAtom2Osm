@@ -147,20 +147,22 @@ class TestCatAtom2Osm(unittest.TestCase):
         m_os.makedirs.assert_called_once_with('foo/tasks')
 
     @mock.patch('catatom2osm.os')
+    @mock.patch('catatom2osm.log')
     @mock.patch('catatom2osm.etree')
     @mock.patch('catatom2osm.osmxml')
     @mock.patch('catatom2osm.download')
-    def test_read_osm(self, m_download, m_xml, m_etree, m_os):
+    def test_read_osm(self, m_download, m_xml, m_etree, m_log, m_os):
         self.m_app.read_osm = cat.CatAtom2Osm.read_osm.__func__
         m_os.path.join = lambda *args: '/'.join(args)
         m_os.path.exists.return_value = True
         m_xml.deserialize.return_value.elements = []
         m_etree.parse.return_value.getroot.return_value = 123
-        with self.assertRaises(IOError):
-            self.m_app.read_osm(self.m_app, 'bar({bb})', 'taz')
+        self.m_app.read_osm(self.m_app, 'bar({bb})', 'taz')
         m_download.wget.assert_not_called()
         m_etree.parse.assert_called_with('foo/taz')
         m_xml.deserialize.assert_called_once_with(123)
+        output = m_log.warning.call_args_list[0][0][0]
+        self.assertIn('No OSM data', output)
 
         m_xml.deserialize.return_value.elements = [1]
         self.m_app.boundary_id = 'foobar'
@@ -169,12 +171,16 @@ class TestCatAtom2Osm(unittest.TestCase):
         url = m_download.wget.call_args_list[0][0][0]
         self.assertIn('3600foobar)->.mun;bar(area.mun)', url)
         self.assertEquals(data.elements, [1])
+        output = m_log.info.call_args_list[0][0][0]
+        self.assertIn('Downloading', output)
         
         self.m_app.boundary_id = False
         self.m_app.boundary_bbox = 'bartaz'
         data = self.m_app.read_osm(self.m_app, 'bar({bb})', 'taz')
         url = m_download.wget.call_args_list[1][0][0]
         self.assertIn('bar(bartaz)', url)
+        output = m_log.info.call_args_list[-1][0][0]
+        self.assertIn('Read', output)
 
     @mock.patch('catatom2osm.os')
     @mock.patch('catatom2osm.osmxml')
