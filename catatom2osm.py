@@ -20,8 +20,9 @@ import hgwnames
 import layer
 import osm
 import osmxml
-from osmxml import etree
+import overpass
 import setup
+from osmxml import etree
 
 log = logging.getLogger(setup.app_name + "." + __name__)
 if setup.silence_gdal:
@@ -412,16 +413,11 @@ class CatAtom2Osm:
         Returns
             Osm: OSM data set
         """
-        if self.boundary_id:
-            query = setup.xml_query % ('area(36{id:>08})->.mun;' + ql)
-            url = query.format(id=self.boundary_id, bb='area.mun')
-        else:
-            query = setup.xml_query % ql
-            url = query.format(bb=self.boundary_bbox)
         osm_path = os.path.join(self.path, filename)
         if not os.path.exists(osm_path):
             log.info(_("Downloading '%s'") % filename)
-            download.wget(url, osm_path)
+            query = overpass.Query(self.boundary_search_area).add(ql)
+            query.download(osm_path)
         tree = etree.parse(osm_path)
         data = osmxml.deserialize(tree.getroot())
         if len(data.elements) == 0:
@@ -561,8 +557,9 @@ class CatAtom2Osm:
         'highway_names.csv', creates one parsing names_layer, else reads and returns
         it as a dictionary.
         
-        * 'highway_types.csv' is List of osm elements in json formatlocated in the application path and contains 
-          translations from abreviaturs to full types of highways.
+        * 'highway_types.csv' List of osm elements in json format located in the
+          application path and contains translations from abreviaturs to full 
+          types of highways.
 
         * 'highway_names.csv' is located in the outputh folder and contains 
           corrections for original highway names.
@@ -584,10 +581,10 @@ class CatAtom2Osm:
 
     def get_highway(self):
         """Gets OSM highways needed for street names conflation"""
-        ql = 'way["highway"]["name"]({bb});' \
-             'relation["highway"]["name"]({bb});' \
-             'way["place"="square"]["name"]({bb});' \
-             'relation["place"="square"]["name"]({bb});'
+        ql = ['way["highway"]["name"]', 
+              'relation["highway"]["name"]',
+              'way["place"="square"]["name"]',
+              'relation["place"="square"]["name"]']
         highway_osm = self.read_osm(ql, 'current_highway.osm')
         highway = layer.HighwayLayer()
         highway.read_from_osm(highway_osm)
@@ -597,12 +594,12 @@ class CatAtom2Osm:
 
     def get_current_ad_osm(self):
         """Gets OSM address for address conflation"""
-        ql = 'node["addr:street"]["addr:housenumber"]({bb});' \
-             'way["addr:street"]["addr:housenumber"]({bb});' \
-             'relation["addr:street"]["addr:housenumber"]({bb});' \
-             'node["addr:place"]["addr:housenumber"]({bb});' \
-             'way["addr:place"]["addr:housenumber"]({bb});' \
-             'relation["addr:place"]["addr:housenumber"]({bb});'
+        ql = ['node["addr:street"]["addr:housenumber"]',
+              'way["addr:street"]["addr:housenumber"]',
+              'relation["addr:street"]["addr:housenumber"]',
+              'node["addr:place"]["addr:housenumber"]',
+              'way["addr:place"]["addr:housenumber"]',
+              'relation["addr:place"]["addr:housenumber"]']
         address_osm = self.read_osm(ql, 'current_address.osm')
         current_address = set()
         for d in address_osm.elements:
@@ -614,7 +611,7 @@ class CatAtom2Osm:
 
     def get_current_bu_osm(self):
         """Gets OSM buildings for building conflation"""
-        ql = 'way["building"]({bb});relation["building"]({bb});'
+        ql = 'way["building"];relation["building"];'
         current_bu_osm = self.read_osm(ql, 'current_building.osm')
         return current_bu_osm
 
@@ -638,14 +635,14 @@ class CatAtom2Osm:
         lon = [float(lon) for lon in poly.strip().split(' ')[1:][::2]]
         bbox_bltr = [min(lat)-0.1, max(lon)-0.1, min(lat)+0.1, max(lon)+0.1]
         bbox = ','.join([str(i) for i in bbox_bltr])
-        response = download.get_response(setup.boundary_query % bbox)
-        data = json.loads(response.text)
-        self.boundary_id = None
+        query = overpass.Query(bbox, 'json', False, False)
+        query.add('rel["admin_level"="8"]')
+        data = json.loads(query.read())
         self.boundary_name = mun
-        self.boundary_bbox = bbox
+        self.boundary_search_area = bbox
         matching = hgwnames.dsmatch(mun, data['elements'], lambda e: e['tags']['name'])
         if matching:
-            self.boundary_id = matching['id']
+            self.boundary_search_area = str(matching['id'])
             self.boundary_name = matching['tags']['name']
             log.info(_("Municipality: '%s'"), self.boundary_name)
         else:

@@ -150,38 +150,30 @@ class TestCatAtom2Osm(unittest.TestCase):
     @mock.patch('catatom2osm.log')
     @mock.patch('catatom2osm.etree')
     @mock.patch('catatom2osm.osmxml')
-    @mock.patch('catatom2osm.download')
-    def test_read_osm(self, m_download, m_xml, m_etree, m_log, m_os):
+    @mock.patch('catatom2osm.overpass')
+    def test_read_osm(self, m_overpass, m_xml, m_etree, m_log, m_os):
         self.m_app.read_osm = cat.CatAtom2Osm.read_osm.__func__
         m_os.path.join = lambda *args: '/'.join(args)
         m_os.path.exists.return_value = True
         m_xml.deserialize.return_value.elements = []
         m_etree.parse.return_value.getroot.return_value = 123
-        self.m_app.read_osm(self.m_app, 'bar({bb})', 'taz')
-        m_download.wget.assert_not_called()
+        self.m_app.read_osm(self.m_app, 'bar', 'taz')
+        m_overpass.Query.assert_not_called()
         m_etree.parse.assert_called_with('foo/taz')
         m_xml.deserialize.assert_called_once_with(123)
         output = m_log.warning.call_args_list[0][0][0]
         self.assertIn('No OSM data', output)
 
         m_xml.deserialize.return_value.elements = [1]
-        self.m_app.boundary_id = 'foobar'
+        self.m_app.boundary_search_area = '123456'
         m_os.path.exists.return_value = False
-        data = self.m_app.read_osm(self.m_app, 'bar({bb})', 'taz')
-        url = m_download.wget.call_args_list[0][0][0]
-        self.assertIn('3600foobar)->.mun;bar(area.mun)', url)
+        data = self.m_app.read_osm(self.m_app, 'bar', 'taz')
+        m_overpass.Query.assert_called_with('123456')
+        m_overpass.Query().add.assert_called_once_with('bar')
         self.assertEquals(data.elements, [1])
         output = m_log.info.call_args_list[0][0][0]
         self.assertIn('Downloading', output)
         
-        self.m_app.boundary_id = False
-        self.m_app.boundary_bbox = 'bartaz'
-        data = self.m_app.read_osm(self.m_app, 'bar({bb})', 'taz')
-        url = m_download.wget.call_args_list[1][0][0]
-        self.assertIn('bar(bartaz)', url)
-        output = m_log.info.call_args_list[-1][0][0]
-        self.assertIn('Read', output)
-
     @mock.patch('catatom2osm.os')
     @mock.patch('catatom2osm.osmxml')
     @mock.patch('catatom2osm.codecs')
@@ -340,32 +332,29 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.assertEquals(address, set(['foobar14', 'foobar12', 'bartaz10']))
 
     @mock.patch('catatom2osm.log.warning')
+    @mock.patch('catatom2osm.overpass')
     @mock.patch('catatom2osm.download')
-    def test_get_boundary(self, m_download, m_log):
+    def test_get_boundary(self, m_download, m_overpass, m_log):
         bbox09999 = "41.9997821981,-3.83420761212,42.1997821981,-3.63420761212"
         mun_json = '{"elements": [{"id": 1, "tags": {"name": "Barcelona"}}, ' \
             '{"id": 2, "tags": {"name": "Tazmania"}}, {"id": 3, "tags": {"name": "Foo"}}]}'
-        m1 = mock.MagicMock()
-        m1.content = prov_atom
-        m2 = mock.MagicMock()
-        m2.text = mun_json
-        m_download.get_response.side_effect = [m1, m2]
+        m_download.get_response.return_value.content = prov_atom
+        m_overpass.Query().read.return_value = mun_json
         self.m_app.prov_code = '09'
         self.m_app.zip_code = '09999'
         self.m_app.get_boundary = cat.CatAtom2Osm.get_boundary.__func__
         self.m_app.get_boundary(self.m_app)
-        url1 = setup.prov_url['BU'] % ('09', '09')
+        url = setup.prov_url['BU'] % ('09', '09')
         url2 = setup.boundary_query % bbox09999
-        m_download.get_response.assert_has_calls([mock.call(url1), 
-            mock.call(url2)], any_order=False)
-        self.assertEquals(self.m_app.boundary_id, 2)
+        m_download.get_response.assert_called_once_with(url)
+        m_overpass.Query.assert_called_with(bbox09999, 'json', False, False)
+        self.assertEquals(self.m_app.boundary_search_area, '2')
         self.assertEquals(self.m_app.boundary_name, 'Tazmania')
-        self.assertEquals(self.m_app.boundary_bbox, bbox09999)
-        m2.text = '{"elements": []}'
-        m_download.get_response.side_effect = [m1, m2]
+        m_overpass.Query().read.return_value = '{"elements": []}'
         self.m_app.get_boundary(self.m_app)
         output = m_log.call_args_list[0][0][0]
         self.assertIn("Failed to find", output)
+        self.assertEquals(self.m_app.boundary_search_area, bbox09999)
 
     @mock.patch('catatom2osm.download')
     def test_list_municipalities(self, m_download):

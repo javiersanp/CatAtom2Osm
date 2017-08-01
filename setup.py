@@ -56,13 +56,6 @@ prov_url = {
 
 valid_provinces = ["%02d" % i for i in range(2,57)]
 
-overpass_url = "http://overpass-api.de/api/interpreter?"
-#overpass_url = "http://overpass.osm.rambler.ru/cgi/interpreter?"
-json_query = overpass_url + "data=[out:json];%sout;"
-boundary_query = json_query % "rel[\"admin_level\"=\"8\"](%s);"
-deep_query = overpass_url + "data=[out:json];%s(._;>;);out;"
-xml_query = overpass_url + "data=[out:xml];(%s);(._;>;);out meta;"
-
 language, encoding = locale.getdefaultlocale()
 app_path = os.path.dirname(__file__)
 localedir = os.path.join(app_path, 'locale', 'po')
