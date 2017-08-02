@@ -212,7 +212,7 @@ class CatAtom2Osm:
         del self.part_gml
         if self.other_gml:
             building.append(self.other_gml)
-        del self.other_gml
+            del self.other_gml
         if self.debug: self.export_layer(building, 'address.shp')
         building.remove_outside_parts()
         building.explode_multi_parts()
@@ -227,7 +227,7 @@ class CatAtom2Osm:
         
     def exit(self):
         """Ends properly"""
-        for propname in dir(self):
+        for propname in self.__dict__.keys():
             if isinstance(getattr(self, propname), QgsVectorLayer):
                 delattr(self, propname)
         if hasattr(self, 'qgs'):

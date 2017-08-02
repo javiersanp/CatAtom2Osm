@@ -3,30 +3,14 @@ import mock
 import unittest
 import os, sys
 from optparse import Values
+from qgis.core import QgsVectorLayer
 os.environ['LANGUAGE'] = 'C'
 
 import main
 import setup
 import osm
 import layer
-from osmxml import etree
 import catatom2osm as cat
-
-prov_atom = """
-<feed xmlns="http://www.w3.org/2005/Atom" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:georss="http://www.georss.org/georss"  xmlns:inspire_dls = "http://inspire.ec.europa.eu/schemas/inspire_dls/1.0" xml:lang="en"> 
-<title>Download Office foobar</title>
-<entry>
-<title> 09001-FOO buildings</title>
-</entry>
-<entry>
-<title> 09002-BAR buildings</title>
-</entry>
-<entry>
-<title> 09999-TAZ buildings</title>
-<georss:polygon>42.0997821981015 -3.79048777556759 42.0997821981015 -3.73420761211555 42.1181603073135 -3.73420761211555 42.1181603073135 -3.79048777556759 42.0997821981015 -3.79048777556759</georss:polygon>
-</entry>
-</feed>
-"""
 
 
 class TestQgsSingleton(unittest.TestCase):
@@ -44,7 +28,6 @@ class TestQgsSingleton(unittest.TestCase):
         q2 = cat.QgsSingleton()
         self.assertEquals(m_qgsapp.call_count, 1)
         self.assertTrue(q1 is q2)
-
 
 class TestCatAtom2Osm(unittest.TestCase):
 
@@ -107,6 +90,123 @@ class TestCatAtom2Osm(unittest.TestCase):
         m_os.path.exists.return_value = False
         self.m_app.start(self.m_app)
         m_os.makedirs.assert_called_once_with('foo/tasks')
+
+    @mock.patch('catatom2osm.log')
+    @mock.patch('catatom2osm.layer')
+    def test_process_zone_empty(self, m_layer, m_log):
+        self.m_app.process_zone = cat.CatAtom2Osm.process_zone.__func__
+        self.m_app.building_gml.source_date = 1
+        zone = mock.MagicMock()
+        zoning = mock.MagicMock()
+        building = m_layer.ConsLayer.return_value
+        building.featureCount.return_value = 0
+        self.m_app.processed = []
+        self.m_app.process_zone(self.m_app, zone, zoning)
+        m_layer.ConsLayer.assert_called_once_with(source_date = 1)
+        building.append_zone.assert_called_once_with(self.m_app.building_gml, zone, [])
+        output = m_log.info.call_args_list[-1][0][0]
+        self.assertIn('empty', output)
+
+    @mock.patch('catatom2osm.log')
+    @mock.patch('catatom2osm.layer')
+    def test_process_zone_with_address(self, m_layer, m_log):
+        self.m_app.process_zone = cat.CatAtom2Osm.process_zone.__func__
+        zone = mock.MagicMock()
+        zoning = mock.MagicMock()
+        building = m_layer.ConsLayer.return_value
+        building.featureCount.return_value = 1
+        building.getFeatures.return_value = [{'localId': 1}, {'localId': 2}]
+        self.m_app.options.address = mock.MagicMock()
+        self.m_app.processed = set()
+        self.m_app.process_zone(self.m_app, zone, zoning)
+        self.assertEquals(self.m_app.processed, {1, 2})
+        building.append_task.assert_has_calls([
+            mock.call(self.m_app.part_gml, {1, 2}),
+            mock.call(self.m_app.other_gml, {1, 2})
+        ])
+        building.move_address.assert_called_once_with(self.m_app.address, delete=False)
+
+    @mock.patch('catatom2osm.log')
+    @mock.patch('catatom2osm.layer')
+    def test_process_zone(self, m_layer, m_log):
+        self.m_app.process_zone = cat.CatAtom2Osm.process_zone.__func__
+        zone = mock.MagicMock()
+        zoning = mock.MagicMock()
+        building = m_layer.ConsLayer.return_value
+        building.featureCount.return_value = 1
+        x = self.m_app.building_osm
+        self.m_app.options.address = False
+        self.m_app.other_gml = False
+        self.m_app.processed = set()
+        self.m_app.process_zone(self.m_app, zone, zoning)
+        building.append_task.assert_called_once_with(self.m_app.part_gml, set())
+        building.move_address.assert_not_called()
+        building.conflate.assert_called_once_with(self.m_app.current_bu_osm, delete=False)
+        self.m_app.write_task.assert_called_once_with(zoning, building, None)
+        building.to_osm.assert_called_once_with(data=x)
+        self.assertEquals(self.m_app.building_osm, building.to_osm.return_value)
+
+    @mock.patch('catatom2osm.layer')
+    def test_process_building(self, m_layer):
+        self.m_app.process_building = cat.CatAtom2Osm.process_building.__func__
+        self.m_app.building_gml.source_date = 1
+        x = self.m_app.building_gml
+        y = self.m_app.part_gml
+        z = self.m_app.other_gml
+        self.m_app.options.address = False
+        self.m_app.process_building(self.m_app)
+        m_layer.ConsLayer.assert_called_once_with(source_date = 1)
+        building = m_layer.ConsLayer.return_value
+        building.append.assert_has_calls([
+            mock.call(x), mock.call(y), mock.call(z)
+        ])
+        self.assertFalse(hasattr(self.m_app, 'building_gml'))
+        self.assertFalse(hasattr(self.m_app, 'part_gml'))
+        self.assertFalse(hasattr(self.m_app, 'other_gml'))
+        building.move_address.assert_not_called()
+
+    @mock.patch('catatom2osm.layer')
+    def test_process_building_with_address(self, m_layer):
+        self.m_app.process_building = cat.CatAtom2Osm.process_building.__func__
+        self.m_app.options.address = True
+        self.m_app.other_gml = False
+        self.m_app.min_level = 1
+        self.m_app.max_level = 2
+        self.m_app.current_bu_osm = 3
+        y = self.m_app.part_gml
+        self.m_app.process_building(self.m_app)
+        building = m_layer.ConsLayer.return_value
+        building.append.assert_called_with(y)
+        building.move_address.assert_called_once_with(self.m_app.address)
+        building.check_levels_and_area.assert_called_once_with(1,2)
+        building.conflate.assert_called_once_with(3)
+        self.assertEquals(self.m_app.building_osm, building.to_osm.return_value)
+
+    def test_exit(self):
+        self.m_app.exit = cat.CatAtom2Osm.exit.__func__
+        self.m_app.test1 = QgsVectorLayer('Point', 'test', 'memory')
+        self.m_app.test2 = QgsVectorLayer('Point', 'test', 'memory')
+        self.m_app.exit(self.m_app)
+        self.assertFalse(hasattr(self.m_app, 'test1'))
+        self.assertFalse(hasattr(self.m_app, 'test2'))
+        self.m_app.qgs.exitQgis.assert_called_once_with()
+        del self.m_app.qgs
+        self.m_app.exit(self.m_app)
+
+    @mock.patch('catatom2osm.os')
+    @mock.patch('catatom2osm.log')
+    def test_export_layer(self, m_log, m_os):
+        m_os.path.join = lambda *args: '/'.join(args)
+        m_layer = mock.MagicMock()
+        m_layer.export.return_value = True
+        self.m_app.export_layer = cat.CatAtom2Osm.export_layer.__func__
+        self.m_app.export_layer(self.m_app, m_layer, 'bar', 'taz')
+        m_layer.export.assert_called_once_with('foo/bar', 'taz')
+        output = m_log.info.call_args_list[0][0][0]
+        self.assertIn('Generated', output)
+        m_layer.export.return_value = False
+        with self.assertRaises(IOError):
+            self.m_app.export_layer(self.m_app, m_layer, 'bar', 'taz')
 
     @mock.patch('catatom2osm.os')
     @mock.patch('catatom2osm.log')
