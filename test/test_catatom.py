@@ -3,6 +3,7 @@ import mock
 import codecs
 from cStringIO import StringIO
 from contextlib import contextmanager
+import random
 import os, sys
 os.environ['LANGUAGE'] = 'C'
 
@@ -21,8 +22,7 @@ def capture(command, *args, **kwargs):
     finally:
         sys.stdout = out
 
-prov_atom = """
-<feed xmlns="http://www.w3.org/2005/Atom" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:georss="http://www.georss.org/georss"  xmlns:inspire_dls = "http://inspire.ec.europa.eu/schemas/inspire_dls/1.0" xml:lang="en"> 
+prov_atom = """<feed xmlns="http://www.w3.org/2005/Atom" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:georss="http://www.georss.org/georss"  xmlns:inspire_dls = "http://inspire.ec.europa.eu/schemas/inspire_dls/1.0" xml:lang="en"> 
 <title>Download Office foobar</title>
 <entry>
 <title> 09001-FOO buildings</title>
@@ -37,6 +37,20 @@ prov_atom = """
 </feed>
 """
 
+metadata = """<?xml version="1.0" encoding="ISO-8859-1"?>
+<gmd:MD_Metadata xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gco="http://www.isotc211.org/2005/gco">
+	<gmd:dateStamp>
+		<gco:Date>2017-02-25</gco:Date>
+	</gmd:dateStamp>
+</gmd:MD_Metadata>
+"""
+
+gmlfile = """<?xml version="1.0" encoding="ISO-8859-1"?>
+<gml:FeatureCollection xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:AD="urn:x-inspire:specification:gmlas:Addresses:3.0">
+    <AD:geometry>
+        <gml:Point srsName="urn:ogc:def:crs:EPSG::32628"></gml:Point>
+    </AD:geometry>
+</gml:FeatureCollection>"""
 
 class TestCatAtom(unittest.TestCase):
 
@@ -69,6 +83,189 @@ class TestCatAtom(unittest.TestCase):
         self.assertEquals(self.m_cat.path, 'xxx/12345')
         self.assertEquals(self.m_cat.zip_code, '12345')
         self.assertEquals(self.m_cat.prov_code, '12')
+
+    @mock.patch('catatom.os')
+    @mock.patch('catatom.open')
+    def test_get_gml_date_from_gml(self, m_open, m_os):
+        self.m_cat.get_gml_date = catatom.Reader.get_gml_date.__func__
+        m_os.path.exists.return_value = True
+        m_open.return_value.read.return_value = metadata
+        gmldate = self.m_cat.get_gml_date(self.m_cat, 'foo')
+        self.assertEquals(gmldate, '2017-02-25')
+        m_open.assert_called_once_with('foo', 'r')
+        
+    @mock.patch('catatom.os')
+    @mock.patch('catatom.open')
+    @mock.patch('catatom.zipfile')
+    def test_get_gml_date_from_zip(self, m_zip, m_open, m_os):
+        self.m_cat.get_gml_date = catatom.Reader.get_gml_date.__func__
+        m_os.path.exists.return_value = False
+        m_zip.ZipFile.return_value.read.return_value = metadata
+        gmldate = self.m_cat.get_gml_date(self.m_cat, 'foo', 'bar')
+        self.assertEquals(gmldate, '2017-02-25')
+        m_zip.ZipFile.assert_called_once_with('bar')
+        m_os.path.basename.assert_called_once_with('foo')
+        m_zip.ZipFile().read.assert_called_once_with(m_os.path.basename())
+        
+    @mock.patch('catatom.os')
+    @mock.patch('catatom.open')
+    @mock.patch('catatom.etree')
+    @mock.patch('catatom.hasattr')
+    def test_get_gml_date_empty(self, m_has, m_etree, m_open, m_os):
+        self.m_cat.get_gml_date = catatom.Reader.get_gml_date.__func__
+        m_os.path.exists.return_value = True
+        del m_etree.fromstring.return_value.root
+        m_etree.fromstring.return_value.__len__.return_value = 0
+        m_has.return_value = False
+        with self.assertRaises(IOError):
+            self.m_cat.get_gml_date(self.m_cat, 'foo')
+        ns = m_etree.fromstring().find.call_args_list[0][0][1]
+        self.assertEquals(set(ns.keys()), {'gco', 'gmd'})
+
+    @mock.patch('catatom.os')
+    @mock.patch('catatom.download')
+    def test_get_atom_file(self, m_download, m_os):
+        self.m_cat.get_atom_file = catatom.Reader.get_atom_file.__func__
+        m_os.path.join = lambda *args: '/'.join(args)
+        url = setup.prov_url['BU'] % ('38', '38')
+        m_download.get_response.return_value.text = "xxxxhttpfobar/38001bartazzipxxx"
+        self.m_cat.path = 'lorem'
+        self.m_cat.zip_code = '38001'
+        self.m_cat.get_atom_file(self.m_cat, url)
+        m_download.wget.assert_called_once_with("httpfobar/38001bartazzip", "lorem/38001bartazzip")
+        self.m_cat.zip_code = '38002'
+        with self.assertRaises(ValueError):
+            self.m_cat.get_atom_file(self.m_cat, url)
+
+    @mock.patch('catatom.os')
+    @mock.patch('catatom.open')
+    @mock.patch('catatom.QgsCoordinateReferenceSystem')
+    def test_get_crs_from_gml(self, m_crs, m_open, m_os):
+        self.m_cat.get_crs = catatom.Reader.get_crs.__func__
+        m_os.path.exists.return_value = True
+        m_open.return_value.read.return_value = gmlfile
+        (is_empty, crs) = self.m_cat.get_crs(self.m_cat, 'foo')
+        m_open.assert_called_once_with('foo', 'r')
+        m_crs.assert_called_once_with(32628)
+        self.assertEquals(crs, m_crs.return_value)
+        self.assertFalse(is_empty)
+
+    @mock.patch('catatom.os')
+    @mock.patch('catatom.open')
+    @mock.patch('catatom.zipfile')
+    @mock.patch('catatom.QgsCoordinateReferenceSystem')
+    def test_get_crs_from_zip(self, m_crs, m_zip, m_open, m_os):
+        self.m_cat.get_crs = catatom.Reader.get_crs.__func__
+        m_os.path.exists.return_value = False
+        m_zip.ZipFile.return_value.read.return_value = gmlfile
+        (is_empty, crs) = self.m_cat.get_crs(self.m_cat, 'foo', 'bar')
+        m_zip.ZipFile.assert_called_once_with('bar')
+        m_os.path.basename.assert_called_once_with('foo')
+        m_zip.ZipFile().read.assert_called_once_with(m_os.path.basename())
+        m_crs.assert_called_once_with(32628)
+        self.assertEquals(crs, m_crs.return_value)
+        self.assertFalse(is_empty)
+
+    @mock.patch('catatom.os')
+    @mock.patch('catatom.open')
+    @mock.patch('catatom.etree')
+    @mock.patch('catatom.QgsCoordinateReferenceSystem')
+    def test_get_crs_empty(self, m_crs, m_etree, m_open, m_os):
+        self.m_cat.get_crs = catatom.Reader.get_crs.__func__
+        m_os.path.exists.return_value = True
+        m_etree.fromstring.return_value.__len__.return_value = 0
+        (is_empty, crs) = self.m_cat.get_crs(self.m_cat, 'foo')
+        m_crs.assert_called_once_with(None)
+        self.assertEquals(crs, m_crs.return_value)
+        self.assertTrue(is_empty)
+
+    @mock.patch('catatom.os')
+    def test_get_layer_paths(self, m_os):
+        self.m_cat.get_layer_paths = catatom.Reader.get_layer_paths.__func__
+        m_os.path.join = lambda *args: '/'.join(args)
+        with self.assertRaises(ValueError):
+            self.m_cat.get_layer_paths(self.m_cat, 'foobar')
+        self.m_cat.path = 'foo'
+        self.m_cat.zip_code = 'bar'
+        ln = random.choice(['building', 'buildingpart', 'otherconstruction'])
+        (md_path, gml_path, zip_path, vsizip_path, g) = self.m_cat.get_layer_paths(self.m_cat, ln)
+        self.assertEquals(g, 'BU')
+        self.assertEquals(md_path, 'foo/A.ES.SDGC.BU.MD.bar.xml')
+        self.assertEquals(gml_path, 'foo/A.ES.SDGC.BU.bar.' + ln + '.gml')
+        self.assertEquals(zip_path, 'foo/A.ES.SDGC.BU.bar.zip')
+        self.assertEquals(vsizip_path, '/vsizip/' + zip_path + '/' + gml_path.split('/')[-1])
+        ln = random.choice(['cadastralparcel', 'cadastralzoning'])
+        (md_path, gml_path, zip_path, vsizip_path, g) = self.m_cat.get_layer_paths(self.m_cat, ln)
+        self.assertEquals(g, 'CP')
+        self.assertEquals(md_path, 'foo/A.ES.SDGC.CP.MD..bar.xml')
+        self.assertEquals(gml_path, 'foo/A.ES.SDGC.CP.bar.' + ln + '.gml')
+        self.assertEquals(zip_path, 'foo/A.ES.SDGC.CP.bar.zip')
+        ln = random.choice(['address', 'thoroughfarename', 'postaldescriptor', 'adminunitname'])
+        (md_path, gml_path, zip_path, vsizip_path, g) = self.m_cat.get_layer_paths(self.m_cat, ln)
+        self.assertEquals(g, 'AD')
+        self.assertEquals(md_path, 'foo/A.ES.SDGC.AD.MD.bar.xml')
+        self.assertEquals(gml_path, 'foo/A.ES.SDGC.AD.bar.gml|layername=' + ln)
+        self.assertEquals(zip_path, 'foo/A.ES.SDGC.AD.bar.zip')
+
+    @mock.patch('catatom.os')
+    @mock.patch('catatom.log')
+    @mock.patch('catatom.layer')
+    def test_read(self, m_layer, m_log, m_os):
+        self.m_cat.read = catatom.Reader.read.__func__
+        g = random.choice(['BU', 'CP', 'AD'])
+        self.m_cat.get_layer_paths.return_value = ('1', '2', '3', '4', g)
+        m_crs = mock.MagicMock()
+        m_crs.isValid.return_value = True
+        m_os.path.exists.return_value = True
+        m_layer.BaseLayer.return_value.isValid.return_value = True
+        self.m_cat.get_crs.return_value = (False, m_crs)
+        self.m_cat.prov_code = '99'
+        self.m_cat.get_gml_date.return_value = 'bar'
+        gml = self.m_cat.read(self.m_cat, 'foobar')
+        self.m_cat.get_layer_paths.assert_called_once_with('foobar')
+        self.m_cat.get_atom_file.assert_not_called()
+        self.m_cat.get_gml_date.assert_called_once_with('1', '3')
+        self.m_cat.get_crs.assert_called_once_with('2', '3')
+        output = m_log.info.call_args_list[0][0][0]
+        self.assertNotIn('empty', output)
+        m_layer.BaseLayer.assert_called_once_with('4', 'foobar.gml', 'ogr')
+        m_layer.BaseLayer.return_value.setCrs.assert_called_once_with(m_crs)
+        self.assertEquals(m_layer.BaseLayer.return_value.source_date, 'bar')
+        self.assertEquals(gml, m_layer.BaseLayer.return_value)
+
+        url = setup.prov_url[g] % ('99', '99')
+        m_os.path.exists.return_value = False
+        self.m_cat.get_crs.return_value = (True, m_crs)
+        gml = self.m_cat.read(self.m_cat, 'foobar', allow_empty=True)
+        self.m_cat.get_atom_file.assert_called_once_with(url)
+        output = m_log.info.call_args_list[-1][0][0]
+        self.assertIn('empty', output)
+        self.assertEquals(gml, None)
+        m_layer.BaseLayer.assert_called_with('4', 'foobar.gml', 'ogr')
+
+        m_os.path.exists.side_effect = [False, True]
+        with self.assertRaises(IOError) as cm:
+            self.m_cat.read(self.m_cat, 'foobar', force_zip=True)
+        self.m_cat.get_atom_file.assert_called_with(url)
+        self.assertIn('empty', cm.exception.message)
+
+        m_crs.isValid.return_value = False
+        m_os.path.exists.side_effect = None
+        self.m_cat.get_crs.return_value = (False, m_crs)
+        with self.assertRaises(IOError) as cm:
+            self.m_cat.read(self.m_cat, 'foobar')
+        self.assertIn('Could not determine the CRS', cm.exception.message)
+
+        m_crs.isValid.return_value = True
+        m_layer.BaseLayer.return_value.isValid.return_value = False
+        with self.assertRaises(IOError) as cm:
+            self.m_cat.read(self.m_cat, 'foobar')
+        self.assertIn('Failed to load', cm.exception.message)
+
+        m_layer.BaseLayer.return_value.isValid.side_effect = [False, True]
+        gml = self.m_cat.read(self.m_cat, 'foobar')
+        self.assertEquals(gml, m_layer.BaseLayer.return_value)
+        
 
     @mock.patch('catatom.log.warning')
     @mock.patch('catatom.overpass')

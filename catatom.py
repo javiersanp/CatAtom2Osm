@@ -100,7 +100,31 @@ class Reader(object):
         crs = QgsCoordinateReferenceSystem(crs_ref)
         return (is_empty, crs)
         
-    def read(self, layername, allow_empty=False):
+    def get_layer_paths(self, layername):
+        if layername in ['building', 'buildingpart', 'otherconstruction']:
+            group = 'BU'
+        elif layername in ['cadastralparcel', 'cadastralzoning']:
+            group = 'CP'
+        elif layername in ['address', 'thoroughfarename', 'postaldescriptor', 
+                'adminunitname']:
+            group = 'AD' 
+        else:
+            raise ValueError(_("Unknow layer name '%s'") % layername)
+        gml_fn = ".".join((setup.fn_prefix, group, self.zip_code, layername, "gml"))
+        if group == 'AD':    
+            gml_fn = ".".join((setup.fn_prefix, group, self.zip_code, 
+                "gml|layername=%s" % layername))
+        md_fn = ".".join((setup.fn_prefix, group, "MD", self.zip_code, "xml"))
+        if group == 'CP':
+            md_fn = ".".join((setup.fn_prefix, group, "MD.", self.zip_code, "xml"))
+        zip_fn = ".".join((setup.fn_prefix, group, self.zip_code, "zip"))
+        md_path = os.path.join(self.path, md_fn)
+        gml_path = os.path.join(self.path, gml_fn)
+        zip_path = os.path.join(self.path, zip_fn)
+        vsizip_path = "/".join(('/vsizip', self.path, zip_fn, gml_fn))
+        return (md_path, gml_path, zip_path, vsizip_path, group)
+    
+    def read(self, layername, allow_empty=False, force_zip=False):
         """
         Create a QGIS vector layer for a Cadastre layername. Derives the GML 
         filename from layername. Downloads the file if not is present. First try
@@ -118,28 +142,8 @@ class Reader(object):
         Returns:
             QgsVectorLayer: Vector layer.
         """
-        if layername in ['building', 'buildingpart', 'otherconstruction']:
-            group = 'BU'
-        elif layername in ['cadastralparcel', 'cadastralzoning']:
-            group = 'CP'
-        elif layername in ['address', 'thoroughfarename', 'postaldescriptor', 
-                'adminunitname']:
-            group = 'AD' 
-        else:
-            raise ValueError(_("Unknow layer name '%s'") % layername)
+        (md_path, gml_path, zip_path, vsizip_path, group) = self.get_layer_paths(layername)
         url = setup.prov_url[group] % (self.prov_code, self.prov_code)
-        gml_fn = ".".join((setup.fn_prefix, group, self.zip_code, layername, "gml"))
-        if group == 'AD':    
-            gml_fn = ".".join((setup.fn_prefix, group, self.zip_code, 
-                "gml|layername=%s" % layername))
-        md_fn = ".".join((setup.fn_prefix, group, "MD", self.zip_code, "xml"))
-        if group == 'CP':
-            md_fn = ".".join((setup.fn_prefix, group, "MD.", self.zip_code, "xml"))
-        zip_fn = ".".join((setup.fn_prefix, group, self.zip_code, "zip"))
-        md_path = os.path.join(self.path, md_fn)
-        gml_path = os.path.join(self.path, gml_fn)
-        zip_path = os.path.join(self.path, zip_fn)
-        vsizip_path = "/".join(('/vsizip', self.path, zip_fn, gml_fn))
         if not os.path.exists(zip_path) and (not os.path.exists(gml_path) or force_zip):
             self.get_atom_file(url)
         gml_date = self.get_gml_date(md_path, zip_path)
