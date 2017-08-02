@@ -114,13 +114,13 @@ class TestMain(unittest.TestCase):
             self.assertIn(setup.app_version, output)
 
     @mock.patch('main.sys.argv', ['catatom2osm.py', '-l', '33'])
-    @mock.patch('catatom2osm.list_municipalities')
+    @mock.patch('catatom2osm.catatom.list_municipalities')
     def test_list(self, mocklist):
         main.run()
         mocklist.assert_called_once_with('33')
 
     @mock.patch('main.sys.argv', ['catatom2osm.py', '-l', '33'])
-    @mock.patch('catatom2osm.list_municipalities', raiseIOError)
+    @mock.patch('catatom2osm.catatom.list_municipalities', raiseIOError)
     @mock.patch('main.log.error')
     def test_list_error(self, mocklog):
         main.run()

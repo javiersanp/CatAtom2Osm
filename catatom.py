@@ -1,4 +1,5 @@
 """Reader of ATOM GML files"""
+import json
 import logging
 import os
 import re
@@ -7,7 +8,6 @@ from qgis.core import QgsCoordinateReferenceSystem
 
 import download
 import hgwnames
-import json
 import layer
 import overpass
 import setup
@@ -201,6 +201,8 @@ class Reader(object):
 
 def list_municipalities(prov_code):
     """Get from the ATOM services a list of municipalities for a given province"""
+    if prov_code not in setup.valid_provinces:
+        raise ValueError(_("Province code '%s' don't exists") % prov_code)
     url = setup.prov_url['BU'] % (prov_code, prov_code)
     response = download.get_response(url)
     root = etree.fromstring(response.content)

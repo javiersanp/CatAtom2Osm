@@ -73,25 +73,22 @@ def run():
     else:
         log.setLevel(log_level)
 
-    if options.list:
-        from catatom import list_municipalities
-        try:
-            list_municipalities(options.list)
-        except IOError as e:
-            log.error(e)
-    elif len(args) < 1:
-        if options.version:
-            print _("%s version %s") % (setup.app_name, setup.app_version)
-        else:
-            parser.print_help()
+    if options.version:
+        print _("%s version %s") % (setup.app_name, setup.app_version)
     elif len(args) > 1:
         log.error(_("Too many arguments, supply only a directory path."))
+    elif len(args) < 1 and not options.list:
+        parser.print_help()
     else:
+        from catatom import list_municipalities
         try:
-            from catatom2osm import CatAtom2Osm
-            app = CatAtom2Osm(args[0], options)
-            app.run()
-            app.exit()
+            if options.list:
+                list_municipalities(options.list)
+            else:
+                from catatom2osm import CatAtom2Osm
+                app = CatAtom2Osm(args[0], options)
+                app.run()
+                app.exit()
         except (ImportError, IOError, OSError, ValueError, BadZipfile) as e:
             log.error(e.message)
             if 'qgis' in e.message or 'core' in e.message or 'osgeo' in e.message:

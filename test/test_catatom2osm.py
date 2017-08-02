@@ -1,31 +1,16 @@
 # -*- coding: utf-8 -*-
 import mock
 import unittest
-import codecs
 import os, sys
-from cStringIO import StringIO
-from contextlib import contextmanager
 from optparse import Values
-
 os.environ['LANGUAGE'] = 'C'
+
 import main
-import hgwnames
 import setup
 import osm
 import layer
 from osmxml import etree
 import catatom2osm as cat
-
-@contextmanager
-def capture(command, *args, **kwargs):
-    out = sys.stdout
-    sys.stdout = codecs.getwriter('utf-8')(StringIO())
-    try:
-        command(*args, **kwargs)
-        sys.stdout.seek(0)
-        yield sys.stdout.read()
-    finally:
-        sys.stdout = out
 
 prov_atom = """
 <feed xmlns="http://www.w3.org/2005/Atom" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:georss="http://www.georss.org/georss"  xmlns:inspire_dls = "http://inspire.ec.europa.eu/schemas/inspire_dls/1.0" xml:lang="en"> 
@@ -72,34 +57,15 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.get_translations.return_value = ([], False)
         self.m_app.path = 'foo'
 
-    @mock.patch('catatom2osm.os')
     @mock.patch('catatom2osm.QgsSingleton')
-    def test_init(self, m_qgs, m_os):
-        m_os.path.split = lambda x: x.split('/')
+    @mock.patch('catatom.Reader')
+    def test_init(self, m_cat, m_qgs):
         m_qgs.return_value = 'foo'
         self.m_app.init = cat.CatAtom2Osm.__init__.__func__
-        with self.assertRaises(ValueError) as cm:
-            self.m_app.init(self.m_app, '09999/xxxxx', self.options)
-        self.assertIn('directory name', cm.exception.message)
-        with self.assertRaises(ValueError) as cm:
-            self.m_app.init(self.m_app, 'xxx/999', self.options)
-        self.assertIn('directory name', cm.exception.message)
-        with self.assertRaises(ValueError) as cm:
-            self.m_app.init(self.m_app, 'xxx/99999', self.options)
-        self.assertIn('Province code', cm.exception.message)
-        m_os.path.exists.return_value = True
-        m_os.path.isdir.return_value = False
-        with self.assertRaises(IOError) as cm:
-            self.m_app.init(self.m_app, 'xxx/12345', self.options)
-        self.assertIn('Not a directory', cm.exception.message)
-        m_os.makedirs.assert_not_called()
-        m_os.path.exists.return_value = False
-        m_os.path.isdir.return_value = True
-        app = self.m_app.init(self.m_app, 'xxx/12345', self.options)
-        m_os.makedirs.assert_called_with('xxx/12345')
-        self.assertEquals(self.m_app.path, 'xxx/12345')
-        self.assertEquals(self.m_app.zip_code, '12345')
-        self.assertEquals(self.m_app.prov_code, '12')
+        self.m_app.init(self.m_app, 'xxx/12345', self.options)
+        m_cat.assert_called_once_with('xxx/12345')
+        self.assertEquals(self.m_app.path, m_cat().path)
+        self.assertEquals(self.m_app.zip_code, m_cat().zip_code)
         self.assertEquals(self.m_app.qgs, 'foo')
 
     @mock.patch('catatom2osm.gdal')
@@ -112,10 +78,8 @@ class TestCatAtom2Osm(unittest.TestCase):
 
     @mock.patch('catatom2osm.os')
     @mock.patch('catatom2osm.log')
-    @mock.patch('catatom2osm.hgwnames')
-    def test_start(self, m_hgw, m_log, m_os):
+    def test_start(self, m_log, m_os):
         # is new, exit
-        m_hgw.fuzz = True
         self.m_app.start = cat.CatAtom2Osm.start.__func__
         self.m_app.options.address = True
         self.m_app.options.tasks = True
@@ -140,10 +104,8 @@ class TestCatAtom2Osm(unittest.TestCase):
         m_os.makedirs.assert_not_called()
         self.m_app.get_current_bu_osm.assert_called_once_with()
         #not exists
-        m_hgw.fuzz = False
         m_os.path.exists.return_value = False
         self.m_app.start(self.m_app)
-        self.assertTrue(m_log.warning.called)
         m_os.makedirs.assert_called_once_with('foo/tasks')
 
     @mock.patch('catatom2osm.os')
@@ -165,7 +127,7 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.assertIn('No OSM data', output)
 
         m_xml.deserialize.return_value.elements = [1]
-        self.m_app.boundary_search_area = '123456'
+        self.m_app.cat.boundary_search_area = '123456'
         m_os.path.exists.return_value = False
         data = self.m_app.read_osm(self.m_app, 'bar', 'taz')
         m_overpass.Query.assert_called_with('123456')
@@ -193,7 +155,7 @@ class TestCatAtom2Osm(unittest.TestCase):
 
     @mock.patch('catatom2osm.layer')
     def test_get_zoning(self, m_layer):
-        self.m_app.read_gml_layer.return_value = 'foobar'
+        self.m_app.cat.read.return_value = 'foobar'
         m_layer.ZoningLayer.side_effect = [mock.MagicMock(), mock.MagicMock()]
         self.m_app.get_zoning = cat.CatAtom2Osm.get_zoning.__func__
         self.m_app.get_zoning(self.m_app)
@@ -207,16 +169,16 @@ class TestCatAtom2Osm(unittest.TestCase):
     @mock.patch('catatom2osm.layer')
     def test_read_address(self, m_layer):
         self.m_app.read_address = cat.CatAtom2Osm.read_address.__func__
-        self.m_app.read_gml_layer.return_value.fieldNameIndex.return_value = 0
+        self.m_app.cat.read.return_value.fieldNameIndex.return_value = 0
         self.m_app.read_address(self.m_app)
-        self.m_app.address.append.assert_called_once_with(self.m_app.read_gml_layer())
+        self.m_app.address.append.assert_called_once_with(self.m_app.cat.read())
         self.m_app.address.append.reset_mock()
-        self.m_app.read_gml_layer.return_value.fieldNameIndex.return_value = -1
+        self.m_app.cat.read.return_value.fieldNameIndex.return_value = -1
         with self.assertRaises(IOError):
             self.m_app.read_address(self.m_app)
-        self.m_app.read_gml_layer.return_value.fieldNameIndex.side_effect = [-1, 0]
+        self.m_app.cat.read.return_value.fieldNameIndex.side_effect = [-1, 0]
         self.m_app.read_address(self.m_app)
-        self.m_app.address.append.assert_called_once_with(self.m_app.read_gml_layer())
+        self.m_app.address.append.assert_called_once_with(self.m_app.cat.read())
 
     def test_merge_address(self):
         address = osm.Osm()
@@ -330,39 +292,4 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.read_osm.return_value = d
         address = self.m_app.get_current_ad_osm(self.m_app)
         self.assertEquals(address, set(['foobar14', 'foobar12', 'bartaz10']))
-
-    @mock.patch('catatom2osm.log.warning')
-    @mock.patch('catatom2osm.overpass')
-    @mock.patch('catatom2osm.download')
-    def test_get_boundary(self, m_download, m_overpass, m_log):
-        bbox09999 = "41.9997821981,-3.83420761212,42.1997821981,-3.63420761212"
-        mun_json = '{"elements": [{"id": 1, "tags": {"name": "Barcelona"}}, ' \
-            '{"id": 2, "tags": {"name": "Tazmania"}}, {"id": 3, "tags": {"name": "Foo"}}]}'
-        m_download.get_response.return_value.content = prov_atom
-        m_overpass.Query().read.return_value = mun_json
-        self.m_app.prov_code = '09'
-        self.m_app.zip_code = '09999'
-        self.m_app.get_boundary = cat.CatAtom2Osm.get_boundary.__func__
-        self.m_app.get_boundary(self.m_app)
-        url = setup.prov_url['BU'] % ('09', '09')
-        url2 = setup.boundary_query % bbox09999
-        m_download.get_response.assert_called_once_with(url)
-        m_overpass.Query.assert_called_with(bbox09999, 'json', False, False)
-        self.assertEquals(self.m_app.boundary_search_area, '2')
-        self.assertEquals(self.m_app.boundary_name, 'Tazmania')
-        m_overpass.Query().read.return_value = '{"elements": []}'
-        self.m_app.get_boundary(self.m_app)
-        output = m_log.call_args_list[0][0][0]
-        self.assertIn("Failed to find", output)
-        self.assertEquals(self.m_app.boundary_search_area, bbox09999)
-
-    @mock.patch('catatom2osm.download')
-    def test_list_municipalities(self, m_download):
-        url = setup.prov_url['BU'] % ('99', '99')
-        m_download.get_response.return_value.content = prov_atom
-        with capture(cat.list_municipalities, '99') as output:
-            m_download.get_response.assert_called_once_with(url)
-            self.assertIn('foobar', output)
-            self.assertIn('FOO', output)
-            self.assertIn('BAR', output)
 
