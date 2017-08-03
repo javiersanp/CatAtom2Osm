@@ -8,7 +8,7 @@ def all_tags(feature):
     """All fields to tags translations"""
     tags = {}
     for attr in [f.name() for f in feature.fields()]:
-        tags[attr] = str(feature[attr])
+        tags[attr] = unicode(feature[attr])
     return tags
     
 def address_tags(feature):
