@@ -127,7 +127,7 @@ class CatAtom2Osm:
             log.info(_("Distribution of floors above ground %s"), dlag)
             log.info(_("Distribution of floors below ground %s"), dlbg)
         if self.fixmes: 
-            log.warning("Revisa %d etiquetas fixme", self.fixmes)
+            log.warning(_("Check %d fixme tags"), self.fixmes)
         if self.is_new:
             log.info(_("The translation file '%s' have been writen in "
                 "'%s'"), 'highway_names.csv', self.path)
