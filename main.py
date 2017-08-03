@@ -90,7 +90,7 @@ def run():
                 app.run()
                 app.exit()
         except (ImportError, IOError, OSError, ValueError, BadZipfile) as e:
-            log.error(e.message)
+            log.error(e.message if e.message else str(e))
             if 'qgis' in e.message or 'core' in e.message or 'osgeo' in e.message:
                 log.error(_("Please, install QGIS"))
 
