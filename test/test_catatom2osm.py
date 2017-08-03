@@ -439,19 +439,26 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.merge_address(self.m_app, building, address)
         self.assertEquals(building.tags['source:date:addr'], address.tags['source:date'])
 
-    def test_write_task(self):
+    @mock.patch('catatom2osm.translate')
+    def test_write_task(self, m_tr):
         self.m_app.write_task = cat.CatAtom2Osm.write_task.__func__
         self.m_app.urban_zoning = 0
         self.m_app.utaskn = 100
         self.m_app.rtaskn = 1
         m_bu = mock.MagicMock()
         m_bu.to_osm.return_value = 'foo'
+        m_ad = mock.MagicMock()
         self.m_app.merge_address.return_value = 'bar'
         self.m_app.write_task(self.m_app, 0, m_bu)
         self.m_app.write_osm.assert_called_once_with('foo', 'tasks/u00100.osm')
-        self.m_app.write_task(self.m_app, 1, m_bu, m_bu)
+        self.m_app.write_task(self.m_app, 1, m_bu, m_ad)
         self.m_app.write_osm.assert_called_with('foo', 'tasks/r001.osm')
         self.m_app.merge_address.called_once_with('foo', 'bar')
+        task = m_bu.to_osm.return_value
+        adr = m_ad.to_osm.return_value
+        self.m_app.merge_address.called_once_with('foo', 'bar')
+        self.m_app.merge_address.assert_called_once_with(task, adr)
+        m_ad.to_osm.assert_called_once_with(m_tr.address_tags)
         self.m_app.write_task(self.m_app, 0, m_bu)
         self.m_app.write_osm.assert_called_with('foo', 'tasks/u00101.osm')
         self.m_app.write_task(self.m_app, 1, m_bu)

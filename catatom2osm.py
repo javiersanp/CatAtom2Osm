@@ -17,6 +17,7 @@ import osm
 import osmxml
 import overpass
 import setup
+import translate
 from osmxml import etree
 
 log = logging.getLogger(setup.app_name + "." + __name__)
@@ -412,7 +413,7 @@ class CatAtom2Osm:
         task_path = os.path.join('tasks', fn)
         task_osm = building.to_osm(upload='yes')
         if address is not None:
-            address_osm = address.to_osm()
+            address_osm = address.to_osm(translate.address_tags)
             self.merge_address(task_osm, address_osm)
         self.write_osm(task_osm, task_path)
 
