@@ -31,6 +31,16 @@ Provincial Office and Municipality Code. If the program don't find the input
 files it will download them for you from the INSPIRE Services of the Spanish 
 Cadastre.""")
 
+def process(path, options):
+    from catatom import list_municipalities
+    if options.list:
+        list_municipalities(options.list)
+    else:
+        from catatom2osm import CatAtom2Osm
+        app = CatAtom2Osm(path, options)
+        app.run()
+        app.exit()
+
 def run():
     parser = OptionParser(usage=usage)
     parser.add_option("-v", "--version", dest="version", default=False,
@@ -79,16 +89,11 @@ def run():
         log.error(_("Too many arguments, supply only a directory path."))
     elif len(args) < 1 and not options.list:
         parser.print_help()
+    elif log.getEffectiveLevel() == logging.DEBUG:
+        process(args[0], options)
     else:
-        from catatom import list_municipalities
         try:
-            if options.list:
-                list_municipalities(options.list)
-            else:
-                from catatom2osm import CatAtom2Osm
-                app = CatAtom2Osm(args[0], options)
-                app.run()
-                app.exit()
+            process(args[0], options)
         except (ImportError, IOError, OSError, ValueError, BadZipfile) as e:
             log.error(e.message if e.message else str(e))
             if 'qgis' in e.message or 'core' in e.message or 'osgeo' in e.message:
