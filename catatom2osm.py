@@ -69,72 +69,20 @@ class CatAtom2Osm:
         """Launches the app"""
         self.start()
         if self.options.tasks:
-            for zoning in (self.urban_zoning, self.rustic_zoning):
-                for zone in zoning.getFeatures():
-                    self.process_zone(zone, zoning)
-            for el in frozenset(self.current_bu_osm.elements):
-                if 'building' in el.tags:
-                    if 'conflict' not in el.tags:
-                        self.current_bu_osm.remove(el)
-                    else:
-                        del el.tags['conflict']
-            if self.options.address:
-                self.address.del_address(self.building_osm)
-            del self.building_gml
-            del self.part_gml
-            del self.other_gml
+            self.process_tasks()
         elif self.options.building:
             self.process_building()
         if self.options.address:
-            self.address.reproject()
-            address_osm = self.address.to_osm()
-            del self.address
-            if self.options.building:
-                self.merge_address(self.building_osm, address_osm)
-            self.write_osm(address_osm, 'address.osm')
-            del address_osm
+            self.process_address()
         if self.options.zoning:
-            self.urban_zoning.clean()
-            self.rustic_zoning.clean()
-            self.urban_zoning.reproject()
-            self.rustic_zoning.reproject()
-            self.export_layer(self.urban_zoning, 'urban_zoning.geojson', 'GeoJSON')
-            self.export_layer(self.rustic_zoning, 'rustic_zoning.geojson', 'GeoJSON')
+            self.process_zoning()
         del self.urban_zoning
         del self.rustic_zoning
         if self.options.tasks or self.options.building:
-            self.write_osm(self.building_osm, 'building.osm')
-            for el in self.building_osm.elements:
-                if 'fixme' in el.tags:
-                    self.fixmes += 1
-            del self.building_osm
-            self.write_osm(self.current_bu_osm, 'current_building.osm')
-            del self.current_bu_osm
+            self.write_building()
         if self.options.parcel:
-            parcel_gml = self.cat.read("cadastralparcel")
-            parcel = layer.ParcelLayer(source_date = parcel_gml.source_date)
-            parcel.append(parcel_gml)
-            del parcel_gml
-            if self.debug: self.export_layer(self.parcel, 'address.shp')
-            parcel.reproject()
-            parcel_osm = parcel.to_osm()
-            self.write_osm(parcel_osm, "parcel.osm")
-        if self.options.tasks or self.options.building:
-            dlag = ', '.join(["%d: %d" % (l, c) for (l, c) in \
-                OrderedDict(Counter(self.max_level.values())).items()])
-            dlbg = ', '.join(["%d: %d" % (l, c) for (l, c) in \
-                OrderedDict(Counter(self.min_level.values())).items()])
-            log.info(_("Distribution of floors above ground %s"), dlag)
-            log.info(_("Distribution of floors below ground %s"), dlbg)
-        if self.fixmes: 
-            log.warning(_("Check %d fixme tags"), self.fixmes)
-        if self.is_new:
-            log.info(_("The translation file '%s' have been writen in "
-                "'%s'"), 'highway_names.csv', self.path)
-            log.info(_("Please, check it and run again"))
-        else:
-            log.info(_("Finished!"))
-            log.warning(_("Only for testing purposses. Don't upload any result to OSM"))
+            self.process_parcel()
+        self.end_messages()
 
     def start(self):
         """Initializes data sets"""
@@ -165,6 +113,22 @@ class CatAtom2Osm:
             self.current_bu_osm = self.get_current_bu_osm()
             self.building_osm = osm.Osm()
             self.utaskn = self.rtaskn = 1
+
+    def process_tasks(self):
+        for zoning in (self.urban_zoning, self.rustic_zoning):
+            for zone in zoning.getFeatures():
+                self.process_zone(zone, zoning)
+        for el in frozenset(self.current_bu_osm.elements):
+            if 'building' in el.tags:
+                if 'conflict' not in el.tags:
+                    self.current_bu_osm.remove(el)
+                else:
+                    del el.tags['conflict']
+        if self.options.address:
+            self.address.del_address(self.building_osm)
+        del self.building_gml
+        del self.part_gml
+        del self.other_gml
 
     def process_zone(self, zone, zoning):
         """Process data in zone"""
@@ -203,6 +167,23 @@ class CatAtom2Osm:
             self.building_osm = building.to_osm(data=self.building_osm)
             del temp_address
 
+    def process_address(self):
+        self.address.reproject()
+        address_osm = self.address.to_osm()
+        del self.address
+        if self.options.building:
+            self.merge_address(self.building_osm, address_osm)
+        self.write_osm(address_osm, 'address.osm')
+        del address_osm
+
+    def process_zoning(self):
+        self.urban_zoning.clean()
+        self.rustic_zoning.clean()
+        self.urban_zoning.reproject()
+        self.rustic_zoning.reproject()
+        self.export_layer(self.urban_zoning, 'urban_zoning.geojson', 'GeoJSON')
+        self.export_layer(self.rustic_zoning, 'rustic_zoning.geojson', 'GeoJSON')
+
     def process_building(self):
         """Process all buildings dataset"""
         building = layer.ConsLayer(source_date = self.building_gml.source_date)
@@ -225,6 +206,43 @@ class CatAtom2Osm:
         building.conflate(self.current_bu_osm)
         self.building_osm = building.to_osm()
         
+    def write_building(self):
+        self.write_osm(self.building_osm, 'building.osm')
+        for el in self.building_osm.elements:
+            if 'fixme' in el.tags:
+                self.fixmes += 1
+        del self.building_osm
+        self.write_osm(self.current_bu_osm, 'current_building.osm')
+        del self.current_bu_osm
+
+    def process_parcel(self):
+        parcel_gml = self.cat.read("cadastralparcel")
+        parcel = layer.ParcelLayer(source_date = parcel_gml.source_date)
+        parcel.append(parcel_gml)
+        del parcel_gml
+        if self.debug: self.export_layer(self.parcel, 'address.shp')
+        parcel.reproject()
+        parcel_osm = parcel.to_osm()
+        self.write_osm(parcel_osm, "parcel.osm")
+
+    def end_messages(self):
+        if self.options.tasks or self.options.building:
+            dlag = ', '.join(["%d: %d" % (l, c) for (l, c) in \
+                OrderedDict(Counter(self.max_level.values())).items()])
+            dlbg = ', '.join(["%d: %d" % (l, c) for (l, c) in \
+                OrderedDict(Counter(self.min_level.values())).items()])
+            log.info(_("Distribution of floors above ground %s"), dlag)
+            log.info(_("Distribution of floors below ground %s"), dlbg)
+        if self.fixmes: 
+            log.warning(_("Check %d fixme tags"), self.fixmes)
+        if self.is_new:
+            log.info(_("The translation file '%s' have been writen in "
+                "'%s'"), 'highway_names.csv', self.path)
+            log.info(_("Please, check it and run again"))
+        else:
+            log.info(_("Finished!"))
+            log.warning(_("Only for testing purposses. Don't upload any result to OSM"))
+
     def exit(self):
         """Ends properly"""
         for propname in self.__dict__.keys():
