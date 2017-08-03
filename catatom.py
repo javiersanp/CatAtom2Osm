@@ -192,16 +192,22 @@ class Reader(object):
         bbox = ','.join([str(i) for i in bbox_bltr])
         query = overpass.Query(bbox, 'json', False, False)
         query.add('rel["admin_level"="8"]')
-        data = json.loads(query.read())
         self.boundary_name = mun
         self.boundary_search_area = bbox
-        matching = hgwnames.dsmatch(mun, data['elements'], lambda e: e['tags']['name'])
+        matching = False
+        try:
+            data = json.loads(query.read())
+            matching = hgwnames.dsmatch(mun, data['elements'], 
+                lambda e: e['tags']['name'])
+        except Exception:
+            pass
         if matching:
             self.boundary_search_area = str(matching['id'])
             self.boundary_name = matching['tags']['name']
             log.info(_("Municipality: '%s'"), self.boundary_name)
         else:
-            log.warning(_("Failed to find administrative boundary, falling back to bounding box"))
+            log.warning(_("Failed to find administrative boundary, falling "
+                "back to bounding box"))
 
 def list_municipalities(prov_code):
     """Get from the ATOM services a list of municipalities for a given province"""

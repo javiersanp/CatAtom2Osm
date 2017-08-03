@@ -22,6 +22,9 @@ def capture(command, *args, **kwargs):
     finally:
         sys.stdout = out
 
+def raiseException():
+    raise Exception
+
 prov_atom = """<feed xmlns="http://www.w3.org/2005/Atom" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:georss="http://www.georss.org/georss"  xmlns:inspire_dls = "http://inspire.ec.europa.eu/schemas/inspire_dls/1.0" xml:lang="en"> 
 <title>Download Office foobar</title>
 <entry>
@@ -277,7 +280,7 @@ class TestCatAtom(unittest.TestCase):
         data = {"id": 2, "tags": {"name": "Tazmania"}}
         m_hgw.fuzz = True
         m_download.get_response.return_value.content = prov_atom
-        m_overpass.Query().read.return_value = '{"elements": "foobar"}'
+        m_overpass.Query.return_value.read.return_value = '{"elements": "foobar"}'
         m_hgw.dsmatch.return_value = data
         self.m_cat.prov_code = '09'
         self.m_cat.zip_code = '09999'
@@ -297,10 +300,15 @@ class TestCatAtom(unittest.TestCase):
         self.assertIn("Failed to find", output)
         self.assertEquals(self.m_cat.boundary_search_area, bbox09999)
         
+        m_overpass.Query.return_value.read = raiseException
+        self.m_cat.get_boundary(self.m_cat)
+        output = m_log.call_args_list[1][0][0]
+        self.assertIn("Failed to find", output)
+        
         m_hgw.fuzz = False
         m_hgw.dsmatch.return_value = data
         self.m_cat.get_boundary(self.m_cat)
-        output = m_log.call_args_list[-1][0][0]
+        output = m_log.call_args_list[2][0][0]
         self.assertIn("Failed to import", output)
 
     @mock.patch('catatom.download')
