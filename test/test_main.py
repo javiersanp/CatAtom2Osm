@@ -90,16 +90,6 @@ class TestMain(unittest.TestCase):
         for (k, v) in d.items():
             self.assertEquals(getattr(options, k), v)
 
-    @mock.patch('main.sys.argv', ['catatom2osm.py', 'foobar', '--log=DEBUG'])
-    @mock.patch('main.log')
-    @mock.patch('catatom2osm.CatAtom2Osm')
-    def test_debug(self, mockcat, mocklog):
-        main.run()
-        self.assertTrue(mockcat.called)
-        options = mockcat.call_args_list[0][0][1]
-        self.assertEquals(options.log_level, 'DEBUG')
-        mocklog.setLevel.assert_called_once_with(logging.DEBUG)
-
     @mock.patch('main.sys.argv', ['catatom2osm.py', 'foobar', '--log=foobar'])
     @mock.patch('main.log.error')
     @mock.patch('catatom2osm.CatAtom2Osm')
@@ -144,3 +134,13 @@ class TestMain(unittest.TestCase):
         output2 = mocklog.call_args_list[1][0][0]
         self.assertEquals(output1, 'qgis')
         self.assertIn('install QGIS', output2)
+
+    @mock.patch('main.sys.argv', ['catatom2osm.py', 'foobar', '--log=DEBUG'])
+    @mock.patch('catatom2osm.CatAtom2Osm', raiseImportError)
+    @mock.patch('main.log')
+    def test_debug(self, mocklog):
+        mocklog.getEffectiveLevel.return_value = logging.DEBUG
+        with self.assertRaises(ImportError):
+            main.run()
+        mocklog.setLevel.assert_called_once_with(logging.DEBUG)
+        mocklog.error.assert_not_called()
