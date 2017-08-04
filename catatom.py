@@ -182,14 +182,18 @@ class Reader(object):
             'atom': 'http://www.w3.org/2005/Atom', 
             'georss': 'http://www.georss.org/georss'
         }
-        entry = root.xpath("atom:entry/atom:title[contains(text(), '%s')]/"
-            "parent::*" % self.zip_code, namespaces=ns)[0]
-        mun = entry.find('atom:title', ns).text.replace('buildings', '').strip()[6:]
-        poly = entry.find('georss:polygon', ns).text
-        lat = [float(lat) for lat in poly.strip().split(' ')[::2]]
-        lon = [float(lon) for lon in poly.strip().split(' ')[1:][::2]]
-        bbox_bltr = [min(lat)-0.1, max(lon)-0.1, min(lat)+0.1, max(lon)+0.1]
-        bbox = ','.join([str(i) for i in bbox_bltr])
+        mun = ''
+        for entry in root.findall("atom:entry[atom:title]", namespaces=ns):
+            title = entry.find('atom:title', ns).text
+            if self.zip_code in title:
+                mun = title.replace('buildings', '').strip()[6:]
+                poly = entry.find('georss:polygon', ns).text
+                lat = [float(lat) for lat in poly.strip().split(' ')[::2]]
+                lon = [float(lon) for lon in poly.strip().split(' ')[1:][::2]]
+                bbox_bltr = [min(lat)-0.1, max(lon)-0.1, min(lat)+0.1, max(lon)+0.1]
+                bbox = ','.join([str(i) for i in bbox_bltr])
+        if not mun:
+            raise IOError(_("Couldn't find '%s' in the ATOM Service") % self.zip_code)
         query = overpass.Query(bbox, 'json', False, False)
         query.add('rel["admin_level"="8"]')
         self.boundary_name = mun
@@ -222,7 +226,7 @@ def list_municipalities(prov_code):
     print
     print title
     print "=" * len(title)
-    for entry in root.xpath('atom:entry', namespaces=ns):
+    for entry in root.findall('atom:entry', namespaces=ns):
         row = entry.find('atom:title', ns).text.replace('buildings', '')
         print row
 

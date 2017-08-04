@@ -34,7 +34,7 @@ prov_atom = """<feed xmlns="http://www.w3.org/2005/Atom" xmlns:xsi="http://www.w
 <title> 09002-BAR buildings</title>
 </entry>
 <entry>
-<title> 09999-TAZ buildings</title>
+<title> 09003-TAZ buildings</title>
 <georss:polygon>42.0997821981015 -3.79048777556759 42.0997821981015 -3.73420761211555 42.1181603073135 -3.73420761211555 42.1181603073135 -3.79048777556759 42.0997821981015 -3.79048777556759</georss:polygon>
 </entry>
 </feed>
@@ -276,18 +276,18 @@ class TestCatAtom(unittest.TestCase):
     @mock.patch('catatom.download')
     def test_get_boundary(self, m_download, m_hgw, m_overpass, m_log):
         self.m_cat.get_boundary = catatom.Reader.get_boundary.__func__
-        bbox09999 = "41.9997821981,-3.83420761212,42.1997821981,-3.63420761212"
+        bbox09003 = "41.9997821981,-3.83420761212,42.1997821981,-3.63420761212"
         data = {"id": 2, "tags": {"name": "Tazmania"}}
         m_hgw.fuzz = True
         m_download.get_response.return_value.content = prov_atom
         m_overpass.Query.return_value.read.return_value = '{"elements": "foobar"}'
         m_hgw.dsmatch.return_value = data
         self.m_cat.prov_code = '09'
-        self.m_cat.zip_code = '09999'
+        self.m_cat.zip_code = '09003'
         self.m_cat.get_boundary(self.m_cat)
         url = setup.prov_url['BU'] % ('09', '09')
         m_download.get_response.assert_called_once_with(url)
-        m_overpass.Query.assert_called_with(bbox09999, 'json', False, False)
+        m_overpass.Query.assert_called_with(bbox09003, 'json', False, False)
         self.assertEquals(m_hgw.dsmatch.call_args_list[0][0][0], 'TAZ')
         self.assertEquals(m_hgw.dsmatch.call_args_list[0][0][1], 'foobar')
         self.assertEquals(m_hgw.dsmatch.call_args_list[0][0][2](data), 'Tazmania')
@@ -298,7 +298,7 @@ class TestCatAtom(unittest.TestCase):
         self.m_cat.get_boundary(self.m_cat)
         output = m_log.call_args_list[0][0][0]
         self.assertIn("Failed to find", output)
-        self.assertEquals(self.m_cat.boundary_search_area, bbox09999)
+        self.assertEquals(self.m_cat.boundary_search_area, bbox09003)
         
         m_overpass.Query.return_value.read = raiseException
         self.m_cat.get_boundary(self.m_cat)
@@ -310,6 +310,10 @@ class TestCatAtom(unittest.TestCase):
         self.m_cat.get_boundary(self.m_cat)
         output = m_log.call_args_list[2][0][0]
         self.assertIn("Failed to import", output)
+
+        self.m_cat.zip_code = '09999'
+        with self.assertRaises(IOError):
+            self.m_cat.get_boundary(self.m_cat)
 
     @mock.patch('catatom.download')
     def test_list_municipalities(self, m_download):
