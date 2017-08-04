@@ -704,17 +704,26 @@ class TestConsLayer(unittest.TestCase):
             (-16.4407037, 28.2364709), (-16.4406669, 28.2365102),
             (-16.4406513, 28.2365338), (-16.440639, 28.2365663),
             (-16.4407394, 28.2366223), (-16.4407188, 28.2366474),
-            (-16.440707, 28.2366405), (-16.4408588, 28.236465)))
-        r = d.Relation(tags = dict(building='yes', ref='9'))
-        r.append(w0, 'outer')
-        r.append(w1, 'outer')
-        r.append(w2, 'outer')
-        r.append(w3, 'outer')
-        self.assertEquals(len(d.ways), 12)
-        self.assertEquals(len(d.relations), 1)
+            (-16.440707, 28.2366405), (-16.4406755, 28.236688)))
+        w4 = d.Way(((-16.440072, 28.236560), (-16.439966, 28.236505), 
+            (-16.439888, 28.236605), (-16.4399860, 28.236666), 
+            (-16.440072, 28.236560)))
+        w5 = d.Way(((-16.439965, 28.236703), (-16.439861, 28.236642), 
+            (-16.439805, 28.236733), (-16.439903, 28.236790), 
+            (-16.439965, 28.236703)))
+        r1 = d.Relation(tags = dict(building='yes', ref='9'))
+        r1.append(w0, 'outer')
+        r1.append(w1, 'outer')
+        r1.append(w2, 'outer')
+        r1.append(w3, 'outer')
+        r2 = d.Relation  (tags = dict(building='yes', ref='10'))
+        r2.append(w4, 'outer')
+        r2.append(w5, 'outer')
+        self.assertEquals(len(d.ways), 14)
+        self.assertEquals(len(d.relations), 2)
         self.layer.conflate(d)
-        self.assertEquals(len(d.ways), 10)
-        self.assertEquals(len(d.relations), 1)
+        self.assertEquals(len(d.ways), 12)
+        self.assertEquals(len(d.relations), 2)
         self.assertEquals({e.tags['ref'] for e in d.ways if 'ref' in e.tags}, 
             {'3', '4', '5', '6', '7', '8'})
 

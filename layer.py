@@ -1165,7 +1165,7 @@ class ConsLayer(PolygonLayer):
             if el.type == 'way' and el.is_closed() and 'building' in el.tags:
                 poly = [[map(Point, el.geometry())]]
             elif el.type == 'relation' and 'building' in el.tags:
-                poly = el.outer_geometry()
+                poly = [[map(Point, w)] for w in el.outer_geometry()]
             if poly is not None:
                 geom = QgsGeometry().fromMultiPolygon(poly)
                 if geom.isGeosValid():
