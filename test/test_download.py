@@ -1,7 +1,9 @@
 import unittest
 import mock
+import os
 import random
 
+os.environ['LANGUAGE'] = 'C'
 import main
 from download import ProgressBar, get_response, wget, chunk_size
 
