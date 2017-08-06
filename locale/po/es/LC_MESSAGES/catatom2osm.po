@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-08-06 20:15+WEST\n"
+"POT-Creation-Date: 2017-08-06 20:33+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -99,7 +99,7 @@ msgstr "Comienza el procesado de '%s'"
 
 #: catatom2osm.py:135
 msgid "Processing %s '%s' (%d of %d) in '%s'"
-msgstr "Procesando %s '%s' (%d de '%d') en '%s'"
+msgstr "Procesando %s '%s' (%d de %d) en '%s'"
 
 #: catatom2osm.py:142
 msgid "Zone '%s' is empty"
@@ -209,43 +209,43 @@ msgstr "Simplificados %d vértices en la capa '%s'"
 msgid "%d adjacent polygons merged into %d polygons in the '%s' layer"
 msgstr "%d polígonos adyacentes fusionados a %d polígonos en la capa '%s'"
 
-#: layer.py:777
+#: layer.py:776
 msgid "Refused %d addresses existing in OSM"
 msgstr "Rechazadas %d direcciones existentes en OSM"
 
-#: layer.py:782
+#: layer.py:781
 msgid "Deleted %d addresses without house number"
 msgstr "Eliminadas %d direcciones sin número de portal"
 
-#: layer.py:795
+#: layer.py:794
 msgid "Deleted %d addresses"
 msgstr "Eliminadas %d direcciones"
 
-#: layer.py:883
+#: layer.py:882
 msgid "Deleted %d building parts with no floors above ground"
 msgstr "Eliminadas %d partes de edificio sin plantas sobre el nivel del suelo"
 
-#: layer.py:909
+#: layer.py:908
 msgid "Removed %d building parts outside the footprint"
 msgstr "Eliminadas %d partes de edificio fuera del contorno"
 
-#: layer.py:991
+#: layer.py:990
 msgid "Merged %d building parts to footprint"
 msgstr "Fusionados %d partes de edificios al contorno"
 
-#: layer.py:1024
+#: layer.py:1023
 msgid "Removed %d duplicated inner rings"
 msgstr "Eliminados %d anillos interiores duplicados"
 
-#: layer.py:1100
+#: layer.py:1099
 msgid "Deleted %d addresses, %d changed, %d moved"
 msgstr "Eliminadas %d direcciones, %d cambiadas, %d desplazadas"
 
-#: layer.py:1119
+#: layer.py:1118
 msgid "Check, area too small"
 msgstr "Comprobar, área demasiado pequeña"
 
-#: layer.py:1122
+#: layer.py:1121
 msgid "Check, area too big"
 msgstr "Comprobar, área demasiado grande"
 
