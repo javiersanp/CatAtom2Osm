@@ -66,7 +66,7 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.process_building.assert_not_called()
         self.m_app.process_address.assert_not_called()
         self.m_app.process_zoning.assert_called_once_with()
-        self.m_app.write_building.assert_called_once_with()
+        self.m_app.write_building.assert_not_called()
         self.m_app.process_parcel.assert_not_called()
 
     def test_run2(self):
@@ -198,6 +198,9 @@ class TestCatAtom2Osm(unittest.TestCase):
         building.move_address.assert_not_called()
         building.conflate.assert_called_once_with(self.m_app.current_bu_osm, delete=False)
         self.m_app.write_task.assert_called_once_with(zoning, building, None)
+        building.to_osm.assert_not_called()
+        self.m_app.options.building = True
+        self.m_app.process_zone(self.m_app, zone, zoning)
         building.to_osm.assert_called_once_with(data=x)
         self.assertEquals(self.m_app.building_osm, building.to_osm.return_value)
 

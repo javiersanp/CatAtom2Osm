@@ -79,7 +79,7 @@ class CatAtom2Osm:
             self.process_zoning()
         del self.urban_zoning
         del self.rustic_zoning
-        if self.options.tasks or self.options.building:
+        if self.options.building:
             self.write_building()
         if self.options.parcel:
             self.process_parcel()
@@ -165,7 +165,8 @@ class CatAtom2Osm:
             building.reproject()
             building.conflate(self.current_bu_osm, delete=False)
             self.write_task(zoning, building, temp_address)
-            self.building_osm = building.to_osm(data=self.building_osm)
+            if self.options.building:
+                self.building_osm = building.to_osm(data=self.building_osm)
             del temp_address
 
     def process_address(self):
