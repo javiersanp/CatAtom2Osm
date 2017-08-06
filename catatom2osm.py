@@ -133,9 +133,9 @@ class CatAtom2Osm:
 
     def process_zone(self, zone, zoning):
         """Process data in zone"""
-        log.info(_("Processing %s '%s' of '%s'"), 
+        log.info(_("Processing %s '%s' of '%d' in '%s'"), 
             zone['levelName'].encode('utf-8').lower().translate(None, '(1:) '), 
-            zone['label'], zoning.name().encode('utf-8'))
+            zone['label'], zoning.featureCount(), zoning.name().encode('utf-8'))
         building = layer.ConsLayer(source_date = self.building_gml.source_date)
         building.append_zone(self.building_gml, zone, self.processed)
         if building.featureCount() == 0:
