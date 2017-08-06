@@ -224,9 +224,8 @@ def list_municipalities(prov_code):
     office = root.find('atom:title', ns).text.split('Office ')[1]
     title = _("Territorial office %s") % office
     print
-    print title
+    print title.encode(setup.encoding)
     print "=" * len(title)
     for entry in root.findall('atom:entry', namespaces=ns):
         row = entry.find('atom:title', ns).text.replace('buildings', '')
-        print row
-
+        print row.encode(setup.encoding)

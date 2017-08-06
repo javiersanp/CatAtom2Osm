@@ -60,7 +60,10 @@ language, encoding = locale.getdefaultlocale()
 app_path = os.path.dirname(__file__)
 localedir = os.path.join(app_path, 'locale', 'po')
 platform = sys.platform
-eol = '\r\n' if platform.startswith('win') else '\n'
+eol = '\n'
+if platform.startswith('win'):
+    eol = '\r\n'
+    encoding = sys.stdout.encoding
 
 no_number = 'S-N' # Regular expression to match addresses without number
 
