@@ -164,9 +164,7 @@ class BaseLayer(QgsVectorLayer):
             if not query or query(feature, kwargs):
                 to_add.append(self.copy_feature(feature, rename, resolve))
         if to_add:
-            self.startEditing()
-            self.addFeatures(to_add)
-            self.commitChanges()
+            self.writer.addFeatures(to_add)
             log.debug (_("Loaded %d features in '%s' from '%s'"), len(to_add),
                 self.name().encode('utf-8'), layer.name().encode('utf-8'))
 
@@ -189,11 +187,9 @@ class BaseLayer(QgsVectorLayer):
             out_feat.setAttributes(feature.attributes())
             to_add.append(out_feat)
             to_clean.append(feature.id())
-        self.startEditing()
         self.deleteFeatures(to_clean)
-        self.addFeatures(to_add)
+        self.writer.addFeatures(to_add)
         self.setCrs(target_crs)
-        self.commitChanges()
         self.updateExtents()
         log.debug(_("Reprojected the '%s' layer to '%s' CRS"), 
             self.name().encode('utf-8'), target_crs.description())
@@ -237,9 +233,7 @@ class BaseLayer(QgsVectorLayer):
                 attrs[fieldId] = value 
             to_change[feature.id()] = attrs
         if to_change:
-            self.startEditing()
             self.writer.changeAttributeValues(to_change)
-            self.commitChanges()
             log.debug(_("Joined '%s' to '%s'"), source_layer.name().encode('utf-8'),
                 self.name().encode('utf-8'))
 
@@ -265,10 +259,8 @@ class BaseLayer(QgsVectorLayer):
                     to_change[feat.id()] = attributes
                 elif clean:
                     to_clean.append(feat.id())
-            self.startEditing()
             self.writer.changeAttributeValues(to_change)
             self.deleteFeatures(to_clean)
-            self.commitChanges()
 
     def export(self, path, driver_name="ESRI Shapefile", overwrite=True):
         """Write layer to file
@@ -334,11 +326,13 @@ class BaseLayer(QgsVectorLayer):
         
     def deleteFeatures(self, to_clean):
         """deleteFeatures method apear on QGIS 2.14 version"""
+        self.startEditing()
         if hasattr(super(BaseLayer, self), 'deleteFeatures'):
             super(BaseLayer, self).deleteFeatures(to_clean)
         else:
             for fid in to_clean:
                 self.deleteFeature(fid)
+        self.commitChanges()
 
     def search(self, expression):
         """Returns a features list for this search expression
@@ -390,14 +384,12 @@ class PolygonLayer(BaseLayer):
                     feat.setGeometry(QgsGeometry.fromPolygon(part))
                     to_add.append(feat)
                 to_clean.append(feature.id())
-        self.startEditing()
         if to_clean:
             self.deleteFeatures(to_clean)
-            self.addFeatures(to_add)
+            self.writer.addFeatures(to_add)
             log.debug(_("%d multi-polygons splited into %d polygons in "
                 "the '%s' layer"), len(to_clean), len(to_add), 
                 self.name().encode('utf-8'))
-        self.commitChanges()
 
     def get_parents_per_vertex_and_features(self):
         """
@@ -456,9 +448,7 @@ class PolygonLayer(BaseLayer):
                     geom = QgsGeometry.fromPoint(point)
                     feat.setGeometry(geom)
                     to_add.append(feat)
-        vertices.startEditing() # layer with the coordinates of each vertex
-        vertices.addFeatures(to_add)
-        vertices.commitChanges()
+        vertices.dataProvider().addFeatures(to_add)
         return vertices
     
     def get_duplicates(self, dup_thr=None):
@@ -511,12 +501,10 @@ class PolygonLayer(BaseLayer):
                         debshp.add_point(p, note)
                 if dup in duplist:
                     duplist.remove(dup)
-        self.startEditing()
         if to_change:
             self.writer.changeGeometryValues(to_change)
             log.debug(_("Merged %d close vertices in the '%s' layer"), dupes, 
                 self.name().encode('utf-8'))
-        self.commitChanges()
 
     def clean_duplicated_nodes_in_polygons(self):
         """
@@ -546,7 +534,6 @@ class PolygonLayer(BaseLayer):
                     to_change[feature.id()] = new_geom
                 else:
                     to_clean.append(feature.id())
-        self.startEditing()
         if to_change:
             self.writer.changeGeometryValues(to_change)
             log.debug(_("Merged %d duplicated vertices of polygons in "
@@ -555,7 +542,6 @@ class PolygonLayer(BaseLayer):
             self.deleteFeatures(to_clean)
             log.debug(_("Deleted %d invalid geometries in the '%s' layer"),
                 len(to_clean), self.name().encode('utf-8'))
-        self.commitChanges()
 
     def add_topological_points(self):
         """For each vertex in a polygon layer, adds it to nearest segments."""
@@ -594,12 +580,10 @@ class PolygonLayer(BaseLayer):
                                         to_change[fid] = g
                             if log.getEffectiveLevel() <= logging.DEBUG:
                                 debshp.add_point(point, note)
-        self.startEditing()
         if to_change:
             self.writer.changeGeometryValues(to_change)
             log.debug(_("Created %d topological points in the '%s' layer"), 
                 tp, self.name().encode('utf-8'))
-        self.commitChanges()
         if log.getEffectiveLevel() <= logging.DEBUG:
             del debshp
 
@@ -645,12 +629,10 @@ class PolygonLayer(BaseLayer):
                         if log.getEffectiveLevel() <= logging.DEBUG:
                             debshp.add_point(c, "invalid geometry")
                         break
-        self.startEditing()
         if to_clean:
             self.deleteFeatures(to_clean)
             log.debug(_("Deleted %d invalid geometries in the '%s' layer"), 
                 len(to_clean), self.name().encode('utf-8'))
-        self.commitChanges()
         # Clean non corners
         (parents_per_vertex, features) = self.get_parents_per_vertex_and_features()
         for pnt, parents in parents_per_vertex.items():
@@ -680,17 +662,14 @@ class PolygonLayer(BaseLayer):
                     debshp.add_point(point, "Deleted. %s" % msg)
             elif log.getEffectiveLevel() <= logging.DEBUG:
                 debshp.add_point(point, "Keep. %s" % msg)
-        self.startEditing()
         if to_change:
             self.writer.changeGeometryValues(to_change)
             log.debug(_("Simplified %d vertices in the '%s' layer"), killed, 
                 self.name().encode('utf-8'))
-        self.commitChanges()
 
     def merge_adjacents(self):
         """Merge polygons with shared segments"""
         (groups, features) = self.get_adjacents_and_features()
-        self.startEditing()
         to_clean = []
         to_change = {}
         for group in groups:
@@ -705,7 +684,6 @@ class PolygonLayer(BaseLayer):
             self.writer.changeGeometryValues(to_change)
             log.debug(_("%d adjacent polygons merged into %d polygons in the '%s' "
                 "layer"), len(to_clean), len(to_change), self.name().encode('utf-8'))
-        self.commitChanges()
 
     def clean(self):
         """Merge duplicated vertices and simplify layer"""
@@ -791,7 +769,6 @@ class AddressLayer(BaseLayer):
         Args:
             current_address (OSM): dataset
         """
-        self.startEditing()
         to_clean = [feat.id() for feat in self.getFeatures() \
             if feat['TN_text'] + feat['designator'] in current_address]
         if to_clean:
@@ -802,7 +779,6 @@ class AddressLayer(BaseLayer):
         if to_clean:
             self.deleteFeatures(to_clean)
             log.debug(_("Deleted %d addresses without house number") % len(to_clean))
-        self.commitChanges()
 
     def del_address(self, building_osm):
         """Delete the address if there aren't any associated building."""
@@ -814,9 +790,7 @@ class AddressLayer(BaseLayer):
             if ref not in building_refs:
                 to_clean.append(ad.id())
         if to_clean:
-            self.startEditing()
             self.deleteFeatures(to_clean)
-            self.commitChanges()
             log.info(_("Deleted %d addresses"), len(to_clean))
 
     def get_highway_names(self, highway):
@@ -902,13 +876,11 @@ class ConsLayer(PolygonLayer):
 
     def remove_parts_below_ground(self):
         """Remove all parts with 'lev_above' field equal 0."""
-        self.startEditing()
         to_clean = [f.id() for f in self.search('lev_above=0')]
         if to_clean:
             self.deleteFeatures(to_clean)
             log.debug(_("Deleted %d building parts with no floors above ground"), 
                 len(to_clean))
-        self.commitChanges()
 
     def to_osm(self, data=None, upload='never'):
         """Export to OSM"""
@@ -922,7 +894,6 @@ class ConsLayer(PolygonLayer):
         """
         to_clean = []
         (buildings, parts) = self.index_of_building_and_parts()
-        self.startEditing()
         for refcat in parts.keys():
             if refcat not in buildings:
                 for part in parts[refcat]:
@@ -935,7 +906,6 @@ class ConsLayer(PolygonLayer):
         if to_clean:
             self.deleteFeatures(to_clean)
             log.debug(_("Removed %d building parts outside the footprint"), len(to_clean))
-        self.commitChanges()
             
     def merge_greatest_part(self, footprint, parts):
         """
@@ -1006,7 +976,6 @@ class ConsLayer(PolygonLayer):
     def merge_building_parts(self):
         """Apply merge_greatest_part to each set of building and its parts"""
         (buildings, parts) = self.index_of_building_and_parts()
-        self.startEditing()
         to_clean = []
         to_change = {}
         for (refcat, group) in buildings.items():
@@ -1019,7 +988,6 @@ class ConsLayer(PolygonLayer):
             self.writer.changeAttributeValues(to_change)
             self.deleteFeatures(to_clean)
             log.debug(_("Merged %d building parts to footprint"), len(to_clean))
-        self.commitChanges()
 
     def remove_duplicated_holes(self):
         """
@@ -1029,7 +997,6 @@ class ConsLayer(PolygonLayer):
         (parents_per_vertex, features) = self.get_parents_per_vertex_and_features()
         ip = 0
         to_change = {}
-        self.startEditing()
         for feature in self.getFeatures():
             geom = QgsGeometry(feature.geometry())
             to_clean = []
@@ -1054,7 +1021,6 @@ class ConsLayer(PolygonLayer):
         if ip:
             self.writer.changeGeometryValues(to_change)            
             log.debug(_("Removed %d duplicated inner rings"), ip)
-        self.commitChanges()
                     
     def clean(self):
         """
@@ -1125,16 +1091,11 @@ class ConsLayer(PolygonLayer):
             else:
                 attributes[ad.fieldNameIndex('spec')] = 'relation'
                 to_change[ad.id()] = attributes
-        address.startEditing()
         if delete: 
-            for fid in to_clean:
-                address.deleteFeature(fid)
+            address.deleteFeatures(to_clean)
         address.writer.changeAttributeValues(to_change)
         address.writer.changeGeometryValues(to_move)
-        address.commitChanges()
-        self.startEditing()
         self.writer.changeGeometryValues(to_insert)
-        self.commitChanges()
         log.debug(_("Deleted %d addresses, %d changed, %d moved"), len(to_clean), 
             len(to_change), len(to_move))
 
@@ -1160,9 +1121,7 @@ class ConsLayer(PolygonLayer):
                     attributes[field_ndx] = _("Check, area too big")
                     to_change[feat.id()] = attributes
         if to_change:
-            self.startEditing()
             self.writer.changeAttributeValues(to_change)
-            self.commitChanges()
 
     def conflate(self, current_bu_osm, delete=True):
         """
@@ -1220,9 +1179,7 @@ class HighwayLayer(BaseLayer):
             feat.setGeometry(geom)
             feat.setAttribute("name", w.tags['name'])
             to_add.append(feat)
-        self.startEditing()
-        self.addFeatures(to_add)
-        self.commitChanges()
+        self.writer.addFeatures(to_add)
 
 
 class DebugWriter(QgsVectorFileWriter):
