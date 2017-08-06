@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-08-06 19:43+WEST\n"
+"POT-Creation-Date: 2017-08-06 19:49+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -282,9 +282,9 @@ msgstr ""
 "Lista los municipios disponibles para el código provincial de dos dígitos"
 
 #: main.py:52
-msgid "Splits constructions into tasks files (default, implies -z)"
+msgid "Splits constructions into tasks files (default, implies -d and -z)"
 msgstr ""
-"Reparte las construcciones en archivos de tareas (predeterminada, implica -z)"
+"Reparte las construcciones en archivos de tareas (predeterminada, implica -d y -z)"
 
 #: main.py:55
 msgid "Process the cadastral zoning dataset"
@@ -311,19 +311,19 @@ msgid "Select the log level between DEBUG, INFO, WARNING, ERROR or CRITICAL."
 msgstr ""
 "Selecciona el nivel de registro entre DEBUG, INFO, WARNING, ERROR o CRITICAL."
 
-#: main.py:82
+#: main.py:83
 msgid "Invalid log level: %s"
 msgstr "Nivel de registro no válido: %s"
 
-#: main.py:87
+#: main.py:88
 msgid "%s version %s"
 msgstr "%s versión %s"
 
-#: main.py:89
+#: main.py:90
 msgid "Too many arguments, supply only a directory path."
 msgstr "Demasiados argumentos, proporcione sólo la ruta de un directorio."
 
-#: main.py:100
+#: main.py:101
 msgid "Please, install QGIS"
 msgstr "Por favor, instala QGIS"
 
