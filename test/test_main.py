@@ -62,7 +62,7 @@ class TestMain(unittest.TestCase):
         options = mockcat.call_args_list[0][0][1]
         d = {'building': False, 'all': False, 'tasks': True, 'log_level': 'INFO', 
             'parcel': False, 'list': False, 'zoning': True, 'version': False, 
-            'address': False}
+            'address': True}
         for (k, v) in d.items():
             self.assertEquals(getattr(options, k), v)
 
