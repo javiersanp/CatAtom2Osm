@@ -50,7 +50,7 @@ def run():
         "digits province code"))
     parser.add_option("-t", "--tasks", dest="tasks", default=False,
         action="store_true", help=_("Splits constructions into tasks files " \
-        "(default, implies -z)"))
+        "(default, implies -d and -z)"))
     parser.add_option("-z", "--zoning", dest="zoning", default=False,
         action="store_true", help=_("Process the cadastral zoning dataset"))
     parser.add_option("-b", "--building", dest="building", default=False,
@@ -73,8 +73,9 @@ def run():
         options.address = True
         options.parcel = True
     if not (options.tasks or options.zoning or options.building or 
-            options.address or options.parcel):
+            options.address or options.parcel): # default options
         options.tasks = True
+        options.address = True
     if options.tasks:
         options.zoning = True
     log_level = getattr(logging, options.log_level.upper(), None)

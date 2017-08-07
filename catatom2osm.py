@@ -79,7 +79,7 @@ class CatAtom2Osm:
             self.process_zoning()
         del self.urban_zoning
         del self.rustic_zoning
-        if self.options.tasks or self.options.building:
+        if self.options.building:
             self.write_building()
         if self.options.parcel:
             self.process_parcel()
@@ -113,7 +113,6 @@ class CatAtom2Osm:
             self.other_gml = self.cat.read("otherconstruction", True)
             self.current_bu_osm = self.get_current_bu_osm()
             self.building_osm = osm.Osm()
-            self.utaskn = self.rtaskn = 1
 
     def process_tasks(self):
         for zoning in (self.urban_zoning, self.rustic_zoning):
@@ -133,9 +132,10 @@ class CatAtom2Osm:
 
     def process_zone(self, zone, zoning):
         """Process data in zone"""
-        log.info(_("Processing %s '%s' of '%s'"), 
+        log.info(_("Processing %s '%s' (%d of %d) in '%s'"), 
             zone['levelName'].encode('utf-8').lower().translate(None, '(1:) '), 
-            zone['label'], zoning.name().encode('utf-8'))
+            zone['label'], zoning.task_number, zoning.featureCount(), 
+            zoning.name().encode('utf-8'))
         building = layer.ConsLayer(source_date = self.building_gml.source_date)
         building.append_zone(self.building_gml, zone, self.processed)
         if building.featureCount() == 0:
@@ -165,7 +165,8 @@ class CatAtom2Osm:
             building.reproject()
             building.conflate(self.current_bu_osm, delete=False)
             self.write_task(zoning, building, temp_address)
-            self.building_osm = building.to_osm(data=self.building_osm)
+            if self.options.building:
+                self.building_osm = building.to_osm(data=self.building_osm)
             del temp_address
 
     def process_address(self):
@@ -328,6 +329,10 @@ class CatAtom2Osm:
         self.rustic_zoning.explode_multi_parts()
         self.urban_zoning.add_topological_points()
         self.urban_zoning.merge_adjacents()
+        self.rustic_zoning.task_number = 1
+        self.urban_zoning.task_number = 1
+        self.rustic_zoning.task_filename = 'r%03d.osm'
+        self.urban_zoning.task_filename = 'u%05d.osm'
 
     def read_address(self):
         """Reads Address GML dataset"""
@@ -403,12 +408,8 @@ class CatAtom2Osm:
                     
     def write_task(self, zoning, building, address=None):
         """Generates osm file for a task"""
-        if zoning is self.urban_zoning:
-            fn = 'u%05d.osm' % self.utaskn
-            self.utaskn += 1
-        else:
-            fn = 'r%03d.osm' % self.rtaskn
-            self.rtaskn += 1
+        fn = zoning.task_filename % zoning.task_number
+        zoning.task_number += 1
         base_path = os.path.join(self.path, 'tasks')
         task_path = os.path.join('tasks', fn)
         task_osm = building.to_osm(upload='yes')

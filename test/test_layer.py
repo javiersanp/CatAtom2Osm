@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 import mock
+import os
 import random
 from collections import Counter
 import logging
@@ -10,6 +11,7 @@ import gdal
 from qgis.core import *
 from PyQt4.QtCore import QVariant
 
+os.environ['LANGUAGE'] = 'C'
 import main
 import osm
 import setup
@@ -221,7 +223,18 @@ class TestBaseLayer(unittest.TestCase):
             self.assertEquals(result[i], [])
         for i in (2, 4, 5, 6, 8):
             self.assertEquals(result[i], [i])
-        
+
+    @mock.patch('layer.super')
+    def test_deleteFeatures(self, m_super):
+        self.layer.deleteFeature = mock.MagicMock()
+        self.layer.deleteFeatures([1, 2, 3])
+        m_super.return_value.deleteFeatures.assert_called_once_with([1, 2, 3])
+        del m_super.return_value.deleteFeatures
+        self.layer.deleteFeatures([1, 2, 3])
+        self.layer.deleteFeature.assert_has_calls([
+           mock.call(1), mock.call(2), mock.call(3)
+        ])
+
 
 class TestPolygonLayer(unittest.TestCase):
 
