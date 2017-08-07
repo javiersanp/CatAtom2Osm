@@ -88,9 +88,8 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.run(self.m_app)
         self.m_app.write_building.assert_not_called()
 
-    @mock.patch('catatom2osm.os')
     @mock.patch('catatom2osm.log')
-    def test_start(self, m_log, m_os):
+    def test_start(self, m_log):
         # is new, exit
         self.m_app.start = cat.CatAtom2Osm.start.__func__
         self.m_app.options.address = True
@@ -107,21 +106,16 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.options.building = False
         self.m_app.start(self.m_app)
         self.m_app.get_current_bu_osm.assert_not_called()
-        #base path exists
-        self.m_app.options.address = False
-        self.m_app.options.tasks = True
+        # not new, buildings
+        self.m_app.options.building = True
+        self.m_app.start(self.m_app)
+        self.m_app.get_current_bu_osm.assert_called_once_with()
+
+    @mock.patch('catatom2osm.os')
+    def test_process_tasks(self, m_os):
+        self.m_app.process_tasks = cat.CatAtom2Osm.process_tasks.__func__
         m_os.path.join = lambda *args: '/'.join(args)
         m_os.path.exists.return_value = True
-        self.m_app.start(self.m_app)
-        m_os.makedirs.assert_not_called()
-        self.m_app.get_current_bu_osm.assert_called_once_with()
-        #not exists
-        m_os.path.exists.return_value = False
-        self.m_app.start(self.m_app)
-        m_os.makedirs.assert_called_once_with('foo/tasks')
-
-    def test_process_tasks(self):
-        self.m_app.process_tasks = cat.CatAtom2Osm.process_tasks.__func__
         bu = osm.Osm()
         bu.Node(0,0)
         bu.Node(1,1, {'building': 'yes'})
@@ -139,6 +133,13 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.assertNotIn('n-2', bu.index)
         self.assertNotIn('conflict', bu.index['n-3'].tags)
         self.m_app.address.del_address.assert_not_called()
+        m_os.makedirs.assert_not_called()
+        m_os.path.exists.return_value = False
+        self.m_app.building_gml = mock.MagicMock()
+        self.m_app.part_gml = mock.MagicMock()
+        self.m_app.other_gml = mock.MagicMock()
+        self.m_app.process_tasks(self.m_app)
+        m_os.makedirs.assert_called_once_with('foo/tasks')
 
     def test_process_tasks_with_address(self):
         self.m_app.process_tasks = cat.CatAtom2Osm.process_tasks.__func__

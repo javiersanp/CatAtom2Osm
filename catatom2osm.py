@@ -105,9 +105,6 @@ class CatAtom2Osm:
             self.address.conflate(current_address)
             self.address_osm = osm.Osm()
         if self.options.building or self.options.tasks:
-            base_path = os.path.join(self.path, 'tasks')
-            if not os.path.exists(base_path):
-                os.makedirs(base_path)
             self.building_gml = self.cat.read("building")
             self.part_gml = self.cat.read("buildingpart")
             self.other_gml = self.cat.read("otherconstruction", True)
@@ -115,6 +112,9 @@ class CatAtom2Osm:
             self.building_osm = osm.Osm()
 
     def process_tasks(self):
+        base_path = os.path.join(self.path, 'tasks')
+        if not os.path.exists(base_path):
+            os.makedirs(base_path)
         for zoning in (self.urban_zoning, self.rustic_zoning):
             for zone in zoning.getFeatures():
                 self.process_zone(zone, zoning)
