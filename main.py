@@ -34,7 +34,7 @@ Cadastre.""")
 def process(args, options):
     from catatom import list_municipalities
     if options.list:
-        list_municipalities(options.list)
+        list_municipalities('{:>02}'.format(options.list))
     else:
         from catatom2osm import CatAtom2Osm
         app = CatAtom2Osm(args[0], options)
