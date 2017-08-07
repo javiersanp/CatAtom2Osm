@@ -357,7 +357,7 @@ class Relation(Element):
         """If this is a valid multipolygon returns the outer rings
         with every open way conected as areas"""
         if not self.is_valid_multipolygon():
-            return None
+            return []
         outer = [m.element.geometry() for m in self.members if m.role == 'outer']
         i = 0
         while i < len(outer):

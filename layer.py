@@ -1135,7 +1135,7 @@ class ConsLayer(PolygonLayer):
                 poly = [[map(Point, el.geometry())]]
             elif el.type == 'relation' and 'building' in el.tags:
                 poly = [[map(Point, w)] for w in el.outer_geometry()]
-            if poly is not None:
+            if poly:
                 geom = QgsGeometry().fromMultiPolygon(poly)
                 if geom.isGeosValid():
                     fids = index.intersects(geom.boundingBox())

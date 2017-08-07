@@ -525,7 +525,7 @@ class TestOsmRelation(OsmTestCase):
         w3 = ((4, 24), (4, 20), (2, 20), (2, 24), (4, 24))
         r.append(self.d.Way(w3[:2]), 'outer')
         r.append(self.d.Way(w3[:2:-1]), 'outer')
-        self.assertEquals(r.outer_geometry(), None)
+        self.assertEquals(r.outer_geometry(), [])
         w4 = ((0,30), (1,30), (1,31), (0,30))
         r.append(self.d.Way(w4), 'outer')
         r.append(self.d.Way(w3[2:4]), 'outer')
