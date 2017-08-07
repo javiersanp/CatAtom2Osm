@@ -63,7 +63,7 @@ msgstr "Error al cargar la capa: '%s'"
 
 #: catatom.py:165
 msgid "Read %d features in '%s'"
-msgstr "Leidos %d elementos en '%s'"
+msgstr "Leídos %d elementos en '%s'"
 
 #: catatom.py:176
 msgid ""
@@ -147,7 +147,7 @@ msgstr "No se obtuvieron datos OSM de '%s'"
 
 #: catatom2osm.py:294
 msgid "Read '%s': %d nodes, %d ways, %d relations"
-msgstr "Leido '%s': %d nodos, %d vías, %d relaciones"
+msgstr "Leído '%s': %d nodos, %d vías, %d relaciones"
 
 #: catatom2osm.py:314
 msgid "Generated '%s': %d nodes, %d ways, %d relations"
@@ -348,20 +348,3 @@ msgstr "Usando ElementTree"
 msgid "Failed to import ElementTree from any known place"
 msgstr "No se pudo importar ElementTree desde ningún lugar conocido"
 
-#~ msgid "Assigning task number to each construction"
-#~ msgstr "Asignando número de tarea a cada construcción"
-
-#~ msgid "%d features unassigned to a task in the '%s' layer"
-#~ msgstr "%d elementos sin asignar a tarea en la capa '%s'"
-
-#~ msgid "All features assigned to tasks in the '%s' layer"
-#~ msgstr "Todos los elementos asignados a tareas en la capa '%s'"
-
-#~ msgid "Read '%s'"
-#~ msgstr "Leido '%s'"
-
-#~ msgid "Downloading OSM data"
-#~ msgstr "Descargando datos de OSM"
-
-#~ msgid "Obtained %d elements"
-#~ msgstr "Obtenidos %d elementos"
