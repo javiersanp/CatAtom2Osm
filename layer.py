@@ -875,8 +875,8 @@ class ConsLayer(PolygonLayer):
         super(ConsLayer, self).append(layer, query=query, including=task)
 
     def remove_parts_below_ground(self):
-        """Remove all parts with 'lev_above' field equal 0."""
-        to_clean = [f.id() for f in self.search('lev_above=0')]
+        """Remove all parts with 'lev_above' field equal 0 and 'lev_below' > 0"""
+        to_clean = [f.id() for f in self.search('lev_above=0 and lev_below>0')]
         if to_clean:
             self.deleteFeatures(to_clean)
             log.debug(_("Deleted %d building parts with no floors above ground"), 

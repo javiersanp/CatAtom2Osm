@@ -470,10 +470,10 @@ class TestConsLayer(unittest.TestCase):
         
 
     def test_remove_parts_below_ground(self):
-        to_clean = [f.id() for f in self.layer.search('lev_above=0')]
+        to_clean = [f.id() for f in self.layer.search('lev_above=0 and lev_below>0')]
         self.assertGreater(len(to_clean), 0, 'There are parts below ground')
         self.layer.remove_parts_below_ground()
-        to_clean = [f.id() for f in self.layer.search('lev_above=0')]
+        to_clean = [f.id() for f in self.layer.search('lev_above=0 and lev_below>0')]
         self.assertEquals(len(to_clean), 0, 'There are not parts below ground')
 
     def test_merge_greatest_part(self):

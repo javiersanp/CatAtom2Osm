@@ -98,3 +98,10 @@ class TestTranslate(unittest.TestCase):
         self.assertEquals(tags['building'], 'yes')
         self.assertEquals(tags['disused:building'], building_values[use])
         use = random.randint(0, len(use_values)-1)
+        feat['lev_above'] = 0
+        feat['lev_below'] = 0
+        tags = building_tags(feat)
+        self.assertEquals(tags['building:part'], 'roof')
+        self.assertNotIn('building:levels', tags)
+        self.assertNotIn('building:levels:underground', tags)
+
