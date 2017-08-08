@@ -196,7 +196,7 @@ class CatAtom2Osm:
         if self.other_gml:
             building.append(self.other_gml)
             del self.other_gml
-        if self.debug: self.export_layer(building, 'address.shp')
+        if self.debug: self.export_layer(building, 'building.shp')
         building.remove_outside_parts()
         building.explode_multi_parts()
         building.remove_parts_below_ground()
@@ -222,7 +222,7 @@ class CatAtom2Osm:
         parcel = layer.ParcelLayer(source_date = parcel_gml.source_date)
         parcel.append(parcel_gml)
         del parcel_gml
-        if self.debug: self.export_layer(self.parcel, 'address.shp')
+        if self.debug: self.export_layer(self.parcel, 'parcel.shp')
         parcel.reproject()
         parcel_osm = parcel.to_osm()
         self.write_osm(parcel_osm, "parcel.osm")
