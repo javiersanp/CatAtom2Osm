@@ -549,8 +549,10 @@ class TestConsLayer(unittest.TestCase):
 
     def test_index_of_building_and_parts(self):
         (buildings, parts) = self.layer.index_of_building_and_parts()
-        self.assertGreaterEqual(len(buildings), 0)
-        self.assertGreater(len(parts), 0)
+        b = [f for f in self.layer.getFeatures() if self.layer.is_building(f)]
+        p = [f for f in self.layer.getFeatures() if self.layer.is_part(f)]
+        self.assertEqual(sum(len(g) for g in buildings.values()), len(b))
+        self.assertEqual(sum(len(g) for g in parts.values()), len(p))
         self.assertTrue(all([localid==bu['localid']
             for (localid, group) in buildings.items() for bu in group]))
         self.assertTrue(all([localid==pa['localid'][0:14]
