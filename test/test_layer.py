@@ -438,6 +438,22 @@ class TestConsLayer(unittest.TestCase):
         self.assertTrue(ConsLayer.is_pool({'localId': 'foo_PI.1'}))
         self.assertFalse(ConsLayer.is_pool({'localId': 'foo_part1'}))
 
+    def test_explode_multi_parts(self):
+        mp0 = [f for f in self.layer.getFeatures()
+            if f.geometry().isMultipart()]
+        self.assertGreater(mp0, 0)
+        address = AddressLayer()
+        address_gml = QgsVectorLayer('test/address.gml', 'address', 'ogr')
+        address.append(address_gml)
+        refs = {ad['localId'].split('.')[-1] for ad in address.getFeatures()}
+        mp1 = [f for f in self.layer.getFeatures() if f['localId'] in refs and
+            f.geometry().isMultipart()]
+        self.assertGreater(mp1, 0)
+        self.layer.explode_multi_parts(address)
+        mp2 = [f for f in self.layer.getFeatures()
+            if f.geometry().isMultipart()]
+        self.assertEquals(len(mp1), len(mp2))
+
     def test_append_building(self):
         layer = ConsLayer()
         self.assertTrue(layer.isValid(), "Init QGIS")

@@ -881,6 +881,14 @@ class ConsLayer(PolygonLayer):
         """Pool features have '_PI.' in its localId field"""
         return '_PI.' in feature['localId']
 
+    def explode_multi_parts(self, address=False):
+        request = QgsFeatureRequest()
+        if address:
+            refs = {ad['localId'].split('.')[-1] for ad in address.getFeatures()}
+            fids = [f.id() for f in self.getFeatures() if f['localId'] not in refs]
+            request.setFilterFids(fids)
+        super(ConsLayer, self).explode_multi_parts(request)
+
     def append_zone(self, layer, zone, processed):
         """Append features of layer inside zone excluding processed localId's'"""
         query = lambda f, kwargs: \
