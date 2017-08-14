@@ -124,8 +124,6 @@ class CatAtom2Osm:
                     self.current_bu_osm.remove(el)
                 else:
                     del el.tags['conflict']
-        if self.options.address:
-            self.address.del_address(self.building_osm)
         del self.building_gml
         del self.part_gml
         del self.other_gml
@@ -170,6 +168,7 @@ class CatAtom2Osm:
             del temp_address
 
     def process_address(self):
+        self.address.del_address(self.building_osm)
         self.address.reproject()
         address_osm = self.address.to_osm()
         del self.address

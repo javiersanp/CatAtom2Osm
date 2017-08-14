@@ -132,7 +132,6 @@ class TestCatAtom2Osm(unittest.TestCase):
         ])
         self.assertNotIn('n-2', bu.index)
         self.assertNotIn('conflict', bu.index['n-3'].tags)
-        self.m_app.address.del_address.assert_not_called()
         m_os.makedirs.assert_not_called()
         m_os.path.exists.return_value = False
         self.m_app.building_gml = mock.MagicMock()
@@ -140,12 +139,6 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.other_gml = mock.MagicMock()
         self.m_app.process_tasks(self.m_app)
         m_os.makedirs.assert_called_once_with('foo/tasks')
-
-    def test_process_tasks_with_address(self):
-        self.m_app.process_tasks = cat.CatAtom2Osm.process_tasks.__func__
-        self.m_app.options.address = True
-        self.m_app.process_tasks(self.m_app)
-        self.m_app.address.del_address.assert_called_once_with(self.m_app.building_osm)
 
     @mock.patch('catatom2osm.log')
     @mock.patch('catatom2osm.layer')
