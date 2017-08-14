@@ -1019,8 +1019,8 @@ class ConsLayer(PolygonLayer):
 
     def remove_duplicated_holes(self):
         """
-        Remove inner rings of parts and of buildings/pool if there exists another
-        feature with the same geometry
+        Remove inner rings of parts, and of buildings/pool if there exists
+        another feature with the same geometry
         """
         (parents_per_vertex, features) = self.get_parents_per_vertex_and_features()
         ip = 0
@@ -1028,20 +1028,21 @@ class ConsLayer(PolygonLayer):
         for feature in self.getFeatures():
             geom = QgsGeometry(feature.geometry())
             to_clean = []
-            rings = geom.asPolygon()
+            poly = self.get_multipolygon(feature)
             if ConsLayer.is_part(feature):
-                if len(rings) > 1:
-                    geom = QgsGeometry.fromPolygon([rings[0]])
-                    ip += (len(rings) - 1)
+                if len(poly[0]) > 1:
+                    geom = QgsGeometry.fromPolygon([poly[0][0]])
+                    ip += (len(poly[0]) - 1)
                     to_change[feature.id()] = geom
             else:
-                for (i, ring) in enumerate(rings[1:]):
-                    first_parents = list(parents_per_vertex[ring[0]])
-                    duplicated = all([parents_per_vertex[p] == first_parents \
-                        for p in ring[1:-1]]) and len(first_parents) > 1
-                    if duplicated:
-                        to_clean.append(i + 1)
-                        ip += 1
+                for part in poly:
+                    for (i, ring) in enumerate(part[1:]):
+                        first_parents = list(parents_per_vertex[ring[0]])
+                        duplicated = all([parents_per_vertex[p] == first_parents \
+                            for p in ring[1:-1]]) and len(first_parents) > 1
+                        if duplicated:
+                            to_clean.append(i + 1)
+                            ip += 1
                 if to_clean:
                     for ring in sorted(to_clean, reverse=True):
                         geom.deleteRing(ring)
