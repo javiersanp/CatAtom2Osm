@@ -31,7 +31,7 @@ class Point(QgsPoint):
             super(Point, self).__init__(arg1[0], arg1[1])
         else:
             super(Point, self).__init__(arg1, arg2)
-    
+
     def boundingBox(self, radius):
         """Returns a bounding box of 2*radius centered in point."""
         return QgsRectangle(self.x() - radius, self.y() - radius,
@@ -40,19 +40,19 @@ class Point(QgsPoint):
     def get_angle_with_context(self, geom, acute_thr=setup.acute_thr,
             straight_thr=setup.straight_thr, cath_thr=setup.dist_thr):
         """
-        For the vertex in a geometry nearest to this point, give the angle 
+        For the vertex in a geometry nearest to this point, give the angle
         between its adjacent vertexs.
-        
+
         Args:
             geom (QgsGeometry): Geometry to test.
             acute_thr (float): Acute angle threshold.
             straight_thr (float): Straight angle threshold.
             cath_thr (float): Cathetus threshold.
-        
+
         Returns:
             (float) Angle between the vertex and their adjacents,
             (bool)  True for a corner (the angle differs by more than straight_thr
-            of 180 and if the distance from the vertex to the segment formed by 
+            of 180 and if the distance from the vertex to the segment formed by
             their adjacents is greater than cath_thr.
             (bool)  True if the angle is too low (< acute_thr)
             (float) Distance from the vertex to the segment formed by their adjacents
@@ -78,7 +78,7 @@ class BaseLayer(QgsVectorLayer):
         self.rename={}
         self.resolve={}
         self.reference_matchs={}
-    
+
     def copy_feature(self, feature, rename=None, resolve=None):
         """
         Return a copy of feature renaming attributes or resolving xlink references.
@@ -90,27 +90,27 @@ class BaseLayer(QgsVectorLayer):
 
         Examples:
             With this:
-            
+
             >>> rename = {'spec': 'specification'}
             >>> resolve = {
-            ...     'PD_id': ('component_href', '[\w\.]+PD[\.0-9]+'), 
-            ...     'TN_id': ('component_href', '[\w\.]+TN[\.0-9]+'), 
+            ...     'PD_id': ('component_href', '[\w\.]+PD[\.0-9]+'),
+            ...     'TN_id': ('component_href', '[\w\.]+TN[\.0-9]+'),
             ...     'AU_id': ('component_href', '[\w\.]+AU[\.0-9]+')
             ... }
-                
+
             You get:
-            
+
             >>> original_attributes = ['localId', 'specification', 'component_href']
             >>> original_values = [
-            ...     '38.012.1.12.0295603CS6109N', 
-            ...     'Parcel', 
+            ...     '38.012.1.12.0295603CS6109N',
+            ...     'Parcel',
             ...     '(3:#ES.SDGC.PD.38.012.38570,#ES.SDGC.TN.38.012.1,#ES.SDGC.AU.38.012)'
             ... ]
             >>> final_attributes = ['localId', 'spec', 'PD_id', 'TN_id', 'AU_id']
             >>> final_values = [
-            ...     '38.012.1.12.0295603CS6109N', 
-            ...     'Parcel', 
-            ...     'ES.SDGC.PD.38.012.38570',  
+            ...     '38.012.1.12.0295603CS6109N',
+            ...     'Parcel',
+            ...     'ES.SDGC.PD.38.012.38570',
             ...     'ES.SDGC.TN.38.012.1',
             ...     'ES.SDGC.AU.38.012'
             ... ]
@@ -137,7 +137,7 @@ class BaseLayer(QgsVectorLayer):
                 if src_attr in src_attrs:
                     dst_ft[dst_attr] = feature[src_attr]
         return dst_ft
-    
+
     def append(self, layer, rename=None, resolve=None, query=None, **kwargs):
         """Copy all features from layer.
 
@@ -155,7 +155,7 @@ class BaseLayer(QgsVectorLayer):
             Will copy only features with a value 'bar' in the field 'foo'.
             >>> query = lambda feat, kwargs: layer.is_inside(feat, kwargs['zone'])
             Will copy only features inside zone.
-            
+
             See also copy_feature().
         """
         self.setCrs(layer.crs())
@@ -191,18 +191,18 @@ class BaseLayer(QgsVectorLayer):
         self.writer.addFeatures(to_add)
         self.setCrs(target_crs)
         self.updateExtents()
-        log.debug(_("Reprojected the '%s' layer to '%s' CRS"), 
+        log.debug(_("Reprojected the '%s' layer to '%s' CRS"),
             self.name().encode('utf-8'), target_crs.description())
-    
-    def join_field(self, source_layer, target_field_name, join_field_name, 
+
+    def join_field(self, source_layer, target_field_name, join_field_name,
             field_names_subset, prefix = ""):
         """
-        Replaces qgis table join mechanism becouse I'm not able to work with it 
+        Replaces qgis table join mechanism becouse I'm not able to work with it
         in standalone script mode (without GUI).
-        
+
         Args:
             source_layer (QgsVectorLayer): Source layer.
-            target_field_name (str): Join field in the target layer. 
+            target_field_name (str): Join field in the target layer.
             join_fieldsName (str): Join field in the source layer.
             field_names_subset (list): List of field name strings for the target layer.
             prefix (str): An optional prefix to add to the target fields names
@@ -230,7 +230,7 @@ class BaseLayer(QgsVectorLayer):
                 value = None
                 if feature[target_field_name] in source_values:
                     value = source_values[feature[target_field_name]][attr]
-                attrs[fieldId] = value 
+                attrs[fieldId] = value
             to_change[feature.id()] = attrs
         if to_change:
             self.writer.changeAttributeValues(to_change)
@@ -240,7 +240,7 @@ class BaseLayer(QgsVectorLayer):
     def translate_field(self, field_name, translations, clean=True):
         """
         Transform the values of a field
-        
+
         Args:
             field_name (str): Name of the field to transform
             translations (dict): A dictionary used to transform field values
@@ -275,7 +275,7 @@ class BaseLayer(QgsVectorLayer):
                 QgsVectorFileWriter.deleteShapeFile(path)
             else:
                 os.remove(path)
-        return QgsVectorFileWriter.writeAsVectorFormat(self, path, "utf-8", 
+        return QgsVectorFileWriter.writeAsVectorFormat(self, path, "utf-8",
                 self.crs(), driver_name) == QgsVectorFileWriter.NoError
 
     def to_osm(self, tags_translation=translate.all_tags, data=None, upload='never'):
@@ -283,7 +283,7 @@ class BaseLayer(QgsVectorLayer):
         Export this layer to an Osm data set
 
         Args:
-            tags_translation (function): Function to translate fields to tags. 
+            tags_translation (function): Function to translate fields to tags.
                 By defaults convert all fields.
             data (Osm): OSM data set to append. By default creates a new one.
             upload (str): upload attribute of the osm dataset, default 'never'
@@ -298,7 +298,7 @@ class BaseLayer(QgsVectorLayer):
             nodes = len(data.nodes)
             ways = len(data.ways)
             relations = len(data.relations)
-        for feature in self.getFeatures(): 
+        for feature in self.getFeatures():
             geom = feature.geometry()
             e = None
             if geom.wkbType() == QGis.WKBPolygon:
@@ -312,18 +312,18 @@ class BaseLayer(QgsVectorLayer):
             elif geom.wkbType() == QGis.WKBPoint:
                 e = data.Node(geom.asPoint())
             else:
-                log.warning(_("Detected a %s geometry in the '%s' layer"), 
+                log.warning(_("Detected a %s geometry in the '%s' layer"),
                     geom.wkbType(), self.name().encode('utf-8'))
             if e: e.tags.update(tags_translation(feature))
         for (key, value) in setup.changeset_tags.items():
             data.tags[key] = value
         if self.source_date:
             data.tags['source:date'] = self.source_date
-        log.debug(_("Loaded %d nodes, %d ways, %d relations from '%s' layer"), 
-            len(data.nodes) - nodes, len(data.ways) - ways, 
+        log.debug(_("Loaded %d nodes, %d ways, %d relations from '%s' layer"),
+            len(data.nodes) - nodes, len(data.ways) - ways,
             len(data.relations) - relations, self.name().encode('utf-8'))
         return data
-        
+
     def deleteFeatures(self, to_clean):
         """deleteFeatures method apear on QGIS 2.14 version"""
         self.startEditing()
@@ -369,7 +369,7 @@ class PolygonLayer(BaseLayer):
 
     def explode_multi_parts(self):
         """
-        Creates a new WKBPolygon feature for each part of any WKBMultiPolygon 
+        Creates a new WKBPolygon feature for each part of any WKBMultiPolygon
         feature in the layer. This avoid relations with may 'outer' members in
         OSM data set. From this moment, localId will not be a unique identifier
         for buildings.
@@ -388,7 +388,7 @@ class PolygonLayer(BaseLayer):
             self.deleteFeatures(to_clean)
             self.writer.addFeatures(to_add)
             log.debug(_("%d multi-polygons splited into %d polygons in "
-                "the '%s' layer"), len(to_clean), len(to_add), 
+                "the '%s' layer"), len(to_clean), len(to_add),
                 self.name().encode('utf-8'))
 
     def get_parents_per_vertex_and_features(self):
@@ -398,14 +398,14 @@ class PolygonLayer(BaseLayer):
         """
         parents_per_vertex = defaultdict(list)
         features = {}
-        for feature in self.getFeatures(): 
+        for feature in self.getFeatures():
             features[feature.id()] = feature
             geom = feature.geometry()
             for ring in geom.asPolygon():
                 for point in ring[0:-1]:
                     parents_per_vertex[point].append(feature.id())
         return (parents_per_vertex, features)
-    
+
     def get_adjacents_and_features(self):
         """
         Returns:
@@ -436,12 +436,12 @@ class PolygonLayer(BaseLayer):
                         adjs.remove(adj)
             groups.append(group)
         return (groups, features)
-    
+
     def get_vertices(self):
         """Returns a in memory layer with the coordinates of each vertex"""
         vertices = QgsVectorLayer("Point", "vertices", "memory")
         to_add = []
-        for feature in self.getFeatures(): 
+        for feature in self.getFeatures():
             for ring in feature.geometry().asPolygon():
                 for point in ring[0:-1]:
                     feat = QgsFeature(QgsFields())
@@ -450,7 +450,7 @@ class PolygonLayer(BaseLayer):
                     to_add.append(feat)
         vertices.dataProvider().addFeatures(to_add)
         return vertices
-    
+
     def get_duplicates(self, dup_thr=None):
         """
         Returns a dict of duplicated vertices for each coordinate.
@@ -471,7 +471,7 @@ class PolygonLayer(BaseLayer):
                 if dup != point and dist < dup_thr**2:
                     duplicates[point].append(dup)
         return duplicates
-        
+
     def merge_duplicates(self):
         """
         Reduces the number of distinct vertices in a polygon layer moving to the
@@ -503,18 +503,18 @@ class PolygonLayer(BaseLayer):
                     duplist.remove(dup)
         if to_change:
             self.writer.changeGeometryValues(to_change)
-            log.debug(_("Merged %d close vertices in the '%s' layer"), dupes, 
+            log.debug(_("Merged %d close vertices in the '%s' layer"), dupes,
                 self.name().encode('utf-8'))
 
     def clean_duplicated_nodes_in_polygons(self):
         """
-        Cleans consecutives nodes with the same coordinates in any ring of a 
+        Cleans consecutives nodes with the same coordinates in any ring of a
         polygon.
         """
         dupes = 0
         to_clean = []
         to_change = {}
-        for feature in self.getFeatures(): 
+        for feature in self.getFeatures():
             geom = feature.geometry()
             replace = False
             new_polygon = []
@@ -582,7 +582,7 @@ class PolygonLayer(BaseLayer):
                                 debshp.add_point(point, note)
         if to_change:
             self.writer.changeGeometryValues(to_change)
-            log.debug(_("Created %d topological points in the '%s' layer"), 
+            log.debug(_("Created %d topological points in the '%s' layer"),
                 tp, self.name().encode('utf-8'))
         if log.getEffectiveLevel() <= logging.DEBUG:
             del debshp
@@ -592,8 +592,8 @@ class PolygonLayer(BaseLayer):
         Reduces the number of vertices in a polygon layer according to:
 
         * Delete vertex if the angle with its adjacents is below 'acute_thr'
-        
-        * Delete vertex if the angle with its adjacents is near of the straight 
+
+        * Delete vertex if the angle with its adjacents is near of the straight
           angle for less than 'straight_thr' degrees in all its parents.
 
         * Delete vertex if the distance to the segment formed by its parents is
@@ -631,7 +631,7 @@ class PolygonLayer(BaseLayer):
                         break
         if to_clean:
             self.deleteFeatures(to_clean)
-            log.debug(_("Deleted %d invalid geometries in the '%s' layer"), 
+            log.debug(_("Deleted %d invalid geometries in the '%s' layer"),
                 len(to_clean), self.name().encode('utf-8'))
         # Clean non corners
         (parents_per_vertex, features) = self.get_parents_per_vertex_and_features()
@@ -664,7 +664,7 @@ class PolygonLayer(BaseLayer):
                 debshp.add_point(point, "Keep. %s" % msg)
         if to_change:
             self.writer.changeGeometryValues(to_change)
-            log.debug(_("Simplified %d vertices in the '%s' layer"), killed, 
+            log.debug(_("Simplified %d vertices in the '%s' layer"), killed,
                 self.name().encode('utf-8'))
 
     def merge_adjacents(self):
@@ -695,7 +695,7 @@ class PolygonLayer(BaseLayer):
 class ParcelLayer(BaseLayer):
     """Class for cadastral parcels"""
 
-    def __init__(self, path="Polygon", baseName="cadastralparcel", 
+    def __init__(self, path="Polygon", baseName="cadastralparcel",
             providerLib="memory", source_date=None):
         super(ParcelLayer, self).__init__(path, baseName, providerLib)
         if self.pendingFields().isEmpty():
@@ -711,7 +711,7 @@ class ParcelLayer(BaseLayer):
 class ZoningLayer(PolygonLayer):
     """Class for cadastral zoning"""
 
-    def __init__(self, path="Polygon", baseName="cadastralzoning", 
+    def __init__(self, path="Polygon", baseName="cadastralzoning",
             providerLib="memory", source_date=None):
         super(ZoningLayer, self).__init__(path, baseName, providerLib)
         if self.pendingFields().isEmpty():
@@ -752,8 +752,8 @@ class AddressLayer(BaseLayer):
             self.updateFields()
         self.rename = {'spec': 'specification'}
         self.resolve = {
-            'PD_id': ('component_href', '[\w\.]+PD[\.0-9]+'), 
-            'TN_id': ('component_href', '[\w\.]+TN[\.0-9]+'), 
+            'PD_id': ('component_href', '[\w\.]+PD[\.0-9]+'),
+            'TN_id': ('component_href', '[\w\.]+TN[\.0-9]+'),
             'AU_id': ('component_href', '[\w\.]+AU[\.0-9]+')
         }
         self.source_date = source_date
@@ -765,7 +765,7 @@ class AddressLayer(BaseLayer):
     def conflate(self, current_address):
         """
         Delete address existing in current_address
-        
+
         Args:
             current_address (OSM): dataset
         """
@@ -796,10 +796,10 @@ class AddressLayer(BaseLayer):
     def get_highway_names(self, highway):
         """
         Returns a dictionary with the translation for each street name.
-        
+
         Args:
             highway (HighwayLayer): Current OSM highway data
-        
+
         Returns:
             (dict) highway names translations
         """
@@ -819,7 +819,7 @@ class AddressLayer(BaseLayer):
 class ConsLayer(PolygonLayer):
     """Class for constructions"""
 
-    def __init__(self, path="Polygon", baseName="building", 
+    def __init__(self, path="Polygon", baseName="building",
             providerLib = "memory", source_date=None):
         super(ConsLayer, self).__init__(path, baseName, providerLib)
         if self.pendingFields().isEmpty():
@@ -838,9 +838,9 @@ class ConsLayer(PolygonLayer):
             ])
             self.updateFields()
         self.rename = {
-            'condition': 'conditionOfConstruction', 
+            'condition': 'conditionOfConstruction',
             'link': 'documentLink' ,
-            'bu_units': 'numberOfBuildingUnits', 
+            'bu_units': 'numberOfBuildingUnits',
             'dwellings': 'numberOfDwellings',
             'lev_above': 'numberOfFloorsAboveGround',
             'lev_below': 'numberOfFloorsBelowGround',
@@ -857,7 +857,7 @@ class ConsLayer(PolygonLayer):
     def is_part(feature):
         """Part features have '_part' in its localId field"""
         return '_part' in feature['localId']
-    
+
     @staticmethod
     def is_pool(feature):
         """Pool features have '_PI.' in its localId field"""
@@ -879,7 +879,7 @@ class ConsLayer(PolygonLayer):
         to_clean = [f.id() for f in self.search('lev_above=0 and lev_below>0')]
         if to_clean:
             self.deleteFeatures(to_clean)
-            log.debug(_("Deleted %d building parts with no floors above ground"), 
+            log.debug(_("Deleted %d building parts with no floors above ground"),
                 len(to_clean))
 
     def to_osm(self, data=None, upload='never'):
@@ -888,7 +888,7 @@ class ConsLayer(PolygonLayer):
 
     def remove_outside_parts(self):
         """
-        Remove parts outside the footprint of it building or without associated 
+        Remove parts outside the footprint of it building or without associated
         building.
         Precondition: Called before merge_greatest_part
         """
@@ -906,22 +906,22 @@ class ConsLayer(PolygonLayer):
         if to_clean:
             self.deleteFeatures(to_clean)
             log.debug(_("Removed %d building parts outside the footprint"), len(to_clean))
-            
+
     def merge_greatest_part(self, footprint, parts):
         """
         Given a building footprint and its parts:
-        
+
         * Exclude parts not inside the footprint.
 
-        * If the area of the parts above ground is equal to the area of the 
+        * If the area of the parts above ground is equal to the area of the
           footprint.
 
-          * Sum the area for all the parts with the same level. Level is the 
-            pair of values 'lev_above' and 'lev_below' (number of floors 
+          * Sum the area for all the parts with the same level. Level is the
+            pair of values 'lev_above' and 'lev_below' (number of floors
             above, and below groud).
 
-          * For the level with greatest area, giving priority to parts with 
-            rings to reduce relations, translate the number of floors 
+          * For the level with greatest area, giving priority to parts with
+            rings to reduce relations, translate the number of floors
             values to the footprint and deletes all the parts in that level.
         """
         parts_inside_footprint = [part for part in parts if is_inside(part, footprint)]
@@ -933,7 +933,7 @@ class ConsLayer(PolygonLayer):
             area = part.geometry().area()
             if len(rings) > 1:
                 levels_with_holes.append(level)
-            if level[0] > 0: 
+            if level[0] > 0:
                 area_for_level[level].append(area)
         to_clean = []
         to_change = {}
@@ -942,10 +942,10 @@ class ConsLayer(PolygonLayer):
             parts_area = round(sum(sum(v) for v in area_for_level.values()) * 100)
             if footprint_area == parts_area:
                 if levels_with_holes:
-                    level_with_greatest_area = max(levels_with_holes, 
+                    level_with_greatest_area = max(levels_with_holes,
                         key=(lambda level: sum(area_for_level[level])))
-                else:    
-                    level_with_greatest_area = max(area_for_level.iterkeys(), 
+                else:
+                    level_with_greatest_area = max(area_for_level.iterkeys(),
                         key=(lambda level: sum(area_for_level[level])))
                 for part in parts_inside_footprint:
                     if (part['lev_above'], part['lev_below']) == level_with_greatest_area:
@@ -954,7 +954,7 @@ class ConsLayer(PolygonLayer):
                     attr = get_attributes(footprint)
                     attr[self.fieldNameIndex('lev_above')] = level_with_greatest_area[0]
                     attr[self.fieldNameIndex('lev_below')] = level_with_greatest_area[1]
-                    to_change[footprint.id()] = attr 
+                    to_change[footprint.id()] = attr
         return to_clean, to_change
 
     def index_of_building_and_parts(self):
@@ -972,7 +972,7 @@ class ConsLayer(PolygonLayer):
                 localId = feature['localId'].split('_')[0]
                 parts[localId].append(feature)
         return (buildings, parts)
-    
+
     def merge_building_parts(self):
         """Apply merge_greatest_part to each set of building and its parts"""
         (buildings, parts) = self.index_of_building_and_parts()
@@ -991,7 +991,7 @@ class ConsLayer(PolygonLayer):
 
     def remove_duplicated_holes(self):
         """
-        Remove inner rings of parts and of buildings/pool if there exists another 
+        Remove inner rings of parts and of buildings/pool if there exists another
         feature with the same geometry
         """
         (parents_per_vertex, features) = self.get_parents_per_vertex_and_features()
@@ -1019,9 +1019,9 @@ class ConsLayer(PolygonLayer):
                         geom.deleteRing(ring)
                     to_change[feature.id()] = geom
         if ip:
-            self.writer.changeGeometryValues(to_change)            
+            self.writer.changeGeometryValues(to_change)
             log.debug(_("Removed %d duplicated inner rings"), ip)
-                    
+
     def clean(self):
         """
         Merge duplicated vertices, add topological points, simplify layer
@@ -1036,13 +1036,13 @@ class ConsLayer(PolygonLayer):
 
     def move_address(self, address, delete=True):
         """
-        Move each address to the nearest point in the footprint of its 
+        Move each address to the nearest point in the footprint of its
         associated building (same cadastral reference), but only if:
-        
+
         * There aren't more than one associated building.
-        
+
         * The address specification is Entrance.
-        
+
         * The new position is enough close and is not a corner
 
         If delete is True, remove the address if there aren't any associated building.
@@ -1091,12 +1091,12 @@ class ConsLayer(PolygonLayer):
             else:
                 attributes[ad.fieldNameIndex('spec')] = 'relation'
                 to_change[ad.id()] = attributes
-        if delete: 
+        if delete:
             address.deleteFeatures(to_clean)
         address.writer.changeAttributeValues(to_change)
         address.writer.changeGeometryValues(to_move)
         self.writer.changeGeometryValues(to_insert)
-        log.debug(_("Deleted %d addresses, %d changed, %d moved"), len(to_clean), 
+        log.debug(_("Deleted %d addresses, %d changed, %d moved"), len(to_clean),
             len(to_change), len(to_move))
 
     def check_levels_and_area(self, min_level, max_level):
@@ -1150,12 +1150,12 @@ class ConsLayer(PolygonLayer):
                         current_bu_osm.remove(el)
                     if not delete and conflict:
                         el.tags['conflict'] = 'yes'
-                
+
 
 class HighwayLayer(BaseLayer):
     """Class for OSM highways"""
 
-    def __init__(self, path="LineString", baseName="highway", 
+    def __init__(self, path="LineString", baseName="highway",
             providerLib="memory"):
         super(HighwayLayer, self).__init__(path, baseName, providerLib)
         if self.pendingFields().isEmpty():
@@ -1194,9 +1194,9 @@ class DebugWriter(QgsVectorFileWriter):
         """
         self.fields = QgsFields()
         self.fields.append(QgsField("note", QVariant.String, len=100))
-        QgsVectorFileWriter.__init__(self, filename, "utf-8", self.fields, 
+        QgsVectorFileWriter.__init__(self, filename, "utf-8", self.fields,
                 QGis.WKBPoint, crs, driver_name)
-    
+
     def add_point(self, point, note=None):
         """Adds a point to the layer with the attribute note."""
         feat = QgsFeature(QgsFields(self.fields))

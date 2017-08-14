@@ -40,13 +40,13 @@ class TestPoint(unittest.TestCase):
 
     def test_is_corner_with_context(self):
         square = QgsGeometry.fromPolygon([[
-            QgsPoint(0, 0), 
+            QgsPoint(0, 0),
             QgsPoint(50, 0.6), # dist > 0.5, angle < 5
-            QgsPoint(100, 0), 
+            QgsPoint(100, 0),
             QgsPoint(105, 50), # dist > 0.5, angle > 5
-            QgsPoint(100, 100), 
+            QgsPoint(100, 100),
             QgsPoint(2, 100.3), #dist < 0.5, angle > 5
-            QgsPoint(0, 100), 
+            QgsPoint(0, 100),
             QgsPoint(0.3, 50), #dist < 0.5, angle < 5
             QgsPoint(0, 1),
             QgsPoint(-50, 0), # acute
@@ -95,7 +95,7 @@ class TestBaseLayer(unittest.TestCase):
         resolve = { 'A': ('gml_id', 'Foo[0-9]+') }
         new_fet = self.layer.copy_feature(feature, resolve=resolve)
         self.assertEquals(new_fet['A'], None)
-    
+
     def test_copy_feature_with_rename(self):
         feature = self.fixture.getFeatures().next()
         rename = {"A": "gml_id", "B": "value"}
@@ -138,14 +138,14 @@ class TestBaseLayer(unittest.TestCase):
         declined_filter = lambda feat, kwargs: feat['conditionOfConstruction'] == 'declined'
         layer.append(self.fixture, query=declined_filter)
         self.assertEquals(layer.featureCount(), 2)
-    
+
     def test_append_void(self):
         layer = BaseLayer("Polygon", "test", "memory")
         self.assertTrue(layer.isValid())
         declined_filter = lambda feat, kwargs: feat['conditionOfConstruction'] == 'foobar'
         layer.append(self.fixture, query=declined_filter)
         self.assertEquals(layer.featureCount(), 0)
-    
+
     def test_translate_field(self):
         ascii_uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
         self.layer.startEditing()
@@ -191,7 +191,7 @@ class TestBaseLayer(unittest.TestCase):
         geom_out = feature_out.geometry()
         self.assertLess(abs(geom_in.area() - geom_out.area()), 1E8)
         self.assertEquals(feature_in.attributes(), feature_out.attributes())
-    
+
     @mock.patch('layer.QgsVectorFileWriter')
     @mock.patch('layer.os')
     def test_export_default(self, mock_os, mock_fw):
@@ -200,9 +200,9 @@ class TestBaseLayer(unittest.TestCase):
         mock_fw.NoError = QgsVectorFileWriter.NoError
         self.assertTrue(self.layer.export('foobar'))
         mock_fw.deleteShapeFile.assert_called_once_with('foobar')
-        mock_fw.writeAsVectorFormat.assert_called_once_with(self.layer, 'foobar', 
+        mock_fw.writeAsVectorFormat.assert_called_once_with(self.layer, 'foobar',
             'utf-8', self.layer.crs(), 'ESRI Shapefile')
-    
+
     @mock.patch('layer.QgsVectorFileWriter')
     @mock.patch('layer.os')
     def test_export_other(self, mock_os, mock_fw):
@@ -248,7 +248,7 @@ class TestPolygonLayer(unittest.TestCase):
         self.writer = self.layer.dataProvider()
 
     def test_explode_multi_parts(self):
-        mp = [f for f in self.layer.getFeatures() 
+        mp = [f for f in self.layer.getFeatures()
             if f.geometry().isMultipart()]
         self.assertGreater(len(mp), 0, "There are multipart features")
         nparts = sum([len(f.geometry().asMultiPolygon()) for f in mp])
@@ -260,34 +260,34 @@ class TestPolygonLayer(unittest.TestCase):
         self.assertGreater(self.layer.featureCount(), features_before, m)
         m = "Number of features before plus number of parts minus multiparts " \
             "equals actual number of features"
-        self.assertEquals(features_before + nparts - len(mp), 
+        self.assertEquals(features_before + nparts - len(mp),
             self.layer.featureCount(), m)
         m = "Parts must be single polygons"
-        self.assertTrue(all([not f.geometry().isMultipart() 
+        self.assertTrue(all([not f.geometry().isMultipart()
             for f in self.layer.getFeatures()]), m)
-        
+
     def test_get_parents_per_vertex_and_features(self):
         (parents_per_vertex, features) = self.layer.get_parents_per_vertex_and_features()
         self.assertEquals(len(features), self.layer.featureCount())
         self.assertTrue(all([features[fid].id() == fid for fid in features]))
         self.assertGreater(len(parents_per_vertex), 0)
         self.assertTrue(all([QgsGeometry().fromPoint(vertex) \
-            .intersects(features[fid].geometry()) 
+            .intersects(features[fid].geometry())
                 for (vertex, fids) in parents_per_vertex.items() for fid in fids]))
 
     def test_get_vertices(self):
         vertices = self.layer.get_vertices()
         vcount = 0
-        for feature in self.layer.getFeatures(): 
+        for feature in self.layer.getFeatures():
             for ring in feature.geometry().asPolygon():
                 for point in ring[0:-1]:
                     vcount += 1
         self.assertEquals(vcount, vertices.featureCount())
-        
+
     def test_get_duplicates(self):
         duplicates = self.layer.get_duplicates()
         self.assertGreater(len(duplicates), 0)
-        distances = [point.sqrDist(dup) for point, dupes in duplicates.items() 
+        distances = [point.sqrDist(dup) for point, dupes in duplicates.items()
             for dup in dupes]
         self.assertTrue(all([dist < setup.dup_thr for dist in distances]))
 
@@ -297,7 +297,7 @@ class TestPolygonLayer(unittest.TestCase):
         self.layer.merge_duplicates()
         duplicates = self.layer.get_duplicates()
         self.assertEquals(len(duplicates), 0)
-        
+
     def test_clean_duplicated_nodes_in_polygons(self):
         features = self.layer.getFeatures()
         feat1 = features.next()
@@ -374,7 +374,7 @@ class TestZoningLayer(unittest.TestCase):
         layer1.append(self.fixture, 'M')
         layer2 = ZoningLayer()
         layer2.append(self.fixture, 'P')
-        self.assertEquals(layer1.featureCount() + layer2.featureCount(), 
+        self.assertEquals(layer1.featureCount() + layer2.featureCount(),
             self.fixture.featureCount())
         for f in layer1.getFeatures():
             self.assertEquals(f['levelName'][3], 'M')
@@ -396,7 +396,7 @@ class TestConsLayer(unittest.TestCase):
     def test_is_building(self):
         self.assertTrue(ConsLayer.is_building({'localId': 'foobar'}))
         self.assertFalse(ConsLayer.is_building({'localId': 'foo_bar'}))
-    
+
     def test_is_part(self):
         self.assertTrue(ConsLayer.is_part({'localId': 'foo_part1'}))
         self.assertFalse(ConsLayer.is_part({'localId': 'foo_PI.1'}))
@@ -443,14 +443,14 @@ class TestConsLayer(unittest.TestCase):
         self.assertTrue(layer.isValid(), "Init QGIS")
         fixture = QgsVectorLayer('test/building.gml', 'building', 'ogr')
         self.assertTrue(fixture.isValid())
-        poly = [(357485.75, 3124157.86), (357483.21, 3124119.41), (357512.30, 
+        poly = [(357485.75, 3124157.86), (357483.21, 3124119.41), (357512.30,
             3124116.16), (357514.54, 3124154.81), (357485.75, 3124157.86)]
         geom = QgsGeometry().fromPolygon([[QgsPoint(p[0], p[1]) for p in poly]])
         zone = QgsFeature(self.layer.pendingFields())
         zone.setGeometry(geom)
         layer.append_zone(fixture, zone, [])
         self.assertEquals(layer.featureCount(), 4)
-        processed = ['7541401CS5274S', '7541412CS5274S', '7541413CS5274S', 
+        processed = ['7541401CS5274S', '7541412CS5274S', '7541413CS5274S',
             '7541415CS5274S']
         for f in layer.getFeatures():
             self.assertIn(f['localId'], processed)
@@ -463,11 +463,11 @@ class TestConsLayer(unittest.TestCase):
         self.assertTrue(layer.isValid(), "Init QGIS")
         fixture = QgsVectorLayer('test/buildingpart.gml', 'part', 'ogr')
         self.assertTrue(fixture.isValid())
-        processed = ['7541401CS5274S', '7541412CS5274S', '7541413CS5274S', 
+        processed = ['7541401CS5274S', '7541412CS5274S', '7541413CS5274S',
             '7541415CS5274S']
         layer.append_task(fixture, processed)
         self.assertEquals(layer.featureCount(), 5)
-        
+
 
     def test_remove_parts_below_ground(self):
         to_clean = [f.id() for f in self.layer.search('lev_above=0 and lev_below>0')]
@@ -478,7 +478,7 @@ class TestConsLayer(unittest.TestCase):
 
     def test_merge_greatest_part(self):
         refs = {'9042901CS5294S': 2, # 2 parts inside with a hole, 1 outside
-                '8646414CS5284N': 0, '8442825CS5284S': 0,  # single part 
+                '8646414CS5284N': 0, '8442825CS5284S': 0,  # single part
                 '8544910CS5284S': 1, # 2 parts inside
                 '8544911CS5284S': 3, # 4 parts inside
                 '8645910CS5284N': 2, # 3 parts, one inside
@@ -503,11 +503,11 @@ class TestConsLayer(unittest.TestCase):
         (buildings, parts) = self.layer.index_of_building_and_parts()
         self.assertGreaterEqual(len(buildings), 0)
         self.assertGreater(len(parts), 0)
-        self.assertTrue(all([localid==bu['localid'] 
+        self.assertTrue(all([localid==bu['localid']
             for (localid, group) in buildings.items() for bu in group]))
-        self.assertTrue(all([localid==pa['localid'][0:14] 
+        self.assertTrue(all([localid==pa['localid'][0:14]
             for (localid, group) in parts.items() for pa in group]))
-                
+
     def test_remove_outside_parts(self):
         refs = [
             '000902900CS52D_part1',
@@ -530,7 +530,7 @@ class TestConsLayer(unittest.TestCase):
             if ref in parts:
                 for building in group:
                     building_area = round(building.geometry().area()*100)
-                    parts_area = round(sum([part.geometry().area() 
+                    parts_area = round(sum([part.geometry().area()
                         for part in parts[ref]])*100)
                     if building_area == parts_area:
                         request = QgsFeatureRequest()
@@ -565,7 +565,7 @@ class TestConsLayer(unittest.TestCase):
         for ref in refs:
             building = self.layer.search("localId = '%s'" % ref[0]).next()
             self.assertEquals(ref[1] in building.geometry().asPolygon()[0], ref[2])
-            
+
     def test_simplify2(self):
         layer = ConsLayer()
         writer = layer.dataProvider()
@@ -681,7 +681,7 @@ class TestConsLayer(unittest.TestCase):
             (-16.44209884141, 28.23712884271), (-16.44212197546, 28.23714361157),
             (-16.44211325828, 28.23715394977)), dict(building='yes', ref='1'))
         d.Way(((-16.44016295806, 28.23657619128), (-16.43985450402, 28.23641077902),
-            (-16.43991753593, 28.23632689127), (-16.44020855561, 28.23648403305), 
+            (-16.43991753593, 28.23632689127), (-16.44020855561, 28.23648403305),
             (-16.44016295806, 28.23657619128)), dict(building='yes', ref='2'))
         d.Way(((-16.44051231511, 28.23655551417), (-16.44042112, 28.23650529975),
             (-16.4405699826, 28.23631153095), (-16.44065782495, 28.23635288407),
@@ -695,13 +695,13 @@ class TestConsLayer(unittest.TestCase):
             (-16.44042514332, 28.23624713819), (-16.44049689241, 28.23629558045),
             (-16.44038491018, 28.23645095)), dict(building='yes', ref='4'))
         d.Way(((-16.44019514591, 28.23634461522), (-16.44002616674, 28.23625009376),
-            (-16.44011199743, 28.23611540052), (-16.44027829438, 28.23619810692)), 
+            (-16.44011199743, 28.23611540052), (-16.44027829438, 28.23619810692)),
             dict(building='yes', ref='5'))
         d.Way(((-16.43993497163, 28.23591926797), (-16.43972575933, 28.23580584175),
             (-16.4398062256, 28.23610122228), (-16.43959701329, 28.23598543321),
             (-16.43993497163, 28.23591926797)), dict(building='yes', ref='6'))
         d.Way(((-16.4386775, 28.2360472), (-16.4386158, 28.2363235),
-            (-16.4384536, 28.2362954), (-16.4385153, 28.2360191), 
+            (-16.4384536, 28.2362954), (-16.4385153, 28.2360191),
             (-16.4386775, 28.2360472)), dict(building='yes', ref='7'))
         d.Way(((-16.4386049, 28.2357006), (-16.4385316, 28.2356401),
             (-16.4385093, 28.2356419), (-16.4384993, 28.2357054),
@@ -718,11 +718,11 @@ class TestConsLayer(unittest.TestCase):
             (-16.4406513, 28.2365338), (-16.440639, 28.2365663),
             (-16.4407394, 28.2366223), (-16.4407188, 28.2366474),
             (-16.440707, 28.2366405), (-16.4406755, 28.236688)))
-        w4 = d.Way(((-16.440072, 28.236560), (-16.439966, 28.236505), 
-            (-16.439888, 28.236605), (-16.4399860, 28.236666), 
+        w4 = d.Way(((-16.440072, 28.236560), (-16.439966, 28.236505),
+            (-16.439888, 28.236605), (-16.4399860, 28.236666),
             (-16.440072, 28.236560)))
-        w5 = d.Way(((-16.439965, 28.236703), (-16.439861, 28.236642), 
-            (-16.439805, 28.236733), (-16.439903, 28.236790), 
+        w5 = d.Way(((-16.439965, 28.236703), (-16.439861, 28.236642),
+            (-16.439805, 28.236733), (-16.439903, 28.236790),
             (-16.439965, 28.236703)))
         r1 = d.Relation(tags = dict(building='yes', ref='9'))
         r1.append(w0, 'outer')
@@ -737,7 +737,7 @@ class TestConsLayer(unittest.TestCase):
         self.layer.conflate(d)
         self.assertEquals(len(d.ways), 12)
         self.assertEquals(len(d.relations), 2)
-        self.assertEquals({e.tags['ref'] for e in d.ways if 'ref' in e.tags}, 
+        self.assertEquals({e.tags['ref'] for e in d.ways if 'ref' in e.tags},
             {'3', '4', '5', '6', '7', '8'})
 
 
@@ -756,12 +756,12 @@ class TestAddressLayer(unittest.TestCase):
         self.assertTrue(self.pd_gml.isValid(), "Loading address")
         self.au_gml = QgsVectorLayer('test/address.gml|layername=adminUnitname', 'au', 'ogr')
         self.assertTrue(self.au_gml.isValid(), "Loading address")
-        
+
     def test_append(self):
         self.layer.append(self.address_gml)
         feat = self.layer.getFeatures().next()
         attrs = ['localId', 'PD_id', 'TN_id', 'AU_id']
-        values = ['38.012.1.12.0295603CS6109N', 'ES.SDGC.PD.38.012.38570', 
+        values = ['38.012.1.12.0295603CS6109N', 'ES.SDGC.PD.38.012.38570',
                   'ES.SDGC.TN.38.012.1', 'ES.SDGC.AU.38.012']
         for (attr, value) in zip(attrs, values):
             self.assertEquals(feat[attr], value)
@@ -787,7 +787,7 @@ class TestAddressLayer(unittest.TestCase):
 
     def test_join_void(self):
         self.layer.join_field(self.tn_gml, 'TN_id', 'gml_id', ['text'], 'TN_')
-        self.assertEquals(self.layer.featureCount(), 0)        
+        self.assertEquals(self.layer.featureCount(), 0)
 
     def test_to_osm(self):
         self.layer.append(self.address_gml)
@@ -839,9 +839,9 @@ class TestAddressLayer(unittest.TestCase):
         highway = HighwayLayer('test/highway.geojson', 'highway', 'ogr')
         highway_names = layer.get_highway_names(highway)
         test = {
-            'AV PAZ (FASNIA)': 'Avenida la Paz', 
+            'AV PAZ (FASNIA)': 'Avenida la Paz',
             'CL SAN JOAQUIN (FASNIA)': u'Calle San Joaquín',
-            'CL HOYO (FASNIA)': 'Calle el Hoyo', 
+            'CL HOYO (FASNIA)': 'Calle el Hoyo',
             'CJ CALLEJON (FASNIA)': u'Calleja/Callejón Callejon (Fasnia)'
         }
         for (k, v) in highway_names.items():
@@ -879,7 +879,7 @@ class TestDebugWriter(unittest.TestCase):
         writer = DebugWriter('test', QgsCoordinateReferenceSystem(4326), 'memory')
         self.assertEquals(writer.fields[0].name(), 'note')
         self.assertEquals(writer.hasError(), 0)
-        
+
     def test_add_point(self):
         writer = DebugWriter('test', QgsCoordinateReferenceSystem(4326), 'memory')
         writer.add_point(QgsPoint(0, 0), 'foobar')
