@@ -589,19 +589,22 @@ class TestConsLayer(unittest.TestCase):
 
     def test_add_topological_points(self):
         refs = [
-            ('8842708CS5284S', QgsPoint(358821.08, 3124205.68)),
-            ('8842708CS5284S_part1', QgsPoint(358821.08, 3124205.68)),
-            ('8942325CS5284S', QgsPoint(358789.2925, 3124247.643)),
-            ('8942325CS5284S_part1', QgsPoint(358789.2925, 3124247.643))
+            ('8842708CS5284S', QgsPoint(358821.08, 3124205.68), 0),
+            ('8842708CS5284S_part1', QgsPoint(358821.08, 3124205.68), 0),
+            ('8942325CS5284S', QgsPoint(358789.2925, 3124247.643), 0),
+            ('8942325CS5284S_part1', QgsPoint(358789.2925, 3124247.643), 0),
+            ('8942328CS5284S', QgsPoint(358857.04, 3124248.6705), 1),
+            ('8942328CS5284S_part3', QgsPoint(358857.04, 3124248.6705), 0)
         ]
-        self.layer.explode_multi_parts()
         for ref in refs:
             building = self.layer.search("localId = '%s'" % ref[0]).next()
-            self.assertNotIn(ref[1], building.geometry().asPolygon()[0])
+            poly = PolygonLayer.get_multipolygon(building)
+            self.assertNotIn(ref[1], poly[ref[2]][0])
         self.layer.add_topological_points()
         for ref in refs:
             building = self.layer.search("localId = '%s'" % ref[0]).next()
-            self.assertIn(ref[1], building.geometry().asPolygon()[0])
+            poly = PolygonLayer.get_multipolygon(building)
+            self.assertIn(ref[1], poly[ref[2]][0])
 
     def test_simplify1(self):
         refs = [
