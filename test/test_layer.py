@@ -673,7 +673,7 @@ class TestConsLayer(unittest.TestCase):
         refs = {
             '38.012.10.10.8643403CS5284S': 'Entrance',
             '38.012.10.11.8842304CS5284S': 'Entrance',
-            '38.012.10.13.8842305CS5284S': 'relation',
+            '38.012.10.13.8842305CS5284S': 'Entrance',
             '38.012.10.14.8643404CS5284S': 'corner',
             '38.012.10.14.8643406CS5284S': 'Parcel',
             '38.012.10.2.8642321CS5284S': 'Entrance',

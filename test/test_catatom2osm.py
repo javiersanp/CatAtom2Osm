@@ -106,7 +106,8 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.options.building = False
         self.m_app.start(self.m_app)
         self.m_app.get_current_bu_osm.assert_not_called()
-        # not new, buildings
+        # no address, buildings
+        self.m_app.options.address = False
         self.m_app.options.building = True
         self.m_app.start(self.m_app)
         self.m_app.get_current_bu_osm.assert_called_once_with()
@@ -174,6 +175,9 @@ class TestCatAtom2Osm(unittest.TestCase):
             mock.call(self.m_app.other_gml, {1, 2})
         ])
         building.move_address.assert_called_once_with(self.m_app.address, delete=False)
+        query = m_layer.BaseLayer.return_value.append.call_args_list[0][1]['query']
+        self.assertTrue(query({'localId': 'foo.bar.taz'}, {'including': ['taz']}))
+        self.assertFalse(query({'localId': 'foo.bar.taz'}, {'including': ['foo']}))
 
     @mock.patch('catatom2osm.log')
     @mock.patch('catatom2osm.layer')
