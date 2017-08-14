@@ -522,7 +522,6 @@ class TestConsLayer(unittest.TestCase):
             self.assertNotIn(feat['localId'], refs)
 
     def test_merge_building_parts(self):
-        self.layer.explode_multi_parts()
         self.layer.remove_parts_below_ground()
         (buildings, parts) = self.layer.index_of_building_and_parts()
         self.layer.merge_building_parts()
@@ -531,7 +530,7 @@ class TestConsLayer(unittest.TestCase):
                 for building in group:
                     building_area = round(building.geometry().area()*100)
                     parts_area = round(sum([part.geometry().area()
-                        for part in parts[ref]])*100)
+                        for part in parts[ref] if part['lev_above'] > 0])*100)
                     if building_area == parts_area:
                         request = QgsFeatureRequest()
                         request.setFilterFids([building.id()])
