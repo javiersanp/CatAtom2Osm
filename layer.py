@@ -809,7 +809,7 @@ class AddressLayer(BaseLayer):
                 to_clean.append(ad.id())
         if to_clean:
             self.deleteFeatures(to_clean)
-            log.info(_("Deleted %d addresses"), len(to_clean))
+            log.info(_("Deleted %d addresses without associated building"), len(to_clean))
 
     def get_highway_names(self, highway):
         """

@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-08-06 20:33+WEST\n"
+"POT-Creation-Date: 2017-08-13 10:06+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -41,7 +41,7 @@ msgstr "Buscando la url para la capa '%s' de '%s'..."
 msgid "Zip code '%s' don't exists"
 msgstr "El Código Postal '%s' no existe"
 
-#: catatom.py:73 catatom2osm.py:286
+#: catatom.py:73 catatom2osm.py:285
 msgid "Downloading '%s'"
 msgstr "Descargando '%s'"
 
@@ -97,63 +97,63 @@ msgstr "Inicializada la API de QGIS"
 msgid "Start processing '%s'"
 msgstr "Comienza el procesado de '%s'"
 
-#: catatom2osm.py:135
+#: catatom2osm.py:133
 msgid "Processing %s '%s' (%d of %d) in '%s'"
 msgstr "Procesando %s '%s' (%d de %d) en '%s'"
 
-#: catatom2osm.py:142
+#: catatom2osm.py:140
 msgid "Zone '%s' is empty"
 msgstr "La zona '%s' está vacía"
 
-#: catatom2osm.py:236
+#: catatom2osm.py:235
 msgid "Distribution of floors above ground %s"
 msgstr "Distribución de plantas sobre rasante %s"
 
-#: catatom2osm.py:237
+#: catatom2osm.py:236
 msgid "Distribution of floors below ground %s"
 msgstr "Distribución de plantas bajo rasante %s"
 
-#: catatom2osm.py:239
+#: catatom2osm.py:238
 msgid "Check %d fixme tags"
 msgstr "Revisa %d etiquetas fixme"
 
-#: catatom2osm.py:241
+#: catatom2osm.py:240
 msgid "The translation file '%s' have been writen in '%s'"
 msgstr "El fichero de conversiones '%s' ha sido generado en '%s'"
 
-#: catatom2osm.py:243
+#: catatom2osm.py:242
 msgid "Please, check it and run again"
 msgstr "Por favor, compruébelo y ejecute de nuevo"
 
-#: catatom2osm.py:245
+#: catatom2osm.py:244
 msgid "Finished!"
 msgstr "¡Terminado!"
 
-#: catatom2osm.py:246
+#: catatom2osm.py:245
 msgid "Only for testing purposses. Don't upload any result to OSM"
 msgstr "Sólo para fines de prueba. No cargue ningún resultado en OSM"
 
-#: catatom2osm.py:267
+#: catatom2osm.py:266
 msgid "Generated '%s'"
 msgstr "Generado '%s'"
 
-#: catatom2osm.py:269
+#: catatom2osm.py:268
 msgid "Failed to write layer: '%s'"
 msgstr "Error al escribir la capa: '%s'"
 
-#: catatom2osm.py:292
+#: catatom2osm.py:291
 msgid "No OSM data were obtained from '%s'"
 msgstr "No se obtuvieron datos OSM de '%s'"
 
-#: catatom2osm.py:294
+#: catatom2osm.py:293
 msgid "Read '%s': %d nodes, %d ways, %d relations"
 msgstr "Leído '%s': %d nodos, %d vías, %d relaciones"
 
-#: catatom2osm.py:314
+#: catatom2osm.py:313
 msgid "Generated '%s': %d nodes, %d ways, %d relations"
 msgstr "Generado '%s': %d nodos, %d vías, %d relaciones"
 
-#: catatom2osm.py:343
+#: catatom2osm.py:342
 msgid "Could not resolve joined tables for the '%s' layer"
 msgstr "No se pudieron resolver las tablas combinadas para la capa '%s'"
 
@@ -185,67 +185,67 @@ msgstr "Cargados %d nodos, %d vías, %d relaciones de la capa '%s'"
 msgid "%d multi-polygons splited into %d polygons in the '%s' layer"
 msgstr "%d multipolígonos divididos a %d poligonos en la capa '%s'"
 
-#: layer.py:506
+#: layer.py:523
 msgid "Merged %d close vertices in the '%s' layer"
 msgstr "Fusionados %d vértices próximos en la capa '%s'"
 
-#: layer.py:539
+#: layer.py:559
 msgid "Merged %d duplicated vertices of polygons in the '%s' layer"
 msgstr "Fusionados %d vértices de polígono duplicados en la capa '%s'"
 
-#: layer.py:543 layer.py:634
+#: layer.py:563 layer.py:652
 msgid "Deleted %d invalid geometries in the '%s' layer"
 msgstr "Eliminadas %d geometrías no válidas en la capa '%s'"
 
-#: layer.py:585
+#: layer.py:603
 msgid "Created %d topological points in the '%s' layer"
 msgstr "Creados %d puntos topológicos en la capa '%s'"
 
-#: layer.py:667
+#: layer.py:685
 msgid "Simplified %d vertices in the '%s' layer"
 msgstr "Simplificados %d vértices en la capa '%s'"
 
-#: layer.py:685
+#: layer.py:703
 msgid "%d adjacent polygons merged into %d polygons in the '%s' layer"
 msgstr "%d polígonos adyacentes fusionados a %d polígonos en la capa '%s'"
 
-#: layer.py:776
+#: layer.py:794
 msgid "Refused %d addresses existing in OSM"
 msgstr "Rechazadas %d direcciones existentes en OSM"
 
-#: layer.py:781
+#: layer.py:799
 msgid "Deleted %d addresses without house number"
 msgstr "Eliminadas %d direcciones sin número de portal"
 
-#: layer.py:794
-msgid "Deleted %d addresses"
-msgstr "Eliminadas %d direcciones"
+#: layer.py:812
+msgid "Deleted %d addresses without associated building"
+msgstr "Eliminadas %d direcciones sin edificio asociado"
 
-#: layer.py:882
+#: layer.py:895
 msgid "Deleted %d building parts with no floors above ground"
 msgstr "Eliminadas %d partes de edificio sin plantas sobre el nivel del suelo"
 
-#: layer.py:908
+#: layer.py:919
 msgid "Removed %d building parts outside the footprint"
 msgstr "Eliminadas %d partes de edificio fuera del contorno"
 
-#: layer.py:990
+#: layer.py:1017
 msgid "Merged %d building parts to footprint"
 msgstr "Fusionados %d partes de edificios al contorno"
 
-#: layer.py:1023
+#: layer.py:1050
 msgid "Removed %d duplicated inner rings"
 msgstr "Eliminados %d anillos interiores duplicados"
 
-#: layer.py:1099
-msgid "Deleted %d addresses, %d changed, %d moved"
-msgstr "Eliminadas %d direcciones, %d cambiadas, %d desplazadas"
+#: layer.py:1119
+msgid "Moved %d addresses to entrance, %d changed to parcel"
+msgstr "Desplazadas %d direcciones a entrada, %d cambiadas a parcela"
 
-#: layer.py:1118
+#: layer.py:1138
 msgid "Check, area too small"
 msgstr "Comprobar, área demasiado pequeña"
 
-#: layer.py:1121
+#: layer.py:1141
 msgid "Check, area too big"
 msgstr "Comprobar, área demasiado grande"
 
@@ -348,3 +348,5 @@ msgstr "Usando ElementTree"
 msgid "Failed to import ElementTree from any known place"
 msgstr "No se pudo importar ElementTree desde ningún lugar conocido"
 
+#~ msgid "Deleted %d addresses"
+#~ msgstr "Eliminadas %d direcciones"
