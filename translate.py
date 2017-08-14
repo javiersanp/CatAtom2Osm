@@ -68,9 +68,7 @@ def building_tags(feature):
     if feature['condition'] == 'ruin' and feature['currentUse'] == None:
         tags['abandoned:building'] = 'yes'
     if '_part' in feature['localId']:
-        tags['building:part'] = 'yes'
-        if feature['lev_above'] == 0:
-            tags['building:part'] = 'roof'
+        tags['building:part'] = 'roof' if feature['lev_above'] == 0 else 'yes'
     if feature['lev_above']:
         tags['building:levels'] = str(feature['lev_above'])
     if feature['lev_below']:
