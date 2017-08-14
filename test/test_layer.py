@@ -247,6 +247,33 @@ class TestPolygonLayer(unittest.TestCase):
         self.assertEquals(self.layer.featureCount(), self.fixture.featureCount())
         self.writer = self.layer.dataProvider()
 
+    def test_get_multipolygon(self):
+        p = [[QgsPoint(0,0), QgsPoint(1,0), QgsPoint(1,1), QgsPoint(0,0)]]
+        mp = [[[QgsPoint(2,0), QgsPoint(3,0), QgsPoint(3,1), QgsPoint(2,0)]], p]
+        f = QgsFeature(QgsFields())
+        f.setGeometry(QgsGeometry().fromPolygon(p))
+        self.assertEquals(PolygonLayer.get_multipolygon(f), [p])
+        f.setGeometry(QgsGeometry().fromMultiPolygon(mp))
+        self.assertEquals(PolygonLayer.get_multipolygon(f), mp)
+
+    def test_get_vertices_list(self):
+        p = [[QgsPoint(0,0), QgsPoint(1,0), QgsPoint(1,1), QgsPoint(0,0)]]
+        mp = [[[QgsPoint(2,0), QgsPoint(3,0), QgsPoint(3,1), QgsPoint(2,0)]], p]
+        f = QgsFeature(QgsFields())
+        f.setGeometry(QgsGeometry().fromMultiPolygon(mp))
+        v = [mp[0][0][0], mp[0][0][1], mp[0][0][2], p[0][0], p[0][1], p[0][2]]
+        self.assertEquals(PolygonLayer.get_vertices_list(f), v)
+
+    def test_get_outer_vertices(self):
+        p1 = [QgsPoint(1,1), QgsPoint(2,1), QgsPoint(2,2), QgsPoint(1,1)]
+        p2 = [QgsPoint(0,0), QgsPoint(3,0), QgsPoint(3,3), QgsPoint(0,0)]
+        p3 = [QgsPoint(4,0), QgsPoint(5,0), QgsPoint(5,1), QgsPoint(4,0)]
+        mp = [[p1, p2], [p3]]
+        f = QgsFeature(QgsFields())
+        f.setGeometry(QgsGeometry().fromMultiPolygon(mp))
+        v = p1[:-1] + p3[:-1]
+        self.assertEquals(PolygonLayer.get_outer_vertices(f), v)
+
     def test_explode_multi_parts(self):
         mp = [f for f in self.layer.getFeatures()
             if f.geometry().isMultipart()]
@@ -467,7 +494,6 @@ class TestConsLayer(unittest.TestCase):
             '7541415CS5274S']
         layer.append_task(fixture, processed)
         self.assertEquals(layer.featureCount(), 5)
-
 
     def test_remove_parts_below_ground(self):
         to_clean = [f.id() for f in self.layer.search('lev_above=0 and lev_below>0')]

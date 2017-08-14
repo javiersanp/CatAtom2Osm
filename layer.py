@@ -367,6 +367,26 @@ class PolygonLayer(BaseLayer):
         self.straight_thr = setup.straight_thr # Threshold in degrees from straight angle to delete a vertex
         self.dist_thr = setup.dist_thr # Threshold for topological points.
 
+    @staticmethod
+    def get_multipolygon(feature):
+        """Returns feature geometry always as a multipolgon"""
+        geom = feature.geometry()
+        if geom.wkbType() == QGis.WKBPolygon:
+            return [geom.asPolygon()]
+        return geom.asMultiPolygon()
+
+    @staticmethod
+    def get_vertices_list(feature):
+        """Returns list of all distinct vertices in feature geometry"""
+        return [point for part in PolygonLayer.get_multipolygon(feature) \
+            for ring in part for point in ring[0:-1]]
+
+    @staticmethod
+    def get_outer_vertices(feature):
+        """Returns list of all distinct vertices in feature geometry outer rings"""
+        return [point for part in PolygonLayer.get_multipolygon(feature) \
+            for point in part[0][0:-1]]
+
     def explode_multi_parts(self):
         """
         Creates a new WKBPolygon feature for each part of any WKBMultiPolygon
