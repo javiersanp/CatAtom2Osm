@@ -912,6 +912,22 @@ class ConsLayer(PolygonLayer):
         """Export to OSM"""
         return super(ConsLayer, self).to_osm(translate.building_tags, data, upload)
 
+    def index_of_building_and_parts(self):
+        """
+        Constructs some utility dicts.
+        buildings index building by localid (many if it was a multipart building).
+        parts index parts of building by building localid.
+        """
+        buildings = defaultdict(list)
+        parts = defaultdict(list)
+        for feature in self.getFeatures():
+            if self.is_building(feature):
+                buildings[feature['localId']].append(feature)
+            elif self.is_part(feature):
+                localId = feature['localId'].split('_')[0]
+                parts[localId].append(feature)
+        return (buildings, parts)
+
     def remove_outside_parts(self):
         """
         Remove parts outside the footprint of it building or without associated
@@ -953,51 +969,37 @@ class ConsLayer(PolygonLayer):
         parts_inside_footprint = [part for part in parts if is_inside(part, footprint)]
         area_for_level = defaultdict(list)
         levels_with_holes = []
+        parts_area = 0
         for part in parts_inside_footprint:
             level = (part['lev_above'], part['lev_below'])
             rings = part.geometry().asPolygon()
             area = part.geometry().area()
-            if len(rings) > 1:
-                levels_with_holes.append(level)
+            parts_area += area
             if level[0] > 0:
+                if len(rings) > 1:
+                    levels_with_holes.append(level)
                 area_for_level[level].append(area)
         to_clean = []
         to_change = {}
-        if area_for_level:
-            footprint_area = round(footprint.geometry().area()*100)
-            parts_area = round(sum(sum(v) for v in area_for_level.values()) * 100)
-            if footprint_area == parts_area:
-                if levels_with_holes:
-                    level_with_greatest_area = max(levels_with_holes,
-                        key=(lambda level: sum(area_for_level[level])))
-                else:
-                    level_with_greatest_area = max(area_for_level.iterkeys(),
-                        key=(lambda level: sum(area_for_level[level])))
-                for part in parts_inside_footprint:
-                    if (part['lev_above'], part['lev_below']) == level_with_greatest_area:
-                        to_clean.append(part.id())
-                if to_clean:
-                    attr = get_attributes(footprint)
-                    attr[self.fieldNameIndex('lev_above')] = level_with_greatest_area[0]
-                    attr[self.fieldNameIndex('lev_below')] = level_with_greatest_area[1]
-                    to_change[footprint.id()] = attr
+        footprint_area = round(footprint.geometry().area()*100)
+        if footprint_area == round(parts_area * 100):
+            if len(parts_inside_footprint) == 1:
+                level_with_greatest_area = level
+            elif levels_with_holes:
+                level_with_greatest_area = max(levels_with_holes,
+                    key=(lambda level: sum(area_for_level[level])))
+            else:
+                level_with_greatest_area = max(area_for_level.iterkeys(),
+                    key=(lambda level: sum(area_for_level[level])))
+            for part in parts_inside_footprint:
+                if (part['lev_above'], part['lev_below']) == level_with_greatest_area:
+                    to_clean.append(part.id())
+            if to_clean:
+                attr = get_attributes(footprint)
+                attr[self.fieldNameIndex('lev_above')] = level_with_greatest_area[0]
+                attr[self.fieldNameIndex('lev_below')] = level_with_greatest_area[1]
+                to_change[footprint.id()] = attr
         return to_clean, to_change
-
-    def index_of_building_and_parts(self):
-        """
-        Constructs some utility dicts.
-        buildings index building by localid (many if it was a multipart building).
-        parts index parts of building by building localid.
-        """
-        buildings = defaultdict(list)
-        parts = defaultdict(list)
-        for feature in self.getFeatures():
-            if self.is_building(feature):
-                buildings[feature['localId']].append(feature)
-            elif self.is_part(feature):
-                localId = feature['localId'].split('_')[0]
-                parts[localId].append(feature)
-        return (buildings, parts)
 
     def merge_building_parts(self):
         """Apply merge_greatest_part to each set of building and its parts"""
