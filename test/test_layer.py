@@ -682,15 +682,15 @@ class TestConsLayer(unittest.TestCase):
         address = AddressLayer()
         address_gml = QgsVectorLayer('test/address.gml', 'address', 'ogr')
         address.append(address_gml)
-        self.layer.explode_multi_parts()
         self.layer.move_address(address)
-        self.assertEquals(address.featureCount(), 7)
+        self.assertEquals(address.featureCount(), 14)
         for ad in address.getFeatures():
-            self.assertEquals(ad['spec'], refs[ad['localId']])
-            if ad['spec'] == 'Entrance':
-                refcat = ad['localId'].split('.')[-1]
-                building = self.layer.search("localId = '%s'" % refcat).next()
-                self.assertTrue(ad.geometry().touches(building.geometry()))
+            if ad['localId'] in refs.keys():
+                self.assertEquals(ad['spec'], refs[ad['localId']])
+                if ad['spec'] == 'Entrance':
+                    refcat = ad['localId'].split('.')[-1]
+                    building = self.layer.search("localId = '%s'" % refcat).next()
+                    self.assertTrue(ad.geometry().touches(building.geometry()))
 
     def test_check_levels_and_area(self):
         min_level = {}

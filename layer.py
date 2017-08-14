@@ -1063,33 +1063,26 @@ class ConsLayer(PolygonLayer):
         self.remove_duplicated_holes()
         self.simplify()
 
-    def move_address(self, address, delete=True):
+    def move_address(self, address):
         """
         Move each address to the nearest point in the footprint of its
         associated building (same cadastral reference), but only if:
 
-        * There aren't more than one associated building.
-
         * The address specification is Entrance.
 
         * The new position is enough close and is not a corner
-
-        If delete is True, remove the address if there aren't any associated building.
         """
-        ad_count = 0
-        to_clean = []
         to_change = {}
         to_move = {}
         to_insert = {}
         (buildings, parts) = self.index_of_building_and_parts()
         for ad in address.getFeatures():
-            ad_count += 1
             attributes = get_attributes(ad)
             refcat = ad['localId'].split('.')[-1]
             building_count = len(buildings[refcat])
-            if building_count == 0:
-                if delete: to_clean.append(ad.id())
-            elif building_count == 1:
+            if building_count > 1:
+                print refcat, building_count
+            if building_count == 1:
                 building = buildings[refcat][0]
                 if ad['spec'] == 'Entrance':
                     point = ad.geometry().asPoint()
@@ -1120,13 +1113,11 @@ class ConsLayer(PolygonLayer):
             else:
                 attributes[ad.fieldNameIndex('spec')] = 'relation'
                 to_change[ad.id()] = attributes
-        if delete:
-            address.deleteFeatures(to_clean)
         address.writer.changeAttributeValues(to_change)
         address.writer.changeGeometryValues(to_move)
         self.writer.changeGeometryValues(to_insert)
-        log.debug(_("Deleted %d addresses, %d changed, %d moved"), len(to_clean),
-            len(to_change), len(to_move))
+        log.debug(_("Moved %d addresses to entrance, %d changed to parcel"),
+            len(to_move), len(to_change))
 
     def check_levels_and_area(self, min_level, max_level):
         """Shows distribution of floors and put fixmes to buildings too small or big"""
