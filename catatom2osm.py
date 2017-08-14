@@ -88,7 +88,6 @@ class CatAtom2Osm:
     def start(self):
         """Initializes data sets"""
         log.info(_("Start processing '%s'"), self.zip_code)
-        self.address_gml = None
         self.cat.get_boundary()
         self.get_zoning()
         self.is_new = False
@@ -147,7 +146,7 @@ class CatAtom2Osm:
             if self.other_gml:
                 building.append_task(self.other_gml, task)
             building.remove_outside_parts()
-            building.explode_multi_parts()
+            building.explode_multi_parts(getattr(self, 'address', False))
             building.remove_parts_below_ground()
             building.clean()
             temp_address = None
@@ -197,7 +196,7 @@ class CatAtom2Osm:
             del self.other_gml
         if self.debug: self.export_layer(building, 'building.shp')
         building.remove_outside_parts()
-        building.explode_multi_parts()
+        building.explode_multi_parts(getattr(self, 'address', False))
         building.remove_parts_below_ground()
         building.clean()
         if self.options.address:
