@@ -278,9 +278,14 @@ class TestPolygonLayer(unittest.TestCase):
         mp = [f for f in self.layer.getFeatures()
             if f.geometry().isMultipart()]
         self.assertGreater(len(mp), 0, "There are multipart features")
+        features_before = self.layer.featureCount()
+        request = QgsFeatureRequest()
+        request.setFilterFid(mp[0].id())
+        nparts = len(mp[0].geometry().asMultiPolygon())
+        self.layer.explode_multi_parts(request)
+        self.assertEquals(features_before + nparts - 1, self.layer.featureCount())
         nparts = sum([len(f.geometry().asMultiPolygon()) for f in mp])
         self.assertGreater(nparts, len(mp), "With more than one part")
-        features_before = self.layer.featureCount()
         self.assertTrue(nparts > 1, "Find a multipart feature")
         self.layer.explode_multi_parts()
         m = "After exploding there must be more features than before"
@@ -306,9 +311,10 @@ class TestPolygonLayer(unittest.TestCase):
         vertices = self.layer.get_vertices()
         vcount = 0
         for feature in self.layer.getFeatures():
-            for ring in feature.geometry().asPolygon():
-                for point in ring[0:-1]:
-                    vcount += 1
+            for part in PolygonLayer.get_multipolygon(feature):
+                for ring in part:
+                    for point in ring[0:-1]:
+                        vcount += 1
         self.assertEquals(vcount, vertices.featureCount())
 
     def test_get_duplicates(self):

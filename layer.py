@@ -387,16 +387,16 @@ class PolygonLayer(BaseLayer):
         return [point for part in PolygonLayer.get_multipolygon(feature) \
             for point in part[0][0:-1]]
 
-    def explode_multi_parts(self):
+    def explode_multi_parts(self, request=QgsFeatureRequest()):
         """
         Creates a new WKBPolygon feature for each part of any WKBMultiPolygon
-        feature in the layer. This avoid relations with may 'outer' members in
+        feature in request. This avoid relations with may 'outer' members in
         OSM data set. From this moment, localId will not be a unique identifier
         for buildings.
         """
         to_clean = []
         to_add = []
-        for feature in self.getFeatures():
+        for feature in self.getFeatures(request):
             geom = feature.geometry()
             if geom.wkbType() == QGis.WKBMultiPolygon:
                 for part in geom.asMultiPolygon():
@@ -420,10 +420,8 @@ class PolygonLayer(BaseLayer):
         features = {}
         for feature in self.getFeatures():
             features[feature.id()] = feature
-            geom = feature.geometry()
-            for ring in geom.asPolygon():
-                for point in ring[0:-1]:
-                    parents_per_vertex[point].append(feature.id())
+            for point in self.get_vertices_list(feature):
+                parents_per_vertex[point].append(feature.id())
         return (parents_per_vertex, features)
 
     def get_adjacents_and_features(self):
@@ -462,12 +460,11 @@ class PolygonLayer(BaseLayer):
         vertices = QgsVectorLayer("Point", "vertices", "memory")
         to_add = []
         for feature in self.getFeatures():
-            for ring in feature.geometry().asPolygon():
-                for point in ring[0:-1]:
-                    feat = QgsFeature(QgsFields())
-                    geom = QgsGeometry.fromPoint(point)
-                    feat.setGeometry(geom)
-                    to_add.append(feat)
+            for point in self.get_vertices_list(feature):
+                feat = QgsFeature(QgsFields())
+                geom = QgsGeometry.fromPoint(point)
+                feat.setGeometry(geom)
+                to_add.append(feat)
         vertices.dataProvider().addFeatures(to_add)
         return vertices
 
@@ -535,21 +532,24 @@ class PolygonLayer(BaseLayer):
         to_clean = []
         to_change = {}
         for feature in self.getFeatures():
-            geom = feature.geometry()
-            replace = False
             new_polygon = []
-            for ring in geom.asPolygon():
-                if ring:
-                    merged = [ring[0]]
-                    for i, point in enumerate(ring[1:]):
-                        if point == ring[i]:
-                            dupes += 1
-                            replace=True
-                        else:
-                            merged.append(point)
-                    new_polygon.append(merged)
-            if replace:
-                new_geom = QgsGeometry().fromPolygon(new_polygon)
+            for part in self.get_multipolygon(feature):
+                new_part = []
+                for ring in part:
+                    if ring:
+                        merged = [ring[0]]
+                        for i, point in enumerate(ring[1:]):
+                            if point == ring[i]:
+                                dupes += 1
+                            else:
+                                merged.append(point)
+                        new_part.append(merged)
+                new_polygon.append(new_part)
+            if dupes:
+                if len(new_polygon) > 1:
+                    new_geom = QgsGeometry().fromMultiPolygon(new_polygon)
+                else:
+                    new_geom = QgsGeometry().fromPolygon(new_polygon[0])
                 if new_geom and new_geom.isGeosValid():
                     to_change[feature.id()] = new_geom
                 else:
@@ -572,11 +572,9 @@ class PolygonLayer(BaseLayer):
             debshp = DebugWriter("debug_topology.shp", self.crs())
         index = QgsSpatialIndex(self.getFeatures())
         features = {feat.id(): feat for feat in self.getFeatures()}
-
         to_change = {}
         for feature in features.values():
-            geom = feature.geometry()
-            for point in geom.asPolygon()[0][0:-1]: # excludes inner rings and last point:
+            for point in self.get_outer_vertices(feature):
                 area_of_candidates = Point(point).boundingBox(threshold)
                 for fid in index.intersects(area_of_candidates):
                     candidate = features[fid]
