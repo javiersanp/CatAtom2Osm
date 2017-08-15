@@ -991,17 +991,20 @@ class ConsLayer(PolygonLayer):
         to_change = {}
         footprint_area = round(footprint.geometry().area()*100)
         if footprint_area == round(parts_area * 100):
+            level_with_greatest_area = None
             if len(parts_inside_footprint) == 1:
                 level_with_greatest_area = level
-            elif levels_with_holes:
-                level_with_greatest_area = max(levels_with_holes,
-                    key=(lambda level: sum(area_for_level[level])))
-            else:
-                level_with_greatest_area = max(area_for_level.iterkeys(),
-                    key=(lambda level: sum(area_for_level[level])))
-            for part in parts_inside_footprint:
-                if (part['lev_above'], part['lev_below']) == level_with_greatest_area:
-                    to_clean.append(part.id())
+            elif area_for_level:
+                if levels_with_holes:
+                    level_with_greatest_area = max(levels_with_holes,
+                        key=(lambda level: sum(area_for_level[level])))
+                else:
+                    level_with_greatest_area = max(area_for_level.iterkeys(),
+                        key=(lambda level: sum(area_for_level[level])))
+            if level_with_greatest_area is not None:
+                for part in parts_inside_footprint:
+                    if (part['lev_above'], part['lev_below']) == level_with_greatest_area:
+                        to_clean.append(part.id())
             if to_clean:
                 attr = get_attributes(footprint)
                 attr[self.fieldNameIndex('lev_above')] = level_with_greatest_area[0]
