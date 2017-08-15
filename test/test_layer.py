@@ -535,29 +535,6 @@ class TestConsLayer(unittest.TestCase):
         to_clean = [f.id() for f in self.layer.search('lev_above=0 and lev_below>0')]
         self.assertEquals(len(to_clean), 0, 'There are not parts below ground')
 
-    def test_merge_greatest_part(self):
-        refs = {'9042901CS5294S': 2, # 2 parts inside with a hole, 1 outside
-                '8646414CS5284N': 0, '8442825CS5284S': 0,  # single part
-                '8544910CS5284S': 1, # 2 parts inside
-                '8544911CS5284S': 3, # 4 parts inside
-                '8645910CS5284N': 2, # 3 parts, one inside
-                '8342404CS5284S': 0, # 4 parts inside in the same floor
-        }
-        self.layer.explode_multi_parts()
-        for ref in refs.keys():
-            building = self.layer.search("localId = '%s'" % ref).next()
-            self.assertEquals(building['localId'], ref, "Find building")
-            parts = [f for f in self.layer.search("localId LIKE '%%%s_part%%'" % ref)]
-            self.assertTrue(self.layer.startEditing())
-            to_clean, to_change = self.layer.merge_greatest_part(building, parts)
-            self.writer.deleteFeatures(to_clean)
-            self.writer.changeAttributeValues(to_change)
-            oparts = [f for f in self.layer.search("localId LIKE '%%%s_part%%'" % ref)]
-            self.assertTrue(self.layer.commitChanges())
-            self.assertEquals(refs[ref], len(oparts), "Number of parts %s "
-                "%d != %d" % (ref, refs[ref], len(oparts)))
-            self.assertGreater(building['lev_above'], 0, "Copy levels")
-
     def test_index_of_building_and_parts(self):
         (buildings, parts) = self.layer.index_of_building_and_parts()
         b = [f for f in self.layer.getFeatures() if self.layer.is_building(f)]
@@ -581,6 +558,32 @@ class TestConsLayer(unittest.TestCase):
         self.layer.remove_outside_parts()
         for feat in self.layer.getFeatures():
             self.assertNotIn(feat['localId'], refs)
+
+    def test_merge_greatest_part(self):
+        refs = {'11122233344455': 3, # 4 parts inside with 2 holes
+                '9042901CS5294S': 2, # 2 parts inside with a hole, 1 outside
+                '8646414CS5284N': 0, '8442825CS5284S': 0,  # single part
+                '8544910CS5284S': 1, # 2 parts inside
+                '8544911CS5284S': 3, # 4 parts inside
+                '8645910CS5284N': 2, # 3 parts, one inside
+                '8342404CS5284S': 0, # 4 parts inside in the same floor
+        }
+        self.layer.explode_multi_parts()
+        for ref in refs.keys():
+            building = self.layer.search("localId = '%s'" % ref).next()
+            self.assertEquals(building['localId'], ref, "Find building")
+            parts = [f for f in self.layer.search("localId LIKE '%%%s_part%%'" % ref)]
+            self.assertTrue(self.layer.startEditing())
+            to_clean, to_change = self.layer.merge_greatest_part(building, parts)
+            if ref == '11122233344455':
+                self.assertEqual(to_change.values()[0][6], 1)
+            self.writer.deleteFeatures(to_clean)
+            self.writer.changeAttributeValues(to_change)
+            oparts = [f for f in self.layer.search("localId LIKE '%%%s_part%%'" % ref)]
+            self.assertTrue(self.layer.commitChanges())
+            self.assertEquals(refs[ref], len(oparts), "Number of parts %s "
+                "%d != %d" % (ref, refs[ref], len(oparts)))
+            self.assertGreater(building['lev_above'], 0, "Copy levels")
 
     def test_merge_building_parts(self):
         self.layer.remove_parts_below_ground()

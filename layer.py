@@ -988,13 +988,14 @@ class ConsLayer(PolygonLayer):
             main_level = None
             holes = False
             maxarea = 0
-            for level, area in area_for_level.items():
+            for level, parts in parts_for_level.items():
                 if level[0] > 0 or len(parts_inside_footprint) == 1:
-                    rings = part.geometry().asPolygon()
-                    if len(rings) > 1:
+                    area = area_for_level[level]
+                    hole = any([len(p.geometry().asPolygon()) > 1 for p in parts])
+                    if hole:
                         holes = True
                         maxarea = 0
-                    if area > maxarea and (not holes or len(rings) > 1):
+                    if area > maxarea and (not holes or hole):
                         maxarea = area
                         main_level = level
             if main_level is not None:
