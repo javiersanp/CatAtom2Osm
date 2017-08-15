@@ -859,7 +859,6 @@ class ConsLayer(PolygonLayer):
                 QgsField('lev_above', QVariant.Int),
                 QgsField('lev_below', QVariant.Int),
                 QgsField('nature', QVariant.String, len=254),
-                QgsField('task', QVariant.String, len=254),
                 QgsField('fixme', QVariant.String, len=254)
             ])
             self.updateFields()
