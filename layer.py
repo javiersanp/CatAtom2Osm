@@ -974,41 +974,35 @@ class ConsLayer(PolygonLayer):
             rings to reduce relations, translate the number of floors
             values to the footprint and deletes all the parts in that level.
         """
-        parts_inside_footprint = [part for part in parts if is_inside(part, footprint)]
-        area_for_level = defaultdict(list)
-        levels_with_holes = []
-        parts_area = 0
-        for part in parts_inside_footprint:
-            level = (part['lev_above'], part['lev_below'])
-            rings = part.geometry().asPolygon()
-            area = part.geometry().area()
-            parts_area += area
-            if level[0] > 0:
-                if len(rings) > 1:
-                    levels_with_holes.append(level)
-                area_for_level[level].append(area)
         to_clean = []
         to_change = {}
+        parts_inside_footprint = [part for part in parts if is_inside(part, footprint)]
+        area_for_level = Counter()
+        parts_for_level = defaultdict(list)
+        for part in parts_inside_footprint:
+            level = (part['lev_above'], part['lev_below'])
+            area_for_level[level] += part.geometry().area()
+            parts_for_level[level].append(part)
         footprint_area = round(footprint.geometry().area()*100)
+        parts_area = sum(area_for_level.values())
         if footprint_area == round(parts_area * 100):
-            level_with_greatest_area = None
-            if len(parts_inside_footprint) == 1:
-                level_with_greatest_area = level
-            elif area_for_level:
-                if levels_with_holes:
-                    level_with_greatest_area = max(levels_with_holes,
-                        key=(lambda level: sum(area_for_level[level])))
-                else:
-                    level_with_greatest_area = max(area_for_level.iterkeys(),
-                        key=(lambda level: sum(area_for_level[level])))
-            if level_with_greatest_area is not None:
-                for part in parts_inside_footprint:
-                    if (part['lev_above'], part['lev_below']) == level_with_greatest_area:
-                        to_clean.append(part.id())
-            if to_clean:
+            main_level = None
+            holes = False
+            maxarea = 0
+            for level, area in area_for_level.items():
+                if level[0] > 0 or len(parts_inside_footprint) == 1:
+                    rings = part.geometry().asPolygon()
+                    if len(rings) > 1:
+                        holes = True
+                        maxarea = 0
+                    if area > maxarea and (not holes or len(rings) > 1):
+                        maxarea = area
+                        main_level = level
+            if main_level is not None:
+                to_clean = [p.id() for p in parts_for_level[main_level]]
                 attr = get_attributes(footprint)
-                attr[self.fieldNameIndex('lev_above')] = level_with_greatest_area[0]
-                attr[self.fieldNameIndex('lev_below')] = level_with_greatest_area[1]
+                attr[self.fieldNameIndex('lev_above')] = main_level[0]
+                attr[self.fieldNameIndex('lev_below')] = main_level[1]
                 to_change[footprint.id()] = attr
         return to_clean, to_change
 
