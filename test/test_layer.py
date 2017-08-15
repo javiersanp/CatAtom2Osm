@@ -192,6 +192,17 @@ class TestBaseLayer(unittest.TestCase):
         self.assertLess(abs(geom_in.area() - geom_out.area()), 1E8)
         self.assertEquals(feature_in.attributes(), feature_out.attributes())
 
+    @mock.patch('layer.QgsSpatialIndex')
+    def test_get_index(self, m_index):
+        layer = mock.MagicMock()
+        layer.test = BaseLayer.get_index.__func__
+        layer.featureCount.return_value = 0
+        layer.test(layer)
+        m_index.assert_called_once_with()
+        layer.featureCount.return_value = 1
+        layer.test(layer)
+        m_index.assert_called_with(layer.getFeatures.return_value)
+
     @mock.patch('layer.QgsVectorFileWriter')
     @mock.patch('layer.os')
     def test_export_default(self, mock_os, mock_fw):

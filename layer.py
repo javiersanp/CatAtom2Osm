@@ -262,6 +262,14 @@ class BaseLayer(QgsVectorLayer):
             self.writer.changeAttributeValues(to_change)
             self.deleteFeatures(to_clean)
 
+    def get_index(self):
+        """Returns a QgsSpatialIndex of all features in this layer (overpass 
+        QGIS exception for void layers)"""
+        if self.featureCount() > 0:
+            return QgsSpatialIndex(self.getFeatures())
+        else:
+            return QgsSpatialIndex()
+
     def export(self, path, driver_name="ESRI Shapefile", overwrite=True):
         """Write layer to file
 
@@ -457,7 +465,7 @@ class PolygonLayer(BaseLayer):
 
     def get_vertices(self):
         """Returns a in memory layer with the coordinates of each vertex"""
-        vertices = QgsVectorLayer("Point", "vertices", "memory")
+        vertices = BaseLayer("Point", "vertices", "memory")
         to_add = []
         for feature in self.getFeatures():
             for point in self.get_vertices_list(feature):
@@ -475,7 +483,7 @@ class PolygonLayer(BaseLayer):
         """
         vertices = self.get_vertices()
         vertices_by_fid = {feat.id(): feat for feat in vertices.getFeatures()}
-        index = QgsSpatialIndex(vertices.getFeatures())
+        index = vertices.get_index()
         dup_thr = self.dup_thr if dup_thr is None else dup_thr
         duplicates = defaultdict(list)
         for vertex in vertices.getFeatures():
@@ -570,7 +578,7 @@ class PolygonLayer(BaseLayer):
         tp = 0
         if log.getEffectiveLevel() <= logging.DEBUG:
             debshp = DebugWriter("debug_topology.shp", self.crs())
-        index = QgsSpatialIndex(self.getFeatures())
+        index = self.get_index()
         features = {feat.id(): feat for feat in self.getFeatures()}
         to_change = {}
         for feature in features.values():
@@ -821,7 +829,7 @@ class AddressLayer(BaseLayer):
         Returns:
             (dict) highway names translations
         """
-        index = QgsSpatialIndex(highway.getFeatures())
+        index = highway.get_index()
         features = {feat.id(): feat for feat in highway.getFeatures()}
         highway_names = {}
         for feat in self.getFeatures():
@@ -1148,7 +1156,7 @@ class ConsLayer(PolygonLayer):
         Removes from current_bu_osm the buildings that don't have conflicts.
         If delete=False, only mark buildings with conflicts
         """
-        index = QgsSpatialIndex(self.getFeatures())
+        index = self.get_index()
         for el in frozenset(current_bu_osm.elements):
             poly = None
             if el.type == 'way' and el.is_closed() and 'building' in el.tags:
