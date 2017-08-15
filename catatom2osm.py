@@ -167,7 +167,8 @@ class CatAtom2Osm:
             del temp_address
 
     def process_address(self):
-        self.address.del_address(self.building_osm)
+        if self.options.building:
+            self.address.del_address(self.building_osm)
         self.address.reproject()
         address_osm = self.address.to_osm()
         del self.address
