@@ -282,9 +282,30 @@ class Way(Element):
         """Replaces first occurence of node n1 with n2"""
         self.nodes = [n2 if n is n1 else n for n in self.nodes]
 
+    def __eq__(self, other):
+        """Used to determine if two elements could be merged."""
+        if isinstance(other, self.__class__):
+            a = dict(self.__dict__)
+            b = dict(other.__dict__)
+            if other.is_new() or self.is_new(): a['id'] = 0
+            if other.is_new() or self.is_new(): b['id'] = 0
+            if b['tags'] == {}: a['tags'] = {}
+            if a['tags'] == {}: b['tags'] = {}
+            a['nodes'] = self.geometry()
+            b['nodes'] = other.geometry()
+            return a == b
+        elif self.is_new() and self.tags == {}:
+            i = other.index(min(other))
+            return self.geometry() == other[i:] + other[1:i+1]
+        return False
+
     def geometry(self):
         """Returns tuple of coordinates"""
-        return tuple(n.geometry() for n in self.nodes)
+        g = tuple(n.geometry() for n in self.nodes)
+        if self.is_closed():
+            i = g.index(min(g))
+            g = g[i:] + g[1:i+1]
+        return g
     
     def clean_duplicated_nodes(self):
         """Removes consecutive duplicate nodes"""

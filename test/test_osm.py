@@ -102,6 +102,7 @@ class TestOsm(OsmTestCase):
         n1 = self.d.Node(1,1)
         n2 = self.d.Node(2,2)
         n3 = self.d.Node(3,3, {'a': 'b'})
+        n3id = n3.id
         n4 = self.d.Node(4,4)
         n4.id = 1
         n5 = self.d.Node(4,4)
@@ -111,10 +112,15 @@ class TestOsm(OsmTestCase):
         n8 = self.d.Node(5,5, {'a': '1'})
         n9 = self.d.Node(5,5, {'b': '2'})
         n10 = self.d.Node(5,5)
-        w = self.d.Way([(1,1), (1,0), (2,2), (3,2), (3,3)])
-        r = self.d.Relation([w, n3])
-        self.assertFalse(w.nodes[0] is n1)
-        self.assertFalse(w.nodes[2] is n2)
+        w1 = self.d.Way([(1,1), (1,0), (2,2), (3,2), (3,3)])
+        w1id = w1.id
+        r1 = self.d.Relation([w1, n3])
+        w2 = self.d.Way([(1,1), (1,0), (2,2), (3,2), (3,3)], {'x': 'y'})
+        w2id = w2.id
+        r2 = self.d.Relation([w2])
+        self.assertFalse(w1.nodes[0] is n1)
+        self.assertFalse(w1.nodes[2] is n2)
+        self.assertNotEquals(r1.members[0].ref, r2.members[0].ref)
         self.d.merge_duplicated()
         duped = Counter()
         for n in self.d.nodes:
@@ -124,11 +130,17 @@ class TestOsm(OsmTestCase):
                 self.assertEquals(count, 2)
             else:
                 self.assertEquals(count, 1)
-        self.assertIn(w.nodes[0], self.d.elements)
-        self.assertIn(w.nodes[2], self.d.elements)
-        self.assertEquals(w.nodes[4].tags['a'], 'b')
+        self.assertIn(w1.nodes[0], self.d.elements)
+        self.assertIn(w1.nodes[2], self.d.elements)
+        self.assertEquals(w1.nodes[4].id, n3id)
+        self.assertEquals(w1.nodes[4].tags['a'], 'b')
         self.assertIn(n8, self.d.elements)
         self.assertIn(n9, self.d.elements)
+        self.assertEquals(r1.members[0].ref, w2id)
+        self.assertEquals(r2.members[0].ref, w2id)
+        self.assertEquals(r1.members[0].element.tags['x'], 'y')
+        self.assertEquals(r2.members[0].element.tags['x'], 'y')
+        self.assertNotIn(w1id, self.d.index)
 
     def test_attrs(self):
         self.assertEquals(self.d.attrs, dict(upload='never', version='0.6'))
@@ -315,7 +327,7 @@ class TestOsmWay(OsmTestCase):
 
     def test_replace(self):
         n1 = self.d.Node(1,1)
-        n2 = self.d.Node(1,2)
+        n2 = self.d.Node(1,2)   
         n3 = self.d.Node(2,3)
         n4 = self.d.Node(3,4)
         w = self.d.Way([n1, n2, n4])
@@ -329,7 +341,25 @@ class TestOsmWay(OsmTestCase):
         self.assertEquals(w1, w2)
         n.tags['foo'] = 'bar'
         self.assertEquals(w1, w2)
-        
+        g = tuple((x, x) for x in range(7)) + ((0,0),)
+        w1 = self.d.Way(g, dict(foo='bar'))
+        w2 = self.d.Way(g[3:] + g[1:4])
+        self.assertEquals(w1, w2)
+        g = g[3:] + g[1:4]
+        w1.tags = {}
+        self.assertEquals(w1, g)
+        self.assertEquals(w2, g)
+
+    def test_ne(self):
+        n = self.d.Node(1,1)
+        w1 = self.d.Way([n, (2,2), (3,3)])
+        w2 = self.d.Way([(2,2), (3,3), (1,1)])
+        self.assertNotEquals(w1, w2)
+        g1 = tuple((x, x) for x in range(7)) + ((0,0),)
+        g2 = tuple((x, x) for x in range(8)) + ((0,0),)
+        w1 = self.d.Way(g1)
+        self.assertNotEquals(w1, g2)
+
     def test_is_open(self):
         w = self.d.Way(((1,1), (2,2)))
         self.assertTrue(w.is_open())
@@ -340,9 +370,13 @@ class TestOsmWay(OsmTestCase):
         self.assertTrue(w.is_closed())
 
     def test_geometry(self):
-        g = ((1,1), (2,2), (3,3))
-        w = self.d.Way(g)
-        self.assertEquals(w.geometry(), g)
+        g = tuple((x, x) for x in range(7)) + ((0,0),)
+        w1 = self.d.Way(g)
+        w2 = self.d.Way(g[3:] + g[1:4])
+        w3 = self.d.Way(g[:4])
+        self.assertEquals(w1.geometry(), g)
+        self.assertEquals(w2.geometry(), g)
+        self.assertEquals(w3.geometry(), g[:4])
         
     def test_clean_duplicated_nodes(self):
         w = self.d.Way([(0,0), (1,1), (1,1), (2,2)])

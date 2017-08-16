@@ -1143,7 +1143,6 @@ class ConsLayer(PolygonLayer):
         Removes from current_bu_osm the buildings that don't have conflicts.
         If delete=False, only mark buildings with conflicts
         """
-        return
         index = self.get_index()
         for el in frozenset(current_bu_osm.elements):
             poly = None
