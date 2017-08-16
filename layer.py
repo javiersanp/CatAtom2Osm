@@ -965,12 +965,11 @@ class ConsLayer(PolygonLayer):
         * If the area of the parts above ground is equal to the area of the
           footprint.
 
-          * Sum the area for all the parts with the same level. Level is the
-            pair of values 'lev_above' and 'lev_below' (number of floors
+          * Sum the outer area for all the parts with the same level. Level 
+            is the pair of values 'lev_above' and 'lev_below' (number of floors
             above, and below groud).
 
-          * For the level with greatest area, giving priority to parts with
-            rings to reduce relations, translate the number of floors
+          * For the level with greatest area, translate the number of floors
             values to the footprint and deletes all the parts in that level.
         """
         to_clean = []
@@ -978,32 +977,23 @@ class ConsLayer(PolygonLayer):
         parts_inside_footprint = [part for part in parts if is_inside(part, footprint)]
         area_for_level = Counter()
         parts_for_level = defaultdict(list)
+        parts_area = 0
         for part in parts_inside_footprint:
+            rings = part.geometry().asPolygon()
+            outer = QgsGeometry().fromPolygon([rings[0]])
             level = (part['lev_above'], part['lev_below'])
-            area_for_level[level] += part.geometry().area()
+            if level[0] > 0 or len(parts_inside_footprint) == 1:
+                area_for_level[level] += outer.area()
+            parts_area += part.geometry().area()
             parts_for_level[level].append(part)
         footprint_area = round(footprint.geometry().area()*100)
-        parts_area = sum(area_for_level.values())
         if footprint_area == round(parts_area * 100):
-            main_level = None
-            holes = False
-            maxarea = 0
-            for level, parts in parts_for_level.items():
-                if level[0] > 0 or len(parts_inside_footprint) == 1:
-                    area = area_for_level[level]
-                    hole = any([len(p.geometry().asPolygon()) > 1 for p in parts])
-                    if hole:
-                        holes = True
-                        maxarea = 0
-                    if area > maxarea and (not holes or hole):
-                        maxarea = area
-                        main_level = level
-            if main_level is not None:
-                to_clean = [p.id() for p in parts_for_level[main_level]]
-                attr = get_attributes(footprint)
-                attr[self.fieldNameIndex('lev_above')] = main_level[0]
-                attr[self.fieldNameIndex('lev_below')] = main_level[1]
-                to_change[footprint.id()] = attr
+            main_level = max(area_for_level, key=(lambda k: area_for_level[k]))
+            to_clean = [p.id() for p in parts_for_level[main_level]]
+            attr = get_attributes(footprint)
+            attr[self.fieldNameIndex('lev_above')] = main_level[0]
+            attr[self.fieldNameIndex('lev_below')] = main_level[1]
+            to_change[footprint.id()] = attr
         return to_clean, to_change
 
     def merge_building_parts(self):
@@ -1153,6 +1143,7 @@ class ConsLayer(PolygonLayer):
         Removes from current_bu_osm the buildings that don't have conflicts.
         If delete=False, only mark buildings with conflicts
         """
+        return
         index = self.get_index()
         for el in frozenset(current_bu_osm.elements):
             poly = None
