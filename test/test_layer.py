@@ -711,7 +711,7 @@ class TestConsLayer(unittest.TestCase):
         max_level = {}
         refs = ['7239208CS5273N', '38012A00400007']
         self.layer.check_levels_and_area(min_level, max_level)
-        for (l, v) in {1: 465, 2: 244, 3: 97, 4: 18, 5: 1}.items():
+        for (l, v) in {1: 466, 2: 245, 3: 98, 4: 19, 5: 1}.items():
             self.assertEquals(Counter(max_level.values())[l], v)
         for (l, v) in {1: 153, 2: 7}.items():
             self.assertEquals(Counter(min_level.values())[l], v)

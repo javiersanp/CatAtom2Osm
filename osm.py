@@ -91,7 +91,7 @@ class Osm(object):
         for geom, dupes in geomdupes.items():
             if len(dupes) > 1:
                 i = 0   # first element in dupes with different tags or id
-                while i < len(dupes) -  1 and dupes[i] == geom:
+                while i < len(dupes) - 1 and dupes[i] == geom:
                     i += 1  # see __eq__ method of Element
                 for el in dupes:
                     if el is not dupes[i] and el == dupes[i]: 
@@ -284,7 +284,9 @@ class Way(Element):
 
     def __eq__(self, other):
         """Used to determine if two elements could be merged."""
-        if isinstance(other, self.__class__):
+        if self.is_open():
+            return super(Way, self).__eq__(other)
+        elif isinstance(other, self.__class__):
             a = dict(self.__dict__)
             b = dict(other.__dict__)
             if other.is_new() or self.is_new(): a['id'] = 0
