@@ -375,35 +375,24 @@ class CatAtom2Osm:
         address_index = {}
         for ad in address_osm.nodes:
             address_index[ad.tags['ref']] = ad
-        building_index = defaultdict(list)
+        building_index = {}
         for bu in building_osm.elements:
             if 'ref' in bu.tags:
-                building_index[bu.tags['ref']].append(bu)
-        for (ref, group) in building_index.items():
+                building_index[bu.tags['ref']] = bu
+        for (ref, bu) in building_index.items():
             if ref in address_index:
                 ad = address_index[ref]
-                if len(group) > 1:
-                    r = building_osm.Relation()
-                    r.tags.update(ad.tags)
-                    r.tags['type'] = 'multipolygon'
-                    if 'entrance' in r.tags: del r.tags['entrance']
-                    if 'ref' in r.tags: del r.tags['ref']
-                    for bu in group:
-                        if isinstance(bu, osm.Relation):
-                            map(lambda m: r.append(m.element, 'outer'),  
-                                [m for m in bu.members if m.role == 'outer'])
-                        else:
-                            r.append(bu, 'outer')
-                else:
-                    bu = group[0]
-                    if 'entrance' in ad.tags:
-                        footprint = bu if isinstance(bu, osm.Way) \
-                            else bu.members[0].element
-                        entrance = footprint.search_node(ad.x, ad.y)
+                if 'entrance' in ad.tags:
+                    footprint = [bu] if isinstance(bu, osm.Way) \
+                        else [m.element for m in bu.members if m.role == 'outer']
+                    for w in footprint:
+                        entrance = w.search_node(ad.x, ad.y)
                         if entrance:
                             entrance.tags.update(ad.tags)
-                    else:
-                        bu.tags.update(ad.tags)
+                            entrance.tags.pop('ref', None)
+                            break
+                else:
+                    bu.tags.update(ad.tags)
                     
     def write_task(self, zoning, building, address=None):
         """Generates osm file for a task"""
