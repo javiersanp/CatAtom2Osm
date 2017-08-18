@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-08-13 10:06+WEST\n"
+"POT-Creation-Date: 2017-08-18 22:29+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -97,11 +97,11 @@ msgstr "Inicializada la API de QGIS"
 msgid "Start processing '%s'"
 msgstr "Comienza el procesado de '%s'"
 
-#: catatom2osm.py:133
+#: catatom2osm.py:132
 msgid "Processing %s '%s' (%d of %d) in '%s'"
 msgstr "Procesando %s '%s' (%d de %d) en '%s'"
 
-#: catatom2osm.py:140
+#: catatom2osm.py:139
 msgid "Zone '%s' is empty"
 msgstr "La zona '%s' está vacía"
 
@@ -173,81 +173,85 @@ msgstr "Reproyectada la capa '%s' al CRS '%s'"
 msgid "Joined '%s' to '%s'"
 msgstr "Combinado '%s' a '%s'"
 
-#: layer.py:315
+#: layer.py:323
 msgid "Detected a %s geometry in the '%s' layer"
 msgstr "Detectada una geometría %s en la capa '%s'"
 
-#: layer.py:322
+#: layer.py:330
 msgid "Loaded %d nodes, %d ways, %d relations from '%s' layer"
 msgstr "Cargados %d nodos, %d vías, %d relaciones de la capa '%s'"
 
-#: layer.py:390
+#: layer.py:418
 msgid "%d multi-polygons splited into %d polygons in the '%s' layer"
 msgstr "%d multipolígonos divididos a %d poligonos en la capa '%s'"
 
-#: layer.py:523
+#: layer.py:531
 msgid "Merged %d close vertices in the '%s' layer"
 msgstr "Fusionados %d vértices próximos en la capa '%s'"
 
-#: layer.py:559
+#: layer.py:567
 msgid "Merged %d duplicated vertices of polygons in the '%s' layer"
 msgstr "Fusionados %d vértices de polígono duplicados en la capa '%s'"
 
-#: layer.py:563 layer.py:652
+#: layer.py:571 layer.py:660
 msgid "Deleted %d invalid geometries in the '%s' layer"
 msgstr "Eliminadas %d geometrías no válidas en la capa '%s'"
 
-#: layer.py:603
+#: layer.py:611
 msgid "Created %d topological points in the '%s' layer"
 msgstr "Creados %d puntos topológicos en la capa '%s'"
 
-#: layer.py:685
+#: layer.py:693
 msgid "Simplified %d vertices in the '%s' layer"
 msgstr "Simplificados %d vértices en la capa '%s'"
 
-#: layer.py:703
+#: layer.py:711
 msgid "%d adjacent polygons merged into %d polygons in the '%s' layer"
 msgstr "%d polígonos adyacentes fusionados a %d polígonos en la capa '%s'"
 
-#: layer.py:794
+#: layer.py:802
 msgid "Refused %d addresses existing in OSM"
 msgstr "Rechazadas %d direcciones existentes en OSM"
 
-#: layer.py:799
+#: layer.py:807
 msgid "Deleted %d addresses without house number"
 msgstr "Eliminadas %d direcciones sin número de portal"
 
-#: layer.py:812
+#: layer.py:820
 msgid "Deleted %d addresses without associated building"
 msgstr "Eliminadas %d direcciones sin edificio asociado"
 
-#: layer.py:895
+#: layer.py:915
 msgid "Deleted %d building parts with no floors above ground"
 msgstr "Eliminadas %d partes de edificio sin plantas sobre el nivel del suelo"
 
-#: layer.py:919
+#: layer.py:957
 msgid "Removed %d building parts outside the footprint"
 msgstr "Eliminadas %d partes de edificio fuera del contorno"
 
-#: layer.py:1017
+#: layer.py:1013
 msgid "Merged %d building parts to footprint"
 msgstr "Fusionados %d partes de edificios al contorno"
 
-#: layer.py:1050
+#: layer.py:1047
 msgid "Removed %d duplicated inner rings"
 msgstr "Eliminados %d anillos interiores duplicados"
 
-#: layer.py:1119
+#: layer.py:1114
 msgid "Moved %d addresses to entrance, %d changed to parcel"
 msgstr "Desplazadas %d direcciones a entrada, %d cambiadas a parcela"
 
-#: layer.py:1138
+#: layer.py:1133
 msgid "Check, area too small"
 msgstr "Comprobar, área demasiado pequeña"
 
-#: layer.py:1141
+#: layer.py:1136
 msgid "Check, area too big"
 msgstr "Comprobar, área demasiado grande"
+
+#: layer.py:1172
+msgid "Detected %d conflicts in %d buildings from OSM"
+msgstr "Detectados %d edificios con conflicto de %d en OSM"
 
 #: main.py:27
 msgid ""

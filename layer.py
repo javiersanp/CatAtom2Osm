@@ -1144,6 +1144,8 @@ class ConsLayer(PolygonLayer):
         If delete=False, only mark buildings with conflicts
         """
         index = self.get_index()
+        num_buildings = 0
+        conflicts = 0
         for el in frozenset(current_bu_osm.elements):
             poly = None
             if el.type == 'way' and el.is_closed() and 'building' in el.tags:
@@ -1151,6 +1153,7 @@ class ConsLayer(PolygonLayer):
             elif el.type == 'relation' and 'building' in el.tags:
                 poly = [[map(Point, w)] for w in el.outer_geometry()]
             if poly:
+                num_buildings += 1
                 geom = QgsGeometry().fromMultiPolygon(poly)
                 if geom.isGeosValid():
                     fids = index.intersects(geom.boundingBox())
@@ -1160,11 +1163,14 @@ class ConsLayer(PolygonLayer):
                         fg = feat.geometry()
                         if geom.contains(fg) or fg.contains(geom) or geom.overlaps(fg):
                             conflict = True
+                            conflicts += 1
                             break
                     if delete and not conflict:
                         current_bu_osm.remove(el)
                     if not delete and conflict:
                         el.tags['conflict'] = 'yes'
+        log.debug(_("Detected %d conflicts in %d buildings from OSM"), 
+                conflicts, num_buildings)
 
 
 class HighwayLayer(BaseLayer):
