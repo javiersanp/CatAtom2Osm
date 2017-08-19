@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-08-18 22:29+WEST\n"
+"POT-Creation-Date: 2017-08-20 00:37+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -233,23 +233,19 @@ msgstr "Eliminadas %d partes de edificio fuera del contorno"
 msgid "Merged %d building parts to footprint"
 msgstr "Fusionados %d partes de edificios al contorno"
 
-#: layer.py:1047
-msgid "Removed %d duplicated inner rings"
-msgstr "Eliminados %d anillos interiores duplicados"
-
-#: layer.py:1114
+#: layer.py:1079
 msgid "Moved %d addresses to entrance, %d changed to parcel"
 msgstr "Desplazadas %d direcciones a entrada, %d cambiadas a parcela"
 
-#: layer.py:1133
+#: layer.py:1098
 msgid "Check, area too small"
 msgstr "Comprobar, área demasiado pequeña"
 
-#: layer.py:1136
+#: layer.py:1101
 msgid "Check, area too big"
 msgstr "Comprobar, área demasiado grande"
 
-#: layer.py:1172
+#: layer.py:1137
 msgid "Detected %d conflicts in %d buildings from OSM"
 msgstr "Detectados %d edificios con conflicto de %d en OSM"
 
@@ -352,5 +348,3 @@ msgstr "Usando ElementTree"
 msgid "Failed to import ElementTree from any known place"
 msgstr "No se pudo importar ElementTree desde ningún lugar conocido"
 
-#~ msgid "Deleted %d addresses"
-#~ msgstr "Eliminadas %d direcciones"

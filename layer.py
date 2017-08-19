@@ -987,7 +987,7 @@ class ConsLayer(PolygonLayer):
             parts_area += part.geometry().area()
             parts_for_level[level].append(part)
         footprint_area = round(footprint.geometry().area()*100)
-        if footprint_area == round(parts_area * 100):
+        if footprint_area == round(parts_area * 100) and len(area_for_level) > 0:
             main_level = max(area_for_level, key=(lambda k: area_for_level[k]))
             to_clean = [p.id() for p in parts_for_level[main_level]]
             attr = get_attributes(footprint)
@@ -1012,40 +1012,6 @@ class ConsLayer(PolygonLayer):
             self.deleteFeatures(to_clean)
             log.debug(_("Merged %d building parts to footprint"), len(to_clean))
 
-    def remove_duplicated_holes(self):
-        """
-        Remove inner rings of parts, and of buildings/pool if there exists
-        another feature with the same geometry
-        """
-        (parents_per_vertex, features) = self.get_parents_per_vertex_and_features()
-        ip = 0
-        to_change = {}
-        for feature in self.getFeatures():
-            geom = QgsGeometry(feature.geometry())
-            to_clean = []
-            poly = self.get_multipolygon(feature)
-            if ConsLayer.is_part(feature):
-                if len(poly[0]) > 1:
-                    geom = QgsGeometry.fromPolygon([poly[0][0]])
-                    ip += (len(poly[0]) - 1)
-                    to_change[feature.id()] = geom
-            else:
-                for part in poly:
-                    for (i, ring) in enumerate(part[1:]):
-                        first_parents = list(parents_per_vertex[ring[0]])
-                        duplicated = all([parents_per_vertex[p] == first_parents \
-                            for p in ring[1:-1]]) and len(first_parents) > 1
-                        if duplicated:
-                            to_clean.append(i + 1)
-                            ip += 1
-                if to_clean:
-                    for ring in sorted(to_clean, reverse=True):
-                        geom.deleteRing(ring)
-                    to_change[feature.id()] = geom
-        if ip:
-            self.writer.changeGeometryValues(to_change)
-            log.debug(_("Removed %d duplicated inner rings"), ip)
-
     def clean(self):
         """
         Merge duplicated vertices, add topological points, simplify layer
@@ -1055,7 +1021,6 @@ class ConsLayer(PolygonLayer):
         self.clean_duplicated_nodes_in_polygons()
         self.add_topological_points()
         self.merge_building_parts()
-        self.remove_duplicated_holes()
         self.simplify()
 
     def move_address(self, address):
