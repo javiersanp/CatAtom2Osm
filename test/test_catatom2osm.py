@@ -438,7 +438,6 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.assertNotIn('addrtags', [k for n in w3.nodes for k in n.tags.keys()])
         self.assertEquals(r1.tags['addrtags'], 'address4')
         self.assertEquals(n5.tags['addrtags'], 'address5')
-        return
         address.tags['source:date'] = 'foobar'
         self.m_app.merge_address(self.m_app, building, address)
         self.assertEquals(building.tags['source:date:addr'], address.tags['source:date'])
