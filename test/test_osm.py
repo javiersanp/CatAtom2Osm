@@ -347,6 +347,7 @@ class TestOsmWay(OsmTestCase):
         w2 = self.d.Way(g[3:] + g[1:4])
         self.assertEquals(w1, w2)
         g = g[3:] + g[1:4]
+        self.assertNotEquals(w1, g)
         w1.tags = {}
         self.assertEquals(w1, g)
         self.assertEquals(w2, g)
@@ -370,14 +371,24 @@ class TestOsmWay(OsmTestCase):
         self.assertFalse(w.is_open())
         self.assertTrue(w.is_closed())
 
+    def test_shoelace(self):
+        w1 = self.d.Way([(0,0), (1,0), (1,1), (0,1), (0,0)])
+        w2 = self.d.Way([(0,0), (0,1), (1,1), (1,0), (0,0)])
+        self.assertGreater(w1.shoelace(), 0)
+        self.assertLess(w2.shoelace(), 0)
+        w3 = self.d.Way()
+        self.assertEquals(w3.shoelace(), 0)
+
     def test_geometry(self):
-        g = tuple((x, x) for x in range(7)) + ((0,0),)
+        g = ((0,0), (6,0), (5,1), (4,2), (3,3), (2,4), (1,5), (0,0))
         w1 = self.d.Way(g)
         w2 = self.d.Way(g[3:] + g[1:4])
         w3 = self.d.Way(g[:4])
+        w4 = self.d.Way(g[::-1])
         self.assertEquals(w1.geometry(), g)
         self.assertEquals(w2.geometry(), g)
         self.assertEquals(w3.geometry(), g[:4])
+        self.assertEquals(w4.geometry(), w1.geometry())
         
     def test_clean_duplicated_nodes(self):
         w = self.d.Way([(0,0), (1,1), (1,1), (2,2)])

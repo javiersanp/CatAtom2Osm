@@ -274,6 +274,15 @@ class Way(Element):
         """Returns true if the way is closed"""
         return (len(self.nodes) > 1) and self.nodes[0] != self.nodes[-1]
 
+    def shoelace(self):
+        s = 0
+        if self.is_closed():
+            for i in range(len(self.nodes) - 1):
+                n1 = self.nodes[i]
+                n2 = self.nodes[i+1]
+                s += (n1.x * n2.y - n2.x * n1.y)
+        return s
+
     def remove(self, n):
         """Remove n from nodes"""
         self.nodes = [o for o in self.nodes if o is not n]
@@ -307,6 +316,8 @@ class Way(Element):
         if self.is_closed():
             i = g.index(min(g))
             g = g[i:] + g[1:i+1]
+            if self.shoelace() < 0:
+                g = g[::-1]
         return g
     
     def clean_duplicated_nodes(self):
