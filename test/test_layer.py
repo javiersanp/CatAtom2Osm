@@ -449,6 +449,14 @@ class TestConsLayer(unittest.TestCase):
         self.assertTrue(ConsLayer.is_pool({'localId': 'foo_PI.1'}))
         self.assertFalse(ConsLayer.is_pool({'localId': 'foo_part1'}))
 
+    def test_merge_adjacent_features(self):
+        parts = [p for p in self.layer.search("localId like '8840501CS5284S_part%%'")]
+        geom = self.layer.merge_adjacent_features(parts)
+        area = sum([p.geometry().area() for p in parts])
+        self.assertEquals(100*round(geom.area(), 2), 100*round(area, 2))
+        self.assertGreater(len(geom.asMultiPolygon()), 0)
+        self.assertLess(len(geom.asMultiPolygon()), len(parts))
+
     def test_explode_multi_parts(self):
         mp0 = [f for f in self.layer.getFeatures()
             if f.geometry().isMultipart()]
@@ -559,47 +567,47 @@ class TestConsLayer(unittest.TestCase):
         for feat in self.layer.getFeatures():
             self.assertNotIn(feat['localId'], refs)
 
-    def test_merge_greatest_part(self):
-        refs = {'11122233344455': 3, # 4 parts inside with 2 holes
-                '9042901CS5294S': 2, # 2 parts inside with a hole, 1 outside
-                '8646414CS5284N': 0, '8442825CS5284S': 0,  # single part
-                '8544910CS5284S': 1, # 2 parts inside
-                '8544911CS5284S': 3, # 4 parts inside
-                '8645910CS5284N': 2, # 3 parts, one inside
-                '8342404CS5284S': 0, # 4 parts inside in the same floor
-        }
+    def test_get_parts(self):
         self.layer.explode_multi_parts()
-        for ref in refs.keys():
-            building = self.layer.search("localId = '%s'" % ref).next()
-            self.assertEquals(building['localId'], ref, "Find building")
-            parts = [f for f in self.layer.search("localId LIKE '%%%s_part%%'" % ref)]
-            self.assertTrue(self.layer.startEditing())
-            to_clean, to_change = self.layer.merge_greatest_part(building, parts)
-            if ref == '11122233344455':
-                self.assertEqual(to_change.values()[0][6], 1)
-            self.writer.deleteFeatures(to_clean)
-            self.writer.changeAttributeValues(to_change)
-            oparts = [f for f in self.layer.search("localId LIKE '%%%s_part%%'" % ref)]
-            self.assertTrue(self.layer.commitChanges())
-            self.assertEquals(refs[ref], len(oparts), "Number of parts %s "
-                "%d != %d" % (ref, refs[ref], len(oparts)))
-            self.assertGreater(building['lev_above'], 0, "Copy levels")
+        parts = [p for p in self.layer.search("localId like '8840501CS5284S_part%%'")]
+        for footprint in self.layer.search("localId = '8840501CS5284S'"):
+            parts_inside = [p for p in parts if is_inside(p, footprint)]
+            parts_for_level, max_level, min_level = self.layer.get_parts(footprint, parts)
+            max_levelc = max([p['lev_above'] for p in parts_inside])
+            min_levelc = max([p['lev_below'] for p in parts_inside])
+            self.assertEquals(len(parts_inside), sum([len(p) for p in parts_for_level.values()]))
+            for part in parts_inside:
+                self.assertIn(part, parts_for_level[(part['lev_above'], part['lev_below'])]) 
+            self.assertEquals(max_level, max_levelc)
+            self.assertEquals(min_level, min_levelc)
+
+    def test_merge_adjacent_parts(self, ref=None):
+        if ref == None:
+            self.layer.explode_multi_parts()
+            ref = '8842323CS5284S'
+        parts = [p for p in self.layer.search("localId like '%s_part%%'" % ref)]
+        for footprint in self.layer.search("localId = '%s'" % ref):
+            cn, cng, ch, chg= self.layer.merge_adjacent_parts(footprint, parts)
+            parts_for_level, max_level, min_level = self.layer.get_parts(footprint, parts)
+            if len(parts_for_level) > 1:
+                areap = 0
+                for level, group in parts_for_level.items():
+                    geom = ConsLayer.merge_adjacent_features(group)
+                    poly = geom.asMultiPolygon() if geom.isMultipart() else [geom.asPolygon()]
+                    if len(poly) < len(group):
+                        areap += geom.area()
+                aream = sum([g.area() for g in chg.values()])
+                self.assertEquals(100*round(areap, 2), 100*round(aream, 2))
+            self.assertEquals(ch[footprint.id()][6], max_level)
+            self.assertEquals(ch[footprint.id()][7], min_level)
+            self.assertEquals(set(cn), set([p.id() for p in parts_for_level[max_level, min_level]]))
 
     def test_merge_building_parts(self):
         self.layer.remove_parts_below_ground()
-        (buildings, parts) = self.layer.index_of_building_and_parts()
         self.layer.merge_building_parts()
-        for (ref, group) in buildings.items():
-            if ref in parts:
-                for building in group:
-                    building_area = round(building.geometry().area()*100)
-                    parts_area = round(sum([part.geometry().area()
-                        for part in parts[ref] if part['lev_above'] > 0])*100)
-                    if building_area == parts_area:
-                        request = QgsFeatureRequest()
-                        request.setFilterFids([building.id()])
-                        feat = self.layer.getFeatures(request).next()
-                        self.assertTrue(feat['lev_above'])
+        for ref in self.layer.getFeatures():
+            if self.layer.is_building(ref):
+                self.test_merge_adjacent_parts(ref)
 
     def test_add_topological_points(self):
         refs = [

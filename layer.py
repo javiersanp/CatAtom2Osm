@@ -888,6 +888,14 @@ class ConsLayer(PolygonLayer):
         """Pool features have '_PI.' in its localId field"""
         return '_PI.' in feature['localId']
 
+    @staticmethod
+    def merge_adjacent_features(group):
+        """Combine all geometries in group of features"""
+        geom = group[0].geometry()
+        for p in group[1:]:
+            geom = geom.combine(p.geometry())
+        return geom
+
     def explode_multi_parts(self, address=False):
         request = QgsFeatureRequest()
         if address:
@@ -956,61 +964,79 @@ class ConsLayer(PolygonLayer):
             self.deleteFeatures(to_clean)
             log.debug(_("Removed %d building parts outside the footprint"), len(to_clean))
 
-    def merge_greatest_part(self, footprint, parts):
+    def get_parts(self, footprint, parts):
         """
-        Given a building footprint and its parts:
+        Given a building footprint and its parts, for the parts inside the 
+        footprint returns a dictionary of parts for levels, the maximum and
+        minimum levels
+        """
+        max_level = 0
+        min_level = 0
+        parts_for_level = defaultdict(list)
+        for part in parts:
+            if is_inside(part, footprint):
+                level = (part['lev_above'], part['lev_below'])
+                if level[0] > max_level: max_level = level[0]
+                if level[1] > min_level: min_level = level[1]
+                parts_for_level[level].append(part)
+        return parts_for_level, max_level, min_level
 
-        * Exclude parts not inside the footprint.
+    def merge_adjacent_parts(self, footprint, parts):
+        """
+        Given a building footprint and its parts, for the parts inside the 
+        footprint:
 
-        * If the area of the parts above ground is equal to the area of the
-          footprint.
-
-          * Sum the outer area for all the parts with the same level. Level 
-            is the pair of values 'lev_above' and 'lev_below' (number of floors
-            above, and below groud).
-
-          * For the level with greatest area, translate the number of floors
-            values to the footprint and deletes all the parts in that level.
+          * Translates the maximum values of number of levels above and below
+            ground to the footprint and deletes all the parts in that level.
+          
+          * Merges the adjacent parts in the rest of the levels.
         """
         to_clean = []
+        to_clean_g = []
         to_change = {}
-        parts_inside_footprint = [part for part in parts if is_inside(part, footprint)]
-        area_for_level = Counter()
-        parts_for_level = defaultdict(list)
-        parts_area = 0
-        for part in parts_inside_footprint:
-            rings = part.geometry().asPolygon()
-            outer = QgsGeometry().fromPolygon([rings[0]])
-            level = (part['lev_above'], part['lev_below'])
-            if level[0] > 0 or len(parts_inside_footprint) == 1:
-                area_for_level[level] += outer.area()
-            parts_area += part.geometry().area()
-            parts_for_level[level].append(part)
-        footprint_area = round(footprint.geometry().area()*100)
-        if footprint_area == round(parts_area * 100) and len(area_for_level) > 0:
-            main_level = max(area_for_level, key=(lambda k: area_for_level[k]))
-            to_clean = [p.id() for p in parts_for_level[main_level]]
-            attr = get_attributes(footprint)
-            attr[self.fieldNameIndex('lev_above')] = main_level[0]
-            attr[self.fieldNameIndex('lev_below')] = main_level[1]
-            to_change[footprint.id()] = attr
-        return to_clean, to_change
+        to_change_g = {}
+        parts_for_level, max_level, min_level = self.get_parts(footprint, parts)
+        attr = get_attributes(footprint)
+        attr[self.fieldNameIndex('lev_above')] = max_level
+        attr[self.fieldNameIndex('lev_below')] = min_level
+        to_change[footprint.id()] = attr
+        for (level, parts) in parts_for_level.items():
+            if level == (max_level, min_level):
+                to_clean = [p.id() for p in parts_for_level[max_level, min_level]]
+            else:
+                geom = self.merge_adjacent_features(parts)
+                poly = geom.asMultiPolygon() if geom.isMultipart() else [geom.asPolygon()]
+                if len(poly) < len(parts):
+                    for (i, part) in enumerate(parts):
+                        if i < len(poly):
+                            g = QgsGeometry().fromPolygon(poly[i])
+                            to_change_g[part.id()] = g
+                        else:
+                            to_clean_g.append(part.id())
+        return to_clean, to_clean_g, to_change, to_change_g
 
     def merge_building_parts(self):
-        """Apply merge_greatest_part to each set of building and its parts"""
+        """Apply merge_adjacent_parts to each set of building and its parts"""
         (buildings, parts) = self.index_of_building_and_parts()
         to_clean = []
+        to_clean_g = []
         to_change = {}
+        to_change_g = {}
         for (refcat, group) in buildings.items():
             if refcat in parts:
                 for building in group:
-                    cn, ch = self.merge_greatest_part(building, parts[refcat])
+                    cn, cng, ch, chg= self.merge_adjacent_parts(building, parts[refcat])
                     to_clean += cn
+                    to_clean_g += cng
                     to_change.update(ch)
+                    to_change_g.update(chg)
         if to_clean:
             self.writer.changeAttributeValues(to_change)
+            self.writer.changeGeometryValues(to_change_g)
             self.deleteFeatures(to_clean)
-            log.debug(_("Merged %d building parts to footprint"), len(to_clean))
+            self.deleteFeatures(to_clean_g)
+            log.debug(_("Merged %d building parts to the footprint"), len(to_clean))
+            log.debug(_("Merged %d adjacent parts"), len(to_clean_g))
 
     def clean(self):
         """
