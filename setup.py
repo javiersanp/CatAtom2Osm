@@ -10,7 +10,7 @@ app_copyright = u'2017, Javier Sánchez Portero'
 app_desc = 'Tool to convert INSPIRE data sets from the Spanish Cadastre ATOM Services to OSM files'
 app_tags = ''
 
-log_level = 'INFO' # Default console log level
+log_level = 'INFO' # Default log level
 log_file = 'catatom2osm.log'
 log_format = '%(asctime)s - %(levelname)s - %(message)s'
 
