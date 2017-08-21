@@ -235,7 +235,7 @@ msgstr "Fusionados %d partes de edificios al contorno"
 
 #: layer.py:1039
 msgid "Merged %d adjacent parts"
-msgstr ""
+msgstr "Fusionadas %d partes adyacentes"
 
 #: layer.py:1105
 msgid "Moved %d addresses to entrance, %d changed to parcel"
