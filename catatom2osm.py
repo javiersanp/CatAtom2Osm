@@ -28,7 +28,7 @@ if setup.silence_gdal:
 class QgsSingleton(QgsApplication):
     """Keeps a unique instance of QGIS for the application (and tests)"""
     _qgs = None
-    
+
     def __new__(cls):
         if QgsSingleton._qgs is None:
             # Init qGis API
@@ -39,17 +39,17 @@ class QgsSingleton(QgsApplication):
             gdal.SetConfigOption('GML_SKIP_RESOLVE_ELEMS', 'ALL')
         return QgsSingleton._qgs
 
-    
+
 class CatAtom2Osm:
     """
-    Main application class for a tool to convert the data sets from the 
+    Main application class for a tool to convert the data sets from the
     Spanish Cadastre ATOM Services to OSM files.
     """
-    
+
     def __init__(self, a_path, options):
         """
         Constructor.
-        
+
         Args:
             a_path (str): Directory where the source files are located.
             options (dict): Dictionary of options.
@@ -129,9 +129,9 @@ class CatAtom2Osm:
 
     def process_zone(self, zone, zoning):
         """Process data in zone"""
-        log.info(_("Processing %s '%s' (%d of %d) in '%s'"), 
-            zone['levelName'].encode('utf-8').lower().translate(None, '(1:) '), 
-            zone['label'], zoning.task_number, zoning.featureCount(), 
+        log.info(_("Processing %s '%s' (%d of %d) in '%s'"),
+            zone['levelName'].encode('utf-8').lower().translate(None, '(1:) '),
+            zone['label'], zoning.task_number, zoning.featureCount(),
             zoning.name().encode('utf-8'))
         building = layer.ConsLayer(source_date = self.building_gml.source_date)
         building.append_zone(self.building_gml, zone, self.processed)
@@ -151,7 +151,7 @@ class CatAtom2Osm:
             building.clean()
             temp_address = None
             if self.options.address:
-                building.move_address(self.address, delete=False)
+                building.move_address(self.address)
                 temp_address = layer.BaseLayer(path="Point", baseName="address",
                     providerLib="memory")
                 temp_address.source_date = False
@@ -206,7 +206,7 @@ class CatAtom2Osm:
         building.reproject()
         building.conflate(self.current_bu_osm)
         self.building_osm = building.to_osm()
-        
+
     def write_building(self):
         self.write_osm(self.building_osm, 'building.osm')
         for el in self.building_osm.elements:
@@ -234,7 +234,7 @@ class CatAtom2Osm:
                 OrderedDict(Counter(self.min_level.values())).items()])
             log.info(_("Distribution of floors above ground %s"), dlag)
             log.info(_("Distribution of floors below ground %s"), dlbg)
-        if self.fixmes: 
+        if self.fixmes:
             log.warning(_("Check %d fixme tags"), self.fixmes)
         if self.is_new:
             log.info(_("The translation file '%s' have been writen in "
@@ -255,7 +255,7 @@ class CatAtom2Osm:
     def export_layer(self, layer, filename, driver_name='ESRI Shapefile'):
         """
         Export a vector layer.
-        
+
         Args:
             layer (QgsVectorLayer): Source layer.
             filename (str): Output filename.
@@ -266,17 +266,16 @@ class CatAtom2Osm:
             log.info(_("Generated '%s'"), filename)
         else:
             raise IOError(_("Failed to write layer: '%s'") % filename)
-        
-    
+
     def read_osm(self, ql, filename):
         """
-        Reads a OSM data set from a OSM XML file. If the file not exists, 
+        Reads a OSM data set from a OSM XML file. If the file not exists,
         downloads data from overpass using ql query
-        
+
         Args:
-            ql (str): Query to put in the url 
+            ql (str): Query to put in the url
             filename (str): File to read/write
-        
+
         Returns
             Osm: OSM data set
         """
@@ -290,7 +289,7 @@ class CatAtom2Osm:
         if len(data.elements) == 0:
             log.warning(_("No OSM data were obtained from '%s'") % filename)
         else:
-            log.info(_("Read '%s': %d nodes, %d ways, %d relations"), 
+            log.info(_("Read '%s': %d nodes, %d ways, %d relations"),
                 filename, len(data.nodes), len(data.ways), len(data.relations))
         return data
 
@@ -310,12 +309,12 @@ class CatAtom2Osm:
         with codecs.open(osm_path, "w", "utf-8") as file_obj:
             file_obj.write("<?xml version='1.0' encoding='UTF-8'?>\n")
             file_obj.write(osmxml.serialize(data))
-        log.info(_("Generated '%s': %d nodes, %d ways, %d relations"), 
+        log.info(_("Generated '%s': %d nodes, %d ways, %d relations"),
             filename, len(data.nodes), len(data.ways), len(data.relations))
 
     def get_zoning(self):
         """
-        Reads cadastralzoning and splits in 'MANZANA' (urban) and 'POLIGONO' 
+        Reads cadastralzoning and splits in 'MANZANA' (urban) and 'POLIGONO'
         (rustic)
         """
         zoning_gml = self.cat.read("cadastralzoning")
@@ -353,19 +352,19 @@ class CatAtom2Osm:
 
     def merge_address(self, building_osm, address_osm):
         """
-        Copy address from address_osm to building_osm using 'ref' tag. 
-        
+        Copy address from address_osm to building_osm using 'ref' tag.
+
         * If there exists one building with the same 'ref' that an address, copy
-        the address tags to the building if isn't a 'entrace' type address or 
-        else to the entrance if there exist a node with the address coordinates 
+        the address tags to the building if isn't a 'entrace' type address or
+        else to the entrance if there exist a node with the address coordinates
         in the building.
 
         * If there exists many buildings withe the same 'ref' than an address,
-        creates a multipolygon relation and copy the address tags to it. Each 
+        creates a multipolygon relation and copy the address tags to it. Each
         building will be a member with outer role in the relation if it's a way.
         If it's a relation, each outer member of it is aggregated to the address
-        relation.      
-        
+        relation.
+
         Args:
             building_osm (Osm): OSM data set with addresses
             address_osm (Osm): OSM data set with buildings
@@ -393,7 +392,7 @@ class CatAtom2Osm:
                             break
                 else:
                     bu.tags.update(ad.tags)
-                    
+
     def write_task(self, zoning, building, address=None):
         """Generates osm file for a task"""
         fn = zoning.task_filename % zoning.task_number
@@ -408,16 +407,16 @@ class CatAtom2Osm:
 
     def get_translations(self, address, highway):
         """
-        If there exists the configuration file 'highway_types.csv', read it, 
-        else write one with default values. If don't exists the translations file 
+        If there exists the configuration file 'highway_types.csv', read it,
+        else write one with default values. If don't exists the translations file
         'highway_names.csv', creates one parsing names_layer, else reads and returns
         it as a dictionary.
-        
+
         * 'highway_types.csv' List of osm elements in json format located in the
-          application path and contains translations from abreviaturs to full 
+          application path and contains translations from abreviaturs to full
           types of highways.
 
-        * 'highway_names.csv' is located in the outputh folder and contains 
+        * 'highway_names.csv' is located in the outputh folder and contains
           corrections for original highway names.
         """
         highway_types_path = os.path.join(setup.app_path, 'highway_types.csv')
@@ -437,7 +436,7 @@ class CatAtom2Osm:
 
     def get_highway(self):
         """Gets OSM highways needed for street names conflation"""
-        ql = ['way["highway"]["name"]', 
+        ql = ['way["highway"]["name"]',
               'relation["highway"]["name"]',
               'way["place"="square"]["name"]',
               'relation["place"="square"]["name"]']
