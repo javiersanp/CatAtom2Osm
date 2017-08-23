@@ -42,9 +42,29 @@ prov_atom = """<feed xmlns="http://www.w3.org/2005/Atom" xmlns:xsi="http://www.w
 
 metadata = """<?xml version="1.0" encoding="ISO-8859-1"?>
 <gmd:MD_Metadata xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gco="http://www.isotc211.org/2005/gco">
+    <gmd:title>
+        <gco:CharacterString>Buildings of 38001-TAZ (foo bar)</gco:CharacterString>
+    </gmd:title>
 	<gmd:dateStamp>
 		<gco:Date>2017-02-25</gco:Date>
 	</gmd:dateStamp>
+    <gmd:code>
+        <gco:CharacterString>http://www.opengis.net/def/crs/EPSG/0/32628</gco:CharacterString>
+    </gmd:code>
+    <gmd:EX_GeographicBoundingBox>
+        <gmd:westBoundLongitude>
+            <gco:Decimal>-16.7996857087189</gco:Decimal>
+        </gmd:westBoundLongitude>
+        <gmd:eastBoundLongitude>
+            <gco:Decimal>-16.6878650661333</gco:Decimal>
+        </gmd:eastBoundLongitude>
+        <gmd:southBoundLatitude>
+            <gco:Decimal>28.0655571972128</gco:Decimal>
+        </gmd:southBoundLatitude>
+        <gmd:northBoundLatitude>
+            <gco:Decimal>28.1788414990302</gco:Decimal>
+        </gmd:northBoundLatitude>
+    </gmd:EX_GeographicBoundingBox>
 </gmd:MD_Metadata>
 """
 
@@ -89,39 +109,47 @@ class TestCatAtom(unittest.TestCase):
 
     @mock.patch('catatom.os')
     @mock.patch('catatom.open')
-    def test_get_gml_date_from_gml(self, m_open, m_os):
-        self.m_cat.get_gml_date = catatom.Reader.get_gml_date.__func__
+    def test_get_metadata_from_xml(self, m_open, m_os):
+        self.m_cat.get_metadata = catatom.Reader.get_metadata.__func__
         m_os.path.exists.return_value = True
         m_open.return_value.read.return_value = metadata
-        gmldate = self.m_cat.get_gml_date(self.m_cat, 'foo')
-        self.assertEquals(gmldate, '2017-02-25')
+        self.m_cat.get_metadata(self.m_cat, 'foo')
         m_open.assert_called_once_with('foo', 'r')
-        
+        self.assertEquals(self.m_cat.gml_date, '2017-02-25')
+        self.assertEquals(self.m_cat.cat_mun, 'TAZ')
+        self.assertEquals(self.m_cat.crs_ref, '32628')
+        bbox = "28.0655571972128,-16.7996857087189,28.1788414990302,-16.6878650661333"
+        self.assertEquals(self.m_cat.boundary_bbox, bbox)
+
     @mock.patch('catatom.os')
     @mock.patch('catatom.open')
     @mock.patch('catatom.zipfile')
-    def test_get_gml_date_from_zip(self, m_zip, m_open, m_os):
-        self.m_cat.get_gml_date = catatom.Reader.get_gml_date.__func__
+    def test_get_metadata_from_zip(self, m_zip, m_open, m_os):
+        self.m_cat.get_metadata = catatom.Reader.get_metadata.__func__
         m_os.path.exists.return_value = False
         m_zip.ZipFile.return_value.read.return_value = metadata
-        gmldate = self.m_cat.get_gml_date(self.m_cat, 'foo', 'bar')
-        self.assertEquals(gmldate, '2017-02-25')
+        self.m_cat.get_metadata(self.m_cat, 'foo', 'bar')
         m_zip.ZipFile.assert_called_once_with('bar')
         m_os.path.basename.assert_called_once_with('foo')
         m_zip.ZipFile().read.assert_called_once_with(m_os.path.basename())
-        
+        self.assertEquals(self.m_cat.gml_date, '2017-02-25')
+        self.assertEquals(self.m_cat.cat_mun, 'TAZ')
+        self.assertEquals(self.m_cat.crs_ref, '32628')
+        bbox = "28.0655571972128,-16.7996857087189,28.1788414990302,-16.6878650661333"
+        self.assertEquals(self.m_cat.boundary_bbox, bbox)
+
     @mock.patch('catatom.os')
     @mock.patch('catatom.open')
     @mock.patch('catatom.etree')
     @mock.patch('catatom.hasattr')
-    def test_get_gml_date_empty(self, m_has, m_etree, m_open, m_os):
-        self.m_cat.get_gml_date = catatom.Reader.get_gml_date.__func__
+    def test_get_metadata_empty(self, m_has, m_etree, m_open, m_os):
+        self.m_cat.get_metadata = catatom.Reader.get_metadata.__func__
         m_os.path.exists.return_value = True
         del m_etree.fromstring.return_value.root
         m_etree.fromstring.return_value.__len__.return_value = 0
         m_has.return_value = False
         with self.assertRaises(IOError):
-            self.m_cat.get_gml_date(self.m_cat, 'foo')
+            self.m_cat.get_metadata(self.m_cat, 'foo')
         ns = m_etree.fromstring().find.call_args_list[0][0][1]
         self.assertEquals(set(ns.keys()), {'gco', 'gmd'})
 
@@ -139,48 +167,6 @@ class TestCatAtom(unittest.TestCase):
         self.m_cat.zip_code = '38002'
         with self.assertRaises(ValueError):
             self.m_cat.get_atom_file(self.m_cat, url)
-
-    @mock.patch('catatom.os')
-    @mock.patch('catatom.open')
-    @mock.patch('catatom.QgsCoordinateReferenceSystem')
-    def test_get_crs_from_gml(self, m_crs, m_open, m_os):
-        self.m_cat.get_crs = catatom.Reader.get_crs.__func__
-        m_os.path.exists.return_value = True
-        m_open.return_value.read.return_value = gmlfile
-        (is_empty, crs) = self.m_cat.get_crs(self.m_cat, 'foo')
-        m_open.assert_called_once_with('foo', 'r')
-        m_crs.assert_called_once_with(32628)
-        self.assertEquals(crs, m_crs.return_value)
-        self.assertFalse(is_empty)
-
-    @mock.patch('catatom.os')
-    @mock.patch('catatom.open')
-    @mock.patch('catatom.zipfile')
-    @mock.patch('catatom.QgsCoordinateReferenceSystem')
-    def test_get_crs_from_zip(self, m_crs, m_zip, m_open, m_os):
-        self.m_cat.get_crs = catatom.Reader.get_crs.__func__
-        m_os.path.exists.return_value = False
-        m_zip.ZipFile.return_value.read.return_value = gmlfile
-        (is_empty, crs) = self.m_cat.get_crs(self.m_cat, 'foo', 'bar')
-        m_zip.ZipFile.assert_called_once_with('bar')
-        m_os.path.basename.assert_called_once_with('foo')
-        m_zip.ZipFile().read.assert_called_once_with(m_os.path.basename())
-        m_crs.assert_called_once_with(32628)
-        self.assertEquals(crs, m_crs.return_value)
-        self.assertFalse(is_empty)
-
-    @mock.patch('catatom.os')
-    @mock.patch('catatom.open')
-    @mock.patch('catatom.etree')
-    @mock.patch('catatom.QgsCoordinateReferenceSystem')
-    def test_get_crs_empty(self, m_crs, m_etree, m_open, m_os):
-        self.m_cat.get_crs = catatom.Reader.get_crs.__func__
-        m_os.path.exists.return_value = True
-        m_etree.fromstring.return_value.__len__.return_value = 0
-        (is_empty, crs) = self.m_cat.get_crs(self.m_cat, 'foo')
-        m_crs.assert_called_once_with(None)
-        self.assertEquals(crs, m_crs.return_value)
-        self.assertTrue(is_empty)
 
     @mock.patch('catatom.os')
     def test_get_layer_paths(self, m_os):
@@ -213,32 +199,30 @@ class TestCatAtom(unittest.TestCase):
     @mock.patch('catatom.os')
     @mock.patch('catatom.log')
     @mock.patch('catatom.layer')
-    def test_read(self, m_layer, m_log, m_os):
+    @mock.patch('catatom.QgsCoordinateReferenceSystem')
+    def test_read(self, m_qgscrs, m_layer, m_log, m_os):
         self.m_cat.read = catatom.Reader.read.__func__
         g = random.choice(['BU', 'CP', 'AD'])
         self.m_cat.get_layer_paths.return_value = ('1', '2', '3', '4', g)
-        m_crs = mock.MagicMock()
-        m_crs.isValid.return_value = True
         m_os.path.exists.return_value = True
         m_layer.BaseLayer.return_value.isValid.return_value = True
-        self.m_cat.get_crs.return_value = (False, m_crs)
+        m_layer.BaseLayer.return_value.crs.return_value.isValid.return_value = False
+        m_qgscrs.return_value.isValid.return_value = True
+        self.m_cat.crs_ref = '32628'
         self.m_cat.prov_code = '99'
-        self.m_cat.get_gml_date.return_value = 'bar'
+        self.m_cat.gml_date = 'bar'
         gml = self.m_cat.read(self.m_cat, 'foobar')
         self.m_cat.get_layer_paths.assert_called_once_with('foobar')
         self.m_cat.get_atom_file.assert_not_called()
-        self.m_cat.get_gml_date.assert_called_once_with('1', '3')
-        self.m_cat.get_crs.assert_called_once_with('2', '3')
-        output = m_log.info.call_args_list[0][0][0]
-        self.assertNotIn('empty', output)
+        self.m_cat.get_metadata.assert_called_once_with('1', '3')
         m_layer.BaseLayer.assert_called_once_with('4', 'foobar.gml', 'ogr')
-        m_layer.BaseLayer.return_value.setCrs.assert_called_once_with(m_crs)
-        self.assertEquals(m_layer.BaseLayer.return_value.source_date, 'bar')
-        self.assertEquals(gml, m_layer.BaseLayer.return_value)
+        m_crs = m_qgscrs.return_value
+        gml.setCrs.assert_called_once_with(m_crs)
+        self.assertEquals(gml.source_date, 'bar')
 
         url = setup.prov_url[g] % ('99', '99')
         m_os.path.exists.return_value = False
-        self.m_cat.get_crs.return_value = (True, m_crs)
+        m_layer.BaseLayer.return_value.featureCount.return_value = 0
         gml = self.m_cat.read(self.m_cat, 'foobar', allow_empty=True)
         self.m_cat.get_atom_file.assert_called_once_with(url)
         output = m_log.info.call_args_list[-1][0][0]
@@ -252,14 +236,15 @@ class TestCatAtom(unittest.TestCase):
         self.m_cat.get_atom_file.assert_called_with(url)
         self.assertIn('empty', cm.exception.message)
 
-        m_crs.isValid.return_value = False
+        m_layer.BaseLayer.return_value.crs.return_value.isValid.return_value = False
+        m_qgscrs.return_value.isValid.return_value = False
         m_os.path.exists.side_effect = None
-        self.m_cat.get_crs.return_value = (False, m_crs)
+        m_layer.BaseLayer.return_value.featureCount.return_value = 1
         with self.assertRaises(IOError) as cm:
             self.m_cat.read(self.m_cat, 'foobar')
         self.assertIn('Could not determine the CRS', cm.exception.message)
 
-        m_crs.isValid.return_value = True
+        m_layer.BaseLayer.return_value.crs.return_value.isValid.return_value = True
         m_layer.BaseLayer.return_value.isValid.return_value = False
         with self.assertRaises(IOError) as cm:
             self.m_cat.read(self.m_cat, 'foobar')
@@ -268,7 +253,6 @@ class TestCatAtom(unittest.TestCase):
         m_layer.BaseLayer.return_value.isValid.side_effect = [False, True]
         gml = self.m_cat.read(self.m_cat, 'foobar')
         self.assertEquals(gml, m_layer.BaseLayer.return_value)
-        
 
     @mock.patch('catatom.log.warning')
     @mock.patch('catatom.overpass')
@@ -276,18 +260,17 @@ class TestCatAtom(unittest.TestCase):
     @mock.patch('catatom.download')
     def test_get_boundary(self, m_download, m_hgw, m_overpass, m_log):
         self.m_cat.get_boundary = catatom.Reader.get_boundary.__func__
-        bbox09003 = "41.9997821981,-3.83420761212,42.1997821981,-3.63420761212"
+        bbox = "28.0655571972128,-16.7996857087189,28.1788414990302,-16.6878650661333"
+        self.m_cat.boundary_bbox = bbox
         data = {"id": 2, "tags": {"name": "Tazmania"}}
         m_hgw.fuzz = True
-        m_download.get_response.return_value.content = prov_atom
-        m_overpass.Query.return_value.read.return_value = '{"elements": "foobar"}'
         m_hgw.dsmatch.return_value = data
+        m_overpass.Query.return_value.read.return_value = '{"elements": "foobar"}'
         self.m_cat.prov_code = '09'
         self.m_cat.zip_code = '09003'
+        self.m_cat.cat_mun = 'TAZ'
         self.m_cat.get_boundary(self.m_cat)
-        url = setup.prov_url['BU'] % ('09', '09')
-        m_download.get_response.assert_called_once_with(url)
-        m_overpass.Query.assert_called_with(bbox09003, 'json', False, False)
+        m_overpass.Query.assert_called_with(bbox, 'json', False, False)
         self.assertEquals(m_hgw.dsmatch.call_args_list[0][0][0], 'TAZ')
         self.assertEquals(m_hgw.dsmatch.call_args_list[0][0][1], 'foobar')
         self.assertEquals(m_hgw.dsmatch.call_args_list[0][0][2](data), 'Tazmania')
@@ -298,7 +281,7 @@ class TestCatAtom(unittest.TestCase):
         self.m_cat.get_boundary(self.m_cat)
         output = m_log.call_args_list[0][0][0]
         self.assertIn("Failed to find", output)
-        self.assertEquals(self.m_cat.boundary_search_area, bbox09003)
+        self.assertEquals(self.m_cat.boundary_search_area, bbox)
         
         m_overpass.Query.return_value.read = raiseException
         self.m_cat.get_boundary(self.m_cat)
@@ -310,10 +293,6 @@ class TestCatAtom(unittest.TestCase):
         self.m_cat.get_boundary(self.m_cat)
         output = m_log.call_args_list[2][0][0]
         self.assertIn("Failed to import", output)
-
-        self.m_cat.zip_code = '09999'
-        with self.assertRaises(IOError):
-            self.m_cat.get_boundary(self.m_cat)
 
     @mock.patch('catatom.download')
     def test_list_municipalities(self, m_download):

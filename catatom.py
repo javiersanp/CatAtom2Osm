@@ -1,4 +1,4 @@
-"""Reader of ATOM GML files"""
+"""Reader of Cadastre ATOM GML files"""
 import json
 import logging
 import os
@@ -16,6 +16,7 @@ from osmxml import etree
 log = logging.getLogger(setup.app_name + "." + __name__)
 
 class Reader(object):
+    """Class to download and read Cadastre ATOM GML files"""
 
     def __init__(self, a_path):
         """
@@ -35,8 +36,8 @@ class Reader(object):
         if not os.path.isdir(a_path):
             raise IOError(_("Not a directory: '%s'") % a_path)
 
-    def get_gml_date(self, md_path, zip_path=""):
-        """Get the source file production date from the metadata."""
+    def get_metadata(self, md_path, zip_path=""):
+        """Get the metadata of the source file"""
         if os.path.exists(md_path):
             text = open(md_path, 'r').read()
         else:
@@ -53,7 +54,18 @@ class Reader(object):
         gml_date = root.find('gmd:dateStamp/gco:Date', namespace)
         if is_empty or gml_date == None:
             raise IOError(_("Could not read date from '%s'") % md_path)
-        return gml_date.text
+        self.gml_date = gml_date.text
+        gml_title = root.find('.//gmd:title/gco:CharacterString', namespace)
+        self.cat_mun = gml_title.text.split('-')[-1].split('(')[0].strip()
+        gml_code = root.find('.//gmd:code/gco:CharacterString', namespace)
+        self.crs_ref = gml_code.text.split('/')[-1]
+        gml_bbox = root.find('.//gmd:EX_GeographicBoundingBox', namespace)
+        gml_bbox_l = gml_bbox.find('gmd:westBoundLongitude/gco:Decimal', namespace)
+        gml_bbox_r = gml_bbox.find('gmd:eastBoundLongitude/gco:Decimal', namespace)
+        gml_bbox_b = gml_bbox.find('gmd:southBoundLatitude/gco:Decimal', namespace)
+        gml_bbox_t = gml_bbox.find('gmd:northBoundLatitude/gco:Decimal', namespace)
+        self.boundary_bbox = ','.join([gml_bbox_b.text, gml_bbox_l.text,
+                gml_bbox_t.text, gml_bbox_r.text])
 
     def get_atom_file(self, url):
         """
@@ -73,33 +85,6 @@ class Reader(object):
         log.info(_("Downloading '%s'"), out_path)
         download.wget(url, out_path)
 
-    def get_crs(self, gml_path, zip_path=""):
-        """
-        Determines the CRS of a GML file. This is necessary because QGIS don't
-            detect correctly the CRS of the parcel and zoning layers.
-                    
-        Args:
-            gml_path (str): path to the file
-            zip_path (str): optionally zip file that contains the gml
-
-        Returns:
-            is_empty (bool): True if the GML file contains no feature
-            crs (QgsCoordinateReferenceSystem): CRS of the file
-        """
-        gml_path = gml_path.split('|')[0]
-        if os.path.exists(gml_path):
-            text = open(gml_path, 'r').read()
-        else:
-            zf = zipfile.ZipFile(zip_path)
-            text = zf.read(os.path.basename(gml_path))
-        root = etree.fromstring(text)
-        is_empty = len(root) == 0 or len(root[0]) == 0
-        crs_ref = None
-        if not is_empty:
-            crs_ref = int(root.find('.//*[@srsName]').get('srsName').split(':')[-1])
-        crs = QgsCoordinateReferenceSystem(crs_ref)
-        return (is_empty, crs)
-        
     def get_layer_paths(self, layername):
         if layername in ['building', 'buildingpart', 'otherconstruction']:
             group = 'BU'
@@ -146,62 +131,42 @@ class Reader(object):
         url = setup.prov_url[group] % (self.prov_code, self.prov_code)
         if not os.path.exists(zip_path) and (not os.path.exists(gml_path) or force_zip):
             self.get_atom_file(url)
-        gml_date = self.get_gml_date(md_path, zip_path)
-        (is_empty, crs) = self.get_crs(gml_path, zip_path)
-        if is_empty:
-            if not allow_empty:
-                raise IOError(_("The layer '%s' is empty") % gml_path)
-            else:
-                log.info(_("The layer '%s' is empty"), gml_path.encode('utf-8'))
-                return None
-        if not crs.isValid():
-            raise IOError(_("Could not determine the CRS of '%s'") % gml_path)
+        self.get_metadata(md_path, zip_path)
         gml = layer.BaseLayer(vsizip_path, layername+'.gml', 'ogr')
         if not gml.isValid():
             gml = layer.BaseLayer(gml_path, layername+'.gml', 'ogr')
             if not gml.isValid():
                 raise IOError(_("Failed to load layer '%s'") % gml_path)
-        gml.setCrs(crs)
+        if gml.featureCount() == 0:
+            if not allow_empty:
+                raise IOError(_("The layer '%s' is empty") % gml_path)
+            else:
+                log.info(_("The layer '%s' is empty"), gml_path.encode('utf-8'))
+                return None
+        if not gml.crs().isValid():
+            crs = QgsCoordinateReferenceSystem(self.crs_ref)
+            if not crs.isValid():
+                raise IOError(_("Could not determine the CRS of '%s'") % gml_path)
+            gml.setCrs(crs)
         log.info(_("Read %d features in '%s'"), gml.featureCount(), 
             gml_path.encode('utf-8'))
-        gml.source_date = gml_date
+        gml.source_date = self.gml_date
         return gml
 
     def get_boundary(self):
         """
-        Gets the bounding box of the municipality from the ATOM service
-        and the id of the OSM administrative boundary from Overpass
+        Gets the id of the OSM administrative boundary from Overpass.
+        Precondition: called after read any gml (metadata adquired)
         """
         if not hgwnames.fuzz:
             log.warning(_("Failed to import FuzzyWuzzy. "
                 "Install requeriments for address conflation."))
-        url = setup.prov_url['BU'] % (self.prov_code, self.prov_code)
-        response = download.get_response(url)
-        root = etree.fromstring(response.content)
-        ns = {
-            'atom': 'http://www.w3.org/2005/Atom', 
-            'georss': 'http://www.georss.org/georss'
-        }
-        mun = ''
-        for entry in root.findall("atom:entry[atom:title]", namespaces=ns):
-            title = entry.find('atom:title', ns).text
-            if self.zip_code in title:
-                mun = title.replace('buildings', '').strip()[6:]
-                poly = entry.find('georss:polygon', ns).text
-                lat = [float(lat) for lat in poly.strip().split(' ')[::2]]
-                lon = [float(lon) for lon in poly.strip().split(' ')[1:][::2]]
-                bbox_bltr = [min(lat)-0.1, max(lon)-0.1, min(lat)+0.1, max(lon)+0.1]
-                bbox = ','.join([str(i) for i in bbox_bltr])
-        if not mun:
-            raise IOError(_("Couldn't find '%s' in the ATOM Service") % self.zip_code)
-        query = overpass.Query(bbox, 'json', False, False)
+        query = overpass.Query(self.boundary_bbox, 'json', False, False)
         query.add('rel["admin_level"="8"]')
-        self.boundary_name = mun
-        self.boundary_search_area = bbox
         matching = False
         try:
             data = json.loads(query.read())
-            matching = hgwnames.dsmatch(mun, data['elements'], 
+            matching = hgwnames.dsmatch(self.cat_mun, data['elements'], 
                 lambda e: e['tags']['name'])
         except Exception:
             pass
@@ -210,6 +175,7 @@ class Reader(object):
             self.boundary_name = matching['tags']['name']
             log.info(_("Municipality: '%s'"), self.boundary_name)
         else:
+            self.boundary_search_area = self.boundary_bbox
             log.warning(_("Failed to find administrative boundary, falling "
                 "back to bounding box"))
 

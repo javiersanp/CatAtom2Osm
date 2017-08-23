@@ -174,7 +174,7 @@ class TestCatAtom2Osm(unittest.TestCase):
             mock.call(self.m_app.part_gml, {1, 2}),
             mock.call(self.m_app.other_gml, {1, 2})
         ])
-        building.move_address.assert_called_once_with(self.m_app.address, delete=False)
+        building.move_address.assert_called_once_with(self.m_app.address)
         query = m_layer.BaseLayer.return_value.append.call_args_list[0][1]['query']
         self.assertTrue(query({'localId': 'foo.bar.taz'}, {'including': ['taz']}))
         self.assertFalse(query({'localId': 'foo.bar.taz'}, {'including': ['foo']}))

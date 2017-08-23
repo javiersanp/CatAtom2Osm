@@ -88,8 +88,8 @@ class CatAtom2Osm:
     def start(self):
         """Initializes data sets"""
         log.info(_("Start processing '%s'"), self.zip_code)
-        self.cat.get_boundary()
         self.get_zoning()
+        self.cat.get_boundary()
         self.is_new = False
         if self.options.address:
             self.read_address()
