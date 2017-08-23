@@ -1110,14 +1110,12 @@ class ConsLayer(PolygonLayer):
         to_change = {}
         field_ndx = self.pendingFields().fieldNameIndex('fixme')
         for feat in self.getFeatures():
-            localid = feat['localId']
-            if isinstance(feat['lev_above'], int) and feat['lev_above'] > 0:
-                if localid not in max_level or feat['lev_above'] > max_level[localid]:
-                    max_level[localid] = feat['lev_above']
-            if isinstance(feat['lev_below'], int) and feat['lev_below'] > 0:
-                if localid not in min_level or feat['lev_below'] > min_level[localid]:
-                    min_level[localid] = feat['lev_below']
             if ConsLayer.is_building(feat):
+                localid = feat['localId']
+                if isinstance(feat['lev_above'], int) and feat['lev_above'] > 0:
+                    max_level[localid] = feat['lev_above']
+                if isinstance(feat['lev_below'], int) and feat['lev_below'] > 0:
+                    min_level[localid] = feat['lev_below']
                 area = feat.geometry().area()
                 attributes = get_attributes(feat)
                 if area < setup.warning_min_area:

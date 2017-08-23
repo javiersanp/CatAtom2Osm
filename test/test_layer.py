@@ -598,6 +598,8 @@ class TestConsLayer(unittest.TestCase):
                         areap += geom.area()
                 aream = sum([g.area() for g in chg.values()])
                 self.assertEquals(100*round(areap, 2), 100*round(aream, 2))
+            self.assertEquals(max([l[0] for l in parts_for_level.keys()]), max_level)
+            self.assertEquals(max([l[1] for l in parts_for_level.keys()]), min_level)
             self.assertEquals(ch[footprint.id()][6], max_level)
             self.assertEquals(ch[footprint.id()][7], min_level)
             self.assertEquals(set(cn), set([p.id() for p in parts_for_level[max_level, min_level]]))
@@ -686,20 +688,21 @@ class TestConsLayer(unittest.TestCase):
                     self.assertTrue(ad.geometry().touches(building.geometry()))
 
     def test_check_levels_and_area(self):
+        self.layer.merge_building_parts()
         min_level = {}
         max_level = {}
         refs = ['7239208CS5273N', '38012A00400007']
         self.layer.check_levels_and_area(min_level, max_level)
-        for (l, v) in {1: 466, 2: 245, 3: 98, 4: 19, 5: 1}.items():
+        for (l, v) in {1: 126, 2: 114, 3: 67, 4: 16, 5: 1}.items():
             self.assertEquals(Counter(max_level.values())[l], v)
-        for (l, v) in {1: 153, 2: 7}.items():
+        for (l, v) in {1: 68, 2: 2}.items():
             self.assertEquals(Counter(min_level.values())[l], v)
         for ref in refs:
             exp = QgsExpression("localId = '%s'" % ref)
             request = QgsFeatureRequest(exp)
             feat = self.layer.getFeatures(request).next()
             self.assertNotEquals(feat['fixme'], '')
-
+    
     def test_to_osm(self):
         data = self.layer.to_osm(upload='always')
         self.assertEquals(data.upload, 'always')
