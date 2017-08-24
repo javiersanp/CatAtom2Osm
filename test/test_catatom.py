@@ -257,7 +257,7 @@ class TestCatAtom(unittest.TestCase):
         self.assertEquals(gml, m_layer.BaseLayer.return_value)
 
     def test_is_empty(self):
-        test = catatom.Reader.is_empty.__func__(None, 'test/empty.gml', 'test/empty.zip')
+        test = catatom.Reader.is_empty.__func__(None, 'test/empty.gml|foo', 'test/empty.zip')
         self.assertTrue(test)
         test = catatom.Reader.is_empty.__func__(None, 'test/empty.gml', '')
         self.assertTrue(test)

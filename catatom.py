@@ -115,7 +115,7 @@ class Reader(object):
         layer in QGIS"""
         if os.path.exists(zip_path):
             zf = zipfile.ZipFile(zip_path, 'r')
-            f = zf.open(os.path.basename(gml_path), 'r')
+            f = zf.open(os.path.basename(gml_path).split('|')[0], 'r')
         else:
             f = open(gml_path, 'r')
         context = etree.iterparse(f, events=('end',))
