@@ -115,13 +115,15 @@ class Reader(object):
         layer in QGIS"""
         if os.path.exists(zip_path):
             zf = zipfile.ZipFile(zip_path, 'r')
-            f = zf.open(gml_path, 'r')
+            f = zf.open(os.path.basename(gml_path), 'r')
         else:
             f = open(gml_path, 'r')
-        context = etree.iterparse(f, events=('end',), tag='{*}gml_id')
+        context = etree.iterparse(f, events=('end',))
         try:
-            event, elem = context.next()
-            return elem.text.strip() == ''
+            event, elem = context.next() # </something>
+            event, elem = context.next() # </featureMember>
+            event, elem = context.next() # </featureCollection>
+            return False
         except StopIteration:
             return True
 

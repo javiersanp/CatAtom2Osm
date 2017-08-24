@@ -75,12 +75,6 @@ gmlfile = """<?xml version="1.0" encoding="ISO-8859-1"?>
     </AD:geometry>
 </gml:FeatureCollection>"""
 
-emptygml = """<?xml version="1.0" encoding="ISO-8859-1"?>
-<gml:FeatureCollection xmlns:gml="http://www.opengis.net/gml/3.2">
-    <gml:featureMember>
-    </gml:featureMember>
-</gml:FeatureCollection>"""
-
 
 class TestCatAtom(unittest.TestCase):
 
@@ -263,7 +257,7 @@ class TestCatAtom(unittest.TestCase):
         self.assertEquals(gml, m_layer.BaseLayer.return_value)
 
     def test_is_empty(self):
-        test = catatom.Reader.is_empty.__func__(None, 'empty.gml', 'test/empty.zip')
+        test = catatom.Reader.is_empty.__func__(None, 'test/empty.gml', 'test/empty.zip')
         self.assertTrue(test)
         test = catatom.Reader.is_empty.__func__(None, 'test/empty.gml', '')
         self.assertTrue(test)
