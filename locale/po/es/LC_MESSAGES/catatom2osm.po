@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-08-21 18:43+WEST\n"
+"POT-Creation-Date: 2017-08-24 19:14+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -17,75 +17,71 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: catatom.py:28
+#: catatom.py:29
 msgid "Last directory name must be a 5 digits ZIP code"
 msgstr "El nombre del último directorio debe ser un Código Postal de 5 dígitos"
 
-#: catatom.py:32 catatom.py:219
+#: catatom.py:33 catatom.py:191
 msgid "Province code '%s' don't exists"
 msgstr "El Código Provincial '%s' no existe"
 
-#: catatom.py:36
+#: catatom.py:37
 msgid "Not a directory: '%s'"
 msgstr "No es un directorio: '%s'"
 
-#: catatom.py:55
-msgid "Could not read date from '%s'"
-msgstr "No se puede determinar la fecha de '%s'"
+#: catatom.py:56
+msgid "Could not read metadata from '%s'"
+msgstr "No se pueden leer los metadatos de '%s'"
 
-#: catatom.py:64
+#: catatom.py:76
 msgid "Searching the url for the '%s' layer of '%s'..."
 msgstr "Buscando la url para la capa '%s' de '%s'..."
 
-#: catatom.py:69
+#: catatom.py:81
 msgid "Zip code '%s' don't exists"
 msgstr "El Código Postal '%s' no existe"
 
-#: catatom.py:73 catatom2osm.py:285
+#: catatom.py:85 catatom2osm.py:284
 msgid "Downloading '%s'"
 msgstr "Descargando '%s'"
 
-#: catatom.py:112
+#: catatom.py:97
 msgid "Unknow layer name '%s'"
 msgstr "El nombre de capa '%s' es desconocido"
 
-#: catatom.py:153 catatom.py:155
-msgid "The layer '%s' is empty"
-msgstr "La capa '%s' está vacía"
-
-#: catatom.py:158
-msgid "Could not determine the CRS of '%s'"
-msgstr "No se puede determinar el CRS de '%s'"
-
-#: catatom.py:163
+#: catatom.py:145
 msgid "Failed to load layer '%s'"
 msgstr "Error al cargar la capa: '%s'"
 
-#: catatom.py:165
+#: catatom.py:148 catatom.py:150
+msgid "The layer '%s' is empty"
+msgstr "La capa '%s' está vacía"
+
+#: catatom.py:155
+msgid "Could not determine the CRS of '%s'"
+msgstr "No se puede determinar el CRS de '%s'"
+
+#: catatom.py:157
 msgid "Read %d features in '%s'"
 msgstr "Leídos %d elementos en '%s'"
 
-#: catatom.py:176
+#: catatom.py:168
 msgid ""
 "Failed to import FuzzyWuzzy. Install requeriments for address conflation."
 msgstr ""
 "No se pudo importar FuzzyWuzzy. Instala los requerimientos para combinar "
 "direcciones."
 
-#: catatom.py:196
-msgid "Couldn't find '%s' in the ATOM Service"
-msgstr ""
-
-#: catatom.py:211
+#: catatom.py:182
 msgid "Municipality: '%s'"
 msgstr "Municipio: '%s'"
 
-#: catatom.py:213
+#: catatom.py:185
 msgid "Failed to find administrative boundary, falling back to bounding box"
 msgstr ""
 "No se pudo obtener el límite administrativo, se usará el recuadro delimitador"
 
-#: catatom.py:225
+#: catatom.py:197
 msgid "Territorial office %s"
 msgstr "Oficina territorial %s"
 
@@ -141,19 +137,19 @@ msgstr "Generado '%s'"
 msgid "Failed to write layer: '%s'"
 msgstr "Error al escribir la capa: '%s'"
 
-#: catatom2osm.py:291
+#: catatom2osm.py:290
 msgid "No OSM data were obtained from '%s'"
 msgstr "No se obtuvieron datos OSM de '%s'"
 
-#: catatom2osm.py:293
+#: catatom2osm.py:292
 msgid "Read '%s': %d nodes, %d ways, %d relations"
 msgstr "Leído '%s': %d nodos, %d vías, %d relaciones"
 
-#: catatom2osm.py:313
+#: catatom2osm.py:312
 msgid "Generated '%s': %d nodes, %d ways, %d relations"
 msgstr "Generado '%s': %d nodos, %d vías, %d relaciones"
 
-#: catatom2osm.py:342
+#: catatom2osm.py:341
 msgid "Could not resolve joined tables for the '%s' layer"
 msgstr "No se pudieron resolver las tablas combinadas para la capa '%s'"
 
@@ -241,15 +237,15 @@ msgstr "Fusionadas %d partes adyacentes"
 msgid "Moved %d addresses to entrance, %d changed to parcel"
 msgstr "Desplazadas %d direcciones a entrada, %d cambiadas a parcela"
 
-#: layer.py:1124
+#: layer.py:1122
 msgid "Check, area too small"
 msgstr "Comprobar, área demasiado pequeña"
 
-#: layer.py:1127
+#: layer.py:1125
 msgid "Check, area too big"
 msgstr "Comprobar, área demasiado grande"
 
-#: layer.py:1163
+#: layer.py:1161
 msgid "Detected %d conflicts in %d buildings from OSM"
 msgstr "Detectados %d edificios con conflicto de %d en OSM"
 

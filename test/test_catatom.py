@@ -75,6 +75,13 @@ gmlfile = """<?xml version="1.0" encoding="ISO-8859-1"?>
     </AD:geometry>
 </gml:FeatureCollection>"""
 
+emptygml = """<?xml version="1.0" encoding="ISO-8859-1"?>
+<gml:FeatureCollection xmlns:gml="http://www.opengis.net/gml/3.2">
+    <gml:featureMember>
+    </gml:featureMember>
+</gml:FeatureCollection>"""
+
+
 class TestCatAtom(unittest.TestCase):
 
     def setUp(self):
@@ -208,6 +215,7 @@ class TestCatAtom(unittest.TestCase):
         m_layer.BaseLayer.return_value.isValid.return_value = True
         m_layer.BaseLayer.return_value.crs.return_value.isValid.return_value = False
         m_qgscrs.return_value.isValid.return_value = True
+        self.m_cat.is_empty.return_value = False
         self.m_cat.crs_ref = '32628'
         self.m_cat.prov_code = '99'
         self.m_cat.gml_date = 'bar'
@@ -222,7 +230,7 @@ class TestCatAtom(unittest.TestCase):
 
         url = setup.prov_url[g] % ('99', '99')
         m_os.path.exists.return_value = False
-        m_layer.BaseLayer.return_value.featureCount.return_value = 0
+        self.m_cat.is_empty.return_value = True
         gml = self.m_cat.read(self.m_cat, 'foobar', allow_empty=True)
         self.m_cat.get_atom_file.assert_called_once_with(url)
         output = m_log.info.call_args_list[-1][0][0]
@@ -239,7 +247,7 @@ class TestCatAtom(unittest.TestCase):
         m_layer.BaseLayer.return_value.crs.return_value.isValid.return_value = False
         m_qgscrs.return_value.isValid.return_value = False
         m_os.path.exists.side_effect = None
-        m_layer.BaseLayer.return_value.featureCount.return_value = 1
+        self.m_cat.is_empty.return_value = False
         with self.assertRaises(IOError) as cm:
             self.m_cat.read(self.m_cat, 'foobar')
         self.assertIn('Could not determine the CRS', cm.exception.message)
@@ -253,6 +261,14 @@ class TestCatAtom(unittest.TestCase):
         m_layer.BaseLayer.return_value.isValid.side_effect = [False, True]
         gml = self.m_cat.read(self.m_cat, 'foobar')
         self.assertEquals(gml, m_layer.BaseLayer.return_value)
+
+    def test_is_empty(self):
+        test = catatom.Reader.is_empty.__func__(None, 'empty.gml', 'test/empty.zip')
+        self.assertTrue(test)
+        test = catatom.Reader.is_empty.__func__(None, 'test/empty.gml', '')
+        self.assertTrue(test)
+        test = catatom.Reader.is_empty.__func__(None, 'test/building.gml', '')
+        self.assertFalse(test)
 
     @mock.patch('catatom.log.warning')
     @mock.patch('catatom.overpass')

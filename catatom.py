@@ -53,7 +53,7 @@ class Reader(object):
             namespace = root.nsmap
         gml_date = root.find('gmd:dateStamp/gco:Date', namespace)
         if is_empty or gml_date == None:
-            raise IOError(_("Could not read date from '%s'") % md_path)
+            raise IOError(_("Could not read metadata from '%s'") % md_path)
         self.gml_date = gml_date.text
         gml_title = root.find('.//gmd:title/gco:CharacterString', namespace)
         self.cat_mun = gml_title.text.split('-')[-1].split('(')[0].strip()
@@ -108,7 +108,23 @@ class Reader(object):
         zip_path = os.path.join(self.path, zip_fn)
         vsizip_path = "/".join(('/vsizip', self.path, zip_fn, gml_fn))
         return (md_path, gml_path, zip_path, vsizip_path, group)
-    
+
+    def is_empty(self, gml_path, zip_path):
+        """Detects if the file is empty. Cadastre empty files (usually 
+        otherconstruction) comes with a null feature and results in a non valid
+        layer in QGIS"""
+        if os.path.exists(zip_path):
+            zf = zipfile.ZipFile(zip_path, 'r')
+            f = zf.open(gml_path, 'r')
+        else:
+            f = open(gml_path, 'r')
+        context = etree.iterparse(f, events=('end',), tag='{*}gml_id')
+        try:
+            event, elem = context.next()
+            return elem.text.strip() == ''
+        except StopIteration:
+            return True
+
     def read(self, layername, allow_empty=False, force_zip=False):
         """
         Create a QGIS vector layer for a Cadastre layername. Derives the GML 
@@ -133,16 +149,16 @@ class Reader(object):
             self.get_atom_file(url)
         self.get_metadata(md_path, zip_path)
         gml = layer.BaseLayer(vsizip_path, layername+'.gml', 'ogr')
-        if not gml.isValid():
-            gml = layer.BaseLayer(gml_path, layername+'.gml', 'ogr')
-            if not gml.isValid():
-                raise IOError(_("Failed to load layer '%s'") % gml_path)
-        if gml.featureCount() == 0:
+        if self.is_empty(gml_path, zip_path):
             if not allow_empty:
                 raise IOError(_("The layer '%s' is empty") % gml_path)
             else:
                 log.info(_("The layer '%s' is empty"), gml_path.encode('utf-8'))
                 return None
+        if not gml.isValid():
+            gml = layer.BaseLayer(gml_path, layername+'.gml', 'ogr')
+            if not gml.isValid():
+                raise IOError(_("Failed to load layer '%s'") % gml_path)
         if not gml.crs().isValid():
             crs = QgsCoordinateReferenceSystem(self.crs_ref)
             if not crs.isValid():
