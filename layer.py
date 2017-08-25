@@ -905,11 +905,13 @@ class ConsLayer(PolygonLayer):
             request.setFilterFids(fids)
         super(ConsLayer, self).explode_multi_parts(request)
 
-    def append_zone(self, layer, zone, processed):
+    def append_zone(self, layer, zone, processed, index):
         """Append features of layer inside zone excluding processed localId's'"""
-        query = lambda f, kwargs: \
+        query = lambda f, kwargs: f.id() in fids and \
             f['localId'] not in kwargs['excluding'] and is_inside(f, kwargs['zone'])
-        super(ConsLayer, self).append(layer, query=query, zone=zone, excluding=processed)
+        fids = index.intersects(zone.geometry().boundingBox())
+        super(ConsLayer, self).append(layer, query=query, zone=zone, fids=fids, 
+            excluding=processed)
 
     def append_task(self, layer, task):
         """Append features of layer including task localId's'"""

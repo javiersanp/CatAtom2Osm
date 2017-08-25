@@ -511,19 +511,20 @@ class TestConsLayer(unittest.TestCase):
         self.assertTrue(layer.isValid(), "Init QGIS")
         fixture = QgsVectorLayer('test/building.gml', 'building', 'ogr')
         self.assertTrue(fixture.isValid())
+        index = QgsSpatialIndex(fixture.getFeatures())
         poly = [(357485.75, 3124157.86), (357483.21, 3124119.41), (357512.30,
             3124116.16), (357514.54, 3124154.81), (357485.75, 3124157.86)]
         geom = QgsGeometry().fromPolygon([[QgsPoint(p[0], p[1]) for p in poly]])
         zone = QgsFeature(self.layer.pendingFields())
         zone.setGeometry(geom)
-        layer.append_zone(fixture, zone, [])
+        layer.append_zone(fixture, zone, [], index)
         self.assertEquals(layer.featureCount(), 4)
         processed = ['7541401CS5274S', '7541412CS5274S', '7541413CS5274S',
             '7541415CS5274S']
         for f in layer.getFeatures():
             self.assertIn(f['localId'], processed)
         layer = ConsLayer()
-        layer.append_zone(fixture, zone, processed)
+        layer.append_zone(fixture, zone, processed, index)
         self.assertEquals(layer.featureCount(), 0)
 
     def test_append_task(self):

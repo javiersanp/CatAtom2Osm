@@ -111,6 +111,7 @@ class CatAtom2Osm:
             self.building_osm = osm.Osm()
 
     def process_tasks(self):
+        self.index_bu = QgsSpatialIndex(self.building_gml.getFeatures())
         base_path = os.path.join(self.path, 'tasks')
         if not os.path.exists(base_path):
             os.makedirs(base_path)
@@ -123,6 +124,7 @@ class CatAtom2Osm:
                     self.current_bu_osm.remove(el)
                 else:
                     del el.tags['conflict']
+        del self.index_bu
         del self.building_gml
         del self.part_gml
         del self.other_gml
@@ -134,7 +136,7 @@ class CatAtom2Osm:
             zone['label'], zoning.task_number, zoning.featureCount(),
             zoning.name().encode('utf-8'))
         building = layer.ConsLayer(source_date = self.building_gml.source_date)
-        building.append_zone(self.building_gml, zone, self.processed)
+        building.append_zone(self.building_gml, zone, self.processed, self.index_bu)
         if building.featureCount() == 0:
             log.info(_("Zone '%s' is empty"), zone['label'].encode('utf-8'))
         else:

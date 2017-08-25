@@ -113,7 +113,8 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.get_current_bu_osm.assert_called_once_with()
 
     @mock.patch('catatom2osm.os')
-    def test_process_tasks(self, m_os):
+    @mock.patch('catatom2osm.QgsSpatialIndex')
+    def test_process_tasks(self, m_ndx, m_os):
         self.m_app.process_tasks = cat.CatAtom2Osm.process_tasks.__func__
         m_os.path.join = lambda *args: '/'.join(args)
         m_os.path.exists.return_value = True
@@ -124,7 +125,9 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.current_bu_osm = bu
         self.m_app.urban_zoning.getFeatures.return_value = [1, 2]
         self.m_app.rustic_zoning.getFeatures.return_value = [3, 4]
+        self.m_app.building_gml.getFeatures.return_value = 'foo'
         self.m_app.process_tasks(self.m_app)
+        m_ndx.assert_called_once_with('foo')
         self.m_app.process_zone.assert_has_calls([
             mock.call(1, self.m_app.urban_zoning),
             mock.call(2, self.m_app.urban_zoning),
@@ -138,6 +141,7 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.building_gml = mock.MagicMock()
         self.m_app.part_gml = mock.MagicMock()
         self.m_app.other_gml = mock.MagicMock()
+        self.m_app.index_bu = mock.MagicMock()
         self.m_app.process_tasks(self.m_app)
         m_os.makedirs.assert_called_once_with('foo/tasks')
 
@@ -151,9 +155,10 @@ class TestCatAtom2Osm(unittest.TestCase):
         building = m_layer.ConsLayer.return_value
         building.featureCount.return_value = 0
         self.m_app.processed = []
+        index = self.m_app.index_bu
         self.m_app.process_zone(self.m_app, zone, zoning)
         m_layer.ConsLayer.assert_called_once_with(source_date = 1)
-        building.append_zone.assert_called_once_with(self.m_app.building_gml, zone, [])
+        building.append_zone.assert_called_once_with(self.m_app.building_gml, zone, [], index)
         output = m_log.info.call_args_list[-1][0][0]
         self.assertIn('empty', output)
 
