@@ -349,21 +349,6 @@ class BaseLayer(QgsVectorLayer):
         request = QgsFeatureRequest(exp)
         return self.getFeatures(request)
 
-    def get_child_features(self, child_layer):
-        """Returns a dictionary of lists with the features in child_layer
-        contained in each feature of this layer
-
-        Args:
-            child_layer (QgsVectorLayer): Layer that is contained
-        """
-        child_features = {}
-        for f1 in self.getFeatures():
-            child_features[f1.id()] = []
-            for f2 in child_layer.getFeatures():
-                if f2.id() not in child_features[f1.id()] and is_inside(f2, f1):
-                    child_features[f1.id()].append(f2.id())
-        return child_features
-
 
 class PolygonLayer(BaseLayer):
     """Base class for polygon layers"""

@@ -223,18 +223,6 @@ class TestBaseLayer(unittest.TestCase):
         self.layer.export('foobar', 'foo', overwrite=False)
         mock_os.remove.assert_called_once_with('foobar')
 
-    def test_get_child_features(self):
-        layer1 = BaseLayer('test/geom1.gml', 'geom1', 'ogr')
-        layer2 = BaseLayer('test/geom2.gml', 'geom2', 'ogr')
-        self.assertTrue(layer1.isValid())
-        self.assertTrue(layer2.isValid())
-        result = layer1.get_child_features(layer2)
-        self.assertEquals(len(result), 10)
-        for i in (0, 1, 3, 7, 9):
-            self.assertEquals(result[i], [])
-        for i in (2, 4, 5, 6, 8):
-            self.assertEquals(result[i], [i])
-
     @mock.patch('layer.super')
     def test_deleteFeatures(self, m_super):
         self.layer.deleteFeature = mock.MagicMock()
