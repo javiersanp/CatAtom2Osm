@@ -816,15 +816,13 @@ class AddressLayer(BaseLayer):
         """
         index = highway.get_index()
         features = {feat.id(): feat for feat in highway.getFeatures()}
-        highway_names = {}
-        for feat in self.getFeatures():
-            name = feat['TN_text']
-            if name not in highway_names:
-                query = self.search("TN_text='%s'" % name)
-                points = [f.geometry().asPoint() for f in query]
-                bbox = QgsGeometry().fromMultiPoint(points).boundingBox()
-                choices = [features[fid]['name'] for fid in index.intersects(bbox)]
-                highway_names[name] = hgwnames.match(name, choices)
+        highway_names = defaultdict(list)
+        for f in self.getFeatures():
+            highway_names[f['TN_text']].append(f.geometry().asPoint())
+        for name, points in highway_names.items():
+            bbox = QgsGeometry().fromMultiPoint(points).boundingBox()
+            choices = [features[fid]['name'] for fid in index.intersects(bbox)]
+            highway_names[name] = hgwnames.match(name, choices)
         return highway_names
 
 
