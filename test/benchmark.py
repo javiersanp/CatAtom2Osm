@@ -171,7 +171,7 @@ class TimerConsLayer(BaseTimer):
 
     def __init__(self):
         self.obj = layer.ConsLayer()
-        mun = '38012'
+        mun = '38900'
         building_fn = BASEPATH + '{0}/A.ES.SDGC.BU.{0}.building.gml'.format(mun)
         #buildingpart_fn = BASEPATH + '38001/A.ES.SDGC.BU.38001.buildingpart.gml'
         zoning_fn = BASEPATH + '{0}/A.ES.SDGC.CP.{0}.cadastralzoning.gml'.format(mun)
@@ -187,7 +187,11 @@ class TimerConsLayer(BaseTimer):
         #self.test(self.get_features)
         #self.test(self.get_index)
         #self.fids = self.index.intersects(self.zone.geometry().boundingBox())
-        print 'Seleccionando {} edificios de {}'.format(len(self.fids), c)
+        osm_path = BASEPATH + mun + '/current_building.osm'
+        tree = etree.parse(osm_path)
+        self.current_bu_osm = osmxml.deserialize(tree.getroot())
+        self.obj.reproject()
+        """print 'Seleccionando {} edificios de {}'.format(len(self.fids), c)
         self.test(self.get_features)
         self.test(self.get_fids_by_loop)
         self.test(self.get_fids_by_loop2)
@@ -196,6 +200,7 @@ class TimerConsLayer(BaseTimer):
         #self.test(self.get_fids_by_filter)
         self.test(self.get_fids_by_filter_mem)
         self.test(self.get_fids_by_dict_mem)
+        """
         #self.test(self.get_fid_by_fid)
         #self.test(self.get_fids_by_select)
         #self.test(self.get_fid_by_fid_mem)
@@ -324,11 +329,49 @@ class TimerConsLayer(BaseTimer):
             zone = it.next()
             self.obj.append_zone2(self.building, self.zone, processed)
 
+    def test_conflate2(self):
+        delete = True
+        index = self.obj.get_index()
+        num_buildings = 0
+        conflicts = 0
+        to_clean = set()
+        for el in self.current_bu_osm.elements:
+            poly = None
+            if el.type == 'way' and el.is_closed() and 'building' in el.tags:
+                poly = [[map(layer.Point, el.geometry())]]
+            elif el.type == 'relation' and 'building' in el.tags:
+                poly = [[map(layer.Point, w)] for w in el.outer_geometry()]
+            if poly:
+                num_buildings += 1
+                geom = QgsGeometry().fromMultiPolygon(poly)
+                if geom.isGeosValid():
+                    conflict = False
+                    fids = index.intersects(geom.boundingBox())
+                    self.obj.setSelectedFeatures(fids)
+                    for feat in self.obj.selectedFeatures():
+                        fg = feat.geometry()
+                        if geom.contains(fg) or fg.contains(geom) \
+                                or geom.overlaps(fg):
+                            conflict = True
+                            conflicts += 1
+                            break
+                    if delete and not conflict:
+                        to_clean.add(el)
+                    if not delete and conflict:
+                        el.tags['conflict'] = 'yes'
+        for el in to_clean:
+            self.current_bu_osm.remove(el)
+        print "Detected {} conflicts in {} buildings from OSM".format(conflicts, num_buildings)
+
+
+    def _test_conflate(self):
+        self.obj.conflate(self.current_bu_osm)
+
 
 """
 TimerBaseLayer().run()
 TimerPolygonLayer().run()
-TimerConsLayer().run()
-"""
 TimerAddressLayer2().run()
+"""
+TimerConsLayer().run()
 

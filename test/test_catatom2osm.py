@@ -493,7 +493,9 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.assertFalse(is_new)
         m_csv.csv2dict.reset_mock()
         m_os.path.exists.return_value = False
-        (names, is_new) = self.m_app.get_translations(self.m_app, address, None)
+        highway = mock.MagicMock()
+        (names, is_new) = self.m_app.get_translations(self.m_app, address, highway)
+        highway.reproject.assert_called_once_with(address.crs.return_value)
         m_csv.csv2dict.assert_not_called()
         m_csv.dict2csv.assert_has_calls([
             mock.call('bar/highway_types.csv', setup.highway_types),

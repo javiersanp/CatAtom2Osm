@@ -1121,7 +1121,8 @@ class ConsLayer(PolygonLayer):
         index = self.get_index()
         num_buildings = 0
         conflicts = 0
-        for el in frozenset(current_bu_osm.elements):
+        to_clean = set()
+        for el in current_bu_osm.elements:
             poly = None
             if el.type == 'way' and el.is_closed() and 'building' in el.tags:
                 poly = [[map(Point, el.geometry())]]
@@ -1141,9 +1142,11 @@ class ConsLayer(PolygonLayer):
                             conflicts += 1
                             break
                     if delete and not conflict:
-                        current_bu_osm.remove(el)
+                        to_clean.add(el)
                     if not delete and conflict:
                         el.tags['conflict'] = 'yes'
+        for el in to_clean:
+            current_bu_osm.remove(el)
         log.debug(_("Detected %d conflicts in %d buildings from OSM"), 
                 conflicts, num_buildings)
 

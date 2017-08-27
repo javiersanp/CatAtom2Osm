@@ -428,6 +428,7 @@ class CatAtom2Osm:
             csvtools.csv2dict(highway_types_path, setup.highway_types)
         highway_names_path = os.path.join(self.path, 'highway_names.csv')
         if not os.path.exists(highway_names_path):
+            highway.reproject(address.crs())
             highway_names = address.get_highway_names(highway)
             csvtools.dict2csv(highway_names_path, highway_names)
             is_new = True
@@ -446,7 +447,6 @@ class CatAtom2Osm:
         highway = layer.HighwayLayer()
         highway.read_from_osm(highway_osm)
         del highway_osm
-        highway.reproject(self.address.crs())
         return highway
 
     def get_current_ad_osm(self):
