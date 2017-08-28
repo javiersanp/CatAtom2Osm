@@ -517,14 +517,20 @@ class TestCatAtom2Osm(unittest.TestCase):
         c = self.m_app.get_current_bu_osm(self.m_app)
         self.assertEquals(c, 1234)
 
-    def test_get_current_ad_osm(self):
+    @mock.patch('catatom2osm.log')
+    def test_get_current_ad_osm(self, m_log):
         d = osm.Osm()
         d.Node(0,0, {'addr:housenumber': '12', 'addr:street': 'foobar'})
         d.Node(1,1, {'addr:housenumber': '14', 'addr:street': 'foobar'})
         d.Node(2,2, {'addr:housenumber': '10', 'addr:place': 'bartaz'})
-        d.Node(3,3)
         self.m_app.get_current_ad_osm = cat.CatAtom2Osm.get_current_ad_osm.__func__
         self.m_app.read_osm.return_value = d
         address = self.m_app.get_current_ad_osm(self.m_app)
         self.assertEquals(address, set(['foobar14', 'foobar12', 'bartaz10']))
+        m_log.warning.assert_not_called()
+        d.Node(3,3, {'addr:street': 'x'})
+        self.m_app.read_osm.return_value = d
+        address = self.m_app.get_current_ad_osm(self.m_app)
+        output = m_log.warning.call_args_list[0][0][0]
+        self.assertIn('without house number', output)
 

@@ -87,7 +87,11 @@ class OsmxmlTest(unittest.TestCase):
         relxml = etree.Element('relation', dict(id='-200'))
         relxml.append(etree.Element('member', dict(type='way', ref='-101', role='outter')))
         relxml.append(etree.Element('member', dict(type='way', ref='-102', role='inner')))
+        relxml.append(etree.Element('member', dict(type='relation', ref='-201')))
         relxml.append(etree.Element('tag', dict(k='building', v='residential')))
+        root.append(relxml)
+        relxml = etree.Element('relation', dict(id='-201'))
+        relxml.append(etree.Element('tag', dict(k='test', v='nested relation')))
         root.append(relxml)
         result = osmxml.deserialize(root)
         self.assertEquals(result.upload, '1')
@@ -95,7 +99,7 @@ class OsmxmlTest(unittest.TestCase):
         self.assertEquals(result.generator, '3')
         self.assertEquals(len(result.nodes), 16)
         self.assertEquals(len(result.ways), 3)
-        self.assertEquals(len(result.relations), 1)
+        self.assertEquals(len(result.relations), 2)
         for osmnode in result.nodes:
             xmlnode = root.find("node[@id='%d']" % osmnode.id)
             self.assertEquals(int(xmlnode.get('id')), osmnode.id)
@@ -112,15 +116,14 @@ class OsmxmlTest(unittest.TestCase):
                 self.assertIn(nd.get('ref'), [str(w.id) for w in osmway.nodes])
         tags = {t.get('k'): t.get('v') for t in root.findall("way[@id='-100']/tag")}
         self.assertEquals(tags, dict(leisure='swiming_pool'))
-        osmrel = result.relations[0]
+        osmrel = result.get(-200, 'r')
         xmlrel = root.find("relation[@id='%d']" % osmrel.id)
         self.assertEquals(int(xmlrel.get('id')), osmrel.id)
         roles = []
         for m in xmlrel.findall('member'):
             self.assertIn(m.get('ref'), [str(x.ref) for x in osmrel.members])
-            self.assertEquals(m.get('type'), 'way')
             roles.append(m.get('role'))
-        self.assertEquals(roles, ['outter', 'inner'])
+        self.assertEquals(roles, ['outter', 'inner', None])
         tags = {t.get('k'): t.get('v') for t in root.findall("relation[@id='-200']/tag")}
         self.assertEquals(tags, dict(building='residential'))
         nxml = etree.Element('note')

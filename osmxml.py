@@ -92,9 +92,12 @@ def deserialize(root, data=None):
         for t in way.iter('tag'):
             w.tags[t.get('k')] = t.get('v')
     for rel in root.iter('relation'):
-        members = [osm.Relation.Member(data.get(m.get('ref'), m.get('type')), \
-            m.get('role')) for m in rel.iter('member')]
-        r = data.Relation(members, attrs=dict(rel.attrib))
+        r = data.Relation(attrs=dict(rel.attrib))
         for t in rel.iter('tag'):
             r.tags[t.get('k')] = t.get('v')
+    for rel in root.iter('relation'):
+        r = data.get(rel.get('id'), 'r')
+        for m in rel.iter('member'):
+            el = data.get(m.get('ref'), m.get('type'))
+            r.append(el, m.get('role'))
     return data

@@ -459,11 +459,16 @@ class CatAtom2Osm:
               'relation["addr:place"]["addr:housenumber"]']
         address_osm = self.read_osm(ql, 'current_address.osm')
         current_address = set()
+        w = 0
         for d in address_osm.elements:
-            if 'addr:street' in d.tags:
+            if 'addr:housenumber' not in d.tags:
+                w += 1
+            elif 'addr:street' in d.tags:
                 current_address.add(d.tags['addr:street'] + d.tags['addr:housenumber'])
             elif 'addr:place' in d.tags:
                 current_address.add(d.tags['addr:place'] + d.tags['addr:housenumber'])
+        if w > 0:
+            log.warning(_("There are %d address without house number in the OSM data"), w)
         return current_address
 
     def get_current_bu_osm(self):
