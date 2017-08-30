@@ -1,5 +1,6 @@
 import unittest
 import random
+from cStringIO import StringIO
 
 import main
 import osm
@@ -22,22 +23,24 @@ class OsmxmlTest(unittest.TestCase):
             [(8,1), (9,1), (9,2), (8,2), (8,1)]
         ]])
         r.tags['building'] = 'residential'
-        result = osmxml.serialize(data)
+        fo = StringIO()
+        osmxml.serialize(fo, data)
+        result = fo.getvalue()
         root = etree.fromstring(result)
-        self.assertEquals(root.xpath('count(//way)'), 3)
-        self.assertEquals(root.xpath('count(//relation)'), 1)
         for (xmlnode, osmnode) in zip(root.findall('node'), data.nodes):
             self.assertEquals(float(xmlnode.get('lon')), osmnode.x) 
             self.assertEquals(float(xmlnode.get('lat')), osmnode.y)
         for (xmltag, osmtag) in zip(root.findall('node/tag'), n.tags.items()):
             self.assertEquals(xmltag.get('k'), osmtag[0])
             self.assertEquals(xmltag.get('v'), osmtag[1])
+        self.assertEquals(root.xpath('count(//way)'), 3)
         for (xmlway, osmway) in zip(root.findall('way'), data.ways):
             for (xmlnd, osmnd) in zip(xmlway.findall('nd'), osmway.nodes):
                 self.assertEquals(int(xmlnd.get('ref')), osmnd.id)
         for (xmltag, osmtag) in zip(root.findall('way/tag'), w.tags.items()):
             self.assertEquals(xmltag.get('k'), osmtag[0])
             self.assertEquals(xmltag.get('v'), osmtag[1])
+        self.assertEquals(root.xpath('count(//relation)'), 1)
         for (i, (xmlm, osmm)) in enumerate(zip(root.findall('relation/member'), r.members)):
             self.assertEquals(int(xmlm.get('ref')), osmm.ref)
             self.assertEquals(xmlm.get('role'), 'outer' if i == 0 else 'inner')
@@ -49,13 +52,15 @@ class OsmxmlTest(unittest.TestCase):
         data.note = 'foobar'
         data.meta = {'foo': 'bar'}
         data.tags['type'] = 'import'
-        result = osmxml.serialize(data)
+        fo = StringIO()
+        osmxml.serialize(fo, data)
+        result = fo.getvalue()
         root = etree.fromstring(result)
+        self.assertEquals(root.find('note').text, 'foobar')
+        self.assertEquals(root.find('meta').get('foo'), 'bar')
         for (xmltag, osmtag) in zip(root.findall('changeset/tag'), data.tags.items()):
             self.assertEquals(xmltag.get('k'), osmtag[0])
             self.assertEquals(xmltag.get('v'), osmtag[1])
-        self.assertEquals(root.find('note').text, 'foobar')
-        self.assertEquals(root.find('meta').get('foo'), 'bar')
 
     def test_deserialize(self):
         attrs = dict(upload='1', version='2', generator='3')
@@ -93,39 +98,37 @@ class OsmxmlTest(unittest.TestCase):
         relxml = etree.Element('relation', dict(id='-201'))
         relxml.append(etree.Element('tag', dict(k='test', v='nested relation')))
         root.append(relxml)
-        result = osmxml.deserialize(root)
+        fo = StringIO(etree.tostring(root))
+        result = osmxml.deserialize(fo)
         self.assertEquals(result.upload, '1')
         self.assertEquals(result.version, '2')
         self.assertEquals(result.generator, '3')
         self.assertEquals(len(result.nodes), 16)
-        self.assertEquals(len(result.ways), 3)
-        self.assertEquals(len(result.relations), 2)
         for osmnode in result.nodes:
             xmlnode = root.find("node[@id='%d']" % osmnode.id)
-            self.assertEquals(int(xmlnode.get('id')), osmnode.id)
             self.assertEquals(float(xmlnode.get('lon')), osmnode.x) 
             self.assertEquals(float(xmlnode.get('lat')), osmnode.y)
-        tags = {t.get('k'): t.get('v') for t in root.findall("node[@id='-1']/tag")}
-        self.assertEquals(tags['entrance'], 'yes')
-        self.assertEquals(tags['addr:street'], 'Calle la X')
-        self.assertEquals(tags['addr:housenumber'], '7')
+        n = result.get('-1')
+        self.assertEquals(n.tags['entrance'], 'yes')
+        self.assertEquals(n.tags['addr:street'], 'Calle la X')
+        self.assertEquals(n.tags['addr:housenumber'], '7')
+        self.assertEquals(len(result.ways), 3)
         for osmway in result.ways:
             xmlway = root.find("way[@id='%d']" % osmway.id)
-            self.assertEquals(int(xmlway.get('id')), osmway.id)
             for nd in xmlway.findall('nd'):
                 self.assertIn(nd.get('ref'), [str(w.id) for w in osmway.nodes])
-        tags = {t.get('k'): t.get('v') for t in root.findall("way[@id='-100']/tag")}
-        self.assertEquals(tags, dict(leisure='swiming_pool'))
+        w = result.get('-100', 'w')
+        self.assertEquals(w.tags['leisure'], 'swiming_pool')
+        self.assertEquals(len(result.relations), 2)
         osmrel = result.get(-200, 'r')
         xmlrel = root.find("relation[@id='%d']" % osmrel.id)
-        self.assertEquals(int(xmlrel.get('id')), osmrel.id)
         roles = []
         for m in xmlrel.findall('member'):
             self.assertIn(m.get('ref'), [str(x.ref) for x in osmrel.members])
             roles.append(m.get('role'))
         self.assertEquals(roles, ['outter', 'inner', None])
-        tags = {t.get('k'): t.get('v') for t in root.findall("relation[@id='-200']/tag")}
-        self.assertEquals(tags, dict(building='residential'))
+        r = result.get(-200, 'r')
+        self.assertEquals(r.tags['building'], 'residential')
         nxml = etree.Element('note')
         nxml.text = 'foobar'
         root.append(nxml)
@@ -135,13 +138,15 @@ class OsmxmlTest(unittest.TestCase):
         csxml = etree.Element('changeset')
         csxml.append(etree.Element('tag', dict(k='type', v='import')))
         root.append(csxml)
-        result = osmxml.deserialize(root)
+        fo = StringIO(etree.tostring(root))
+        result = osmxml.deserialize(fo)
+        self.assertEquals(result.tags, dict(type='import'))
         self.assertEquals(result.note, 'foobar')
         self.assertEquals(result.meta, dict(foo='bar'))
-        self.assertEquals(result.tags, dict(type='import'))
         root = etree.Element('osm')
         nodexml = etree.Element('node', dict(id='-50', lon='0', lat='4'))
         root.append(nodexml)
-        result = osmxml.deserialize(root, result)
+        fo = StringIO(etree.tostring(root))
+        result = osmxml.deserialize(fo, result)
         self.assertEquals(len(result.nodes), 17)
 

@@ -26,78 +26,101 @@ except ImportError: # pragma: no cover
                 raise ImportError(_("Failed to import ElementTree from any known place"))
 
 
-def serialize(data):
-    """Output XML for an OSM data set"""
-    root = etree.Element('osm', data.attrs)
-    if data.note is not None:
-        nxml = etree.Element('note')
-        nxml.text = data.note
-        root.append(nxml)
-    if data.meta is not None:
-        mxml = etree.Element('meta')
-        for (k, v) in data.meta.items():
-            mxml.set(k, v)
-        root.append(mxml)
-    if data.tags:
-        csxml = etree.Element('changeset')
-        for key, value in data.tags.items():
-            csxml.append(etree.Element('tag', dict(k=key, v=value)))
-        root.append(csxml)
-    for node in data.nodes:
-        nodexml = etree.Element('node', node.attrs)
-        for key, value in node.tags.items():
-            nodexml.append(etree.Element('tag', dict(k=key, v=value)))
-        root.append(nodexml)
-    for way in data.ways:
-        wayxml = etree.Element('way', way.attrs)
-        for node in way.nodes:
-            wayxml.append(etree.Element('nd', dict(ref=str(node.id))))
-        for key, value in way.tags.items():
-            wayxml.append(etree.Element('tag', dict(k=key, v=value)))
-        root.append(wayxml)
-    for rel in data.relations:
-        relxml = etree.Element('relation', rel.attrs)
-        for m in rel.members:
-            relxml.append(etree.Element('member', m.attrs))
-        for key, value in rel.tags.items():
-            relxml.append(etree.Element('tag', dict(k=key, v=value)))
-        root.append(relxml)
+def write_elem(outfile, e):
     try:
-        result = etree.tostring(root, pretty_print=True)
+        outfile.write(etree.tostring(e, pretty_print=True))
     except TypeError: # pragma: no cover
-        result = etree.tostring(root)
-    return result
+        outfile.write(etree.tostring(e))
 
-def deserialize(root, data=None):
+def serialize(outfile, data):
+    """Output XML for an OSM data set"""
+    outfile.write("<?xml version='1.0' encoding='UTF-8'?>\n")
+    attrs = ''.join([" {}='{}'".format(k, v) for (k,v) in data.attrs.items()])
+    outfile.write("<osm{}>\n".format(attrs))
+    if data.note is not None:
+        e = etree.Element('note')
+        e.text = data.note
+        write_elem(outfile, e)
+    if data.meta is not None:
+        e = etree.Element('meta')
+        for (k, v) in data.meta.items():
+            e.set(k, v)
+        write_elem(outfile, e)
+    if data.tags:
+        e = etree.Element('changeset')
+        for (key, value) in data.tags.items():
+            e.append(etree.Element('tag', dict(k=key, v=value)))
+        write_elem(outfile, e)
+    for node in data.nodes:
+        e = etree.Element('node', node.attrs)
+        for key, value in node.tags.items():
+            e.append(etree.Element('tag', dict(k=key, v=value)))
+        write_elem(outfile, e)
+    for way in data.ways:
+        e = etree.Element('way', way.attrs)
+        for node in way.nodes:
+            e.append(etree.Element('nd', dict(ref=str(node.id))))
+        for key, value in way.tags.items():
+            e.append(etree.Element('tag', dict(k=key, v=value)))
+        write_elem(outfile, e)
+    for rel in data.relations:
+        e = etree.Element('relation', rel.attrs)
+        for m in rel.members:
+            e.append(etree.Element('member', m.attrs))
+        for key, value in rel.tags.items():
+            e.append(etree.Element('tag', dict(k=key, v=value)))
+        write_elem(outfile, e)
+    outfile.write("</osm>\n")
+        
+def deserialize(infile, data=None):
     """Generates or append to an OSM data set from OSM XML"""
     if data is None:
         data = osm.Osm()
-    data.upload = root.get('upload')
-    data.version = root.get('version')
-    data.generator = root.get('generator')
-    note = root.find('note')
-    if note is not None: data.note = note.text
-    meta = root.find('meta')
-    if meta is not None: data.meta = meta.attrib
-    for tag in root.iterfind('changeset/tag'):
-        data.tags[tag.get('k')] = tag.get('v')
-    for node in root.iter('node'):
-        n = data.Node(float(node.get('lon')), float(node.get('lat')), 
-            attrs=dict(node.attrib))
-        for t in node.iter('tag'):
-            n.tags[t.get('k')] = t.get('v')
-    for way in root.iter('way'):
-        points = [data.get(nd.get('ref')) for nd in way.iter('nd')]
-        w = data.Way(points, attrs=dict(way.attrib))
-        for t in way.iter('tag'):
-            w.tags[t.get('k')] = t.get('v')
-    for rel in root.iter('relation'):
-        r = data.Relation(attrs=dict(rel.attrib))
-        for t in rel.iter('tag'):
-            r.tags[t.get('k')] = t.get('v')
-    for rel in root.iter('relation'):
-        r = data.get(rel.get('id'), 'r')
-        for m in rel.iter('member'):
-            el = data.get(m.get('ref'), m.get('type'))
-            r.append(el, m.get('role'))
+    context = etree.iterparse(infile, events=('start',))
+    last_elem = data
+    for event, elem in context:
+        if elem.tag == 'osm':
+            data.upload = elem.get('upload')
+            data.version = elem.get('version')
+            data.generator = elem.get('generator')
+        elif elem.tag == 'changeset':
+            last_elem = data
+        elif elem.tag == 'note':
+            data.note = elem.text
+        elif elem.tag == 'meta':
+            data.meta = dict(elem.attrib)
+        elif elem.tag == 'node':
+            n = data.Node(float(elem.get('lon')), float(elem.get('lat')), 
+                attrs=dict(elem.attrib))
+            last_elem = n
+        elif elem.tag == 'way':
+            w = data.Way(attrs=dict(elem.attrib))
+            last_elem = w
+        elif elem.tag == 'nd':
+            last_elem.nodes.append(elem.get('ref'))
+        elif elem.tag == 'relation':
+            r = data.Relation(attrs=dict(elem.attrib))
+            last_elem = r
+        elif elem.tag == 'member':
+            last_elem.members.append({
+                'ref': elem.get('ref'),
+                'type': elem.get('type'),
+                'role': elem.get('role')
+            })
+        elif elem.tag == 'tag':
+            last_elem.tags[elem.get('k')] = elem.get('v')
+        elem.clear()
+        while elem.getprevious() is not None:
+            del elem.getparent()[0]
+    for way in data.ways:
+        for i, ref in enumerate(way.nodes):
+            if 'n{}'.format(ref) in data.index:
+                way.nodes[i] = data.get(ref)
+    for rel in data.relations:
+        for i, m in enumerate(rel.members):
+            if isinstance(m, dict):
+                if m['type'][0].lower() + str(m['ref']) in data.index:
+                    el = data.get(m['ref'], m['type'])
+                    rel.members[i] = osm.Relation.Member(el, m['role'])
     return data
+

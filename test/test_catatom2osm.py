@@ -333,18 +333,18 @@ class TestCatAtom2Osm(unittest.TestCase):
 
     @mock.patch('catatom2osm.os')
     @mock.patch('catatom2osm.log')
-    @mock.patch('catatom2osm.etree')
+    @mock.patch('catatom2osm.open')
     @mock.patch('catatom2osm.osmxml')
     @mock.patch('catatom2osm.overpass')
-    def test_read_osm(self, m_overpass, m_xml, m_etree, m_log, m_os):
+    def test_read_osm(self, m_overpass, m_xml, m_open, m_log, m_os):
         self.m_app.read_osm = cat.CatAtom2Osm.read_osm.__func__
         m_os.path.join = lambda *args: '/'.join(args)
         m_os.path.exists.return_value = True
         m_xml.deserialize.return_value.elements = []
-        m_etree.parse.return_value.getroot.return_value = 123
+        m_open.return_value = 123
         self.m_app.read_osm(self.m_app, 'bar', 'taz')
         m_overpass.Query.assert_not_called()
-        m_etree.parse.assert_called_with('foo/taz')
+        m_open.assert_called_with('foo/taz', 'r')
         m_xml.deserialize.assert_called_once_with(123)
         output = m_log.warning.call_args_list[0][0][0]
         self.assertIn('No OSM data', output)
@@ -373,8 +373,8 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.write_osm(self.m_app, data, 'bar')
         self.assertNotIn('ref', [k for el in data.elements for k in el.tags.keys()])
         m_codecs.open.assert_called_once_with('foo/bar', 'w', 'utf-8')
-        m_xml.serialize.assert_called_once_with(data)
-        m_codecs.open().__enter__.return_value.write.assert_called_with('taz')
+        file_obj = m_codecs.open.return_value.__enter__.return_value
+        m_xml.serialize.assert_called_once_with(file_obj, data)
 
     @mock.patch('catatom2osm.layer')
     def test_get_zoning(self, m_layer):

@@ -286,8 +286,8 @@ class CatAtom2Osm:
             log.info(_("Downloading '%s'") % filename)
             query = overpass.Query(self.cat.boundary_search_area).add(ql)
             query.download(osm_path)
-        tree = etree.parse(osm_path)
-        data = osmxml.deserialize(tree.getroot())
+        fo = open(osm_path, 'r')
+        data = osmxml.deserialize(fo)
         if len(data.elements) == 0:
             log.warning(_("No OSM data were obtained from '%s'") % filename)
         else:
@@ -309,8 +309,7 @@ class CatAtom2Osm:
         osm_path = os.path.join(self.path, filename)
         data.merge_duplicated()
         with codecs.open(osm_path, "w", "utf-8") as file_obj:
-            file_obj.write("<?xml version='1.0' encoding='UTF-8'?>\n")
-            file_obj.write(osmxml.serialize(data))
+            osmxml.serialize(file_obj, data)
         log.info(_("Generated '%s': %d nodes, %d ways, %d relations"),
             filename, len(data.nodes), len(data.ways), len(data.relations))
 
