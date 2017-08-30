@@ -54,7 +54,7 @@ prov_url = {
     "CP": base_url['CP'] + "%s/ES.SDGC.CP.atom_%s.xml"
 }
 
-valid_provinces = ["%02d" % i for i in range(2,57)]
+valid_provinces = ["%02d" % i for i in range(2,57) if i not in (20, 31, 48)]
 
 language, encoding = locale.getdefaultlocale()
 app_path = os.path.dirname(__file__)
