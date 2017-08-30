@@ -10,7 +10,7 @@ class TestQuery(unittest.TestCase):
     def test_init(self, m_q):
         q = Query('foo')
         self.assertEquals(q.output, 'xml')
-        self.assertEquals(q.down, '(._;>;);')
+        self.assertEquals(q.down, '(._;>>;);')
         self.assertEquals(q.meta, 'out meta;')
         self.assertEquals(q.area_id, '')
         self.assertEquals(q.bbox, '')
@@ -55,7 +55,7 @@ class TestQuery(unittest.TestCase):
         self.assertEquals(q.get_url(), '')
         q.add('foo', 'bar')
         url = API_URL + "data=[out:xml];(area(3600001234)->.searchArea;" \
-            "foo(area.searchArea);bar(area.searchArea););(._;>;);out meta;"
+            "foo(area.searchArea);bar(area.searchArea););(._;>>;);out meta;"
         self.assertEquals(q.get_url(), url)
         q.set_search_area('1,2,3,4')
         q.output = 'json'
@@ -71,7 +71,7 @@ class TestQuery(unittest.TestCase):
 
     @mock.patch('overpass.download')
     def test_read(self, m_download):
-        m_download.get_response.return_value.text = 'bar'
+        m_download.get_response.return_value.text.encode.return_value = 'bar'
         q = Query('1,2,3,4').add('foo')
         out = q.read()
         m_download.get_response.assert_called_once_with(q.get_url())

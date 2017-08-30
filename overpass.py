@@ -19,7 +19,7 @@ class Query(object):
             meta (bool): True (default) to include metadata
         """
         self.output = output
-        self.down = '(._;>;);' if down else ''
+        self.down = '(._;>>;);' if down else ''
         self.meta = 'out meta;' if meta else 'out;'
         self.area_id = ''
         self.bbox = ''
@@ -71,5 +71,5 @@ class Query(object):
     def read(self):
         """Returns query result"""
         response = download.get_response(self.get_url())
-        return response.text
+        return response.text.encode(response.apparent_encoding)
 
