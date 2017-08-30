@@ -58,7 +58,7 @@ class Reader(object):
         gml_title = root.find('.//gmd:title/gco:CharacterString', namespace)
         self.cat_mun = gml_title.text.split('-')[-1].split('(')[0].strip()
         gml_code = root.find('.//gmd:code/gco:CharacterString', namespace)
-        self.crs_ref = gml_code.text.split('/')[-1]
+        self.crs_ref = int(gml_code.text.split('/')[-1])
         gml_bbox = root.find('.//gmd:EX_GeographicBoundingBox', namespace)
         gml_bbox_l = gml_bbox.find('gmd:westBoundLongitude/gco:Decimal', namespace)
         gml_bbox_r = gml_bbox.find('gmd:eastBoundLongitude/gco:Decimal', namespace)
@@ -161,11 +161,10 @@ class Reader(object):
             gml = layer.BaseLayer(gml_path, layername+'.gml', 'ogr')
             if not gml.isValid():
                 raise IOError(_("Failed to load layer '%s'") % gml_path)
-        if not gml.crs().isValid():
-            crs = QgsCoordinateReferenceSystem(self.crs_ref)
-            if not crs.isValid():
-                raise IOError(_("Could not determine the CRS of '%s'") % gml_path)
-            gml.setCrs(crs)
+        crs = QgsCoordinateReferenceSystem(self.crs_ref)
+        if not crs.isValid():
+            raise IOError(_("Could not determine the CRS of '%s'") % gml_path)
+        gml.setCrs(crs)
         log.info(_("Read %d features in '%s'"), gml.featureCount(), 
             gml_path.encode('utf-8'))
         gml.source_date = self.gml_date

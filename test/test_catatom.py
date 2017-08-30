@@ -118,7 +118,7 @@ class TestCatAtom(unittest.TestCase):
         m_open.assert_called_once_with('foo', 'r')
         self.assertEquals(self.m_cat.gml_date, '2017-02-25')
         self.assertEquals(self.m_cat.cat_mun, 'TAZ')
-        self.assertEquals(self.m_cat.crs_ref, '32628')
+        self.assertEquals(self.m_cat.crs_ref, 32628)
         bbox = "28.0655571972128,-16.7996857087189,28.1788414990302,-16.6878650661333"
         self.assertEquals(self.m_cat.boundary_bbox, bbox)
 
@@ -135,7 +135,7 @@ class TestCatAtom(unittest.TestCase):
         m_zip.ZipFile().read.assert_called_once_with(m_os.path.basename())
         self.assertEquals(self.m_cat.gml_date, '2017-02-25')
         self.assertEquals(self.m_cat.cat_mun, 'TAZ')
-        self.assertEquals(self.m_cat.crs_ref, '32628')
+        self.assertEquals(self.m_cat.crs_ref, 32628)
         bbox = "28.0655571972128,-16.7996857087189,28.1788414990302,-16.6878650661333"
         self.assertEquals(self.m_cat.boundary_bbox, bbox)
 
@@ -253,6 +253,7 @@ class TestCatAtom(unittest.TestCase):
         self.assertIn('Failed to load', cm.exception.message)
 
         m_layer.BaseLayer.return_value.isValid.side_effect = [False, True]
+        m_qgscrs.return_value.isValid.return_value = True
         gml = self.m_cat.read(self.m_cat, 'foobar')
         self.assertEquals(gml, m_layer.BaseLayer.return_value)
 
