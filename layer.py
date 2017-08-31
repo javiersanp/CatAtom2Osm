@@ -1052,8 +1052,6 @@ class ConsLayer(PolygonLayer):
             attributes = get_attributes(ad)
             refcat = ad['localId'].split('.')[-1]
             building_count = len(buildings[refcat])
-            if building_count > 1:
-                print refcat, building_count
             if building_count == 1:
                 building = buildings[refcat][0]
                 if ad['spec'] == 'Entrance':
@@ -1082,9 +1080,6 @@ class ConsLayer(PolygonLayer):
                     else:
                         attributes[ad.fieldNameIndex('spec')] = 'remote'
                         to_change[ad.id()] = attributes
-            else:
-                attributes[ad.fieldNameIndex('spec')] = 'relation'
-                to_change[ad.id()] = attributes
         address.writer.changeAttributeValues(to_change)
         address.writer.changeGeometryValues(to_move)
         self.writer.changeGeometryValues(to_insert)
