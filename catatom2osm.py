@@ -341,12 +341,10 @@ class CatAtom2Osm:
             if address_gml.fieldNameIndex('component_href') == -1:
                 raise IOError(_("Could not resolve joined tables for the "
                     "'%s' layer") % address_gml.name())
-        adminunitname = self.cat.read("adminunitname")
         postaldescriptor = self.cat.read("postaldescriptor")
         thoroughfarename = self.cat.read("thoroughfarename")
         self.address = layer.AddressLayer(source_date = address_gml.source_date)
         self.address.append(address_gml)
-        self.address.join_field(adminunitname, 'AU_id', 'gml_id', ['text'], 'AU_')
         self.address.join_field(postaldescriptor, 'PD_id', 'gml_id', ['postCode'])
         self.address.join_field(thoroughfarename, 'TN_id', 'gml_id', ['text'], 'TN_')
         if self.debug: self.export_layer(self.address, 'address.shp')
