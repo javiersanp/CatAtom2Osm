@@ -494,6 +494,17 @@ class TestConsLayer(unittest.TestCase):
         self.assertEquals(feature['constructionNature'], new_fet['nature'])
         self.assertEquals(feature['localId'], new_fet['localId'])
 
+    def test_append_cons(self):
+        exp = QgsExpression("nature = 'openAirPool'")
+        request = QgsFeatureRequest(exp)
+        feat = self.layer.getFeatures(request).next()
+        self.assertNotEquals(feat, None)
+        layer = ConsLayer()
+        layer.rename = {}
+        layer.append(self.layer)
+        feat = layer.getFeatures(request).next()
+        self.assertNotEquals(feat, None)
+
     def test_append_zone(self):
         layer = ConsLayer()
         self.assertTrue(layer.isValid(), "Init QGIS")

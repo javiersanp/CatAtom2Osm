@@ -898,7 +898,8 @@ class ConsLayer(PolygonLayer):
 
     def append_task(self, layer, task):
         """Append features of layer including task localId's'"""
-        query = lambda f, kwargs: f['localId'].split('_')[0] in kwargs['including']
+        query = lambda f, kwargs: '_' in f['localId'] and \
+            f['localId'].split('_')[0] in kwargs['including']
         super(ConsLayer, self).append(layer, query=query, including=task)
 
     def remove_parts_below_ground(self):

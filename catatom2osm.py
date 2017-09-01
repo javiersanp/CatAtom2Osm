@@ -61,7 +61,6 @@ class CatAtom2Osm:
         self.qgs = QgsSingleton()
         log.debug(_("Initialized QGIS API"))
         self.debug = log.getEffectiveLevel() == logging.DEBUG
-        self.processed = set()
         self.fixmes = 0
         self.min_level = {}
         self.max_level = {}
@@ -111,62 +110,91 @@ class CatAtom2Osm:
             self.building_osm = osm.Osm()
 
     def process_tasks(self):
-        self.index_bu = QgsSpatialIndex(self.building_gml.getFeatures())
         base_path = os.path.join(self.path, 'tasks')
         if not os.path.exists(base_path):
             os.makedirs(base_path)
-        for zoning in (self.urban_zoning, self.rustic_zoning):
-            for zone in zoning.getFeatures():
-                self.process_zone(zone, zoning)
-        for el in frozenset(self.current_bu_osm.elements):
+        rprocessed = set()
+        rindex = QgsSpatialIndex(self.building_gml.getFeatures())
+        zone_processed = set()
+        for rzone in self.rustic_zoning.getFeatures():
+            poligono, refs = self.process_zone(rzone, self.rustic_zoning, rindex,
+                rprocessed, self.building_gml)
+            if refs:
+                rprocessed = rprocessed.union(refs)
+                temp_address = None
+                if self.options.address:
+                    poligono.move_address(self.address)
+                    temp_address = layer.BaseLayer(path="Point", baseName="address",
+                        providerLib="memory")
+                    temp_address.source_date = False
+                    query = lambda f, kwargs: f['localId'].split('.')[-1] in kwargs['including']
+                    temp_address.append(self.address, query=query, including=refs)
+                    temp_address.reproject()
+                uprocessed = set()
+                uindex = QgsSpatialIndex(poligono.getFeatures())
+                for uzone in self.urban_zoning.getFeatures():
+                    if uzone.id not in zone_processed:
+                        if layer.is_inside(uzone, rzone):
+                            manzana, refs = self.process_zone(uzone, self.urban_zoning,
+                                uindex, uprocessed, poligono)
+                            if refs:
+                                zone_processed.add(uzone.id())
+                                uprocessed = uprocessed.union(refs)
+                                manzana.reproject()
+                                self.write_task(self.urban_zoning, manzana, temp_address)
+                            del manzana
+                poligono.reproject()
+                poligono.conflate(self.current_bu_osm, delete=False)
+                if self.options.building:
+                    self.building_osm = poligono.to_osm(data=self.building_osm)
+                if uprocessed:
+                    to_clean = [f.id() for f in poligono.getFeatures() \
+                        if f['localId'].split('_')[0] in uprocessed]
+                    poligono.deleteFeatures(to_clean)
+                self.write_task(self.rustic_zoning, poligono, temp_address)
+                del temp_address
+                del uindex
+            del poligono
+        to_clean = []
+        for el in self.current_bu_osm.elements:
             if 'building' in el.tags:
                 if 'conflict' not in el.tags:
-                    self.current_bu_osm.remove(el)
+                    to_clean.append(el)
                 else:
                     del el.tags['conflict']
-        del self.index_bu
+        for el in to_clean:
+            self.current_bu_osm.remove(el)
+        del rindex
         del self.building_gml
         del self.part_gml
         del self.other_gml
 
-    def process_zone(self, zone, zoning):
-        """Process data in zone"""
-        log.info(_("Processing %s '%s' (%d of %d) in '%s'"),
-            zone['levelName'].encode('utf-8').lower().translate(None, '(1:) '),
-            zone['label'], zoning.task_number, zoning.featureCount(),
-            zoning.name().encode('utf-8'))
-        building = layer.ConsLayer(source_date = self.building_gml.source_date)
-        building.append_zone(self.building_gml, zone, self.processed, self.index_bu)
-        if building.featureCount() == 0:
-            log.info(_("Zone '%s' is empty"), zone['label'].encode('utf-8'))
-        else:
-            task = set()
-            for feat in building.getFeatures():
-                self.processed.add(feat['localId'])
-                task.add(feat['localId'])
-            building.append_task(self.part_gml, task)
-            if self.other_gml:
-                building.append_task(self.other_gml, task)
-            building.remove_outside_parts()
-            building.explode_multi_parts(getattr(self, 'address', False))
-            building.remove_parts_below_ground()
-            building.clean()
-            temp_address = None
-            if self.options.address:
-                building.move_address(self.address)
-                temp_address = layer.BaseLayer(path="Point", baseName="address",
-                    providerLib="memory")
-                temp_address.source_date = False
-                query = lambda f, kwargs: f['localId'].split('.')[-1] in kwargs['including']
-                temp_address.append(self.address, query=query, including=task)
-                temp_address.reproject()
-            building.check_levels_and_area(self.min_level, self.max_level)
-            building.reproject()
-            building.conflate(self.current_bu_osm, delete=False)
-            self.write_task(zoning, building, temp_address)
-            if self.options.building:
-                self.building_osm = building.to_osm(data=self.building_osm)
-            del temp_address
+    def process_zone(self, zone, zoning, index, processed, source):
+        refs = set()
+        task = layer.ConsLayer(baseName=zone['label'],
+            source_date = source.source_date)
+        if zoning == self.urban_zoning:
+            task.rename = {}
+        task.append_zone(source, zone, processed, index)
+        if task.featureCount() > 0:
+            log.info(_("Processing %s '%s' (%d of %d) in '%s'"),
+                zone['levelName'].encode('utf-8').lower().translate(None, '(1:) '),
+                zone['label'], zoning.task_number, zoning.featureCount(),
+                zoning.name().encode('utf-8'))
+            for feat in task.getFeatures():
+                refs.add(feat['localId'])
+            if zoning == self.rustic_zoning:
+                task.append_task(self.part_gml, refs)
+                if self.other_gml:
+                    task.append_task(self.other_gml, refs)
+                task.remove_outside_parts()
+                task.explode_multi_parts(getattr(self, 'address', False))
+                task.remove_parts_below_ground()
+                task.clean()
+                task.check_levels_and_area(self.min_level, self.max_level)
+            else:
+                task.append_task(source, refs)
+        return task, refs
 
     def process_address(self):
         if self.options.building:
