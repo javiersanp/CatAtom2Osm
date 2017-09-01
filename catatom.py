@@ -73,7 +73,7 @@ class Reader(object):
         file for self.zip_code
         """
         s = re.search('INSPIRE/(\w+)/', url)
-        log.info(_("Searching the url for the '%s' layer of '%s'..."), 
+        log.debug(_("Searching the url for the '%s' layer of '%s'..."), 
             s.group(1), self.zip_code)
         response = download.get_response(url)
         s = re.search('http.+/%s.+zip' % self.zip_code, response.text)
@@ -150,13 +150,13 @@ class Reader(object):
         if not os.path.exists(zip_path) and (not os.path.exists(gml_path) or force_zip):
             self.get_atom_file(url)
         self.get_metadata(md_path, zip_path)
-        gml = layer.BaseLayer(vsizip_path, layername+'.gml', 'ogr')
         if self.is_empty(gml_path, zip_path):
             if not allow_empty:
                 raise IOError(_("The layer '%s' is empty") % gml_path)
             else:
                 log.info(_("The layer '%s' is empty"), gml_path.encode('utf-8'))
                 return None
+        gml = layer.BaseLayer(vsizip_path, layername+'.gml', 'ogr')
         if not gml.isValid():
             gml = layer.BaseLayer(gml_path, layername+'.gml', 'ogr')
             if not gml.isValid():
