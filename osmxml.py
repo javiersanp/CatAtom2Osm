@@ -110,8 +110,6 @@ def deserialize(infile, data=None):
         elif elem.tag == 'tag':
             last_elem.tags[elem.get('k')] = elem.get('v')
         elem.clear()
-        while elem.getprevious() is not None:
-            del elem.getparent()[0]
     for way in data.ways:
         for i, ref in enumerate(way.nodes):
             if 'n{}'.format(ref) in data.index:
