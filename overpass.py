@@ -3,8 +3,10 @@ import re
 
 import download
 
-API_URL = "http://overpass-api.de/api/interpreter?"
-#API_URL = "http://overpass.osm.rambler.ru/cgi/interpreter?"
+api_servers = [
+    "http://overpass-api.de/api/interpreter?",
+    "http://overpass.osm.rambler.ru/cgi/interpreter?"
+]
 
 
 class Query(object):
@@ -51,7 +53,7 @@ class Query(object):
                 self.statements += rsc(arg).split(';')
         return self
     
-    def get_url(self):
+    def get_url(self, n=0):
         """Returns url for the query"""
         if len(self.statements) > 0:
             ql = '({s});'.join(self.statements) + '({s});'
@@ -60,13 +62,19 @@ class Query(object):
                 query = query.format(id=self.area_id, s='area.searchArea')
             else:
                 query = ql.format(s=self.bbox)
-            self.url = '{u}data=[out:{o}];({q});{d}{m}'.format(u=API_URL, 
-                q=query, o=self.output, d=self.down, m=self.meta)
+            self.url = '{u}data=[out:{o}][timeout:250];({q});{d}{m}'.format(
+                u=api_servers[n], q=query, o=self.output, d=self.down, m=self.meta)
         return self.url
 
     def download(self, filename):
         """Downloads query result to filename"""
-        download.wget(self.get_url(), filename)
+        for i in range(len(api_servers)):
+            try:
+                download.wget(self.get_url(i), filename)
+                return
+            except IOError as e:
+                pass
+        raise e
     
     def read(self):
         """Returns query result"""

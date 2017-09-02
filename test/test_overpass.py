@@ -1,7 +1,7 @@
 import unittest
 import mock
 
-from overpass import Query, API_URL
+from overpass import Query, api_servers
 
 
 class TestQuery(unittest.TestCase):
@@ -54,20 +54,31 @@ class TestQuery(unittest.TestCase):
         q = Query('1234')
         self.assertEquals(q.get_url(), '')
         q.add('foo', 'bar')
-        url = API_URL + "data=[out:xml];(area(3600001234)->.searchArea;" \
-            "foo(area.searchArea);bar(area.searchArea););(._;>>;);out meta;"
+        url = api_servers[0] + "data=[out:xml][timeout:250];(area(3600001234)" \
+            "->.searchArea;foo(area.searchArea);bar(area.searchArea););" \
+            "(._;>>;);out meta;"
         self.assertEquals(q.get_url(), url)
-        q.set_search_area('1,2,3,4')
-        q.output = 'json'
-        q.meta = False
-        q.down = False
-        url = API_URL + "data=[out:json];(foo(1,2,3,4);bar(1,2,3,4););out;"
+        q = Query('1,2,3,4', 'json', False, False)
+        q.add('foo', 'bar')
+        url = api_servers[1] + "data=[out:json][timeout:250];(foo(1,2,3,4);" \
+            "bar(1,2,3,4););out;"
+        self.assertEquals(q.get_url(1), url)
 
     @mock.patch('overpass.download')
     def test_download(self, m_download):
+        def raises_io(*args):
+            raise IOError()
+        def raises_io1(url, fn):
+            if url == api_servers[0]:
+                raise IOError()
         q = Query('1,2,3,4').add('foo')
         q.download('bar')
-        m_download.wget.assert_called_once_with(q.get_url(), 'bar')
+        m_download.wget.assert_called_once_with(q.get_url(0), 'bar')
+        m_download.wget = raises_io
+        with self.assertRaises(IOError):
+            q.download('bar')
+        m_download.wget = raises_io1
+        q.download('bar')
 
     @mock.patch('overpass.download')
     def test_read(self, m_download):
