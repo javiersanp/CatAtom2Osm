@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-08-28 01:57+WEST\n"
+"POT-Creation-Date: 2017-09-02 08:04+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -21,7 +21,7 @@ msgstr ""
 msgid "Last directory name must be a 5 digits ZIP code"
 msgstr "El nombre del último directorio debe ser un Código Postal de 5 dígitos"
 
-#: catatom.py:33 catatom.py:203
+#: catatom.py:33 catatom.py:202
 msgid "Province code '%s' don't exists"
 msgstr "El Código Provincial '%s' no existe"
 
@@ -41,7 +41,7 @@ msgstr "Buscando la url para la capa '%s' de '%s'..."
 msgid "Zip code '%s' don't exists"
 msgstr "El Código Postal '%s' no existe"
 
-#: catatom.py:85 catatom2osm.py:286
+#: catatom.py:85 catatom2osm.py:312
 msgid "Downloading '%s'"
 msgstr "Descargando '%s'"
 
@@ -49,7 +49,7 @@ msgstr "Descargando '%s'"
 msgid "Unknow layer name '%s'"
 msgstr "El nombre de capa '%s' es desconocido"
 
-#: catatom.py:156 catatom.py:158
+#: catatom.py:155 catatom.py:157
 msgid "The layer '%s' is empty"
 msgstr "La capa '%s' está vacía"
 
@@ -57,31 +57,31 @@ msgstr "La capa '%s' está vacía"
 msgid "Failed to load layer '%s'"
 msgstr "Error al cargar la capa: '%s'"
 
-#: catatom.py:167
+#: catatom.py:166
 msgid "Could not determine the CRS of '%s'"
 msgstr "No se puede determinar el CRS de '%s'"
 
-#: catatom.py:169
+#: catatom.py:168
 msgid "Read %d features in '%s'"
 msgstr "Leídos %d elementos en '%s'"
 
-#: catatom.py:180
+#: catatom.py:179
 msgid ""
 "Failed to import FuzzyWuzzy. Install requeriments for address conflation."
 msgstr ""
 "No se pudo importar FuzzyWuzzy. Instala los requerimientos para combinar "
 "direcciones."
 
-#: catatom.py:194
+#: catatom.py:193
 msgid "Municipality: '%s'"
 msgstr "Municipio: '%s'"
 
-#: catatom.py:197
+#: catatom.py:196
 msgid "Failed to find administrative boundary, falling back to bounding box"
 msgstr ""
 "No se pudo obtener el límite administrativo, se usará el recuadro delimitador"
 
-#: catatom.py:209
+#: catatom.py:208
 msgid "Territorial office %s"
 msgstr "Oficina territorial %s"
 
@@ -89,71 +89,63 @@ msgstr "Oficina territorial %s"
 msgid "Initialized QGIS API"
 msgstr "Inicializada la API de QGIS"
 
-#: catatom2osm.py:90
+#: catatom2osm.py:89
 msgid "Start processing '%s'"
 msgstr "Comienza el procesado de '%s'"
 
-#: catatom2osm.py:134
-msgid "Processing %s '%s' (%d of %d) in '%s'"
-msgstr "Procesando %s '%s' (%d de %d) en '%s'"
-
-#: catatom2osm.py:141
-msgid "Zone '%s' is empty"
-msgstr "La zona '%s' está vacía"
-
-#: catatom2osm.py:237
+#: catatom2osm.py:263
 msgid "Distribution of floors above ground %s"
 msgstr "Distribución de plantas sobre rasante %s"
 
-#: catatom2osm.py:238
+#: catatom2osm.py:264
 msgid "Distribution of floors below ground %s"
 msgstr "Distribución de plantas bajo rasante %s"
 
-#: catatom2osm.py:240
+#: catatom2osm.py:266
 msgid "Check %d fixme tags"
 msgstr "Revisa %d etiquetas fixme"
 
-#: catatom2osm.py:242
+#: catatom2osm.py:268
 msgid "The translation file '%s' have been writen in '%s'"
 msgstr "El fichero de conversiones '%s' ha sido generado en '%s'"
 
-#: catatom2osm.py:244
+#: catatom2osm.py:270
 msgid "Please, check it and run again"
 msgstr "Por favor, compruébelo y ejecute de nuevo"
 
-#: catatom2osm.py:246
+#: catatom2osm.py:272
 msgid "Finished!"
 msgstr "¡Terminado!"
 
-#: catatom2osm.py:247
+#: catatom2osm.py:273
 msgid "Only for testing purposses. Don't upload any result to OSM"
 msgstr "Sólo para fines de prueba. No cargue ningún resultado en OSM"
 
-#: catatom2osm.py:268
+#: catatom2osm.py:294
 msgid "Generated '%s'"
 msgstr "Generado '%s'"
 
-#: catatom2osm.py:270
+#: catatom2osm.py:296
 msgid "Failed to write layer: '%s'"
 msgstr "Error al escribir la capa: '%s'"
 
-#: catatom2osm.py:292
+#: catatom2osm.py:318
 msgid "No OSM data were obtained from '%s'"
 msgstr "No se obtuvieron datos OSM de '%s'"
 
-#: catatom2osm.py:294
+#: catatom2osm.py:320
 msgid "Read '%s': %d nodes, %d ways, %d relations"
 msgstr "Leído '%s': %d nodos, %d vías, %d relaciones"
 
-#: catatom2osm.py:314
+#: catatom2osm.py:339
 msgid "Generated '%s': %d nodes, %d ways, %d relations"
 msgstr "Generado '%s': %d nodos, %d vías, %d relaciones"
 
-#: catatom2osm.py:343
+#: catatom2osm.py:369
 msgid "Could not resolve joined tables for the '%s' layer"
 msgstr "No se pudieron resolver las tablas combinadas para la capa '%s'"
 
-#: catatom2osm.py:471
+#: catatom2osm.py:495
 msgid "There are %d address without house number in the OSM data"
 msgstr "Existen %d direcciones sin número de portal en OSM"
 
@@ -221,35 +213,35 @@ msgstr "Eliminadas %d direcciones sin número de portal"
 msgid "Deleted %d addresses without associated building"
 msgstr "Eliminadas %d direcciones sin edificio asociado"
 
-#: layer.py:909
+#: layer.py:910
 msgid "Deleted %d building parts with no floors above ground"
 msgstr "Eliminadas %d partes de edificio sin plantas sobre el nivel del suelo"
 
-#: layer.py:951
+#: layer.py:952
 msgid "Removed %d building parts outside the footprint"
 msgstr "Eliminadas %d partes de edificio fuera del contorno"
 
-#: layer.py:1024
+#: layer.py:1025
 msgid "Merged %d building parts to the footprint"
 msgstr "Fusionados %d partes de edificios al contorno"
 
-#: layer.py:1025
+#: layer.py:1026
 msgid "Merged %d adjacent parts"
 msgstr "Fusionadas %d partes adyacentes"
 
-#: layer.py:1091
+#: layer.py:1087
 msgid "Moved %d addresses to entrance, %d changed to parcel"
 msgstr "Desplazadas %d direcciones a entrada, %d cambiadas a parcela"
 
-#: layer.py:1108
+#: layer.py:1104
 msgid "Check, area too small"
 msgstr "Comprobar, área demasiado pequeña"
 
-#: layer.py:1111
+#: layer.py:1107
 msgid "Check, area too big"
 msgstr "Comprobar, área demasiado grande"
 
-#: layer.py:1150
+#: layer.py:1146
 msgid "Detected %d conflicts in %d buildings from OSM"
 msgstr "Detectados %d edificios con conflicto de %d en OSM"
 
@@ -292,43 +284,47 @@ msgstr ""
 "y -z)"
 
 #: main.py:55
+msgid "The same as -t but with lower memory consumption"
+msgstr "Lo mismo que -t pero con menor gasto de memoria"
+
+#: main.py:57
 msgid "Process the cadastral zoning dataset"
 msgstr "Procesa el conjunto de datos de zonificación catastral"
 
-#: main.py:57
+#: main.py:59
 msgid "Process constructions to a single file instead of tasks"
 msgstr "Procesa las construcciones a un archivo individual en lugar de tareas"
 
-#: main.py:60
+#: main.py:62
 msgid "Process the address dataset"
 msgstr "Procesa el conjunto de datos de direcciones"
 
-#: main.py:62
+#: main.py:64
 msgid "Process the cadastral parcel dataset"
 msgstr "Procesa el conjunto de datos de parcelas catastrales"
 
-#: main.py:64
+#: main.py:66
 msgid "Process all datasets (equivalent to -bdptz)"
 msgstr "Procesa todos los conjuntos de datos (equivalente a -bdptz)"
 
-#: main.py:67
+#: main.py:69
 msgid "Select the log level between DEBUG, INFO, WARNING, ERROR or CRITICAL."
 msgstr ""
 "Selecciona el nivel de registro entre DEBUG, INFO, WARNING, ERROR o CRITICAL."
 
-#: main.py:83
+#: main.py:88
 msgid "Invalid log level: %s"
 msgstr "Nivel de registro no válido: %s"
 
-#: main.py:88
+#: main.py:93
 msgid "%s version %s"
 msgstr "%s versión %s"
 
-#: main.py:90
+#: main.py:95
 msgid "Too many arguments, supply only a directory path."
 msgstr "Demasiados argumentos, proporcione sólo la ruta de un directorio."
 
-#: main.py:101
+#: main.py:106
 msgid "Please, install QGIS"
 msgstr "Por favor, instala QGIS"
 
@@ -351,3 +347,9 @@ msgstr "Usando ElementTree"
 #: osmxml.py:26
 msgid "Failed to import ElementTree from any known place"
 msgstr "No se pudo importar ElementTree desde ningún lugar conocido"
+
+#~ msgid "Processing %s '%s' (%d of %d) in '%s'"
+#~ msgstr "Procesando %s '%s' (%d de %d) en '%s'"
+
+#~ msgid "Zone '%s' is empty"
+#~ msgstr "La zona '%s' está vacía"

@@ -68,9 +68,9 @@ class CatAtom2Osm:
     def run(self):
         """Launches the app"""
         self.start()
-        if self.options.tasks:
-            self.process_tasks()
-        elif self.options.building:
+        if self.options.taskslm:
+            self.process_tasks(self.building_gml)
+        elif self.options.building or self.options.tasks:
             self.process_building()
         if self.options.address:
             self.process_address()
@@ -88,7 +88,6 @@ class CatAtom2Osm:
         """Initializes data sets"""
         log.info(_("Start processing '%s'"), self.zip_code)
         self.get_zoning()
-        self.cat.get_boundary()
         self.is_new = False
         if self.options.address:
             self.read_address()
@@ -102,27 +101,26 @@ class CatAtom2Osm:
             current_address = self.get_current_ad_osm()
             self.address.conflate(current_address)
             self.address_osm = osm.Osm()
-        if self.options.building or self.options.tasks:
+        if self.options.building or self.options.tasks or self.options.taskslm:
             self.building_gml = self.cat.read("building")
             self.part_gml = self.cat.read("buildingpart")
             self.other_gml = self.cat.read("otherconstruction", True)
             self.current_bu_osm = self.get_current_bu_osm()
             self.building_osm = osm.Osm()
 
-    def process_tasks(self):
+    def process_tasks(self, source):
         base_path = os.path.join(self.path, 'tasks')
         if not os.path.exists(base_path):
             os.makedirs(base_path)
         rprocessed = set()
-        rindex = QgsSpatialIndex(self.building_gml.getFeatures())
+        rindex = QgsSpatialIndex(source.getFeatures())
         zone_processed = set()
         for rzone in self.rustic_zoning.getFeatures():
-            poligono, refs = self.process_zone(rzone, self.rustic_zoning, rindex,
-                rprocessed, self.building_gml)
+            poligono, refs = self.process_zone(rzone, rindex, rprocessed, source)
             if refs:
                 rprocessed = rprocessed.union(refs)
                 temp_address = None
-                if self.options.address:
+                if self.options.address and source.providerType == 'ogr':
                     poligono.move_address(self.address)
                     temp_address = layer.BaseLayer(path="Point", baseName="address",
                         providerLib="memory")
@@ -135,8 +133,8 @@ class CatAtom2Osm:
                 for uzone in self.urban_zoning.getFeatures():
                     if uzone.id not in zone_processed:
                         if layer.is_inside(uzone, rzone):
-                            manzana, refs = self.process_zone(uzone, self.urban_zoning,
-                                uindex, uprocessed, poligono)
+                            manzana, refs = self.process_zone(uzone, uindex, 
+                                uprocessed, poligono)
                             if refs:
                                 zone_processed.add(uzone.id())
                                 uprocessed = uprocessed.union(refs)
@@ -144,9 +142,10 @@ class CatAtom2Osm:
                                 self.write_task(self.urban_zoning, manzana, temp_address)
                             del manzana
                 poligono.reproject()
-                poligono.conflate(self.current_bu_osm, delete=False)
-                if self.options.building:
-                    self.building_osm = poligono.to_osm(data=self.building_osm)
+                if source.providerType == 'ogr':
+                    poligono.conflate(self.current_bu_osm, delete=False)
+                    if self.options.building:
+                        self.building_osm = poligono.to_osm(data=self.building_osm)
                 if uprocessed:
                     to_clean = [f.id() for f in poligono.getFeatures() \
                         if f['localId'].split('_')[0] in uprocessed]
@@ -155,35 +154,34 @@ class CatAtom2Osm:
                 del temp_address
                 del uindex
             del poligono
-        to_clean = []
-        for el in self.current_bu_osm.elements:
-            if 'building' in el.tags:
-                if 'conflict' not in el.tags:
-                    to_clean.append(el)
-                else:
-                    del el.tags['conflict']
-        for el in to_clean:
-            self.current_bu_osm.remove(el)
+        if source.providerType == 'memory':
+            to_clean = []
+            for el in self.current_bu_osm.elements:
+                if 'building' in el.tags:
+                    if 'conflict' not in el.tags:
+                        to_clean.append(el)
+                    else:
+                        del el.tags['conflict']
+            for el in to_clean:
+                self.current_bu_osm.remove(el)
+            del self.building_gml
+            del self.part_gml
+            del self.other_gml
         del rindex
-        del self.building_gml
-        del self.part_gml
-        del self.other_gml
 
-    def process_zone(self, zone, zoning, index, processed, source):
+    def process_zone(self, zone, index, processed, source):
         refs = set()
         task = layer.ConsLayer(baseName=zone['label'],
             source_date = source.source_date)
-        if zoning == self.urban_zoning:
+        if source.providerType() == 'memory':
             task.rename = {}
         task.append_zone(source, zone, processed, index)
         if task.featureCount() > 0:
-            log.info(_("Processing %s '%s' (%d of %d) in '%s'"),
-                zone['levelName'].encode('utf-8').lower().translate(None, '(1:) '),
-                zone['label'], zoning.task_number, zoning.featureCount(),
-                zoning.name().encode('utf-8'))
             for feat in task.getFeatures():
                 refs.add(feat['localId'])
-            if zoning == self.rustic_zoning:
+            if source.providerType() == 'memory':
+                task.append_task(source, refs)
+            else:
                 task.append_task(self.part_gml, refs)
                 if self.other_gml:
                     task.append_task(self.other_gml, refs)
@@ -192,8 +190,6 @@ class CatAtom2Osm:
                 task.remove_parts_below_ground()
                 task.clean()
                 task.check_levels_and_area(self.min_level, self.max_level)
-            else:
-                task.append_task(source, refs)
         return task, refs
 
     def process_address(self):
@@ -233,6 +229,8 @@ class CatAtom2Osm:
         if self.options.address:
             building.move_address(self.address)
         building.check_levels_and_area(self.min_level, self.max_level)
+        if self.options.tasks:
+            self.process_tasks(building)
         building.reproject()
         building.conflate(self.current_bu_osm)
         self.building_osm = building.to_osm()
@@ -347,6 +345,7 @@ class CatAtom2Osm:
         (rustic)
         """
         zoning_gml = self.cat.read("cadastralzoning")
+        self.cat.get_boundary()
         self.urban_zoning = layer.ZoningLayer(baseName='urbanzoning')
         self.rustic_zoning = layer.ZoningLayer(baseName='rusticzoning')
         self.urban_zoning.append(zoning_gml, level='M')
