@@ -65,6 +65,8 @@ def run():
     parser.add_option("-a", "--all", dest="all", default=False,
         action="store_true", help=_("Process all datasets (equivalent " \
         "to -bdptz)"))
+    parser.add_option("-m", "--manual", dest="manual", default=False,
+        action="store_true", help=_("Dissable conflation of buildings and addresses"))
     parser.add_option("", "--log", dest="log_level", metavar="log_level",
         default=setup.log_level, help=_("Select the log level between " \
         "DEBUG, INFO, WARNING, ERROR or CRITICAL."))

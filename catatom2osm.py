@@ -98,14 +98,16 @@ class CatAtom2Osm:
                 self.options.tasks = False
                 self.options.building = False
                 return
-            current_address = self.get_current_ad_osm()
-            self.address.conflate(current_address)
+            if not self.options.manual:
+                current_address = self.get_current_ad_osm()
+                self.address.conflate(current_address)
             self.address_osm = osm.Osm()
         if self.options.building or self.options.tasks or self.options.taskslm:
             self.building_gml = self.cat.read("building")
             self.part_gml = self.cat.read("buildingpart")
             self.other_gml = self.cat.read("otherconstruction", True)
-            self.current_bu_osm = self.get_current_bu_osm()
+            if not self.options.manual:
+                self.current_bu_osm = self.get_current_bu_osm()
             self.building_osm = osm.Osm()
 
     def process_tasks(self, source):
@@ -143,7 +145,8 @@ class CatAtom2Osm:
                             del manzana
                 poligono.reproject()
                 if source.providerType() == 'ogr':
-                    poligono.conflate(self.current_bu_osm, delete=False)
+                    if not self.options.manual:
+                        poligono.conflate(self.current_bu_osm, delete=False)
                     if self.options.building:
                         self.building_osm = poligono.to_osm(data=self.building_osm)
                 if uprocessed:
@@ -155,24 +158,25 @@ class CatAtom2Osm:
                 del uindex
             del poligono
         if source.providerType() == 'ogr':
-            to_clean = []
-            num_buildings = 0
-            conflicts = 0
-            for el in self.current_bu_osm.elements:
-                if 'building' in el.tags:
-                    num_buildings += 1
-                    if 'conflict' not in el.tags:
-                        to_clean.append(el)
-                    else:
-                        conflicts += 1
-                        del el.tags['conflict']
-            for el in to_clean:
-                self.current_bu_osm.remove(el)
-            if to_clean:
-                self.write_osm(self.current_bu_osm, 'current_building.osm')
-            log.debug(_("Detected %d conflicts in %d buildings from OSM"), 
-                conflicts, num_buildings)
-            del self.current_bu_osm
+            if not self.options.manual:
+                to_clean = []
+                num_buildings = 0
+                conflicts = 0
+                for el in self.current_bu_osm.elements:
+                    if 'building' in el.tags:
+                        num_buildings += 1
+                        if 'conflict' not in el.tags:
+                            to_clean.append(el)
+                        else:
+                            conflicts += 1
+                            del el.tags['conflict']
+                for el in to_clean:
+                    self.current_bu_osm.remove(el)
+                if to_clean:
+                    self.write_osm(self.current_bu_osm, 'current_building.osm')
+                log.debug(_("Detected %d conflicts in %d buildings from OSM"), 
+                    conflicts, num_buildings)
+                del self.current_bu_osm
             del self.building_gml
             del self.part_gml
             del self.other_gml
@@ -241,7 +245,7 @@ class CatAtom2Osm:
         if self.options.tasks:
             self.process_tasks(building)
         building.reproject()
-        if building.conflate(self.current_bu_osm):
+        if not self.options.manual and building.conflate(self.current_bu_osm):
             self.write_osm(self.current_bu_osm, 'current_building.osm')
             del self.current_bu_osm
         self.building_osm = building.to_osm()

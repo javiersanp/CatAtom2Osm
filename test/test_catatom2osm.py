@@ -34,7 +34,7 @@ class TestCatAtom2Osm(unittest.TestCase):
     def setUp(self):
         self.options = {'building': False, 'all': False, 'tasks': False, 
             'log_level': 'INFO', 'parcel': False, 'list': False, 'zoning': True, 
-            'version': False, 'address': False, 'taskslm': True}
+            'version': False, 'address': False, 'taskslm': True, 'manual': False}
         self.m_app = mock.MagicMock()
         self.m_app.options = Values(self.options)
         self.m_app.get_translations.return_value = ([], False)

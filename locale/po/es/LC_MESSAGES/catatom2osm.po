@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-09-02 08:04+WEST\n"
+"POT-Creation-Date: 2017-09-03 12:57+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -41,7 +41,7 @@ msgstr "Buscando la url para la capa '%s' de '%s'..."
 msgid "Zip code '%s' don't exists"
 msgstr "El Código Postal '%s' no existe"
 
-#: catatom.py:85 catatom2osm.py:312
+#: catatom.py:85 catatom2osm.py:325
 msgid "Downloading '%s'"
 msgstr "Descargando '%s'"
 
@@ -93,59 +93,63 @@ msgstr "Inicializada la API de QGIS"
 msgid "Start processing '%s'"
 msgstr "Comienza el procesado de '%s'"
 
-#: catatom2osm.py:263
+#: catatom2osm.py:177 layer.py:1146
+msgid "Detected %d conflicts in %d buildings from OSM"
+msgstr "Detectados %d edificios con conflicto de %d en OSM"
+
+#: catatom2osm.py:276
 msgid "Distribution of floors above ground %s"
 msgstr "Distribución de plantas sobre rasante %s"
 
-#: catatom2osm.py:264
+#: catatom2osm.py:277
 msgid "Distribution of floors below ground %s"
 msgstr "Distribución de plantas bajo rasante %s"
 
-#: catatom2osm.py:266
+#: catatom2osm.py:279
 msgid "Check %d fixme tags"
 msgstr "Revisa %d etiquetas fixme"
 
-#: catatom2osm.py:268
+#: catatom2osm.py:281
 msgid "The translation file '%s' have been writen in '%s'"
 msgstr "El fichero de conversiones '%s' ha sido generado en '%s'"
 
-#: catatom2osm.py:270
+#: catatom2osm.py:283
 msgid "Please, check it and run again"
 msgstr "Por favor, compruébelo y ejecute de nuevo"
 
-#: catatom2osm.py:272
+#: catatom2osm.py:285
 msgid "Finished!"
 msgstr "¡Terminado!"
 
-#: catatom2osm.py:273
+#: catatom2osm.py:286
 msgid "Only for testing purposses. Don't upload any result to OSM"
 msgstr "Sólo para fines de prueba. No cargue ningún resultado en OSM"
 
-#: catatom2osm.py:294
+#: catatom2osm.py:307
 msgid "Generated '%s'"
 msgstr "Generado '%s'"
 
-#: catatom2osm.py:296
+#: catatom2osm.py:309
 msgid "Failed to write layer: '%s'"
 msgstr "Error al escribir la capa: '%s'"
 
-#: catatom2osm.py:318
+#: catatom2osm.py:331
 msgid "No OSM data were obtained from '%s'"
 msgstr "No se obtuvieron datos OSM de '%s'"
 
-#: catatom2osm.py:320
+#: catatom2osm.py:333
 msgid "Read '%s': %d nodes, %d ways, %d relations"
 msgstr "Leído '%s': %d nodos, %d vías, %d relaciones"
 
-#: catatom2osm.py:339
+#: catatom2osm.py:352
 msgid "Generated '%s': %d nodes, %d ways, %d relations"
 msgstr "Generado '%s': %d nodos, %d vías, %d relaciones"
 
-#: catatom2osm.py:369
+#: catatom2osm.py:382
 msgid "Could not resolve joined tables for the '%s' layer"
 msgstr "No se pudieron resolver las tablas combinadas para la capa '%s'"
 
-#: catatom2osm.py:495
+#: catatom2osm.py:508
 msgid "There are %d address without house number in the OSM data"
 msgstr "Existen %d direcciones sin número de portal en OSM"
 
@@ -241,10 +245,6 @@ msgstr "Comprobar, área demasiado pequeña"
 msgid "Check, area too big"
 msgstr "Comprobar, área demasiado grande"
 
-#: layer.py:1146
-msgid "Detected %d conflicts in %d buildings from OSM"
-msgstr "Detectados %d edificios con conflicto de %d en OSM"
-
 #: main.py:27
 msgid ""
 "%prog <path>\n"
@@ -308,23 +308,27 @@ msgid "Process all datasets (equivalent to -bdptz)"
 msgstr "Procesa todos los conjuntos de datos (equivalente a -bdptz)"
 
 #: main.py:69
+msgid "Dissable conflation of buildings and addresses"
+msgstr "Desactiva la combinación de edificios y de direcciones"
+
+#: main.py:71
 msgid "Select the log level between DEBUG, INFO, WARNING, ERROR or CRITICAL."
 msgstr ""
 "Selecciona el nivel de registro entre DEBUG, INFO, WARNING, ERROR o CRITICAL."
 
-#: main.py:88
+#: main.py:90
 msgid "Invalid log level: %s"
 msgstr "Nivel de registro no válido: %s"
 
-#: main.py:93
+#: main.py:95
 msgid "%s version %s"
 msgstr "%s versión %s"
 
-#: main.py:95
+#: main.py:97
 msgid "Too many arguments, supply only a directory path."
 msgstr "Demasiados argumentos, proporcione sólo la ruta de un directorio."
 
-#: main.py:106
+#: main.py:108
 msgid "Please, install QGIS"
 msgstr "Por favor, instala QGIS"
 
