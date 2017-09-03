@@ -120,7 +120,7 @@ class CatAtom2Osm:
             if refs:
                 rprocessed = rprocessed.union(refs)
                 temp_address = None
-                if self.options.address and source.providerType == 'ogr':
+                if self.options.address:
                     poligono.move_address(self.address)
                     temp_address = layer.BaseLayer(path="Point", baseName="address",
                         providerLib="memory")
@@ -142,7 +142,7 @@ class CatAtom2Osm:
                                 self.write_task(self.urban_zoning, manzana, temp_address)
                             del manzana
                 poligono.reproject()
-                if source.providerType == 'ogr':
+                if source.providerType() == 'ogr':
                     poligono.conflate(self.current_bu_osm, delete=False)
                     if self.options.building:
                         self.building_osm = poligono.to_osm(data=self.building_osm)
@@ -154,16 +154,25 @@ class CatAtom2Osm:
                 del temp_address
                 del uindex
             del poligono
-        if source.providerType == 'memory':
+        if source.providerType() == 'ogr':
             to_clean = []
+            num_buildings = 0
+            conflicts = 0
             for el in self.current_bu_osm.elements:
                 if 'building' in el.tags:
+                    num_buildings += 1
                     if 'conflict' not in el.tags:
                         to_clean.append(el)
                     else:
+                        conflicts += 1
                         del el.tags['conflict']
             for el in to_clean:
                 self.current_bu_osm.remove(el)
+            if to_clean:
+                self.write_osm(self.current_bu_osm, 'current_building.osm')
+            log.debug(_("Detected %d conflicts in %d buildings from OSM"), 
+                conflicts, num_buildings)
+            del self.current_bu_osm
             del self.building_gml
             del self.part_gml
             del self.other_gml
@@ -232,7 +241,9 @@ class CatAtom2Osm:
         if self.options.tasks:
             self.process_tasks(building)
         building.reproject()
-        building.conflate(self.current_bu_osm)
+        if building.conflate(self.current_bu_osm):
+            self.write_osm(self.current_bu_osm, 'current_building.osm')
+            del self.current_bu_osm
         self.building_osm = building.to_osm()
 
     def write_building(self):
@@ -241,8 +252,6 @@ class CatAtom2Osm:
             if 'fixme' in el.tags:
                 self.fixmes += 1
         del self.building_osm
-        self.write_osm(self.current_bu_osm, 'current_building.osm')
-        del self.current_bu_osm
 
     def process_parcel(self):
         parcel_gml = self.cat.read("cadastralparcel")
@@ -255,7 +264,7 @@ class CatAtom2Osm:
         self.write_osm(parcel_osm, "parcel.osm")
 
     def end_messages(self):
-        if self.options.tasks or self.options.building:
+        if self.options.tasks or self.options.building or self.options.taskslm:
             dlag = ', '.join(["%d: %d" % (l, c) for (l, c) in \
                 OrderedDict(Counter(self.max_level.values())).items()])
             dlbg = ', '.join(["%d: %d" % (l, c) for (l, c) in \

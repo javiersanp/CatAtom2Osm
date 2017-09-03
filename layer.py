@@ -1145,6 +1145,7 @@ class ConsLayer(PolygonLayer):
             current_bu_osm.remove(el)
         log.debug(_("Detected %d conflicts in %d buildings from OSM"), 
                 conflicts, num_buildings)
+        return len(to_clean) > 0
 
 
 class HighwayLayer(BaseLayer):
