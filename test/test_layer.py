@@ -12,9 +12,8 @@ from qgis.core import *
 from PyQt4.QtCore import QVariant
 
 os.environ['LANGUAGE'] = 'C'
-import main
-import osm
 import setup
+import osm
 from layer import *
 from catatom2osm import QgsSingleton
 qgs = QgsSingleton()

@@ -18,7 +18,7 @@ import osmxml
 import overpass
 import setup
 import translate
-from osmxml import etree
+from compat import etree
 
 log = logging.getLogger(setup.app_name + "." + __name__)
 if setup.silence_gdal:

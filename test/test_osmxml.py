@@ -1,8 +1,10 @@
 import unittest
 import random
 from cStringIO import StringIO
+import os
+os.environ['LANGUAGE'] = 'C'
 
-import main
+import setup
 import osm
 import osmxml
 from osmxml import etree

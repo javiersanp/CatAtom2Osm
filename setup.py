@@ -2,6 +2,7 @@
 """Application preferences"""
 import sys, os, locale
 import csv
+import gettext
 
 app_name = 'CatAtom2Osm'
 app_version = '2017-07-11'
@@ -9,6 +10,24 @@ app_author = u'Javier Sánchez Portero'
 app_copyright = u'2017, Javier Sánchez Portero'
 app_desc = 'Tool to convert INSPIRE data sets from the Spanish Cadastre ATOM Services to OSM files'
 app_tags = ''
+
+language, encoding = locale.getdefaultlocale()
+app_path = os.path.dirname(__file__)
+localedir = os.path.join(app_path, 'locale', 'po')
+platform = sys.platform
+eol = '\n'
+
+def winenv():
+    global eol, encoding
+    if platform.startswith('win'):
+        eol = '\r\n'
+        encoding = sys.stdout.encoding
+        if os.getenv('LANG') is None:
+            os.environ['LANG'] = language
+winenv()
+
+gettext.install(app_name.lower(), localedir=localedir, unicode=1)
+
 
 log_level = 'INFO' # Default log level
 log_file = 'catatom2osm.log'
@@ -55,15 +74,6 @@ prov_url = {
 }
 
 valid_provinces = ["%02d" % i for i in range(2,57) if i not in (20, 31, 48)]
-
-language, encoding = locale.getdefaultlocale()
-app_path = os.path.dirname(__file__)
-localedir = os.path.join(app_path, 'locale', 'po')
-platform = sys.platform
-eol = '\n'
-if platform.startswith('win'):
-    eol = '\r\n'
-    encoding = sys.stdout.encoding
 
 no_number = 'S-N' # Regular expression to match addresses without number
 

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import unittest
 import mock
+import os
+os.environ['LANGUAGE'] = 'C'
 
 import hgwnames
 import hgwnames as nonfuzzy_hgwnames

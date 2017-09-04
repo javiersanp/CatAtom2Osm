@@ -6,7 +6,6 @@ from optparse import Values
 from qgis.core import QgsVectorLayer
 os.environ['LANGUAGE'] = 'C'
 
-import main
 import setup
 import osm
 import layer

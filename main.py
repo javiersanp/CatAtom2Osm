@@ -2,17 +2,8 @@
 """CatAtom2Osm command line entry point"""
 from optparse import OptionParser
 import logging
-import gettext
-import sys
-import os
-from zipfile import BadZipfile
 import setup
 
-if setup.platform.startswith('win'):
-    if os.getenv('LANG') is None:
-        os.environ['LANG'] = setup.language
-gettext.install(setup.app_name.lower(), localedir=setup.localedir, unicode=1)
- 
 log = logging.getLogger(setup.app_name)
 fh = logging.FileHandler(setup.log_file)
 ch = logging.StreamHandler()
@@ -24,6 +15,10 @@ fh.setFormatter(formatter)
 log.addHandler(ch)
 log.addHandler(fh)
 
+import sys
+import os
+from zipfile import BadZipfile
+
 usage = _("""catatom2osm [OPTION]... [PATH]
 The argument path states the directory for input and output files. 
 The directory name shall start with 5 digits (GGMMM) matching the Cadastral 
@@ -32,10 +27,11 @@ files it will download them for you from the INSPIRE Services of the Spanish
 Cadastre.""")
 
 def process(args, options):
-    from catatom import list_municipalities
     if options.list:
+        from catatom import list_municipalities
         list_municipalities('{:>02}'.format(options.list))
     else:
+        import compat
         from catatom2osm import CatAtom2Osm
         app = CatAtom2Osm(args[0], options)
         app.run()

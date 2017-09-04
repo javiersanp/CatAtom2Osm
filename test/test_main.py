@@ -3,11 +3,12 @@ import mock
 import unittest
 import sys, os
 import logging
+logging.disable(logging.WARNING)
 from cStringIO import StringIO
 import codecs
 from contextlib import contextmanager
-import setup
 os.environ['LANGUAGE'] = 'C'
+import setup
 import main
 
 @contextmanager
@@ -34,17 +35,6 @@ class TestMain(unittest.TestCase):
     def test_no_args(self):
         with capture(main.run) as output:
             self.assertIn("Usage: catatom2osm", output)
-
-    @mock.patch('setup.platform', 'winx')
-    @mock.patch('setup.language', 'foobar')
-    def test_win(self):
-        lang = os.getenv('LANG')
-        reload(main)
-        self.assertEquals(os.getenv('LANG'), lang)
-        del os.environ['LANG']
-        reload(main)
-        self.assertEquals(os.getenv('LANG'), 'foobar')
-        os.environ['LANG'] = lang
 
     @mock.patch('main.sys.argv', ['catatom2osm.py', 'foo', 'bar'])
     @mock.patch('main.log.error')

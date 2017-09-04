@@ -5,6 +5,7 @@ from tempfile import mkstemp
 import csv
 import codecs
 import os
+os.environ['LANGUAGE'] = 'C'
 
 from csvtools import csv2dict, dict2csv
 from setup import eol, encoding

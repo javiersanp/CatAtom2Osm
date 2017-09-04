@@ -8,9 +8,8 @@ import random
 import os, sys
 os.environ['LANGUAGE'] = 'C'
 
-import main
-import catatom
 import setup
+import catatom
 
 @contextmanager
 def capture(command, *args, **kwargs):
@@ -300,8 +299,6 @@ class TestCatAtom(unittest.TestCase):
         m_hgw.fuzz = False
         self.m_cat.zip_code = '07032'
         self.m_cat.get_boundary(self.m_cat, zoning)
-        output = m_log.call_args_list[2][0][0]
-        self.assertIn("Failed to import", output)
         self.assertEquals(self.m_cat.cat_mun, u'Maó')
 
     @mock.patch('catatom.download')

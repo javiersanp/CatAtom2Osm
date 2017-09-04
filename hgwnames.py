@@ -5,14 +5,11 @@ Parsing of highway names
 
 import os
 import re
+from fuzzywuzzy import fuzz
+from fuzzywuzzy import process
 
 import setup
-
-try:
-    from fuzzywuzzy import fuzz
-    from fuzzywuzzy import process
-except: # pragma: no cover
-    fuzz = None
+import compat
 
 MATCH_THR = 60
 

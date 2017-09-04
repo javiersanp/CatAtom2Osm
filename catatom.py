@@ -11,7 +11,7 @@ import hgwnames
 import layer
 import overpass
 import setup
-from osmxml import etree
+from compat import etree
 
 log = logging.getLogger(setup.app_name + "." + __name__)
 
@@ -168,9 +168,6 @@ class Reader(object):
         Gets the id of the OSM administrative boundary from Overpass.
         Precondition: called after read any gml (metadata adquired)
         """
-        if not hgwnames.fuzz:
-            log.warning(_("Failed to import FuzzyWuzzy. "
-                "Install requeriments for address conflation."))
         if self.zip_code in setup.mun_areas:
             self.cat_mun = setup.mun_areas[self.zip_code][0]
             self.boundary_search_area = setup.mun_areas[self.zip_code][1]
@@ -204,7 +201,6 @@ def list_municipalities(prov_code):
     ns = {'atom': 'http://www.w3.org/2005/Atom'}
     office = root.find('atom:title', ns).text.split('Office ')[1]
     title = _("Territorial office %s") % office
-    print
     print title.encode(setup.encoding)
     print "=" * len(title)
     for entry in root.findall('atom:entry', namespaces=ns):

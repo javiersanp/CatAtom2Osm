@@ -4,7 +4,7 @@ import os
 import random
 
 os.environ['LANGUAGE'] = 'C'
-import main
+import setup
 from download import ProgressBar, get_response, wget, chunk_size
 
 
