@@ -19,6 +19,7 @@ Contenido:
    :maxdepth: 2
 
    readme
+   install
    changes
    api
 

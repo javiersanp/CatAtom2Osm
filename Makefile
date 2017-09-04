@@ -10,6 +10,7 @@ GETTEXT       = pygettext
 MSGMERGE      = msgmerge
 MSGFMT        = msgfmt
 LOCALE_DIR    = locale/po
+OS            = $(shell uname)
 
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
@@ -21,9 +22,13 @@ I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 .PHONY: help
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
+	@echo "  clean      to clean docs build directory"
 	@echo "  coverage   to make coverage report files"
 	@echo "  api        to make autodoc files"
 	@echo "  html       to make documentation html files"
+	@echo "  msg        to build translations file"
+	@echo "  install    to create application simbolic link"
+	@echo "  all        clean api coverage html msg install"
 
 .PHONY: clean
 clean:
@@ -60,5 +65,18 @@ msg:
 	@echo
 	@echo "Translation finished. The language files are in $(LOCALE_DIR)."
 
-all: clean api coverage html msg
+
+.PHONY: install
+install:
+	@echo "#!/bin/bash" > catatom2osm.sh
+ifeq (${OS},$(filter $(OS),Sierra Darwin))
+	@echo "export PATH="'"'"/Applications/QGIS.app/Contents/MacOS/bin:$$"PATH'"' >> catatom2osm.sh
+	@echo "export PYTHONPATH="'"'"/Applications/QGIS.app/Contents/Resources/python:$$"PYTHONPATH'"' >> catatom2osm.sh
+endif
+	@echo "python $(shell pwd)/main.py $$"'*' >> catatom2osm.sh
+	@chmod +x catatom2osm.sh
+	@ln -sf $(shell pwd)/catatom2osm.sh /usr/bin/catatom2osm
+
+all: clean api coverage html msg install
 .PHONY: all
+

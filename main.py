@@ -24,7 +24,7 @@ fh.setFormatter(formatter)
 log.addHandler(ch)
 log.addHandler(fh)
 
-usage = _("""%prog <path>
+usage = _("""catatom2osm [OPTION]... [PATH]
 The argument path states the directory for input and output files. 
 The directory name shall start with 5 digits (GGMMM) matching the Cadastral 
 Provincial Office and Municipality Code. If the program don't find the input 

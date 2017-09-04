@@ -33,7 +33,7 @@ class TestMain(unittest.TestCase):
     @mock.patch('main.sys.argv', ['catatom2osm.py'])
     def test_no_args(self):
         with capture(main.run) as output:
-            self.assertIn("Usage: catatom2osm.py", output)
+            self.assertIn("Usage: catatom2osm", output)
 
     @mock.patch('setup.platform', 'winx')
     @mock.patch('setup.language', 'foobar')

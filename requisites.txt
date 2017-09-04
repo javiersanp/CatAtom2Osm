@@ -1,3 +1,4 @@
+requests
 fuzzywuzzy[speedup]
 
 # sudo pip install -r requisites.txt

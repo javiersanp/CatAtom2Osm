@@ -17,26 +17,17 @@ Requisitos
 
 * fuzzywuzzy\[speedup\]
 * pyqgis
+* requests
 * GDAL
 
-Instalación
------------
-
-FuzzyWuzzy es necesario para combinar los nombres de las calles, instálalo con:
-
-    sudo pip install -r requisites.txt
-
-(En Windows sudo no es necesario).
-
-Los requisitos principales (pyqgis, GDAL) deben ser proporcionados por QGIS 
-mediante los instaladores disponibles en http://qgis.org/
+Ver INSTALL.es.md (https://javiersanp.github.io/CatAtom2Osm/es/install.html)
 
 Uso
 ---
 
 Para ejecutar la aplicación:
 
-    python main.py <ruta>
+    catatom2osm <ruta>
 
 El argumento ruta indica el directorio para los ficheros de entrada y salida.
 El nombre del directorio debe comenzar con 5 dígitos (GGMMM) correspondientes 
@@ -50,11 +41,13 @@ INSPIRE del Catastro Español.
 * \-v, --version         Imprime la versión de CatAtom2Osm y termina
 * \-l prov, --list=prov  Lista los municipios disponibles para el código provincial de dos dígitos
 * \-t, --tasks           Reparte las construcciones en archivos de tareas (predeterminada, implica -z)
+* \-T, --tasklm          Lo mismo que -t pero con menor gasto de memoria
 * \-z, --zoning          Procesa el conjunto de datos de zonificación catastral
 * \-b, --building        Procesa las construcciones a un archivo individual en lugar de tareas
-* \-d, --address         Procesa el conjunto de datos de direcciones"
+* \-d, --address         Procesa el conjunto de datos de direcciones
 * \-p, --parcel          Procesa el conjunto de datos de parcelas catastrales
 * \-a, --all             Procesa todos los conjuntos de datos (equivalente a -bdptz)
+* \-m, --manual          Desactiva la combinación de edificios y de direcciones
 * \--log=log_level       Selecciona el nivel de registro entre DEBUG, INFO, WARNING, ERROR o CRITICAL.
 
 

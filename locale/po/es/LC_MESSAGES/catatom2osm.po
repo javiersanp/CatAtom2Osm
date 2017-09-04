@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-09-03 12:57+WEST\n"
+"POT-Creation-Date: 2017-09-04 10:13+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -21,7 +21,7 @@ msgstr ""
 msgid "Last directory name must be a 5 digits ZIP code"
 msgstr "El nombre del último directorio debe ser un Código Postal de 5 dígitos"
 
-#: catatom.py:33 catatom.py:202
+#: catatom.py:33 catatom.py:203
 msgid "Province code '%s' don't exists"
 msgstr "El Código Provincial '%s' no existe"
 
@@ -72,16 +72,16 @@ msgstr ""
 "No se pudo importar FuzzyWuzzy. Instala los requerimientos para combinar "
 "direcciones."
 
-#: catatom.py:193
+#: catatom.py:194
 msgid "Municipality: '%s'"
 msgstr "Municipio: '%s'"
 
-#: catatom.py:196
+#: catatom.py:197
 msgid "Failed to find administrative boundary, falling back to bounding box"
 msgstr ""
 "No se pudo obtener el límite administrativo, se usará el recuadro delimitador"
 
-#: catatom.py:208
+#: catatom.py:209
 msgid "Territorial office %s"
 msgstr "Oficina territorial %s"
 
@@ -93,7 +93,7 @@ msgstr "Inicializada la API de QGIS"
 msgid "Start processing '%s'"
 msgstr "Comienza el procesado de '%s'"
 
-#: catatom2osm.py:177 layer.py:1146
+#: catatom2osm.py:177 layer.py:1164
 msgid "Detected %d conflicts in %d buildings from OSM"
 msgstr "Detectados %d edificios con conflicto de %d en OSM"
 
@@ -153,6 +153,26 @@ msgstr "No se pudieron resolver las tablas combinadas para la capa '%s'"
 msgid "There are %d address without house number in the OSM data"
 msgstr "Existen %d direcciones sin número de portal en OSM"
 
+#: compat.py:15
+msgid "Running with lxml.etree"
+msgstr "Usando lxml.etree"
+
+#: compat.py:19
+msgid "Running with ElementTree on Python 2.5+"
+msgstr "Usando ElementTree en Python 2.5+"
+
+#: compat.py:23
+msgid "Running with cElementTree"
+msgstr "Usando cElementTree"
+
+#: compat.py:27
+msgid "Running with ElementTree"
+msgstr "Usando ElementTree"
+
+#: compat.py:29
+msgid "Failed to import ElementTree from any known place"
+msgstr "No se pudo importar ElementTree desde ningún lugar conocido"
+
 #: download.py:24
 msgid "Progress: %.1fK\r"
 msgstr "Progreso: %.1fK\r"
@@ -169,85 +189,85 @@ msgstr "Reproyectada la capa '%s' al CRS '%s'"
 msgid "Joined '%s' to '%s'"
 msgstr "Combinado '%s' a '%s'"
 
-#: layer.py:323
+#: layer.py:341
 msgid "Detected a %s geometry in the '%s' layer"
 msgstr "Detectada una geometría %s en la capa '%s'"
 
-#: layer.py:330
+#: layer.py:348
 msgid "Loaded %d nodes, %d ways, %d relations from '%s' layer"
 msgstr "Cargados %d nodos, %d vías, %d relaciones de la capa '%s'"
 
-#: layer.py:403
+#: layer.py:421
 msgid "%d multi-polygons splited into %d polygons in the '%s' layer"
 msgstr "%d multipolígonos divididos a %d poligonos en la capa '%s'"
 
-#: layer.py:516
+#: layer.py:534
 msgid "Merged %d close vertices in the '%s' layer"
 msgstr "Fusionados %d vértices próximos en la capa '%s'"
 
-#: layer.py:552
+#: layer.py:570
 msgid "Merged %d duplicated vertices of polygons in the '%s' layer"
 msgstr "Fusionados %d vértices de polígono duplicados en la capa '%s'"
 
-#: layer.py:556 layer.py:645
+#: layer.py:574 layer.py:663
 msgid "Deleted %d invalid geometries in the '%s' layer"
 msgstr "Eliminadas %d geometrías no válidas en la capa '%s'"
 
-#: layer.py:596
+#: layer.py:614
 msgid "Created %d topological points in the '%s' layer"
 msgstr "Creados %d puntos topológicos en la capa '%s'"
 
-#: layer.py:678
+#: layer.py:696
 msgid "Simplified %d vertices in the '%s' layer"
 msgstr "Simplificados %d vértices en la capa '%s'"
 
-#: layer.py:696
+#: layer.py:714
 msgid "%d adjacent polygons merged into %d polygons in the '%s' layer"
 msgstr "%d polígonos adyacentes fusionados a %d polígonos en la capa '%s'"
 
-#: layer.py:787
+#: layer.py:805
 msgid "Refused %d addresses existing in OSM"
 msgstr "Rechazadas %d direcciones existentes en OSM"
 
-#: layer.py:792
+#: layer.py:810
 msgid "Deleted %d addresses without house number"
 msgstr "Eliminadas %d direcciones sin número de portal"
 
-#: layer.py:805
+#: layer.py:823
 msgid "Deleted %d addresses without associated building"
 msgstr "Eliminadas %d direcciones sin edificio asociado"
 
-#: layer.py:910
+#: layer.py:928
 msgid "Deleted %d building parts with no floors above ground"
 msgstr "Eliminadas %d partes de edificio sin plantas sobre el nivel del suelo"
 
-#: layer.py:952
+#: layer.py:970
 msgid "Removed %d building parts outside the footprint"
 msgstr "Eliminadas %d partes de edificio fuera del contorno"
 
-#: layer.py:1025
+#: layer.py:1043
 msgid "Merged %d building parts to the footprint"
 msgstr "Fusionados %d partes de edificios al contorno"
 
-#: layer.py:1026
+#: layer.py:1044
 msgid "Merged %d adjacent parts"
 msgstr "Fusionadas %d partes adyacentes"
 
-#: layer.py:1087
+#: layer.py:1105
 msgid "Moved %d addresses to entrance, %d changed to parcel"
 msgstr "Desplazadas %d direcciones a entrada, %d cambiadas a parcela"
 
-#: layer.py:1104
+#: layer.py:1122
 msgid "Check, area too small"
 msgstr "Comprobar, área demasiado pequeña"
 
-#: layer.py:1107
+#: layer.py:1125
 msgid "Check, area too big"
 msgstr "Comprobar, área demasiado grande"
 
 #: main.py:27
 msgid ""
-"%prog <path>\n"
+"catatom2osm [OPTION]... [PATH]\n"
 "The argument path states the directory for input and output files. \n"
 "The directory name shall start with 5 digits (GGMMM) matching the "
 "Cadastral \n"
@@ -257,7 +277,7 @@ msgid ""
 "Spanish \n"
 "Cadastre."
 msgstr ""
-"%prog <ruta>\n"
+"catatom2osm [OPCIÓN]... [PATH]\n"
 "El argumento ruta indica el directorio para los ficheros de entrada y "
 "salida. \n"
 "El nombre del directorio debe comenzar con 5 dígitos (GGMMM) "
@@ -331,26 +351,6 @@ msgstr "Demasiados argumentos, proporcione sólo la ruta de un directorio."
 #: main.py:108
 msgid "Please, install QGIS"
 msgstr "Por favor, instala QGIS"
-
-#: osmxml.py:12
-msgid "Running with lxml.etree"
-msgstr "Usando lxml.etree"
-
-#: osmxml.py:16
-msgid "Running with ElementTree on Python 2.5+"
-msgstr "Usando ElementTree en Python 2.5+"
-
-#: osmxml.py:20
-msgid "Running with cElementTree"
-msgstr "Usando cElementTree"
-
-#: osmxml.py:24
-msgid "Running with ElementTree"
-msgstr "Usando ElementTree"
-
-#: osmxml.py:26
-msgid "Failed to import ElementTree from any known place"
-msgstr "No se pudo importar ElementTree desde ningún lugar conocido"
 
 #~ msgid "Processing %s '%s' (%d of %d) in '%s'"
 #~ msgstr "Procesando %s '%s' (%d de %d) en '%s'"

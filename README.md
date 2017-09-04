@@ -15,26 +15,17 @@ Requeriments
 
 * fuzzywuzzy[speedup]
 * pyqgis
+* requests
 * GDAL
 
-Instalation
------------
-
-FuzzyWuzzy is needed for street names conflation, install it with the command:
-
-    sudo pip install -r requisites.txt 
-
-(In Windows sudo isn't necessary).
-
-The main requisites (pyqgis, GDAL) should be provided by QGIS using the 
-installers available on http://qgis.org/
+See INSTALL.md (https://javiersanp.github.io/CatAtom2Osm/es/install.html)
 
 Usage
 -----
 
 To run the application:
 
-    python main.py <path>
+    catatom2osm <path>
 
 The argument path states the directory for input and output files. 
 The directory name shall start with 5 digits (GGMMM) matching the Cadastral 
@@ -48,11 +39,13 @@ Cadastre.
 * \-v, --version         Print CatAtom2Osm version and exit
 * \-l prov, --list=prov  List available municipalities given the two digits province code
 * \-t, --tasks           Splits constructions into tasks files (default, implies -z)
+* \-T, --tasklm          The same as -t but with lower memory consumption
 * \-z, --zoning          Process the cadastral zoning dataset.
 * \-b, --building        Process constructions to a single file instead of tasks
 * \-d, --address         Process the address dataset
 * \-p, --parcel          Process the cadastral parcel dataset
 * \-a, --all             Process all datasets (equivalent to -dptz)
+* \-m, --manual          Dissable conflation of buildings and addresses
 * \--log=log_level       Select the log level between DEBUG, INFO, WARNING, ERROR or CRITICAL
 
 Documentation
