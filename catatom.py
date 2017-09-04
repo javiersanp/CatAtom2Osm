@@ -59,13 +59,6 @@ class Reader(object):
         self.cat_mun = gml_title.text.split('-')[-1].split('(')[0].strip()
         gml_code = root.find('.//gmd:code/gco:CharacterString', namespace)
         self.crs_ref = int(gml_code.text.split('/')[-1])
-        gml_bbox = root.find('.//gmd:EX_GeographicBoundingBox', namespace)
-        gml_bbox_l = gml_bbox.find('gmd:westBoundLongitude/gco:Decimal', namespace)
-        gml_bbox_r = gml_bbox.find('gmd:eastBoundLongitude/gco:Decimal', namespace)
-        gml_bbox_b = gml_bbox.find('gmd:southBoundLatitude/gco:Decimal', namespace)
-        gml_bbox_t = gml_bbox.find('gmd:northBoundLatitude/gco:Decimal', namespace)
-        self.boundary_bbox = ','.join([gml_bbox_b.text, gml_bbox_l.text,
-                gml_bbox_t.text, gml_bbox_r.text])
 
     def get_atom_file(self, url):
         """
@@ -170,7 +163,7 @@ class Reader(object):
         gml.source_date = self.gml_date
         return gml
 
-    def get_boundary(self):
+    def get_boundary(self, zoning):
         """
         Gets the id of the OSM administrative boundary from Overpass.
         Precondition: called after read any gml (metadata adquired)
@@ -178,6 +171,7 @@ class Reader(object):
         if not hgwnames.fuzz:
             log.warning(_("Failed to import FuzzyWuzzy. "
                 "Install requeriments for address conflation."))
+        self.boundary_bbox = zoning.bounding_box()
         query = overpass.Query(self.boundary_bbox, 'json', False, False)
         query.add('rel["admin_level"="8"]')
         matching = False

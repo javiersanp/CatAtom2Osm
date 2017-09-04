@@ -169,6 +169,14 @@ class TestBaseLayer(unittest.TestCase):
         self.layer.translate_field('A', translations, clean=False)
         self.assertGreater(self.layer.featureCount(), 0)
 
+    def test_boundig_box(self):
+        layer = BaseLayer("Polygon", "test", "memory")
+        self.assertTrue(layer.isValid())
+        self.assertEquals(layer.bounding_box(), None)
+        bbox = "28.23518053,-16.45257255,28.23557298,-16.45166103"
+        layer.append(self.fixture)
+        self.assertEquals(layer.bounding_box(), bbox)
+
     def test_reproject(self):
         layer = BaseLayer("Polygon", "test", "memory")
         self.assertTrue(layer.isValid())

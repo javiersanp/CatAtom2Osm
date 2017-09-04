@@ -119,8 +119,6 @@ class TestCatAtom(unittest.TestCase):
         self.assertEquals(self.m_cat.gml_date, '2017-02-25')
         self.assertEquals(self.m_cat.cat_mun, 'TAZ')
         self.assertEquals(self.m_cat.crs_ref, 32628)
-        bbox = "28.0655571972128,-16.7996857087189,28.1788414990302,-16.6878650661333"
-        self.assertEquals(self.m_cat.boundary_bbox, bbox)
 
     @mock.patch('catatom.os')
     @mock.patch('catatom.open')
@@ -136,8 +134,6 @@ class TestCatAtom(unittest.TestCase):
         self.assertEquals(self.m_cat.gml_date, '2017-02-25')
         self.assertEquals(self.m_cat.cat_mun, 'TAZ')
         self.assertEquals(self.m_cat.crs_ref, 32628)
-        bbox = "28.0655571972128,-16.7996857087189,28.1788414990302,-16.6878650661333"
-        self.assertEquals(self.m_cat.boundary_bbox, bbox)
 
     @mock.patch('catatom.os')
     @mock.patch('catatom.open')
@@ -271,8 +267,9 @@ class TestCatAtom(unittest.TestCase):
     @mock.patch('catatom.download')
     def test_get_boundary(self, m_download, m_hgw, m_overpass, m_log):
         self.m_cat.get_boundary = catatom.Reader.get_boundary.__func__
+        zoning = mock.MagicMock()
         bbox = "28.0655571972128,-16.7996857087189,28.1788414990302,-16.6878650661333"
-        self.m_cat.boundary_bbox = bbox
+        zoning.bounding_box.return_value = bbox
         data = {"id": 2, "tags": {"name": "Tazmania"}}
         m_hgw.fuzz = True
         m_hgw.dsmatch.return_value = data
@@ -280,7 +277,7 @@ class TestCatAtom(unittest.TestCase):
         self.m_cat.prov_code = '09'
         self.m_cat.zip_code = '09003'
         self.m_cat.cat_mun = 'TAZ'
-        self.m_cat.get_boundary(self.m_cat)
+        self.m_cat.get_boundary(self.m_cat, zoning)
         m_overpass.Query.assert_called_with(bbox, 'json', False, False)
         self.assertEquals(m_hgw.dsmatch.call_args_list[0][0][0], 'TAZ')
         self.assertEquals(m_hgw.dsmatch.call_args_list[0][0][1], 'foobar')
@@ -289,19 +286,19 @@ class TestCatAtom(unittest.TestCase):
         self.assertEquals(self.m_cat.boundary_name, 'Tazmania')
         
         m_hgw.dsmatch.return_value = None
-        self.m_cat.get_boundary(self.m_cat)
+        self.m_cat.get_boundary(self.m_cat, zoning)
         output = m_log.call_args_list[0][0][0]
         self.assertIn("Failed to find", output)
         self.assertEquals(self.m_cat.boundary_search_area, bbox)
         
         m_overpass.Query.return_value.read = raiseException
-        self.m_cat.get_boundary(self.m_cat)
+        self.m_cat.get_boundary(self.m_cat, zoning)
         output = m_log.call_args_list[1][0][0]
         self.assertIn("Failed to find", output)
         
         m_hgw.fuzz = False
         m_hgw.dsmatch.return_value = data
-        self.m_cat.get_boundary(self.m_cat)
+        self.m_cat.get_boundary(self.m_cat, zoning)
         output = m_log.call_args_list[2][0][0]
         self.assertIn("Failed to import", output)
 

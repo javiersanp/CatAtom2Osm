@@ -270,6 +270,24 @@ class BaseLayer(QgsVectorLayer):
         else:
             return QgsSpatialIndex()
 
+    def bounding_box(self):
+        bbox = None
+        for f in self.getFeatures():
+            if bbox is None:
+                bbox = f.geometry().boundingBox()
+            else:
+                bbox.combineExtentWith(f.geometry().boundingBox())
+        if bbox:
+            p1 = QgsGeometry().fromPoint(Point(bbox.xMinimum(), bbox.yMinimum()))
+            p2 = QgsGeometry().fromPoint(Point(bbox.xMaximum(), bbox.yMaximum()))
+            target_crs = QgsCoordinateReferenceSystem(4326)
+            crs_transform = QgsCoordinateTransform(self.crs(), target_crs)
+            p1.transform(crs_transform)
+            p2.transform(crs_transform)
+            bbox = [p1.asPoint().y(), p1.asPoint().x(), p2.asPoint().y(), p2.asPoint().x()]
+            bbox = '{:.8f},{:.8f},{:.8f},{:.8f}'.format(*bbox)
+        return bbox
+
     def export(self, path, driver_name="ESRI Shapefile", overwrite=True):
         """Write layer to file
 

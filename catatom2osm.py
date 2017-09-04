@@ -358,11 +358,11 @@ class CatAtom2Osm:
         (rustic)
         """
         zoning_gml = self.cat.read("cadastralzoning")
-        self.cat.get_boundary()
         self.urban_zoning = layer.ZoningLayer(baseName='urbanzoning')
         self.rustic_zoning = layer.ZoningLayer(baseName='rusticzoning')
         self.urban_zoning.append(zoning_gml, level='M')
         self.rustic_zoning.append(zoning_gml, level='P')
+        self.cat.get_boundary(self.rustic_zoning)
         del zoning_gml
         self.urban_zoning.explode_multi_parts()
         self.rustic_zoning.explode_multi_parts()
@@ -393,12 +393,12 @@ class CatAtom2Osm:
         """
         Copy address from address_osm to building_osm using 'ref' tag.
 
-        * If there exists one building with the same 'ref' that an address, copy
+        If there exists one building with the same 'ref' that an address, copy
         the address tags to the building if isn't a 'entrace' type address or
         else to the entrance if there exist a node with the address coordinates
         in the building.
 
-        * If there exists many buildings withe the same 'ref' than an address,
+        If there exists many buildings withe the same 'ref' than an address,
         creates a multipolygon relation and copy the address tags to it. Each
         building will be a member with outer role in the relation if it's a way.
         If it's a relation, each outer member of it is aggregated to the address
