@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import unittest
 import mock
 import codecs
@@ -297,10 +298,11 @@ class TestCatAtom(unittest.TestCase):
         self.assertIn("Failed to find", output)
         
         m_hgw.fuzz = False
-        m_hgw.dsmatch.return_value = data
+        self.m_cat.zip_code = '07032'
         self.m_cat.get_boundary(self.m_cat, zoning)
         output = m_log.call_args_list[2][0][0]
         self.assertIn("Failed to import", output)
+        self.assertEquals(self.m_cat.cat_mun, u'Maó')
 
     @mock.patch('catatom.download')
     def test_list_municipalities(self, m_download):

@@ -82,7 +82,7 @@ def dsmatch(name, dataset, fn):
     matching = None
     for e in dataset:
         if fuzz:
-            ratio = fuzz.token_set_ratio(normalize(name), normalize(fn(e)))
+            ratio = fuzz.token_sort_ratio(normalize(name), normalize(fn(e)))
             if ratio > max_ratio:
                 max_ratio = ratio
                 matching = e

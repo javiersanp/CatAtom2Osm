@@ -173,3 +173,22 @@ place_types = [
 	'Terrenos', u'Urbanización', 'Bulevar', 'Sector'
 ]
 
+mun_areas = {
+    '07032': [u'Maó', '1809102'],
+    '07040': ['Palma', '341321'],
+    '11042': ['Zahara', '343140'],
+    '16176': ['Pozorrubio', '347331'],
+    '19178': ['Humanes', '341781'],
+    '23043': ['Hornos', '344389'],
+    '23086': ['Torre del Campo', '346324'],
+    '26004': ['Ajamil', '348189'],
+    '26093': ['Mansilla de la Sierra', '345202'],
+    '28063': ['Gargantilla del Lozoya y Pinilla de Buitrago', '345009'],
+    '35010': ['Santa María de Guía de Gran Canaria', '345440'],
+    '37367': ['Villarino de los Aires', '340062'],
+    '38039': ['Santa Úrsula', '340717'],
+    '50030': ['Añón de Moncayo', '342653'],
+    '50049': ['Biel', '348008'],
+    '51021': ['fuente', '341321'],
+}
+

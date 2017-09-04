@@ -171,6 +171,10 @@ class Reader(object):
         if not hgwnames.fuzz:
             log.warning(_("Failed to import FuzzyWuzzy. "
                 "Install requeriments for address conflation."))
+        if self.zip_code in setup.mun_areas:
+            self.cat_mun = setup.mun_areas[self.zip_code][0]
+            self.boundary_search_area = setup.mun_areas[self.zip_code][1]
+            return
         self.boundary_bbox = zoning.bounding_box()
         query = overpass.Query(self.boundary_bbox, 'json', False, False)
         query.add('rel["admin_level"="8"]')

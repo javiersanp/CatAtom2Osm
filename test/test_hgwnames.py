@@ -16,6 +16,11 @@ class TestHgwnames(unittest.TestCase):
         ]
         self.fn = lambda x:x['n']
         self.choices = ['Foobar', 'Foo bar', 'Footaz']
+        self.ds2 = [
+            {'id':1, 'n':'Móstoles'}, 
+            {'id':2, 'n':'Las Rozas de Madrid'},
+            {'id':3, 'n':'Rivas-Vaciamadrid'},
+            {'id':4, 'n':'Madrid'}]
         
     def test_normalize(self):
         self.assertEquals(hgwnames.normalize('  ABCD  '), 'abcd')
@@ -51,6 +56,8 @@ class TestHgwnames(unittest.TestCase):
 
     def test_fuzzy_dsmatch(self):
         self.assertEquals(hgwnames.dsmatch('FOOB', self.ds, self.fn)['id'], 1)
+        self.assertEquals(hgwnames.dsmatch('MADRID', self.ds2, self.fn)['id'], 4)
+        self.assertEquals(hgwnames.dsmatch('MADRID', self.ds2, self.fn)['n'], 'Madrid')
 
     @mock.patch('hgwnames.fuzz', None)
     def test_nonfuzzy_match(self):
