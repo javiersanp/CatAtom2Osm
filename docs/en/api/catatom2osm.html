@@ -35,8 +35,8 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="csvtools module" href="csvtools.html" />
-    <link rel="prev" title="CatAtom2Osm" href="modules.html" />
+    <link rel="next" title="compat module" href="compat.html" />
+    <link rel="prev" title="catatom module" href="catatom.html" />
   
    
 
@@ -52,10 +52,10 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="csvtools.html" title="csvtools module"
+          <a href="compat.html" title="compat module"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="modules.html" title="CatAtom2Osm"
+          <a href="catatom.html" title="catatom module"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 2017-07-11 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../api.html" >API reference</a> &#187;</li>
@@ -81,6 +81,7 @@
     
       <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../readme.html">Read me</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Install</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../changes.html">Change log</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="modules.html">CatAtom2Osm</a></li>
@@ -133,29 +134,16 @@
 <em class="property">class </em><code class="descclassname">catatom2osm.</code><code class="descname">CatAtom2Osm</code><span class="sig-paren">(</span><em>a_path</em>, <em>options</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Main application class for a tool to convert the data sets from the
 Spanish Cadastre ATOM Services to OSM files.</p>
-<dl class="attribute">
-<dt id="catatom2osm.CatAtom2Osm.path">
-<code class="descname">path</code><a class="headerlink" href="#catatom2osm.CatAtom2Osm.path" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>str</em> &#8211; Directory where the source files are located.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="catatom2osm.CatAtom2Osm.zip_code">
-<code class="descname">zip_code</code><a class="headerlink" href="#catatom2osm.CatAtom2Osm.zip_code" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>str</em> &#8211; Five digits (GGMMM) Zip Code matching Province (GG)
-and Municipality (MMM) codes.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="catatom2osm.CatAtom2Osm.qgs">
-<code class="descname">qgs</code><a class="headerlink" href="#catatom2osm.CatAtom2Osm.qgs" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>QgsApplication</em> &#8211; Instance of qGis API.</p>
-</dd></dl>
+<dl class="method">
+<dt id="catatom2osm.CatAtom2Osm.end_messages">
+<code class="descname">end_messages</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.end_messages"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.end_messages" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="catatom2osm.CatAtom2Osm.exit">
 <code class="descname">exit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.exit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.exit" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Ends properly</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="catatom2osm.CatAtom2Osm.export_layer">
@@ -177,50 +165,59 @@ and Municipality (MMM) codes.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="catatom2osm.CatAtom2Osm.get_atom_file">
-<code class="descname">get_atom_file</code><span class="sig-paren">(</span><em>url</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.get_atom_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.get_atom_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Given the url of a Cadastre ATOM service, tries to download the ZIP
-file for self.zip_code</p>
+<dt id="catatom2osm.CatAtom2Osm.get_current_ad_osm">
+<code class="descname">get_current_ad_osm</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.get_current_ad_osm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.get_current_ad_osm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets OSM address for address conflation</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="catatom2osm.CatAtom2Osm.get_crs_from_gml">
-<code class="descname">get_crs_from_gml</code><span class="sig-paren">(</span><em>gml_path</em>, <em>zip_path=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.get_crs_from_gml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.get_crs_from_gml" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Determines the CRS of a GML file. This is necessary because QGIS don&#8217;t</dt>
-<dd>detect correctly the CRS of the parcel and zoning layers.</dd>
-</dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>gml_path</strong> (<em>str</em>) &#8211; path to the file</li>
-<li><strong>zip_path</strong> (<em>str</em>) &#8211; optionally zip file that contains the gml</li>
+<dt id="catatom2osm.CatAtom2Osm.get_current_bu_osm">
+<code class="descname">get_current_bu_osm</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.get_current_bu_osm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.get_current_bu_osm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets OSM buildings for building conflation</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="catatom2osm.CatAtom2Osm.get_highway">
+<code class="descname">get_highway</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.get_highway"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.get_highway" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets OSM highways needed for street names conflation</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="catatom2osm.CatAtom2Osm.get_translations">
+<code class="descname">get_translations</code><span class="sig-paren">(</span><em>address</em>, <em>highway</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.get_translations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.get_translations" title="Permalink to this definition">¶</a></dt>
+<dd><p>If there exists the configuration file &#8216;highway_types.csv&#8217;, read it,
+else write one with default values. If don&#8217;t exists the translations file
+&#8216;highway_names.csv&#8217;, creates one parsing names_layer, else reads and returns
+it as a dictionary.</p>
+<ul class="simple">
+<li>&#8216;highway_types.csv&#8217; List of osm elements in json format located in the
+application path and contains translations from abreviaturs to full
+types of highways.</li>
+<li>&#8216;highway_names.csv&#8217; is located in the outputh folder and contains
+corrections for original highway names.</li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">True if the GML file contains no feature
-crs (QgsCoordinateReferenceSystem): CRS of the file</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">is_empty (bool)</p>
-</td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 <dl class="method">
-<dt id="catatom2osm.CatAtom2Osm.get_gml_date">
-<code class="descname">get_gml_date</code><span class="sig-paren">(</span><em>md_path</em>, <em>zip_path=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.get_gml_date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.get_gml_date" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the source file production date from the metadata.</p>
+<dt id="catatom2osm.CatAtom2Osm.get_zoning">
+<code class="descname">get_zoning</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.get_zoning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.get_zoning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads cadastralzoning and splits in &#8216;MANZANA&#8217; (urban) and &#8216;POLIGONO&#8217;
+(rustic)</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="catatom2osm.CatAtom2Osm.merge_address">
 <code class="descname">merge_address</code><span class="sig-paren">(</span><em>building_osm</em>, <em>address_osm</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.merge_address"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.merge_address" title="Permalink to this definition">¶</a></dt>
-<dd><p>Copy address from address_osm to building_osm</p>
+<dd><p>Copy address from address_osm to building_osm using &#8216;ref&#8217; tag.</p>
+<p>If there exists one building with the same &#8216;ref&#8217; that an address, copy
+the address tags to the building if isn&#8217;t a &#8216;entrace&#8217; type address or
+else to the entrance if there exist a node with the address coordinates
+in the building.</p>
+<p>If there exists many buildings withe the same &#8216;ref&#8217; than an address,
+creates a multipolygon relation and copy the address tags to it. Each
+building will be a member with outer role in the relation if it&#8217;s a way.
+If it&#8217;s a relation, each outer member of it is aggregated to the address
+relation.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -236,59 +233,63 @@ crs (QgsCoordinateReferenceSystem): CRS of the file</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="catatom2osm.CatAtom2Osm.osm_from_layer">
-<code class="descname">osm_from_layer</code><span class="sig-paren">(</span><em>layer</em>, <em>tags_translation=&lt;function all_tags&gt;</em>, <em>upload='never'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.osm_from_layer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.osm_from_layer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a Osm data set from a vector layer.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>layer</strong> (<em>QgsVectorLayer</em>) &#8211; Source layer.</li>
-<li><strong>tags_translation</strong> (<em>function</em>) &#8211; Function to translate fields to tags.
-By defaults convert all fields.</li>
-<li><strong>upload</strong> (<em>str</em>) &#8211; upload attribute of the osm dataset, default &#8216;never&#8217;</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">OSM data set</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="osm.html#osm.Osm" title="osm.Osm">Osm</a></p>
-</td>
-</tr>
-</tbody>
-</table>
+<dt id="catatom2osm.CatAtom2Osm.process_address">
+<code class="descname">process_address</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.process_address"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.process_address" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="catatom2osm.CatAtom2Osm.process_building">
+<code class="descname">process_building</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.process_building"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.process_building" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process all buildings dataset</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="catatom2osm.CatAtom2Osm.read_gml_layer">
-<code class="descname">read_gml_layer</code><span class="sig-paren">(</span><em>layername</em>, <em>allow_empty=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.read_gml_layer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.read_gml_layer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a qgis vector layer for a Cadastre layername. Derives the GML
-filename from layername. If it don&#8217;t exists, try with the ZIP file, if
-it don&#8217;t exists, try to download it.</p>
+<dt id="catatom2osm.CatAtom2Osm.process_parcel">
+<code class="descname">process_parcel</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.process_parcel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.process_parcel" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="catatom2osm.CatAtom2Osm.process_tasks">
+<code class="descname">process_tasks</code><span class="sig-paren">(</span><em>source</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.process_tasks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.process_tasks" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="catatom2osm.CatAtom2Osm.process_zone">
+<code class="descname">process_zone</code><span class="sig-paren">(</span><em>zone</em>, <em>index</em>, <em>processed</em>, <em>source</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.process_zone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.process_zone" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="catatom2osm.CatAtom2Osm.process_zoning">
+<code class="descname">process_zoning</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.process_zoning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.process_zoning" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="catatom2osm.CatAtom2Osm.read_address">
+<code class="descname">read_address</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.read_address"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.read_address" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads Address GML dataset</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="catatom2osm.CatAtom2Osm.read_osm">
+<code class="descname">read_osm</code><span class="sig-paren">(</span><em>ql</em>, <em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.read_osm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.read_osm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a OSM data set from a OSM XML file. If the file not exists,
+downloads data from overpass using ql query</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>layername</strong> (<em>str</em>) &#8211; Short name of the Cadastre layer. Any of
-&#8216;building&#8217;, &#8216;buildingpart&#8217;, &#8216;otherconstruction&#8217;,
-&#8216;cadastralparcel&#8217;, &#8216;cadastralzoning&#8217;, &#8216;address&#8217;,
-&#8216;thoroughfarename&#8217;, &#8216;postaldescriptor&#8217;, &#8216;adminunitname&#8217;</li>
-<li><strong>allow_empty</strong> (<em>bool</em>) &#8211; If False (default), raise a exception for empty
-layer, else returns None</li>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ql</strong> (<em>str</em>) &#8211; Query to put in the url</li>
+<li><strong>filename</strong> (<em>str</em>) &#8211; File to read/write</li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Vector layer.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">QgsVectorLayer</p>
 </td>
 </tr>
 </tbody>
 </table>
+<dl class="docutils">
+<dt>Returns</dt>
+<dd>Osm: OSM data set</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -298,15 +299,20 @@ layer, else returns None</li>
 </dd></dl>
 
 <dl class="method">
-<dt id="catatom2osm.CatAtom2Osm.split_building_in_tasks">
-<code class="descname">split_building_in_tasks</code><span class="sig-paren">(</span><em>building</em>, <em>urban_zoning</em>, <em>rustic_zoning</em>, <em>address_osm</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.split_building_in_tasks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.split_building_in_tasks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generates osm files to import with the task manager</p>
+<dt id="catatom2osm.CatAtom2Osm.start">
+<code class="descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes data sets</p>
 </dd></dl>
+
+<dl class="method">
+<dt id="catatom2osm.CatAtom2Osm.write_building">
+<code class="descname">write_building</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.write_building"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.write_building" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="catatom2osm.CatAtom2Osm.write_osm">
 <code class="descname">write_osm</code><span class="sig-paren">(</span><em>data</em>, <em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.write_osm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.write_osm" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generates a OSM XML file for a Osm data set.</p>
+<dd><p>Generates a OSM XML file for a OSM data set.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -321,12 +327,19 @@ layer, else returns None</li>
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="catatom2osm.CatAtom2Osm.write_task">
+<code class="descname">write_task</code><span class="sig-paren">(</span><em>zoning</em>, <em>building</em>, <em>address=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.write_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.write_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates osm file for a task</p>
 </dd></dl>
 
-<dl class="function">
-<dt id="catatom2osm.list_municipalities">
-<code class="descclassname">catatom2osm.</code><code class="descname">list_municipalities</code><span class="sig-paren">(</span><em>prov_code</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#list_municipalities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.list_municipalities" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get from the ATOM services a list of municipalities for a given province</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="catatom2osm.QgsSingleton">
+<em class="property">class </em><code class="descclassname">catatom2osm.</code><code class="descname">QgsSingleton</code><a class="reference internal" href="../_modules/catatom2osm.html#QgsSingleton"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#catatom2osm.QgsSingleton" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">qgis._core.QgsApplication</span></code></p>
+<p>Keeps a unique instance of QGIS for the application (and tests)</p>
 </dd></dl>
 
 </div>
@@ -337,11 +350,11 @@ layer, else returns None</li>
   <div class="footer-relations">
     
       <div class="pull-left">
-        <a class="btn btn-default" href="modules.html" title="previous chapter (use the left arrow)">CatAtom2Osm</a>
+        <a class="btn btn-default" href="catatom.html" title="previous chapter (use the left arrow)">catatom module</a>
       </div>
     
       <div class="pull-right">
-        <a class="btn btn-default" href="csvtools.html" title="next chapter (use the right arrow)">csvtools module</a>
+        <a class="btn btn-default" href="compat.html" title="next chapter (use the right arrow)">compat module</a>
       </div>
     </div>
     <div class="clearer"></div>
@@ -359,10 +372,10 @@ layer, else returns None</li>
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="csvtools.html" title="csvtools module"
+          <a href="compat.html" title="compat module"
              >next</a> |</li>
         <li class="right" >
-          <a href="modules.html" title="CatAtom2Osm"
+          <a href="catatom.html" title="catatom module"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 2017-07-11 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../api.html" >API reference</a> &#187;</li>

@@ -81,6 +81,7 @@
     
       <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../readme.html">Read me</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Install</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../changes.html">Change log</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="modules.html">CatAtom2Osm</a></li>
@@ -129,40 +130,50 @@
 <span id="hgwnames-module"></span><h1>hgwnames module<a class="headerlink" href="#module-hgwnames" title="Permalink to this headline">¶</a></h1>
 <p>Parsing of highway names</p>
 <dl class="function">
-<dt id="hgwnames.get_translations">
-<code class="descclassname">hgwnames.</code><code class="descname">get_translations</code><span class="sig-paren">(</span><em>address_layer</em>, <em>output_folder</em>, <em>street_fn</em>, <em>housenumber_fn</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hgwnames.html#get_translations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hgwnames.get_translations" title="Permalink to this definition">¶</a></dt>
-<dd><p>If there exists the configuration file &#8216;highway_types.csv&#8217;, read it,
-else write one with default values. If don&#8217;t exists the translations file
-&#8216;highway_names.csv&#8217;, creates one parsing names_layer, else reads and returns
-it as a dictionary.</p>
-<ul class="simple">
-<li>&#8216;highway_types.csv&#8217; is located in the application path and contains
-translations from abreviaturs to full types of highways.</li>
-<li>&#8216;highway_names.csv&#8217; is located in the outputh folder and contains
-corrections for original highway names.</li>
-</ul>
+<dt id="hgwnames.dsmatch">
+<code class="descclassname">hgwnames.</code><code class="descname">dsmatch</code><span class="sig-paren">(</span><em>name</em>, <em>dataset</em>, <em>fn</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hgwnames.html#dsmatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hgwnames.dsmatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fuzzy search best matching object for string name in dataset</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>address_layer</strong> (<a class="reference internal" href="layer.html#layer.AddressLayer" title="layer.AddressLayer"><em>AddressLayer</em></a>) &#8211; Layer with addresses</li>
-<li><strong>output_folder</strong> (<em>str</em>) &#8211; Directory where the source files are located</li>
-<li><strong>street_fn</strong> (<em>str</em>) &#8211; Name of the field for the address street name</li>
-<li><strong>housenumber_fn</strong> (<em>str</em>) &#8211; Name of the field for the address housenumber</li>
+<li><strong>name</strong> (<em>str</em>) &#8211; String to look for</li>
+<li><strong>dataset</strong> (<em>list</em>) &#8211; List of objects to search for</li>
+<li><strong>fn</strong> (<em>function</em>) &#8211; Function to obtain a string from a element of the dataset</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Dictionary with highway names translations and a flag to
-alert if it&#8217;s new (there wasen&#8217;t a previous translations file)</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(dict, bool)</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">First element with the maximun fuzzy ratio.</p>
 </td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
+
+<dl class="function">
+<dt id="hgwnames.match">
+<code class="descclassname">hgwnames.</code><code class="descname">match</code><span class="sig-paren">(</span><em>name</em>, <em>choices</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hgwnames.html#match"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hgwnames.match" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fuzzy search best match for string name in iterable choices, if the result
+is not good enough returns the name parsed</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<em>str</em>) &#8211; String to look for</li>
+<li><strong>choices</strong> (<em>list</em>) &#8211; Iterable with choices</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="hgwnames.normalize">
+<code class="descclassname">hgwnames.</code><code class="descname">normalize</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hgwnames.html#normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#hgwnames.normalize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="function">
 <dt id="hgwnames.parse">

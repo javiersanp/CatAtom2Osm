@@ -73,6 +73,7 @@
     
       <ul>
 <li class="toctree-l1"><a class="reference internal" href="../readme.html">Léeme</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Instalación</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../changes.html">Registro de cambios</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api.html">Referencia API</a></li>
 </ul>
@@ -111,7 +112,7 @@
           <div class="document clearer body">
             
   <h1>Código fuente para csvtools</h1><div class="highlight"><pre>
-<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">CSV related help functions</span>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -126,7 +127,7 @@
     <span class="sd">&quot;&quot;&quot;Writes a dictionary to a csv file&quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="n">codecs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">csv_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="p">)</span> <span class="k">as</span> <span class="n">csv_file</span><span class="p">:</span>
         <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">a_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">csv_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">;</span><span class="si">%s%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">eol</span><span class="p">))</span></div>
+            <span class="n">csv_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">u&#39;</span><span class="si">%s</span><span class="s1">;</span><span class="si">%s%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">eol</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="csv2dict"><a class="viewcode-back" href="../api/csvtools.html#csvtools.csv2dict">[documentos]</a><span class="k">def</span> <span class="nf">csv2dict</span><span class="p">(</span><span class="n">csv_path</span><span class="p">,</span> <span class="n">a_dict</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Read a dictionary from a csv file&quot;&quot;&quot;</span>

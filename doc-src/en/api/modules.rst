@@ -4,7 +4,9 @@ CatAtom2Osm
 .. toctree::
    :maxdepth: 4
 
+   catatom
    catatom2osm
+   compat
    csvtools
    download
    hgwnames
@@ -12,6 +14,7 @@ CatAtom2Osm
    main
    osm
    osmxml
+   overpass
    setup
    test
    translate

@@ -6,12 +6,18 @@ Submodules
 
 .. toctree::
 
+   test.benchmark
+   test.test_catatom
+   test.test_catatom2osm
    test.test_csvtools
    test.test_download
    test.test_hgwnames
    test.test_layer
+   test.test_main
    test.test_osm
    test.test_osmxml
+   test.test_overpass
+   test.test_setup
    test.test_translate
    test.unittest_main
 

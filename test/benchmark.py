@@ -1,12 +1,13 @@
 """Benchmarking tests"""
 import timeit
 import random
+import getpass
+from datetime import datetime
 from collections import defaultdict, Counter
-from lxml import etree
 from qgis.core import *
 
 import hgwnames
-import main
+import setup
 import layer
 import osmxml
 from catatom2osm import QgsSingleton
@@ -14,7 +15,7 @@ qgs = QgsSingleton()
 
 N = 1
 MS = 1000
-BASEPATH = '/home/javier/temp/catastro/'
+BASEPATH = '/home/{}/temp/catastro/'.format(getpass.getuser())
 
 class BaseTimer(object):
 
@@ -107,8 +108,8 @@ class TimerAddressLayer2(BaseTimer):
         assert(self.pd_gml.isValid())
         assert(self.au_gml.isValid())
         osm_path = BASEPATH + mun + '/current_highway.osm'
-        tree = etree.parse(osm_path)
-        highway_osm = osmxml.deserialize(tree.getroot())
+        fo = open(osm_path, 'r')
+        highway_osm = osmxml.deserialize(fo)
         self.highway = layer.HighwayLayer()
         self.highway.read_from_osm(highway_osm)
         self.highway.reproject(self.address_gml.crs())
@@ -188,8 +189,8 @@ class TimerConsLayer(BaseTimer):
         #self.test(self.get_index)
         #self.fids = self.index.intersects(self.zone.geometry().boundingBox())
         osm_path = BASEPATH + mun + '/current_building.osm'
-        tree = etree.parse(osm_path)
-        self.current_bu_osm = osmxml.deserialize(tree.getroot())
+        fo = open(osm_path, 'r')
+        self.current_bu_osm = osmxml.deserialize(fo)
         self.obj.reproject()
         """print 'Seleccionando {} edificios de {}'.format(len(self.fids), c)
         self.test(self.get_features)
@@ -280,8 +281,8 @@ class TimerConsLayer(BaseTimer):
         """
         Winner if you have enough interactions to amortize the cost of build 
         the index. Example: selectiong 1K buildings from 32K ten times:
-            get_fids_by_dict_mem = 200 ms + 10 * 5ms = 250 ms
-            get_fids_by_filter_mem = 10 * 25 ms = 250 ms
+        get_fids_by_dict_mem = 200 ms + 10 * 5ms = 250 ms
+        get_fids_by_filter_mem = 10 * 25 ms = 250 ms
         """
         s = set(self.fids)
         [f for f in self.features if f in s]
@@ -359,8 +360,6 @@ class TimerConsLayer(BaseTimer):
                         to_clean.add(el)
                     if not delete and conflict:
                         el.tags['conflict'] = 'yes'
-        for el in to_clean:
-            self.current_bu_osm.remove(el)
         print "Detected {} conflicts in {} buildings from OSM".format(conflicts, num_buildings)
 
 
@@ -368,10 +367,30 @@ class TimerConsLayer(BaseTimer):
         self.obj.conflate(self.current_bu_osm)
 
 
-"""
-TimerBaseLayer().run()
-TimerPolygonLayer().run()
-TimerAddressLayer2().run()
-"""
-TimerConsLayer().run()
+class TimerOsm(BaseTimer):
+
+    def __init__(self):
+        mun = '38900'
+        osm_path = BASEPATH + mun + '/current_building.osm'
+        fo = open(osm_path, 'r')
+        self.obj = osmxml.deserialize(fo)
+
+    def test_remove(self):
+        print len(self.obj.elements)
+        to_clean = []
+        for i, el in enumerate(self.obj.elements):
+            if i % 10 == 0:
+                to_clean.append(el)
+        print len(to_clean)
+        for el in to_clean:
+            self.obj.remove(el)
+        print len(self.obj.elements)
+
+
+if __name__ == '__main__':
+    #TimerBaseLayer().run()
+    #TimerPolygonLayer().run()
+    #TimerAddressLayer2().run()
+    #TimerConsLayer().run()
+    TimerOsm().run()
 

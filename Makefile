@@ -28,7 +28,7 @@ help:
 	@echo "  html       to make documentation html files"
 	@echo "  msg        to build translations file"
 	@echo "  install    to create application simbolic link"
-	@echo "  all        clean api coverage html msg install"
+	@echo "  all        clean api coverage html msg"
 
 .PHONY: clean
 clean:
@@ -77,6 +77,6 @@ endif
 	@chmod +x catatom2osm.sh
 	@ln -sf $(shell pwd)/catatom2osm.sh /usr/bin/catatom2osm
 
-all: clean api coverage html msg install
+all: clean coverage api html msg
 .PHONY: all
 

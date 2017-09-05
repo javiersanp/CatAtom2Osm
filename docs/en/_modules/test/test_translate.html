@@ -72,6 +72,7 @@
     
       <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../readme.html">Read me</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Install</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../changes.html">Change log</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a></li>
 </ul>
@@ -110,7 +111,7 @@
           <div class="document clearer body">
             
   <h1>Source code for test.test_translate</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">unittest</span>
+<span class="kn">import</span> <span class="nn">unittest</span>
 <span class="kn">import</span> <span class="nn">mock</span>
 <span class="kn">import</span> <span class="nn">random</span>
 
@@ -209,7 +210,14 @@
         <span class="n">tags</span> <span class="o">=</span> <span class="n">building_tags</span><span class="p">(</span><span class="n">feat</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">tags</span><span class="p">[</span><span class="s1">&#39;building&#39;</span><span class="p">],</span> <span class="s1">&#39;yes&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">tags</span><span class="p">[</span><span class="s1">&#39;disused:building&#39;</span><span class="p">],</span> <span class="n">building_values</span><span class="p">[</span><span class="n">use</span><span class="p">])</span>
-        <span class="n">use</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">use_values</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span></div></div>
+        <span class="n">use</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">use_values</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">feat</span><span class="p">[</span><span class="s1">&#39;lev_above&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">feat</span><span class="p">[</span><span class="s1">&#39;lev_below&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">tags</span> <span class="o">=</span> <span class="n">building_tags</span><span class="p">(</span><span class="n">feat</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">tags</span><span class="p">[</span><span class="s1">&#39;building:part&#39;</span><span class="p">],</span> <span class="s1">&#39;roof&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s1">&#39;building:levels&#39;</span><span class="p">,</span> <span class="n">tags</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotIn</span><span class="p">(</span><span class="s1">&#39;building:levels:underground&#39;</span><span class="p">,</span> <span class="n">tags</span><span class="p">)</span></div></div>
+
 </pre></div>
 
           </div>

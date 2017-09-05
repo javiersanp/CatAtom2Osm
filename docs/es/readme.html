@@ -36,7 +36,7 @@
     <script type="text/javascript" src="_static/translations.js"></script>
     <link rel="index" title="Índice" href="genindex.html" />
     <link rel="search" title="Búsqueda" href="search.html" />
-    <link rel="next" title="Registro de cambios" href="changes.html" />
+    <link rel="next" title="Instalación" href="install.html" />
     <link rel="prev" title="¡Bienvenido a la documentación de CatAtom2Osm!" href="index.html" />
   
    
@@ -53,7 +53,7 @@
           <a href="py-modindex.html" title="Índice de Módulos Python"
              >módulos</a> |</li>
         <li class="right" >
-          <a href="changes.html" title="Registro de cambios"
+          <a href="install.html" title="Instalación"
              accesskey="N">siguiente</a> |</li>
         <li class="right" >
           <a href="index.html" title="¡Bienvenido a la documentación de CatAtom2Osm!"
@@ -82,11 +82,11 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Léeme</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#advertencia">Advertencia</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#requisitos">Requisitos</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#instalacion">Instalación</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#uso">Uso</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#documentacion">Documentación</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Instalación</a></li>
 <li class="toctree-l1"><a class="reference internal" href="changes.html">Registro de cambios</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">Referencia API</a></li>
 </ul>
@@ -127,7 +127,7 @@
 <p>Herramienta para convertir los conjuntos de datos INSPIRE de los Servicios ATOM
 del Catastro Español (<a class="reference external" href="http://www.catastro.minhap.gob.es/webinspire/index.html">http://www.catastro.minhap.gob.es/webinspire/index.html</a>)
 a archivos OSM. Esto es parte de una propuesta de importación en construcción:</p>
-<p><a class="reference external" href="https://wiki.openstreetmap.org/wiki/Spanish_Cadastre/Buildings_Import">https://wiki.openstreetmap.org/wiki/Spanish_Cadastre/Buildings_Import</a></p>
+<p><a class="reference external" href="https://wiki.openstreetmap.org/wiki/ES:Catastro_espa%C3%B1ol/Importaci%C3%B3n_de_edificios">https://wiki.openstreetmap.org/wiki/ES:Catastro_espa%C3%B1ol/Importaci%C3%B3n_de_edificios</a></p>
 <div class="section" id="advertencia">
 <h2>Advertencia<a class="headerlink" href="#advertencia" title="Enlazar permanentemente con este título">¶</a></h2>
 <p>Sólo para fines de prueba. No subas ningún resultado en OSM.</p>
@@ -135,21 +135,18 @@ a archivos OSM. Esto es parte de una propuesta de importación en construcción:
 <div class="section" id="requisitos">
 <h2>Requisitos<a class="headerlink" href="#requisitos" title="Enlazar permanentemente con este título">¶</a></h2>
 <ul class="simple">
+<li>fuzzywuzzy[speedup]</li>
 <li>pyqgis</li>
+<li>requests</li>
 <li>GDAL</li>
 </ul>
-</div>
-<div class="section" id="instalacion">
-<h2>Instalación<a class="headerlink" href="#instalacion" title="Enlazar permanentemente con este título">¶</a></h2>
-<p>Todos los requisitos se pueden instalar con los instaladores disponibles en el
-sitio web de QGIS. <a class="reference external" href="http://qgis.org/">http://qgis.org/</a></p>
-<p>El código ha sido probado en Ubuntu 16.04.2, con QGIS 2.8.6wien y python 2.7.12.</p>
+<p>Ver INSTALL.es.md (<a class="reference external" href="https://javiersanp.github.io/CatAtom2Osm/es/install.html">https://javiersanp.github.io/CatAtom2Osm/es/install.html</a>)</p>
 </div>
 <div class="section" id="uso">
 <h2>Uso<a class="headerlink" href="#uso" title="Enlazar permanentemente con este título">¶</a></h2>
 <p>Para ejecutar la aplicación:</p>
 <blockquote>
-<div>python main.py &lt;ruta&gt;</div></blockquote>
+<div>catatom2osm &lt;ruta&gt;</div></blockquote>
 <p>El argumento ruta indica el directorio para los ficheros de entrada y salida.
 El nombre del directorio debe comenzar con 5 dígitos (GGMMM) correspondientes
 al Código de Oficina Provincial del Catastro y Código de Municipio. Si el
@@ -161,11 +158,13 @@ INSPIRE del Catastro Español.</p>
 <li>-v, &#8211;version         Imprime la versión de CatAtom2Osm y termina</li>
 <li>-l prov, &#8211;list=prov  Lista los municipios disponibles para el código provincial de dos dígitos</li>
 <li>-t, &#8211;tasks           Reparte las construcciones en archivos de tareas (predeterminada, implica -z)</li>
+<li>-T, &#8211;tasklm          Lo mismo que -t pero con menor gasto de memoria</li>
 <li>-z, &#8211;zoning          Procesa el conjunto de datos de zonificación catastral</li>
 <li>-b, &#8211;building        Procesa las construcciones a un archivo individual en lugar de tareas</li>
-<li>-d, &#8211;address         Procesa el conjunto de datos de direcciones&#8221;</li>
+<li>-d, &#8211;address         Procesa el conjunto de datos de direcciones</li>
 <li>-p, &#8211;parcel          Procesa el conjunto de datos de parcelas catastrales</li>
 <li>-a, &#8211;all             Procesa todos los conjuntos de datos (equivalente a -bdptz)</li>
+<li>-m, &#8211;manual          Desactiva la combinación de edificios y de direcciones</li>
 <li>&#8211;log=log_level       Selecciona el nivel de registro entre DEBUG, INFO, WARNING, ERROR o CRITICAL.</li>
 </ul>
 </div>
@@ -186,7 +185,7 @@ INSPIRE del Catastro Español.</p>
       </div>
     
       <div class="pull-right">
-        <a class="btn btn-default" href="changes.html" title="próximo capítulo (use the right arrow)">Registro de cambios</a>
+        <a class="btn btn-default" href="install.html" title="próximo capítulo (use the right arrow)">Instalación</a>
       </div>
     </div>
     <div class="clearer"></div>
@@ -204,7 +203,7 @@ INSPIRE del Catastro Español.</p>
           <a href="py-modindex.html" title="Índice de Módulos Python"
              >módulos</a> |</li>
         <li class="right" >
-          <a href="changes.html" title="Registro de cambios"
+          <a href="install.html" title="Instalación"
              >siguiente</a> |</li>
         <li class="right" >
           <a href="index.html" title="¡Bienvenido a la documentación de CatAtom2Osm!"

@@ -81,6 +81,7 @@
     
       <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../readme.html">Read me</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Install</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../changes.html">Change log</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="modules.html">CatAtom2Osm</a></li>
@@ -133,6 +134,48 @@
 <em class="property">class </em><code class="descclassname">layer.</code><code class="descname">AddressLayer</code><span class="sig-paren">(</span><em>path='Point'</em>, <em>baseName='address'</em>, <em>providerLib='memory'</em>, <em>source_date=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#AddressLayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.AddressLayer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#layer.BaseLayer" title="layer.BaseLayer"><code class="xref py py-class docutils literal"><span class="pre">layer.BaseLayer</span></code></a></p>
 <p>Class for address</p>
+<dl class="method">
+<dt id="layer.AddressLayer.conflate">
+<code class="descname">conflate</code><span class="sig-paren">(</span><em>current_address</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#AddressLayer.conflate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.AddressLayer.conflate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete address existing in current_address</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>current_address</strong> (<em>OSM</em>) &#8211; dataset</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="layer.AddressLayer.del_address">
+<code class="descname">del_address</code><span class="sig-paren">(</span><em>building_osm</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#AddressLayer.del_address"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.AddressLayer.del_address" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete the address if there aren&#8217;t any associated building.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="layer.AddressLayer.get_highway_names">
+<code class="descname">get_highway_names</code><span class="sig-paren">(</span><em>highway</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#AddressLayer.get_highway_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.AddressLayer.get_highway_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary with the translation for each street name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>highway</strong> (<a class="reference internal" href="#layer.HighwayLayer" title="layer.HighwayLayer"><em>HighwayLayer</em></a>) &#8211; Current OSM highway data</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(dict) highway names translations</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="layer.AddressLayer.to_osm">
+<code class="descname">to_osm</code><span class="sig-paren">(</span><em>data=None</em>, <em>upload='never'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#AddressLayer.to_osm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.AddressLayer.to_osm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export to OSM</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -142,7 +185,7 @@
 <p>Base class for application layers</p>
 <dl class="method">
 <dt id="layer.BaseLayer.append">
-<code class="descname">append</code><span class="sig-paren">(</span><em>layer</em>, <em>rename=None</em>, <em>resolve=None</em>, <em>query=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#BaseLayer.append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.BaseLayer.append" title="Permalink to this definition">¶</a></dt>
+<code class="descname">append</code><span class="sig-paren">(</span><em>layer</em>, <em>rename=None</em>, <em>resolve=None</em>, <em>query=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#BaseLayer.append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.BaseLayer.append" title="Permalink to this definition">¶</a></dt>
 <dd><p>Copy all features from layer.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -152,19 +195,28 @@
 <li><strong>layer</strong> (<em>QgsVectorLayer</em>) &#8211; Source layer</li>
 <li><strong>rename</strong> (<em>dict</em>) &#8211; Translation of attributes names</li>
 <li><strong>resolve</strong> (<em>dict</em>) &#8211; xlink reference fields</li>
-<li><strong>query</strong> (<em>func</em>) &#8211; </li>
+<li><strong>query</strong> (<em>func</em>) &#8211; function with args feature and kwargs that returns
+a boolean deciding if each feature will be included or not</li>
+<li><strong>kwargs</strong> &#8211; aditional arguments for query function</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
 <p class="rubric">Examples</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">feat</span><span class="p">:</span> <span class="n">feat</span><span class="p">[</span><span class="s1">&#39;foo&#39;</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;bar&#39;</span>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">feat</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">:</span> <span class="n">feat</span><span class="p">[</span><span class="s1">&#39;foo&#39;</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;bar&#39;</span>
+<span class="go">Will copy only features with a value &#39;bar&#39; in the field &#39;foo&#39;.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">feat</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">:</span> <span class="n">layer</span><span class="o">.</span><span class="n">is_inside</span><span class="p">(</span><span class="n">feat</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;zone&#39;</span><span class="p">])</span>
+<span class="go">Will copy only features inside zone.</span>
 </pre></div>
 </div>
-<p>Will copy only features with a value &#8216;bar&#8217; in the field &#8216;foo&#8217;.</p>
 <p>See also copy_feature().</p>
 </dd></dl>
+
+<dl class="method">
+<dt id="layer.BaseLayer.bounding_box">
+<code class="descname">bounding_box</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#BaseLayer.bounding_box"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.BaseLayer.bounding_box" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="layer.BaseLayer.copy_feature">
@@ -185,7 +237,7 @@
 </table>
 <p class="rubric">Examples</p>
 <p>With this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rename</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;spec&#39;</span><span class="p">:</span> <span class="s1">&#39;specification&#39;</span><span class="p">}</span>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">rename</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;spec&#39;</span><span class="p">:</span> <span class="s1">&#39;specification&#39;</span><span class="p">}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">resolve</span> <span class="o">=</span> <span class="p">{</span>
 <span class="gp">... </span>    <span class="s1">&#39;PD_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;component_href&#39;</span><span class="p">,</span> <span class="s1">&#39;[\w\.]+PD[\.0-9]+&#39;</span><span class="p">),</span>
 <span class="gp">... </span>    <span class="s1">&#39;TN_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;component_href&#39;</span><span class="p">,</span> <span class="s1">&#39;[\w\.]+TN[\.0-9]+&#39;</span><span class="p">),</span>
@@ -194,7 +246,7 @@
 </pre></div>
 </div>
 <p>You get:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">original_attributes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;localId&#39;</span><span class="p">,</span> <span class="s1">&#39;specification&#39;</span><span class="p">,</span> <span class="s1">&#39;component_href&#39;</span><span class="p">]</span>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">original_attributes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;localId&#39;</span><span class="p">,</span> <span class="s1">&#39;specification&#39;</span><span class="p">,</span> <span class="s1">&#39;component_href&#39;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">original_values</span> <span class="o">=</span> <span class="p">[</span>
 <span class="gp">... </span>    <span class="s1">&#39;38.012.1.12.0295603CS6109N&#39;</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="s1">&#39;Parcel&#39;</span><span class="p">,</span>
@@ -210,6 +262,12 @@
 <span class="gp">... </span><span class="p">]</span>
 </pre></div>
 </div>
+</dd></dl>
+
+<dl class="method">
+<dt id="layer.BaseLayer.deleteFeatures">
+<code class="descname">deleteFeatures</code><span class="sig-paren">(</span><em>to_clean</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#BaseLayer.deleteFeatures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.BaseLayer.deleteFeatures" title="Permalink to this definition">¶</a></dt>
+<dd><p>deleteFeatures method apear on QGIS 2.14 version</p>
 </dd></dl>
 
 <dl class="method">
@@ -229,6 +287,13 @@
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="layer.BaseLayer.get_index">
+<code class="descname">get_index</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#BaseLayer.get_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.BaseLayer.get_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a QgsSpatialIndex of all features in this layer (overpass
+QGIS exception for void layers)</p>
 </dd></dl>
 
 <dl class="method">
@@ -274,6 +339,32 @@ in standalone script mode (without GUI).</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="layer.BaseLayer.to_osm">
+<code class="descname">to_osm</code><span class="sig-paren">(</span><em>tags_translation=&lt;function all_tags&gt;</em>, <em>data=None</em>, <em>upload='never'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#BaseLayer.to_osm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.BaseLayer.to_osm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export this layer to an Osm data set</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tags_translation</strong> (<em>function</em>) &#8211; Function to translate fields to tags.
+By defaults convert all fields.</li>
+<li><strong>data</strong> (<a class="reference internal" href="osm.html#osm.Osm" title="osm.Osm"><em>Osm</em></a>) &#8211; OSM data set to append. By default creates a new one.</li>
+<li><strong>upload</strong> (<em>str</em>) &#8211; upload attribute of the osm dataset, default &#8216;never&#8217;</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">OSM data set</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="osm.html#osm.Osm" title="osm.Osm">Osm</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="layer.BaseLayer.translate_field">
 <code class="descname">translate_field</code><span class="sig-paren">(</span><em>field_name</em>, <em>translations</em>, <em>clean=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#BaseLayer.translate_field"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.BaseLayer.translate_field" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform the values of a field</p>
@@ -300,8 +391,20 @@ in standalone script mode (without GUI).</p>
 <dd><p>Bases: <a class="reference internal" href="#layer.PolygonLayer" title="layer.PolygonLayer"><code class="xref py py-class docutils literal"><span class="pre">layer.PolygonLayer</span></code></a></p>
 <p>Class for constructions</p>
 <dl class="method">
+<dt id="layer.ConsLayer.append_task">
+<code class="descname">append_task</code><span class="sig-paren">(</span><em>layer</em>, <em>task</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.append_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.append_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Append features of layer including task localId&#8217;s&#8217;</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="layer.ConsLayer.append_zone">
+<code class="descname">append_zone</code><span class="sig-paren">(</span><em>layer</em>, <em>zone</em>, <em>processed</em>, <em>index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.append_zone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.append_zone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Append features of layer inside zone excluding processed localId&#8217;s&#8217;</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="layer.ConsLayer.check_levels_and_area">
-<code class="descname">check_levels_and_area</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.check_levels_and_area"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.check_levels_and_area" title="Permalink to this definition">¶</a></dt>
+<code class="descname">check_levels_and_area</code><span class="sig-paren">(</span><em>min_level</em>, <em>max_level</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.check_levels_and_area"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.check_levels_and_area" title="Permalink to this definition">¶</a></dt>
 <dd><p>Shows distribution of floors and put fixmes to buildings too small or big</p>
 </dd></dl>
 
@@ -310,6 +413,26 @@ in standalone script mode (without GUI).</p>
 <code class="descname">clean</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.clean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.clean" title="Permalink to this definition">¶</a></dt>
 <dd><p>Merge duplicated vertices, add topological points, simplify layer
 and merge building parts.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="layer.ConsLayer.conflate">
+<code class="descname">conflate</code><span class="sig-paren">(</span><em>current_bu_osm</em>, <em>delete=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.conflate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.conflate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes from current_bu_osm the buildings that don&#8217;t have conflicts.
+If delete=False, only mark buildings with conflicts</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="layer.ConsLayer.explode_multi_parts">
+<code class="descname">explode_multi_parts</code><span class="sig-paren">(</span><em>address=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.explode_multi_parts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.explode_multi_parts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="layer.ConsLayer.get_parts">
+<code class="descname">get_parts</code><span class="sig-paren">(</span><em>footprint</em>, <em>parts</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.get_parts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.get_parts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a building footprint and its parts, for the parts inside the
+footprint returns a dictionary of parts for levels, the maximum and
+minimum levels</p>
 </dd></dl>
 
 <dl class="method">
@@ -338,29 +461,30 @@ parts index parts of building by building localid.</p>
 <dd><p>Pool features have &#8216;_PI.&#8217; in its localId field</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="layer.ConsLayer.merge_building_parts">
-<code class="descname">merge_building_parts</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.merge_building_parts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.merge_building_parts" title="Permalink to this definition">¶</a></dt>
-<dd><p>Apply merge_greatest_part to each set of building and its parts</p>
+<dl class="staticmethod">
+<dt id="layer.ConsLayer.merge_adjacent_features">
+<em class="property">static </em><code class="descname">merge_adjacent_features</code><span class="sig-paren">(</span><em>group</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.merge_adjacent_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.merge_adjacent_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Combine all geometries in group of features</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="layer.ConsLayer.merge_greatest_part">
-<code class="descname">merge_greatest_part</code><span class="sig-paren">(</span><em>footprint</em>, <em>parts</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.merge_greatest_part"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.merge_greatest_part" title="Permalink to this definition">¶</a></dt>
-<dd><p>Given a building footprint and its parts:</p>
-<ul class="simple">
-<li>Exclude parts not inside the footprint.</li>
-<li>If the area of the parts above ground is equal to the area of the
-footprint.<ul>
-<li>Sum the area for all the parts with the same level. Level is the
-pair of values &#8216;lev_above&#8217; and &#8216;lev_below&#8217; (number of floors
-above, and below groud).</li>
-<li>For the level with greatest area, giving priority to parts with
-rings to reduce relations, translate the number of floors
-values to the footprint and deletes all the parts in that level.</li>
+<dt id="layer.ConsLayer.merge_adjacent_parts">
+<code class="descname">merge_adjacent_parts</code><span class="sig-paren">(</span><em>footprint</em>, <em>parts</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.merge_adjacent_parts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.merge_adjacent_parts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a building footprint and its parts, for the parts inside the
+footprint:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Translates the maximum values of number of levels above and below
+ground to the footprint and deletes all the parts in that level.</li>
+<li>Merges the adjacent parts in the rest of the levels.</li>
 </ul>
-</li>
-</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="layer.ConsLayer.merge_building_parts">
+<code class="descname">merge_building_parts</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.merge_building_parts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.merge_building_parts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply merge_adjacent_parts to each set of building and its parts</p>
 </dd></dl>
 
 <dl class="method">
@@ -369,18 +493,9 @@ values to the footprint and deletes all the parts in that level.</li>
 <dd><p>Move each address to the nearest point in the footprint of its
 associated building (same cadastral reference), but only if:</p>
 <ul class="simple">
-<li>There aren&#8217;t more than one associated building.</li>
 <li>The address specification is Entrance.</li>
 <li>The new position is enough close and is not a corner</li>
 </ul>
-<p>Delete the address if there aren&#8217;t any associated building.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="layer.ConsLayer.remove_duplicated_holes">
-<code class="descname">remove_duplicated_holes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.remove_duplicated_holes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.remove_duplicated_holes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Remove inner rings of parts and of buildings/pool if there exists another
-feature with the same geometry</p>
 </dd></dl>
 
 <dl class="method">
@@ -394,17 +509,13 @@ Precondition: Called before merge_greatest_part</p>
 <dl class="method">
 <dt id="layer.ConsLayer.remove_parts_below_ground">
 <code class="descname">remove_parts_below_ground</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.remove_parts_below_ground"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.remove_parts_below_ground" title="Permalink to this definition">¶</a></dt>
-<dd><p>Remove all parts with &#8216;lev_above&#8217; field equal 0.</p>
+<dd><p>Remove all parts with &#8216;lev_above&#8217; field equal 0 and &#8216;lev_below&#8217; &gt; 0</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="layer.ConsLayer.set_tasks">
-<code class="descname">set_tasks</code><span class="sig-paren">(</span><em>urban_zoning</em>, <em>rustic_zoning</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.set_tasks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.set_tasks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Assings to the &#8216;task&#8217; field the label of the zone that each feature
-is contained. Buildings within or adjacent to an urban zone receives an
-urban zone label, buildings within an rustic zone that have not been
-previously labeled receives a rustic zone label. Building task label
-is propagated to its parts.</p>
+<dt id="layer.ConsLayer.to_osm">
+<code class="descname">to_osm</code><span class="sig-paren">(</span><em>data=None</em>, <em>upload='never'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.to_osm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.to_osm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export to OSM</p>
 </dd></dl>
 
 </dd></dl>
@@ -423,6 +534,19 @@ is propagated to its parts.</p>
 </dd></dl>
 
 <dl class="class">
+<dt id="layer.HighwayLayer">
+<em class="property">class </em><code class="descclassname">layer.</code><code class="descname">HighwayLayer</code><span class="sig-paren">(</span><em>path='LineString'</em>, <em>baseName='highway'</em>, <em>providerLib='memory'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#HighwayLayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.HighwayLayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#layer.BaseLayer" title="layer.BaseLayer"><code class="xref py py-class docutils literal"><span class="pre">layer.BaseLayer</span></code></a></p>
+<p>Class for OSM highways</p>
+<dl class="method">
+<dt id="layer.HighwayLayer.read_from_osm">
+<code class="descname">read_from_osm</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#HighwayLayer.read_from_osm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.HighwayLayer.read_from_osm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get features from a osm dataset</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="layer.ParcelLayer">
 <em class="property">class </em><code class="descclassname">layer.</code><code class="descname">ParcelLayer</code><span class="sig-paren">(</span><em>path='Polygon'</em>, <em>baseName='cadastralparcel'</em>, <em>providerLib='memory'</em>, <em>source_date=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ParcelLayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ParcelLayer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#layer.BaseLayer" title="layer.BaseLayer"><code class="xref py py-class docutils literal"><span class="pre">layer.BaseLayer</span></code></a></p>
@@ -431,7 +555,7 @@ is propagated to its parts.</p>
 
 <dl class="class">
 <dt id="layer.Point">
-<em class="property">class </em><code class="descclassname">layer.</code><code class="descname">Point</code><a class="reference internal" href="../_modules/layer.html#Point"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.Point" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">layer.</code><code class="descname">Point</code><span class="sig-paren">(</span><em>arg1</em>, <em>arg2=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#Point"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.Point" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">qgis._core.QgsPoint</span></code></p>
 <p>Extends QgsPoint with some utility methods</p>
 <dl class="method">
@@ -497,9 +621,9 @@ polygon.</p>
 
 <dl class="method">
 <dt id="layer.PolygonLayer.explode_multi_parts">
-<code class="descname">explode_multi_parts</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#PolygonLayer.explode_multi_parts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.PolygonLayer.explode_multi_parts" title="Permalink to this definition">¶</a></dt>
+<code class="descname">explode_multi_parts</code><span class="sig-paren">(</span><em>request=&lt;qgis._core.QgsFeatureRequest object&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#PolygonLayer.explode_multi_parts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.PolygonLayer.explode_multi_parts" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a new WKBPolygon feature for each part of any WKBMultiPolygon
-feature in the layer. This avoid relations with may &#8216;outer&#8217; members in
+feature in request. This avoid relations with may &#8216;outer&#8217; members in
 OSM data set. From this moment, localId will not be a unique identifier
 for buildings.</p>
 </dd></dl>
@@ -524,6 +648,18 @@ for buildings.</p>
 Two vertices are duplicated if they are nearest than dup_thr.</p>
 </dd></dl>
 
+<dl class="staticmethod">
+<dt id="layer.PolygonLayer.get_multipolygon">
+<em class="property">static </em><code class="descname">get_multipolygon</code><span class="sig-paren">(</span><em>feature</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#PolygonLayer.get_multipolygon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.PolygonLayer.get_multipolygon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns feature geometry always as a multipolgon</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="layer.PolygonLayer.get_outer_vertices">
+<em class="property">static </em><code class="descname">get_outer_vertices</code><span class="sig-paren">(</span><em>feature</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#PolygonLayer.get_outer_vertices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.PolygonLayer.get_outer_vertices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns list of all distinct vertices in feature geometry outer rings</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="layer.PolygonLayer.get_parents_per_vertex_and_features">
 <code class="descname">get_parents_per_vertex_and_features</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#PolygonLayer.get_parents_per_vertex_and_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.PolygonLayer.get_parents_per_vertex_and_features" title="Permalink to this definition">¶</a></dt>
@@ -541,6 +677,12 @@ Two vertices are duplicated if they are nearest than dup_thr.</p>
 <dt id="layer.PolygonLayer.get_vertices">
 <code class="descname">get_vertices</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#PolygonLayer.get_vertices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.PolygonLayer.get_vertices" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a in memory layer with the coordinates of each vertex</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="layer.PolygonLayer.get_vertices_list">
+<em class="property">static </em><code class="descname">get_vertices_list</code><span class="sig-paren">(</span><em>feature</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#PolygonLayer.get_vertices_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.PolygonLayer.get_vertices_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns list of all distinct vertices in feature geometry</p>
 </dd></dl>
 
 <dl class="method">
@@ -577,35 +719,10 @@ less than &#8216;cath_thr&#8217; meters.</li>
 <em class="property">class </em><code class="descclassname">layer.</code><code class="descname">ZoningLayer</code><span class="sig-paren">(</span><em>path='Polygon'</em>, <em>baseName='cadastralzoning'</em>, <em>providerLib='memory'</em>, <em>source_date=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ZoningLayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ZoningLayer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#layer.PolygonLayer" title="layer.PolygonLayer"><code class="xref py py-class docutils literal"><span class="pre">layer.PolygonLayer</span></code></a></p>
 <p>Class for cadastral zoning</p>
-<dl class="staticmethod">
-<dt id="layer.ZoningLayer.clasify_zoning">
-<em class="property">static </em><code class="descname">clasify_zoning</code><span class="sig-paren">(</span><em>zoning</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ZoningLayer.clasify_zoning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ZoningLayer.clasify_zoning" title="Permalink to this definition">¶</a></dt>
-<dd><p>Splits zones acording to levelName. &#8216;MANZANA&#8217; zones corresponds to
-Urban Cadastre and &#8216;POLIGONO&#8217; zones to Rustic Cadastre.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>zoning</strong> (<em>QgsVectorLayer</em>) &#8211; CadastralZoning data set</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(ZoningLayer) Urban zoning, (ZoningLayer) Rustic zoning</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
 <dl class="method">
-<dt id="layer.ZoningLayer.set_labels">
-<code class="descname">set_labels</code><span class="sig-paren">(</span><em>str_format</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ZoningLayer.set_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ZoningLayer.set_labels" title="Permalink to this definition">¶</a></dt>
-<dd><p>Asigns a sequence of integers to the label field.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>str_format</strong> (<em>string</em>) &#8211; Text format for the label field.</td>
-</tr>
-</tbody>
-</table>
+<dt id="layer.ZoningLayer.append">
+<code class="descname">append</code><span class="sig-paren">(</span><em>layer</em>, <em>level=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ZoningLayer.append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ZoningLayer.append" title="Permalink to this definition">¶</a></dt>
+<dd><p>Append features of layer with levelName &#8216;M&#8217; for rustic or &#8216;P&#8217; for urban</p>
 </dd></dl>
 
 </dd></dl>

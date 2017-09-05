@@ -73,6 +73,7 @@
     
       <ul>
 <li class="toctree-l1"><a class="reference internal" href="../readme.html">Léeme</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Instalación</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../changes.html">Registro de cambios</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api.html">Referencia API</a></li>
 </ul>
@@ -111,17 +112,24 @@
           <div class="document clearer body">
             
   <h1>Código fuente para hgwnames</h1><div class="highlight"><pre>
-<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Parsing of highway names</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">fuzzywuzzy</span> <span class="k">import</span> <span class="n">fuzz</span>
+<span class="kn">from</span> <span class="nn">fuzzywuzzy</span> <span class="k">import</span> <span class="n">process</span>
 
 <span class="kn">import</span> <span class="nn">setup</span>
-<span class="kn">import</span> <span class="nn">csvtools</span>
+<span class="kn">import</span> <span class="nn">compat</span>
 
+<span class="n">MATCH_THR</span> <span class="o">=</span> <span class="mi">60</span>
+
+
+<div class="viewcode-block" id="normalize"><a class="viewcode-back" href="../api/hgwnames.html#hgwnames.normalize">[documentos]</a><span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39; *\(.*\)&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span></div>
 
 <div class="viewcode-block" id="parse"><a class="viewcode-back" href="../api/hgwnames.html#hgwnames.parse">[documentos]</a><span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Transform the name of a street from Cadastre conventions to OSM ones.&quot;&quot;&quot;</span>
@@ -147,53 +155,52 @@
                 <span class="n">new_word</span> <span class="o">=</span> <span class="n">word</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">new_word</span> <span class="o">=</span> <span class="n">word</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
-        <span class="n">new_word</span> <span class="o">=</span> <span class="n">new_word</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;·L&#39;</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;·l&#39;</span><span class="p">)</span> <span class="c1"># Letra ele geminada</span>
-        <span class="n">new_word</span> <span class="o">=</span> <span class="n">new_word</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;.L&#39;</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;·l&#39;</span><span class="p">)</span> <span class="c1"># Letra ele geminada</span>
+        <span class="n">new_word</span> <span class="o">=</span> <span class="n">new_word</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">u&#39;·L&#39;</span><span class="p">,</span> <span class="s1">u&#39;·l&#39;</span><span class="p">)</span> <span class="c1"># Letra ele geminada</span>
+        <span class="n">new_word</span> <span class="o">=</span> <span class="n">new_word</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">u&#39;.L&#39;</span><span class="p">,</span> <span class="s1">u&#39;·l&#39;</span><span class="p">)</span> <span class="c1"># Letra ele geminada</span>
         <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_word</span><span class="p">)</span>
     <span class="k">return</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="get_translations"><a class="viewcode-back" href="../api/hgwnames.html#hgwnames.get_translations">[documentos]</a><span class="k">def</span> <span class="nf">get_translations</span><span class="p">(</span><span class="n">address_layer</span><span class="p">,</span> <span class="n">output_folder</span><span class="p">,</span> <span class="n">street_fn</span><span class="p">,</span> <span class="n">housenumber_fn</span><span class="p">):</span>
+<div class="viewcode-block" id="match"><a class="viewcode-back" href="../api/hgwnames.html#hgwnames.match">[documentos]</a><span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">choices</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    If there exists the configuration file &#39;highway_types.csv&#39;, read it, </span>
-<span class="sd">    else write one with default values. If don&#39;t exists the translations file </span>
-<span class="sd">    &#39;highway_names.csv&#39;, creates one parsing names_layer, else reads and returns</span>
-<span class="sd">    it as a dictionary.</span>
-<span class="sd">    </span>
-<span class="sd">    * &#39;highway_types.csv&#39; is located in the application path and contains </span>
-<span class="sd">      translations from abreviaturs to full types of highways.</span>
-
-<span class="sd">    * &#39;highway_names.csv&#39; is located in the outputh folder and contains </span>
-<span class="sd">      corrections for original highway names.</span>
+<span class="sd">    Fuzzy search best match for string name in iterable choices, if the result</span>
+<span class="sd">    is not good enough returns the name parsed</span>
 <span class="sd">    </span>
 <span class="sd">    Args:</span>
-<span class="sd">        address_layer (AddressLayer): Layer with addresses</span>
-<span class="sd">        output_folder (str): Directory where the source files are located</span>
-<span class="sd">        street_fn (str): Name of the field for the address street name</span>
-<span class="sd">        housenumber_fn (str): Name of the field for the address housenumber</span>
-<span class="sd">    </span>
-<span class="sd">    Returns:</span>
-<span class="sd">        (dict, bool): Dictionary with highway names translations and a flag to</span>
-<span class="sd">        alert if it&#39;s new (there wasen&#39;t a previous translations file)</span>
+<span class="sd">        name (str): String to look for</span>
+<span class="sd">        choices (list): Iterable with choices</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">highway_types_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">setup</span><span class="o">.</span><span class="n">app_path</span><span class="p">,</span> <span class="s1">&#39;highway_types.csv&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">highway_types_path</span><span class="p">):</span>
-        <span class="n">csvtools</span><span class="o">.</span><span class="n">dict2csv</span><span class="p">(</span><span class="n">highway_types_path</span><span class="p">,</span> <span class="n">setup</span><span class="o">.</span><span class="n">highway_types</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">csvtools</span><span class="o">.</span><span class="n">csv2dict</span><span class="p">(</span><span class="n">highway_types_path</span><span class="p">,</span> <span class="n">setup</span><span class="o">.</span><span class="n">highway_types</span><span class="p">)</span>
-    <span class="n">highway_names_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="s1">&#39;highway_names.csv&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">highway_names_path</span><span class="p">):</span>
-        <span class="n">highway_names</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">feat</span> <span class="ow">in</span> <span class="n">address_layer</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">():</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="n">feat</span><span class="p">[</span><span class="n">street_fn</span><span class="p">]</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">highway_names</span><span class="p">:</span>
-            	<span class="n">highway_names</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-            <span class="k">if</span> <span class="n">highway_names</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="ow">and</span> \
-            	<span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">setup</span><span class="o">.</span><span class="n">no_number</span><span class="p">,</span> <span class="n">feat</span><span class="p">[</span><span class="n">housenumber_fn</span><span class="p">]):</span>
-		            <span class="n">highway_names</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-            <span class="n">csvtools</span><span class="o">.</span><span class="n">dict2csv</span><span class="p">(</span><span class="n">highway_names_path</span><span class="p">,</span> <span class="n">highway_names</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">highway_names</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">csvtools</span><span class="o">.</span><span class="n">csv2dict</span><span class="p">(</span><span class="n">highway_names_path</span><span class="p">,</span> <span class="p">{}),</span> <span class="kc">False</span><span class="p">)</span></div>
+    <span class="k">if</span> <span class="n">fuzz</span><span class="p">:</span>
+        <span class="n">normalized</span> <span class="o">=</span> <span class="p">[</span><span class="n">normalize</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">choices</span><span class="p">]</span>
+        <span class="n">matching</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">extractOne</span><span class="p">(</span><span class="n">normalize</span><span class="p">(</span><span class="n">parse</span><span class="p">(</span><span class="n">name</span><span class="p">)),</span> 
+            <span class="n">normalized</span><span class="p">,</span> <span class="n">scorer</span><span class="o">=</span><span class="n">fuzz</span><span class="o">.</span><span class="n">token_sort_ratio</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">matching</span> <span class="ow">and</span> <span class="n">matching</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">MATCH_THR</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">choices</span><span class="p">[</span><span class="n">normalized</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">matching</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
+    <span class="k">return</span> <span class="n">parse</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="dsmatch"><a class="viewcode-back" href="../api/hgwnames.html#hgwnames.dsmatch">[documentos]</a><span class="k">def</span> <span class="nf">dsmatch</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fuzzy search best matching object for string name in dataset</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        name (str): String to look for</span>
+<span class="sd">        dataset (list): List of objects to search for</span>
+<span class="sd">        fn (function): Function to obtain a string from a element of the dataset</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        First element with the maximun fuzzy ratio.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">max_ratio</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">matching</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">fuzz</span><span class="p">:</span>
+            <span class="n">ratio</span> <span class="o">=</span> <span class="n">fuzz</span><span class="o">.</span><span class="n">token_sort_ratio</span><span class="p">(</span><span class="n">normalize</span><span class="p">(</span><span class="n">name</span><span class="p">),</span> <span class="n">normalize</span><span class="p">(</span><span class="n">fn</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
+            <span class="k">if</span> <span class="n">ratio</span> <span class="o">&gt;</span> <span class="n">max_ratio</span><span class="p">:</span>
+                <span class="n">max_ratio</span> <span class="o">=</span> <span class="n">ratio</span>
+                <span class="n">matching</span> <span class="o">=</span> <span class="n">e</span>
+        <span class="k">elif</span> <span class="n">normalize</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="n">normalize</span><span class="p">(</span><span class="n">fn</span><span class="p">(</span><span class="n">e</span><span class="p">)):</span>
+            <span class="n">matching</span> <span class="o">=</span> <span class="n">e</span>
+            <span class="k">break</span>
+    <span class="k">return</span> <span class="n">matching</span></div>
 
 </pre></div>
 

@@ -35,7 +35,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Change log" href="changes.html" />
+    <link rel="next" title="Install" href="install.html" />
     <link rel="prev" title="Welcome to CatAtom2Osm’s documentation!" href="index.html" />
   
    
@@ -52,7 +52,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="changes.html" title="Change log"
+          <a href="install.html" title="Install"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="index.html" title="Welcome to CatAtom2Osm’s documentation!"
@@ -81,11 +81,11 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Read me</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#warning">Warning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#requeriments">Requeriments</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#instalation">Instalation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#documentation">Documentation</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
 <li class="toctree-l1"><a class="reference internal" href="changes.html">Change log</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a></li>
 </ul>
@@ -132,21 +132,18 @@
 <div class="section" id="requeriments">
 <h2>Requeriments<a class="headerlink" href="#requeriments" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
+<li>fuzzywuzzy[speedup]</li>
 <li>pyqgis</li>
+<li>requests</li>
 <li>GDAL</li>
 </ul>
-</div>
-<div class="section" id="instalation">
-<h2>Instalation<a class="headerlink" href="#instalation" title="Permalink to this headline">¶</a></h2>
-<p>Everything we need can be installed using the installers available on the QGIS
-website. <a class="reference external" href="http://qgis.org/">http://qgis.org/</a></p>
-<p>The code has been tested in Ubuntu 16.04.2, QGIS 2.8.6wien, python 2.7.12.</p>
+<p>See INSTALL.md (<a class="reference external" href="https://javiersanp.github.io/CatAtom2Osm/es/install.html">https://javiersanp.github.io/CatAtom2Osm/es/install.html</a>)</p>
 </div>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
 <p>To run the application:</p>
 <blockquote>
-<div>python main.py &lt;path&gt;</div></blockquote>
+<div>catatom2osm &lt;path&gt;</div></blockquote>
 <p>The argument path states the directory for input and output files.
 The directory name shall start with 5 digits (GGMMM) matching the Cadastral
 Provincial Office and Municipality Code. If the program don&#8217;t find the input
@@ -158,11 +155,13 @@ Cadastre.</p>
 <li>-v, &#8211;version         Print CatAtom2Osm version and exit</li>
 <li>-l prov, &#8211;list=prov  List available municipalities given the two digits province code</li>
 <li>-t, &#8211;tasks           Splits constructions into tasks files (default, implies -z)</li>
+<li>-T, &#8211;tasklm          The same as -t but with lower memory consumption</li>
 <li>-z, &#8211;zoning          Process the cadastral zoning dataset.</li>
 <li>-b, &#8211;building        Process constructions to a single file instead of tasks</li>
 <li>-d, &#8211;address         Process the address dataset</li>
 <li>-p, &#8211;parcel          Process the cadastral parcel dataset</li>
 <li>-a, &#8211;all             Process all datasets (equivalent to -dptz)</li>
+<li>-m, &#8211;manual          Dissable conflation of buildings and addresses</li>
 <li>&#8211;log=log_level       Select the log level between DEBUG, INFO, WARNING, ERROR or CRITICAL</li>
 </ul>
 </div>
@@ -183,7 +182,7 @@ Cadastre.</p>
       </div>
     
       <div class="pull-right">
-        <a class="btn btn-default" href="changes.html" title="next chapter (use the right arrow)">Change log</a>
+        <a class="btn btn-default" href="install.html" title="next chapter (use the right arrow)">Install</a>
       </div>
     </div>
     <div class="clearer"></div>
@@ -201,7 +200,7 @@ Cadastre.</p>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="changes.html" title="Change log"
+          <a href="install.html" title="Install"
              >next</a> |</li>
         <li class="right" >
           <a href="index.html" title="Welcome to CatAtom2Osm’s documentation!"

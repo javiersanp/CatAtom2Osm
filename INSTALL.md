@@ -64,7 +64,7 @@ Install the GitHub desktop utility from desktop.github.com
 
 Run it and download the repository https://github.com/javiersanp/CatAtom2Osm.git
 
-* In the previously downloaded CatAtom2Osm folder launch the file pyqgis.bat. 
+In the previously downloaded CatAtom2Osm folder launch the file pyqgis.bat. 
 Write this in the resulting shell::
 
     python -m pip install -r requisites.txt
