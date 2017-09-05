@@ -60,6 +60,7 @@ class TestCatAtom2Osm(unittest.TestCase):
 
     def test_run1(self):
         self.m_app.run = cat.CatAtom2Osm.run.__func__
+        self.m_app.is_new = False
         self.m_app.run(self.m_app)
         self.m_app.process_tasks.assert_called_once_with(self.m_app.building_gml)
         self.m_app.process_building.assert_not_called()
@@ -72,6 +73,7 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.run = cat.CatAtom2Osm.run.__func__
         self.m_app.options = Values({'building': True, 'tasks': False, 
             'parcel': True, 'zoning': False, 'address': True, 'taskslm': False})
+        self.m_app.is_new = False
         self.m_app.run(self.m_app)
         self.m_app.process_tasks.assert_not_called()
         self.m_app.process_building.assert_called_once_with()
@@ -82,10 +84,19 @@ class TestCatAtom2Osm(unittest.TestCase):
 
     def test_run3(self):
         self.m_app.run = cat.CatAtom2Osm.run.__func__
+        self.m_app.is_new = False
         self.m_app.options.building = False
         self.m_app.options.tasks = False
         self.m_app.run(self.m_app)
         self.m_app.write_building.assert_not_called()
+
+    def test_run4(self):
+        del self.m_app.building_gml
+        self.m_app.is_new = True
+        self.m_app.options.taskslm = True
+        self.m_app.run = cat.CatAtom2Osm.run.__func__
+        self.m_app.run(self.m_app)
+        self.m_app.process_tasks.assert_not_called()
 
     @mock.patch('catatom2osm.log')
     def test_start(self, m_log):

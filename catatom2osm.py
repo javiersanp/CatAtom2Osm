@@ -68,10 +68,11 @@ class CatAtom2Osm:
     def run(self):
         """Launches the app"""
         self.start()
-        if self.options.taskslm:
-            self.process_tasks(self.building_gml)
-        elif self.options.building or self.options.tasks:
-            self.process_building()
+        if not self.is_new:
+            if self.options.taskslm:
+                self.process_tasks(self.building_gml)
+            elif self.options.building or self.options.tasks:
+                self.process_building()
         if self.options.address:
             self.process_address()
         if self.options.zoning:
