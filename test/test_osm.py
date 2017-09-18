@@ -45,8 +45,7 @@ class TestOsm(OsmTestCase):
         r1 = self.d.Relation((w1, w2))
         r2 = self.d.Relation((w2, w3))
         self.assertEquals(len(self.d.elements), 12)
-        parents = self.d.get_parents()
-        self.assertEquals(parents[n6][0], w2)
+        self.assertIn(w2, self.d.parents[n6])
         self.d.remove(w2)
         self.assertEquals(len(self.d.elements), 10)
         self.assertNotIn(w2, self.d.elements)
@@ -65,38 +64,13 @@ class TestOsm(OsmTestCase):
         n1 = self.d.Node(1,1)
         d2 = osm.Osm()
         n2 = d2.Node(2,2)
+        p = self.d.parents[n1]
         self.d.replace(n1, n2)
         self.assertNotIn(n1, self.d.elements)
         self.assertIn(n2, self.d.elements)
         self.assertEquals(n2.container, self.d)
         self.assertEquals(self.d.get(n2.id), n2)
-
-    def test_get_parents(self):
-        n0 = self.d.Node(0,0)
-        n1 = self.d.Node(1,1)
-        n2 = self.d.Node(2,2)
-        n3 = self.d.Node(3,3)
-        n4 = self.d.Node(4,4)
-        n5 = self.d.Node(5,5)
-        w1 = self.d.Way((n2, n3, n4))
-        w2 = self.d.Way((n3, n4, n5))
-        r = self.d.Relation((w1, n1))
-        parents = self.d.get_parents()
-        self.assertNotIn(n0, parents)
-        self.assertEquals(len(parents[n1]), 1)
-        self.assertIn(r, parents[n1])
-        self.assertEquals(len(parents[w1]), 1)
-        self.assertIn(r, parents[w1])
-        self.assertEquals(len(parents[n2]), 1)
-        self.assertIn(w1, parents[n2])
-        self.assertEquals(len(parents[n3]), 2)
-        self.assertIn(w1, parents[n3])
-        self.assertIn(w2, parents[n3])
-        self.assertEquals(len(parents[n4]), 2)
-        self.assertIn(w1, parents[n4])
-        self.assertIn(w2, parents[n4])
-        self.assertEquals(len(parents[n5]), 1)
-        self.assertIn(w2, parents[n5])
+        self.assertEquals(self.d.parents[n2], p)
 
     def test_merge_duplicated(self):
         n1 = self.d.Node(1,1)
@@ -130,14 +104,13 @@ class TestOsm(OsmTestCase):
                 self.assertEquals(count, 2)
             else:
                 self.assertEquals(count, 1)
-        #self.assertIn(w1.nodes[0], self.d.elements)
-        #self.assertIn(w1.nodes[2], self.d.elements)
-        #self.assertEquals(w1.nodes[4].id, n3id)
-        #self.assertEquals(w1.nodes[4].tags['a'], 'b')
-        #self.assertIn(n8, self.d.elements)
-        #self.assertIn(n9, self.d.elements)
+        self.assertIn(w1.nodes[0], self.d.elements)
+        self.assertIn(w1.nodes[2], self.d.elements)
+        self.assertEquals(w1.nodes[4].id, n3id)
+        self.assertEquals(w1.nodes[4].tags['a'], 'b')
+        self.assertIn(n8, self.d.elements)
+        self.assertIn(n9, self.d.elements)
         self.assertEquals(r1.members[0].ref, w2id)
-        return
         self.assertEquals(r2.members[0].ref, w2id)
         self.assertEquals(r1.members[0].element.tags['x'], 'y')
         self.assertEquals(r2.members[0].element.tags['x'], 'y')
@@ -318,6 +291,16 @@ class TestOsmWay(OsmTestCase):
         for n in w.nodes:
             self.assertIn(n, w.childs)
 
+    def test_append(self):
+        w = self.d.Way()
+        self.assertEquals(w.nodes, [])
+        n1 = self.d.Node(1,1)
+        w.append((1,1))
+        self.assertEquals(w.nodes, [n1])
+        n2 = self.d.Node(2,2)
+        w.append(n2)
+        self.assertEquals(w.nodes, [(1,1), (2,2)])
+
     def test_remove(self):
         n = self.d.Node(3,3)
         w = self.d.Way(((1,1), (2,2), n, (4,4), n, (5,5)))
@@ -325,6 +308,7 @@ class TestOsmWay(OsmTestCase):
         w.remove(n)
         self.assertEquals(len(w.nodes), 4)
         self.assertNotIn(n, w.nodes)
+        self.assertNotIn(w, self.d.parents[n])
 
     def test_replace(self):
         n1 = self.d.Node(1,1)
@@ -334,6 +318,8 @@ class TestOsmWay(OsmTestCase):
         w = self.d.Way([n1, n2, n4])
         w.replace(n2, n3)
         self.assertEquals(w.nodes, [n1, n3, n4])
+        #self.assertNotIn(w, self.d.parents[n1])
+        #self.assertIn(w, self.d.parents[n2])
         
     def test_eq(self):
         n = self.d.Node(1,1)
@@ -366,8 +352,8 @@ class TestOsmWay(OsmTestCase):
         w = self.d.Way(((1,1), (2,2)))
         self.assertTrue(w.is_open())
         self.assertFalse(w.is_closed())
-        w.nodes.append(self.d.Node(1,2))
-        w.nodes.append(self.d.Node(1,1))
+        w.append(self.d.Node(1,2))
+        w.append(self.d.Node(1,1))
         self.assertFalse(w.is_open())
         self.assertTrue(w.is_closed())
 
@@ -425,6 +411,7 @@ class TestOsmRelation(OsmTestCase):
         r.append(n1, 'foobar')
         self.assertEquals(r.members[0].element, n1)
         self.assertEquals(r.members[0].role, 'foobar')
+        self.assertIn(r, self.d.parents[n1])
     
     def test_member_eq(self):
         n1 = self.d.Node(1,1)
@@ -496,6 +483,7 @@ class TestOsmRelation(OsmTestCase):
         r.remove(n)
         self.assertEquals(len(r.members), 4)
         self.assertNotIn(n, r.childs)
+        self.assertNotIn(r, self.d.parents[n])
 
     def test_replace(self):
         n1 = self.d.Node(1,1)
@@ -505,6 +493,8 @@ class TestOsmRelation(OsmTestCase):
         r = self.d.Relation([n1, n2, n4])
         r.replace(n2, n3)
         self.assertEquals([m.element for m in r.members], [n1, n3, n4])
+        self.assertNotIn(r, self.d.parents[n2])
+        self.assertIn(r, self.d.parents[n3])
 
     def test_type(self):
         n = self.d.Node(1,1)

@@ -15,6 +15,7 @@ class Osm(object):
         self.version = '0.6'
         self.generator = None
         self.counter = 0
+        self.parents = defaultdict(set)
         self.elements = set()
         self.index = {} # elements by id
         self.tags = {}
@@ -54,11 +55,10 @@ class Osm(object):
         """Remove el from element, from its parents and its orphand childs"""
         self.elements.discard(el)
         del self.index[el.fid]
-        parents = self.get_parents()
-        for parent in parents[el]:
+        for parent in frozenset(self.parents[el]):
             parent.remove(el)
         for child in el.childs:
-            if not parents[child]:
+            if self.parents[child] == set([el]):
                 self.remove(child)
 
     def replace(self, n1, n2):
@@ -69,22 +69,11 @@ class Osm(object):
         n2.container = self
         self.elements.add(n2)
         self.index[n2.fid] = n2
-
-    def get_parents(self):
-        """Returns a dict of parents for each element"""
-        parents = defaultdict(list)
-        for el in self.elements:
-            if isinstance(el, Way):
-                for node in el.nodes:
-                    parents[node].append(el)
-            elif isinstance(el, Relation):
-                for m in el.members:
-                    parents[m.element].append(el)
-        return parents
+        self.parents[n2] = self.parents[n1]
+        del self.parents[n1]
 
     def merge_duplicated(self):
         """Merge elements with the same geometry."""
-        parents = self.get_parents()
         geomdupes = defaultdict(list)
         for el in self.elements:
             geomdupes[el.geometry()].append(el)
@@ -95,8 +84,8 @@ class Osm(object):
                     i += 1  # see __eq__ method of Element
                 for el in dupes:
                     if el is not dupes[i] and el == dupes[i]: 
-                        #for parent in el.parents:
-                        for parent in parents[el]:
+                        for parent in frozenset(self.parents[el]):
+                            parent.container = self
                             parent.replace(el, dupes[i])
                         self.replace(el, dupes[i])
         for way in self.ways:
@@ -258,8 +247,9 @@ class Way(Element):
         >>> w = d.Way([(1,1), (2,2)])
         """
         super(Way, self).__init__(container, *args, **kwargs)
-        self.nodes = [n if isinstance(n, Node) else Node(container, n) 
-            for n in nodes]
+        self.nodes = []
+        for n in nodes:
+            self.append(n)
 
     @property
     def childs(self):
@@ -283,13 +273,23 @@ class Way(Element):
                 s += (n1.x * n2.y - n2.x * n1.y)
         return s
 
+    def append(self, n):
+        """Append n to nodes"""
+        if not isinstance(n, Node):
+            n = Node(self.container, n)
+        self.nodes.append(n)
+        self.container.parents[n].add(self)
+
     def remove(self, n):
         """Remove n from nodes"""
         self.nodes = [o for o in self.nodes if o is not n]
+        self.container.parents[n].remove(self)
 
     def replace(self, n1, n2):
         """Replaces first occurence of node n1 with n2"""
         self.nodes = [n2 if n is n1 else n for n in self.nodes]
+        self.container.parents[n1].remove(self)
+        self.container.parents[n2].add(self)
 
     def __eq__(self, other):
         """Used to determine if two elements could be merged."""
@@ -346,28 +346,31 @@ class Relation(Element):
         super(Relation, self).__init__(container, *args, **kwargs)
         self.members = []
         for m in members:
-            if isinstance(m, Relation.Member):
-                self.members.append(m) 
-            else:
-                self.append(m)
+            self.append(m)
 
     @property
     def childs(self):
         """Returns set of unique members elements"""
         return set([m.element for m in self.members])
 
-    def append(self, element, role=None):
+    def append(self, m, role=None):
         """Adds a member"""
-        self.members.append(Relation.Member(element, role))
+        if not isinstance(m, Relation.Member):
+            m = Relation.Member(m, role)
+        self.members.append(m) 
+        self.container.parents[m.element].add(self)
 
     def remove(self, e):
         """Remove e from members"""
         self.members = [m for m in self.members if m.element is not e]
+        self.container.parents[e].remove(self)
 
     def replace(self, e1, e2):
         """Replaces first occurence of element e1 with e2"""
         self.members = [Relation.Member(e2, m.role) 
             if m.element == e1 else m for m in self.members]
+        self.container.parents[e1].remove(self)
+        self.container.parents[e2].add(self)
 
     def is_valid_multipolygon(self):
         """Returns true if this is valid as a multipolygon relation"""
