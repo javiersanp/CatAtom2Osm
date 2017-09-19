@@ -2,14 +2,21 @@
 import timeit
 import random
 import getpass
+import time
+import os
 from datetime import datetime
 from collections import defaultdict, Counter
 from qgis.core import *
+from PyQt4.QtCore import QVariant
+from osgeo import gdal
+#gdal.PushErrorHandler('CPLQuietErrorHandler')
 
 import hgwnames
 import setup
 import layer
 import osmxml
+import osm
+from download import ProgressBar
 from catatom2osm import QgsSingleton
 qgs = QgsSingleton()
 
@@ -174,16 +181,22 @@ class TimerConsLayer(BaseTimer):
         self.obj = layer.ConsLayer()
         mun = '38900'
         building_fn = BASEPATH + '{0}/A.ES.SDGC.BU.{0}.building.gml'.format(mun)
-        #buildingpart_fn = BASEPATH + '38001/A.ES.SDGC.BU.38001.buildingpart.gml'
+        buildingpart_fn = BASEPATH + '{0}/A.ES.SDGC.BU.{0}.buildingpart.gml'.format(mun)
+        other_fn = BASEPATH + '{0}/A.ES.SDGC.BU.{0}.otherconstruction.gml'.format(mun)
         zoning_fn = BASEPATH + '{0}/A.ES.SDGC.CP.{0}.cadastralzoning.gml'.format(mun)
         self.building_gml = QgsVectorLayer(building_fn, 'building', 'ogr')
         self.obj.append(self.building_gml)
-        #self.buildingpart_gml = QgsVectorLayer(buildingpart_fn, 'buildingpart', 'ogr')
-        #self.zoning_gml = QgsVectorLayer(zoning_fn, 'zoning', 'ogr')
-        #self.zone = self.zoning_gml.getFeatures().next()
-        c = self.obj.featureCount()
-        self.fids = [int(c*0.5) + i for i in range(4)]
-        #self.fids = [random.randrange(c) for i in range(c/2)]
+        self.part_gml = QgsVectorLayer(buildingpart_fn, 'buildingpart', 'ogr')
+        self.other_gml = QgsVectorLayer(other_fn, 'otherconstruction', 'ogr')
+        self.zoning_gml = QgsVectorLayer(zoning_fn, 'zoning', 'ogr')
+        QgsVectorFileWriter.writeAsVectorFormat(self.building_gml, 'temp.shp', "utf-8",
+                self.building_gml.crs(), 'ESRI Shapefile')
+        self.building_shp = QgsVectorLayer('temp.shp', 'building', 'ogr')
+        c = self.building_gml.featureCount()
+        #self.fids = [int(c*0.5) + i for i in range(50)]
+        self.fids = [random.randrange(c) for i in range(5)]
+        """
+        self.zone = self.zoning_gml.getFeatures().next()
         self.request = QgsFeatureRequest().setFilterFids(self.fids)
         #self.test(self.get_features)
         #self.test(self.get_index)
@@ -192,21 +205,30 @@ class TimerConsLayer(BaseTimer):
         fo = open(osm_path, 'r')
         self.current_bu_osm = osmxml.deserialize(fo)
         self.obj.reproject()
-        """print 'Seleccionando {} edificios de {}'.format(len(self.fids), c)
-        self.test(self.get_features)
+        print 'Seleccionando {} edificios de {}'.format(len(self.fids), c)
         self.test(self.get_fids_by_loop)
-        self.test(self.get_fids_by_loop2)
-        self.test(self.get_fids_by_loop_mem)
-        self.test(self.get_fids_by_loop_mem2)
-        #self.test(self.get_fids_by_filter)
-        self.test(self.get_fids_by_filter_mem)
-        self.test(self.get_fids_by_dict_mem)
         """
-        #self.test(self.get_fid_by_fid)
-        #self.test(self.get_fids_by_select)
-        #self.test(self.get_fid_by_fid_mem)
-        #self.test(self.get_fids_by_select_mem)
-    
+        print self.building_shp.featureCount()
+        #self.test(self.get_features)
+        #self.test(self.get_index)
+        self.test(self.get_index_shp)
+        #self.test(self.get_fids_by_dict_mem)
+        self.test(self.get_fids_by_filter_shp)
+        self.fids = [random.randrange(c) for i in range(50)]
+        self.test(self.get_fids_by_filter_shp)
+        self.fids = [random.randrange(c) for i in range(500)]
+        self.test(self.get_fids_by_filter_shp)
+        self.fids = [random.randrange(c) for i in range(5000)]
+        self.test(self.get_fids_by_filter_shp)
+        """
+        self.test(self.get_fids_by_loop_mem)
+        self.test(self.get_fid_by_fid)
+        self.test(self.get_fids_by_select)
+        self.test(self.get_fid_by_fid_mem)
+        self.test(self.get_fids_by_select_mem)
+        """
+        QgsVectorFileWriter.deleteShapeFile('temp.shp')
+
     def zoning_histogram(self):
         index = QgsSpatialIndex(self.building_gml.getFeatures())
         c = {
@@ -233,6 +255,10 @@ class TimerConsLayer(BaseTimer):
     def get_index(self):
         self.index = QgsSpatialIndex(self.building_gml.getFeatures())
         
+    def get_index_shp(self):
+        """3x faster than get_index (gml)"""
+        self.index_shp = QgsSpatialIndex(self.building_shp.getFeatures())
+
     def get_fids_by_loop(self):
         """
         constant with the number of elements to select
@@ -265,6 +291,21 @@ class TimerConsLayer(BaseTimer):
         request = QgsFeatureRequest().setFilterFids(self.fids)
         [f for f in self.building_gml.getFeatures(request)]
     
+    def get_fids_by_filter_shp(self):
+        """
+        Extremely fast, even more than in memory layer. 
+        Example select 4 randon features in 08900 (70K buildings)
+        2x get_fids_by_dict_mem
+        10x get_fids_by_filter_mem
+        4000x get_fids_by_loop2
+        9000x get_fids_by_filter
+        Linear with size of selection
+        Linear with layer size
+        Constant with position of elements to select
+        """
+        request = QgsFeatureRequest().setFilterFids(self.fids)
+        [f for f in self.building_shp.getFeatures(request)]
+
     def get_fids_by_loop_mem(self):
         """10x slower or more than get_fids_by_filter_mem"""
         [f for f in self.obj.getFeatures() if f.id() in set(self.fids)]
@@ -330,7 +371,7 @@ class TimerConsLayer(BaseTimer):
             zone = it.next()
             self.obj.append_zone2(self.building, self.zone, processed)
 
-    def test_conflate2(self):
+    def _test_conflate2(self):
         delete = True
         index = self.obj.get_index()
         num_buildings = 0
@@ -366,31 +407,424 @@ class TimerConsLayer(BaseTimer):
     def _test_conflate(self):
         self.obj.conflate(self.current_bu_osm)
 
+    def _test_zoning(self):
+        print 'start', datetime.now()
+        d = time.time()
+        #urban_zoning = layer.ZoningLayer(baseName='urbanzoning')
+        rustic_zoning = layer.ZoningLayer(baseName='rusticzoning')
+        #urban_zoning.append(self.zoning_gml, level='M')
+        rustic_zoning.append(self.zoning_gml, level='P')
+        #print 'urban', urban_zoning.featureCount()
+        print 'rustic', rustic_zoning.featureCount()
+        index = QgsSpatialIndex(self.building_gml.getFeatures())
+        #indexp = QgsSpatialIndex(self.part_gml.getFeatures())
+        #indexo = QgsSpatialIndex(self.other_gml.getFeatures())
+        print 'index', 1000 * (time.time() - d)
+        d = time.time()
+        i = 0
+        processed = set()
+        for zone in rustic_zoning.getFeatures():
+            i += 1
+            refs = set()
+            task = layer.ConsLayer(baseName=zone['label'])
+            task.append_zone(self.building_gml, zone, processed, index)
+            print 'zone', 1000 * (time.time() - d), i
+            d = time.time()
+            for feat in task.getFeatures():
+                refs.add(feat['localId'])
+            #print 'refs', 1000 * (time.time() - d)
+            #d = time.time()
+            task.append_task(self.part_gml, refs)
+            #task.append_zone(self.part_gml, zone, processed, indexp)
+            print 'part', 1000 * (time.time() - d)
+            d = time.time()
+            task.append_task(self.other_gml, refs)
+            #task.append_zone(self.other_gml, zone, processed, indexp)
+            print 'other', 1000 * (time.time() - d)
+            d = time.time()
+            processed = processed.union(refs)
+            del task
+            print i
+            if i > 0: break
+        print 'end', datetime.now()
 
-class TimerOsm(BaseTimer):
+
+class BaseConsTimer(BaseTimer):
 
     def __init__(self):
         mun = '38900'
+        building_fn = BASEPATH + '{0}/A.ES.SDGC.BU.{0}.building.gml'.format(mun)
+        buildingpart_fn = BASEPATH + '{0}/A.ES.SDGC.BU.{0}.buildingpart.gml'.format(mun)
+        other_fn = BASEPATH + '{0}/A.ES.SDGC.BU.{0}.otherconstruction.gml'.format(mun)
+        zoning_fn = BASEPATH + '{0}/A.ES.SDGC.CP.{0}.cadastralzoning.gml'.format(mun)
+        self.building_gml = QgsVectorLayer(building_fn, 'building', 'ogr')
+        self.part_gml = QgsVectorLayer(buildingpart_fn, 'buildingpart', 'ogr')
+        self.other_gml = QgsVectorLayer(other_fn, 'otherconstruction', 'ogr')
+        """
+        zoning_gml = QgsVectorLayer(zoning_fn, 'zoning', 'ogr')
+        self.urban_zoning = layer.ZoningLayer(baseName='urbanzoning')
+        self.rustic_zoning = layer.ZoningLayer(baseName='rusticzoning')
+        self.urban_zoning.append(zoning_gml, level='M')
+        self.rustic_zoning.append(zoning_gml, level='P')
+        """
+        print self.building_gml.featureCount(), self.part_gml.featureCount(), \
+            self.other_gml.featureCount()
+
+    def create_shp(self, name):
+        QgsVectorFileWriter(name, 'UTF-8', QgsFields(), QGis.WKBMultiPolygon, 
+            self.building_gml.crs(), 'ESRI Shapefile')
+
+    def create_bd(self, name):
+        QgsVectorFileWriter(name, 'UTF-8', QgsFields(), QGis.WKBMultiPolygon, 
+            self.building_gml.crs(), 'SQLite', datasourceOptions=["SPATIALITE=YES",])
+
+
+class TimerFixMemUsage(BaseConsTimer):
+
+    def __init__(self):
+        super(TimerFixMemUsage, self).__init__()
+        self.create_shp('building.shp')
+        self.create_shp('building2.shp')
+        self.obj = layer.ConsLayer('building.shp', 'building', 'ogr')
+        self.obj2 = layer.ConsLayer('building2.shp', 'building', 'ogr')
+        assert self.obj.isValid()
+        assert self.obj2.isValid()
+        
+    def _test_append1(self):
+        layer = self.building_gml
+        self.obj.setCrs(layer.crs())
+        to_add = []
+        progress = ProgressBar(layer.featureCount())
+        for feature in layer.getFeatures():
+            to_add.append(self.obj.copy_feature(feature))
+            progress.update()
+        if to_add:
+            self.obj.writer.addFeatures(to_add)
+        assert self.obj.featureCount() == self.building_gml.featureCount()
+    
+    def test_append2(self):
+        """As fast as append but with much less memory usage"""
+        layer = self.building_gml
+        self.obj2.setCrs(layer.crs())
+        chunk_size = 512
+        to_add = []
+        progress = ProgressBar(layer.featureCount())
+        for feature in layer.getFeatures():
+            to_add.append(self.obj2.copy_feature(feature))
+            progress.update()
+            if len(to_add) == chunk_size:
+                self.obj2.writer.addFeatures(to_add)
+                to_add = []
+        if len(to_add) > 0:
+            self.obj2.writer.addFeatures(to_add)
+        assert self.obj2.featureCount() == self.building_gml.featureCount()
+
+    def _test_reproject1(self):
+        target_crs = QgsCoordinateReferenceSystem(4326)
+        crs_transform = QgsCoordinateTransform(self.obj2.crs(), target_crs)
+        to_add = []
+        to_clean = []
+        progress = ProgressBar(self.obj2.featureCount())
+        for feature in self.obj2.getFeatures():
+            geom = feature.geometry()
+            geom.transform(crs_transform)
+            out_feat = QgsFeature()
+            out_feat.setGeometry(geom)
+            out_feat.setAttributes(feature.attributes())
+            to_add.append(out_feat)
+            to_clean.append(feature.id())
+            progress.update()
+        self.obj2.deleteFeatures(to_clean)
+        self.obj2.writer.addFeatures(to_add)
+        self.obj2.setCrs(target_crs)
+        self.obj2.updateExtents()
+
+    def _test_reproject2(self):
+        """Less memory usage than reproject1 but slower"""
+        target_crs = QgsCoordinateReferenceSystem(4326)
+        crs_transform = QgsCoordinateTransform(self.obj2.crs(), target_crs)
+        chunk_size = 512
+        to_add = []
+        to_clean = []
+        progress = ProgressBar(self.obj2.featureCount())
+        for feature in self.obj2.getFeatures():
+            geom = feature.geometry()
+            geom.transform(crs_transform)
+            out_feat = QgsFeature()
+            out_feat.setGeometry(geom)
+            out_feat.setAttributes(feature.attributes())
+            to_add.append(out_feat)
+            to_clean.append(feature.id())
+            progress.update()
+            if len(to_add) == chunk_size:
+                self.obj2.deleteFeatures(to_clean)
+                self.obj2.writer.addFeatures(to_add)
+                to_add = []
+                to_clean = []
+        if len(to_add) > 0:
+            self.obj2.deleteFeatures(to_clean)
+            self.obj2.writer.addFeatures(to_add)
+        self.obj2.setCrs(target_crs)
+        self.obj2.updateExtents()
+
+    def test_reproject3(self):
+        target_crs = QgsCoordinateReferenceSystem(4326)
+        crs_transform = QgsCoordinateTransform(self.obj2.crs(), target_crs)
+        chunk_size = 512
+        to_change = {}
+        progress = ProgressBar(self.obj2.featureCount())
+        for feature in self.obj2.getFeatures():
+            geom = QgsGeometry(feature.geometry())
+            geom.transform(crs_transform)
+            to_change[feature.id()] = geom
+            progress.update()
+            if len(to_change) == chunk_size:
+                self.obj2.writer.changeGeometryValues(to_change)
+                to_change = {}
+        if len(to_change) > 0:
+            self.obj2.writer.changeGeometryValues(to_change)
+        self.obj2.setCrs(target_crs)
+        self.obj2.updateExtents()
+
+    def __del__(self):
+        QgsVectorFileWriter.deleteShapeFile('building.shp')
+        QgsVectorFileWriter.deleteShapeFile('building2.shp')
+
+
+class TimerFixMemUsageAd(BaseTimer):
+
+    def __init__(self):
+        mun = '38900'
+        super(TimerFixMemUsageAd, self).__init__()
+        address_fn = BASEPATH + '{0}/A.ES.SDGC.AD.{0}.gml'.format(mun)
+        self.address_gml = QgsVectorLayer(address_fn, 'address', 'ogr')
+        self.tn_gml = QgsVectorLayer(address_fn + '|layername=thoroughfarename', 'tn', 'ogr')
+        self.pd_gml = QgsVectorLayer(address_fn + '|layername=postaldescriptor', 'pd', 'ogr')
+        assert self.address_gml.isValid()
+        QgsVectorFileWriter('address.shp', 'UTF-8', QgsFields(), QGis.WKBPoint, 
+            self.address_gml.crs(), 'ESRI Shapefile')
+        self.obj = layer.AddressLayer('address.shp', 'address', 'ogr')
+        print self.address_gml.featureCount()
+
+    @staticmethod
+    def join_field(dest_layer, source_layer, target_field_name, join_field_name,
+            field_names_subset, prefix = ""):
+        fields = []
+        target_attrs = [f.name() for f in dest_layer.pendingFields()]
+        for attr in field_names_subset:
+            field = source_layer.pendingFields().field(attr)
+            field.setName(prefix + attr)
+            if field.name() not in target_attrs:
+                if field.length() > 254:
+                    field.setLength(254)
+                fields.append(field)
+        dest_layer.writer.addAttributes(fields)
+        dest_layer.updateFields()
+        source_values = {}
+        for feature in source_layer.getFeatures():
+            source_values[feature[join_field_name]] = \
+                    {attr: feature[attr] for attr in field_names_subset}
+        to_change = {}
+        progress = ProgressBar(dest_layer.featureCount())
+        for feature in dest_layer.getFeatures():
+            attrs = {}
+            for attr in field_names_subset:
+                fieldId = feature.fieldNameIndex(prefix + attr)
+                value = None
+                if feature[target_field_name] in source_values:
+                    value = source_values[feature[target_field_name]][attr]
+                attrs[fieldId] = value
+            to_change[feature.id()] = attrs
+            progress.update()
+        if to_change:
+            dest_layer.writer.changeAttributeValues(to_change)
+
+    @staticmethod
+    def join_field2(dest_layer, source_layer, target_field_name, join_field_name,
+            field_names_subset, prefix = ""):
+        fields = []
+        target_attrs = [f.name() for f in dest_layer.pendingFields()]
+        for attr in field_names_subset:
+            field = source_layer.pendingFields().field(attr)
+            field.setName(prefix + attr)
+            if field.name() not in target_attrs:
+                if field.length() > 254:
+                    field.setLength(254)
+                fields.append(field)
+        dest_layer.writer.addAttributes(fields)
+        dest_layer.updateFields()
+        source_values = {}
+        for feature in source_layer.getFeatures():
+            source_values[feature[join_field_name]] = \
+                    {attr: feature[attr] for attr in field_names_subset}
+        chunk_size = 512
+        to_change = {}
+        progress = ProgressBar(dest_layer.featureCount())
+        for feature in dest_layer.getFeatures():
+            attrs = {}
+            for attr in field_names_subset:
+                fieldId = feature.fieldNameIndex(prefix + attr)
+                value = None
+                if feature[target_field_name] in source_values:
+                    value = source_values[feature[target_field_name]][attr]
+                attrs[fieldId] = value
+            to_change[feature.id()] = attrs
+            progress.update()
+            if len(to_change) == chunk_size:
+                dest_layer.writer.changeAttributeValues(to_change)
+                to_change = {}
+        if len(to_change) > 0:
+            dest_layer.writer.changeAttributeValues(to_change)
+
+    def test_append(self):
+        layer = self.address_gml
+        self.obj.setCrs(layer.crs())
+        chunk_size = 512
+        to_add = []
+        progress = ProgressBar(layer.featureCount())
+        for feature in layer.getFeatures():
+            to_add.append(self.obj.copy_feature(feature))
+            progress.update()
+            if len(to_add) == chunk_size:
+                self.obj.writer.addFeatures(to_add)
+                to_add = []
+        if len(to_add) > 0:
+            self.obj.writer.addFeatures(to_add)
+        assert self.obj.featureCount() == layer.featureCount()
+
+    def test_join(self):
+        self.join_field2(self.obj, self.pd_gml, 'PD_id', 'gml_id', ['postCode'])
+        self.join_field2(self.obj, self.tn_gml, 'TN_id', 'gml_id', ['text'], 'TN_')
+
+    def __del__(self):
+        QgsVectorFileWriter.deleteShapeFile('address.shp')
+
+class ConsTimer(BaseConsTimer):
+
+    def test_10_remove_outside_parts(self):
+        self.obj.remove_outside_parts()
+        
+    def test_11_explode_multi_parts(self):
+        self.obj.explode_multi_parts()
+
+    def test_12_remove_parts_below_ground(self):
+        self.obj.remove_parts_below_ground()
+
+    def test_13_merge_duplicates(self):
+        self.obj.merge_duplicates()
+
+    def test_14_clean_duplicated_nodes_in_polygons(self):
+        self.obj.clean_duplicated_nodes_in_polygons()
+
+    def test_15_add_topological_points(self):
+        self.obj.add_topological_points()
+
+    def test_16_merge_building_parts(self):
+        self.obj.merge_building_parts()
+
+    def test_17_simplify(self):
+        self.obj.simplify()
+
+class TimerMemLayer(ConsTimer):
+
+    def __init__(self):
+        super(TimerMemLayer, self).__init__()
+        self.obj = layer.ConsLayer()
+
+    def test_01_append_all(self):
+        self.obj.append(self.building_gml)
+        self.obj.append(self.part_gml)
+        self.obj.append(self.other_gml)
+        assert self.obj.featureCount() > 0
+
+class TimerBdLayer(ConsTimer):
+
+    def __init__(self):
+        super(TimerBdLayer, self).__init__()
+        self.create_bd('building.sqlite')
+        self.obj = layer.ConsLayer('building.sqlite', 'building', 'ogr')
+        assert self.obj.isValid()
+
+    def test_01_append_all(self):
+        self.obj.append(self.building_gml)
+        assert self.obj.featureCount() == self.building_gml.featureCount()
+        self.obj.append(self.part_gml)
+        assert self.obj.featureCount() == self.building_gml.featureCount() + \
+            self.part_gml.featureCount()
+        self.obj.append(self.other_gml)
+
+    def __del__(self):
+        os.remove('building.sqlite')
+
+class TimerShpLayer(ConsTimer):
+    """Similar to MEM faster than BD"""
+
+    def __init__(self):
+        super(TimerShpLayer, self).__init__()
+        self.create_shp('building.shp')
+        self.obj = layer.ConsLayer('building.shp', 'building', 'ogr')
+        assert self.obj.isValid()
+        
+    def _test_01_export_building(self):
+        """2x faster than test_append"""
+        src_fields = self.building_gml.pendingFields()
+        dst_fields = []
+        dst_fields.append(src_fields.fieldNameIndex('localId'))
+        dst_fields.append(src_fields.fieldNameIndex('conditionOfConstruction'))
+        dst_fields.append(src_fields.fieldNameIndex('currentUse'))
+        dst_fields.append(src_fields.fieldNameIndex('numberOfBuildingUnits'))
+        dst_fields.append(src_fields.fieldNameIndex('numberOfDwellings'))
+        dst_fields.append(src_fields.fieldNameIndex('documentLink'))
+        QgsVectorFileWriter.writeAsVectorFormat(self.building_gml, 'building.shp', "utf-8",
+                self.building_gml.crs(), 'ESRI Shapefile', attributes=dst_fields)
+        self.building_shp = QgsVectorLayer('temp.shp', 'building', 'ogr')
+        QgsVectorFileWriter.deleteShapeFile('temp.shp')
+
+    def test_02_append_building(self):
+        self.obj.append(self.building_gml)
+        assert self.obj.featureCount() > 0
+    
+    def test_03_append_part_other(self):
+        self.obj.append(self.part_gml)
+        self.obj.append(self.other_gml)
+    
+    def __del__(self):
+        QgsVectorFileWriter.deleteShapeFile('building.shp')
+
+class TimerOsm(BaseTimer):
+
+    def set_up(self):
+        mun = '38012'
         osm_path = BASEPATH + mun + '/current_building.osm'
         fo = open(osm_path, 'r')
         self.obj = osmxml.deserialize(fo)
-
-    def test_remove(self):
-        print len(self.obj.elements)
-        to_clean = []
+        self.to_clean = []
         for i, el in enumerate(self.obj.elements):
             if i % 10 == 0:
-                to_clean.append(el)
-        print len(to_clean)
-        for el in to_clean:
-            self.obj.remove(el)
-        print len(self.obj.elements)
+                self.to_clean.append(el)
 
+    def test_remove(self):
+        for el in self.to_clean:
+            if el in self.obj.elements:
+                self.obj.remove(el)
 
 if __name__ == '__main__':
     #TimerBaseLayer().run()
     #TimerPolygonLayer().run()
     #TimerAddressLayer2().run()
+    #TimerOsm().run()
     #TimerConsLayer().run()
-    TimerOsm().run()
+    """
+    d = time.time()
+    TimerMemLayer().run()
+    print 'MEM', 1000 * (time.time() - d)
+    d = time.time()
+    #TimerBdLayer().run()
+    #print 'BD', 1000 * (time.time() - d)
+    #d = time.time()
+    TimerShpLayer().run()
+    print 'SHP', 1000 * (time.time() - d)
+    d = time.time()
+    """
+    TimerFixMemUsageAd().run()
 
