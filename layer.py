@@ -1184,15 +1184,16 @@ class HighwayLayer(BaseLayer):
         to_add = []
         for r in data.relations:
             for m in r.members:
-                if m.type=='way':
+                if m.type=='way' and 'name' in r.tags:
                     m.element.tags['name'] = r.tags['name']
         for w in data.ways:
-            points = [QgsPoint(n.x, n.y) for n in w.nodes]
-            geom = QgsGeometry.fromPolyline(points)
-            feat = QgsFeature(QgsFields(self.pendingFields()))
-            feat.setGeometry(geom)
-            feat.setAttribute("name", w.tags['name'])
-            to_add.append(feat)
+            if 'name' in w.tags:
+              points = [QgsPoint(n.x, n.y) for n in w.nodes]
+              geom = QgsGeometry.fromPolyline(points)
+              feat = QgsFeature(QgsFields(self.pendingFields()))
+              feat.setGeometry(geom)
+              feat.setAttribute("name", w.tags['name'])
+              to_add.append(feat)
         self.writer.addFeatures(to_add)
 
 
