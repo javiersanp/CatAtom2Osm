@@ -1147,9 +1147,9 @@ class ConsLayer(PolygonLayer):
                 geom = QgsGeometry().fromMultiPolygon(poly)
                 if geom.isGeosValid():
                     fids = index.intersects(geom.boundingBox())
-                    self.setSelectedFeatures(fids)
+                    request = QgsFeatureRequest().setFilterFids(fids)
                     conflict = False
-                    for feat in self.selectedFeatures():
+                    for feat in self.getFeatures(request):
                         fg = feat.geometry()
                         if geom.contains(fg) or fg.contains(geom) or geom.overlaps(fg):
                             conflict = True
