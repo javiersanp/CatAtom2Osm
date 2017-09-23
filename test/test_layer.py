@@ -77,14 +77,18 @@ class TestBaseLayer(unittest.TestCase):
     def setUp(self):
         self.fixture = QgsVectorLayer('test/building.gml', 'building', 'ogr')
         self.assertTrue(self.fixture.isValid())
-        self.layer = BaseLayer("Polygon", "test", "memory")
+        fn = 'test_layer.shp'
+        BaseLayer.create_shp(fn, self.fixture.crs())
+        self.layer = PolygonLayer(fn, 'building', 'ogr')
         self.assertTrue(self.layer.isValid())
-        self.writer = self.layer.dataProvider()
         fields1 = []
         fields1.append(QgsField("A", QVariant.String))
         fields1.append(QgsField("B", QVariant.Int))
-        self.writer.addAttributes(fields1)
+        self.layer.writer.addAttributes(fields1)
         self.layer.updateFields()
+
+    def tearDown(self):
+        QgsVectorFileWriter.deleteShapeFile('test_layer.shp')
 
     def test_copy_feature_with_resolve(self):
         feature = self.fixture.getFeatures().next()
@@ -145,20 +149,33 @@ class TestBaseLayer(unittest.TestCase):
         layer.append(self.fixture, query=declined_filter)
         self.assertEquals(layer.featureCount(), 0)
 
+    def test_add_delete(self):
+        feat = QgsFeature(self.layer.pendingFields())
+        feat['A'] = 'foobar'
+        feat['B'] = 123
+        self.assertEquals(self.layer.featureCount(), 0)
+        self.layer.writer.addFeatures([feat])
+        self.assertEquals(self.layer.featureCount(), 1)
+        self.layer.writer.deleteFeatures([feat.id()])
+        self.assertEquals(self.layer.featureCount(), 0)
+
     def test_translate_field(self):
         ascii_uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-        self.layer.startEditing()
+        feat = self.fixture.getFeatures().next()
+        geom = QgsGeometry(feat.geometry())
+        self.assertTrue(geom.isGeosValid())
         translations = {}
+        to_add = []
         for i in range(30):
             feat = QgsFeature(self.layer.pendingFields())
             value = ''.join([random.choice(ascii_uppercase) for j in range(10)])
             translations[value] = value.lower()
             feat['A'] = value
-            self.layer.addFeature(feat)
+            to_add.append(feat)
         feat = QgsFeature(self.layer.pendingFields())
         feat['A'] = 'FooBar'
-        self.layer.addFeature(feat)
-        self.layer.commitChanges()
+        to_add.append(feat)
+        self.layer.writer.addFeatures(to_add)
         self.assertGreater(self.layer.featureCount(), 0)
         self.layer.translate_field('TAZ', {})
         self.layer.translate_field('A', translations)
@@ -230,28 +247,21 @@ class TestBaseLayer(unittest.TestCase):
         self.layer.export('foobar', 'foo', overwrite=False)
         mock_os.remove.assert_called_once_with('foobar')
 
-    @mock.patch('layer.super')
-    def test_deleteFeatures(self, m_super):
-        self.layer.deleteFeature = mock.MagicMock()
-        self.layer.deleteFeatures([1, 2, 3])
-        m_super.return_value.deleteFeatures.assert_called_once_with([1, 2, 3])
-        del m_super.return_value.deleteFeatures
-        self.layer.deleteFeatures([1, 2, 3])
-        self.layer.deleteFeature.assert_has_calls([
-           mock.call(1), mock.call(2), mock.call(3)
-        ])
-
 
 class TestPolygonLayer(unittest.TestCase):
 
     def setUp(self):
-        self.layer = PolygonLayer('Polygon', 'cadastralparcel', 'memory')
-        self.assertTrue(self.layer.isValid(), "Init QGIS")
         self.fixture = QgsVectorLayer('test/cons.shp', 'building', 'ogr')
         self.assertTrue(self.fixture.isValid(), "Loading fixture")
+        fn = 'test_layer.shp'
+        PolygonLayer.create_shp(fn, self.fixture.crs())
+        self.layer = PolygonLayer(fn, 'building', 'ogr')
+        self.assertTrue(self.layer.isValid(), "Init QGIS")
         self.layer.append(self.fixture, rename='')
         self.assertEquals(self.layer.featureCount(), self.fixture.featureCount())
-        self.writer = self.layer.dataProvider()
+
+    def tearDown(self):
+        QgsVectorFileWriter.deleteShapeFile('test_layer.shp')
 
     def test_get_multipolygon(self):
         p = [[QgsPoint(0,0), QgsPoint(1,0), QgsPoint(1,1), QgsPoint(0,0)]]
@@ -357,17 +367,16 @@ class TestPolygonLayer(unittest.TestCase):
         v1 = geom2.vertexAt(0)
         v2 = geom2.vertexAt(1)
         new_geom2 = QgsGeometry().fromPolygon([[v1, v2, v2, v1]])
-        self.layer.startEditing()
-        self.writer.changeGeometryValues({feat1.id(): new_geom1})
-        self.writer.changeGeometryValues({feat2.id(): new_geom2})
-        self.layer.commitChanges()
+        feat3 = features.next()
+        geom3 = feat3.geometry()
+        self.layer.writer.changeGeometryValues({feat1.id(): new_geom1})
+        self.layer.writer.changeGeometryValues({feat2.id(): new_geom2})
         self.layer.clean_duplicated_nodes_in_polygons()
         features = self.layer.getFeatures()
         new_feat = features.next()
-        clean_geom = new_feat.geometry()
-        self.assertTrue(geom1.equals(clean_geom))
+        self.assertTrue(geom1.equals(new_feat.geometry()))
         new_feat = features.next()
-        self.assertNotEquals(new_feat.id(), feat2.id())
+        self.assertTrue(geom3.equals(new_feat.geometry()))
 
 
 class TestParcelLayer(unittest.TestCase):
@@ -386,14 +395,19 @@ class TestParcelLayer(unittest.TestCase):
 class TestZoningLayer(unittest.TestCase):
 
     def setUp(self):
-        self.layer = ZoningLayer()
-        self.assertTrue(self.layer.isValid(), "Init QGIS")
         self.fixture = QgsVectorLayer('test/zoning.gml', 'zoning', 'ogr')
         self.assertTrue(self.fixture.isValid(), "Loading fixture")
+        fn = 'test_layer.shp'
+        #ZoningLayer.create_shp(fn, self.fixture.crs())
+        self.layer = ZoningLayer(fn, 'zoning', 'ogr')
+        self.layer = ZoningLayer()
+        self.assertTrue(self.layer.isValid(), "Init QGIS")
         self.layer.append(self.fixture)
         self.assertEquals(self.layer.featureCount(), self.fixture.featureCount())
-        self.writer = self.layer.dataProvider()
         self.layer.explode_multi_parts()
+
+    def tearDown(self):
+        QgsVectorFileWriter.deleteShapeFile('test_layer.shp')
 
     def test_get_adjacents_and_features(self):
         (groups, features) = self.layer.get_adjacents_and_features()
@@ -424,13 +438,17 @@ class TestZoningLayer(unittest.TestCase):
 class TestConsLayer(unittest.TestCase):
 
     def setUp(self):
-        self.layer = ConsLayer()
-        self.assertTrue(self.layer.isValid(), "Init QGIS")
         self.fixture = QgsVectorLayer('test/cons.shp', 'building', 'ogr')
         self.assertTrue(self.fixture.isValid(), "Loading fixture")
+        fn = 'test_layer.shp'
+        ConsLayer.create_shp(fn, self.fixture.crs())
+        self.layer = ConsLayer(fn, 'zoning', 'ogr')
+        self.assertTrue(self.layer.isValid(), "Init QGIS")
         self.layer.append(self.fixture, rename='')
         self.assertEquals(self.layer.featureCount(), self.fixture.featureCount())
-        self.writer = self.layer.dataProvider()
+
+    def tearDown(self):
+        QgsVectorFileWriter.deleteShapeFile('test_layer.shp')
 
     def test_is_building(self):
         self.assertTrue(ConsLayer.is_building({'localId': 'foobar'}))
@@ -799,10 +817,6 @@ class TestConsLayer(unittest.TestCase):
 class TestAddressLayer(unittest.TestCase):
 
     def setUp(self):
-        self.layer = AddressLayer()
-        self.assertTrue(self.layer.isValid(), "Init QGIS")
-        self.layer.dataProvider().addAttributes([QgsField('TN_text', QVariant.String, len=254)])
-        self.layer.updateFields()
         self.address_gml = QgsVectorLayer('test/address.gml', 'address', 'ogr')
         self.assertTrue(self.address_gml.isValid(), "Loading address")
         self.tn_gml = QgsVectorLayer('test/address.gml|layername=thoroughfarename', 'tn', 'ogr')
@@ -811,6 +825,15 @@ class TestAddressLayer(unittest.TestCase):
         self.assertTrue(self.pd_gml.isValid(), "Loading address")
         self.au_gml = QgsVectorLayer('test/address.gml|layername=adminUnitname', 'au', 'ogr')
         self.assertTrue(self.au_gml.isValid(), "Loading address")
+        fn = 'test_layer.shp'
+        AddressLayer.create_shp(fn, self.address_gml.crs())
+        self.layer = AddressLayer(fn, 'address', 'ogr')
+        self.assertTrue(self.layer.isValid(), "Init QGIS")
+        self.layer.dataProvider().addAttributes([QgsField('TN_text', QVariant.String, len=254)])
+        self.layer.updateFields()
+
+    def tearDown(self):
+        QgsVectorFileWriter.deleteShapeFile('test_layer.shp')
 
     def test_append(self):
         self.layer.append(self.address_gml)

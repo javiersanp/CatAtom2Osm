@@ -79,6 +79,10 @@ class BaseLayer(QgsVectorLayer):
         self.resolve={}
         self.reference_matchs={}
 
+    @staticmethod
+    def create_shp(name, crs, fields=QgsFields(), geom_type=QGis.WKBMultiPolygon):
+        QgsVectorFileWriter(name, 'UTF-8', fields, geom_type, crs, 'ESRI Shapefile')
+
     def copy_feature(self, feature, rename=None, resolve=None):
         """
         Return a copy of feature renaming attributes or resolving xlink references.
@@ -187,7 +191,7 @@ class BaseLayer(QgsVectorLayer):
             out_feat.setAttributes(feature.attributes())
             to_add.append(out_feat)
             to_clean.append(feature.id())
-        self.deleteFeatures(to_clean)
+        self.writer.deleteFeatures(to_clean)
         self.writer.addFeatures(to_add)
         self.setCrs(target_crs)
         self.updateExtents()
@@ -260,7 +264,7 @@ class BaseLayer(QgsVectorLayer):
                 elif clean:
                     to_clean.append(feat.id())
             self.writer.changeAttributeValues(to_change)
-            self.deleteFeatures(to_clean)
+            self.writer.deleteFeatures(to_clean)
 
     def get_index(self):
         """Returns a QgsSpatialIndex of all features in this layer (overpass 
@@ -350,16 +354,6 @@ class BaseLayer(QgsVectorLayer):
             len(data.relations) - relations, self.name().encode('utf-8'))
         return data
 
-    def deleteFeatures(self, to_clean):
-        """deleteFeatures method apear on QGIS 2.14 version"""
-        self.startEditing()
-        if hasattr(super(BaseLayer, self), 'deleteFeatures'):
-            super(BaseLayer, self).deleteFeatures(to_clean)
-        else:
-            for fid in to_clean:
-                self.deleteFeature(fid)
-        self.commitChanges()
-
     def search(self, expression):
         """Returns a features list for this search expression
         """
@@ -416,7 +410,7 @@ class PolygonLayer(BaseLayer):
                     to_add.append(feat)
                 to_clean.append(feature.id())
         if to_clean:
-            self.deleteFeatures(to_clean)
+            self.writer.deleteFeatures(to_clean)
             self.writer.addFeatures(to_add)
             log.debug(_("%d multi-polygons splited into %d polygons in "
                 "the '%s' layer"), len(to_clean), len(to_add),
@@ -570,7 +564,7 @@ class PolygonLayer(BaseLayer):
             log.debug(_("Merged %d duplicated vertices of polygons in "
                 "the '%s' layer"), dupes, self.name().encode('utf-8'))
         if to_clean:
-            self.deleteFeatures(to_clean)
+            self.writer.deleteFeatures(to_clean)
             log.debug(_("Deleted %d invalid geometries in the '%s' layer"),
                 len(to_clean), self.name().encode('utf-8'))
 
@@ -659,7 +653,7 @@ class PolygonLayer(BaseLayer):
                             debshp.add_point(c, "invalid geometry")
                         break
         if to_clean:
-            self.deleteFeatures(to_clean)
+            self.writer.deleteFeatures(to_clean)
             log.debug(_("Deleted %d invalid geometries in the '%s' layer"),
                 len(to_clean), self.name().encode('utf-8'))
         # Clean non corners
@@ -709,8 +703,8 @@ class PolygonLayer(BaseLayer):
             to_clean += group[1:]
             to_change[group[0]] = geom
         if to_clean:
-            self.deleteFeatures(to_clean)
             self.writer.changeGeometryValues(to_change)
+            self.writer.deleteFeatures(to_clean)
             log.debug(_("%d adjacent polygons merged into %d polygons in the '%s' "
                 "layer"), len(to_clean), len(to_change), self.name().encode('utf-8'))
 
@@ -787,6 +781,10 @@ class AddressLayer(BaseLayer):
         }
         self.source_date = source_date
 
+    @staticmethod
+    def create_shp(name, crs, fields=QgsFields(), geom_type=QGis.WKBPoint):
+        QgsVectorFileWriter(name, 'UTF-8', fields, geom_type, crs, 'ESRI Shapefile')
+
     def to_osm(self, data=None, upload='never'):
         """Export to OSM"""
         return super(AddressLayer, self).to_osm(translate.address_tags, data, upload)
@@ -801,12 +799,12 @@ class AddressLayer(BaseLayer):
         to_clean = [feat.id() for feat in self.getFeatures() \
             if feat['TN_text'] + feat['designator'] in current_address]
         if to_clean:
-            self.deleteFeatures(to_clean)
+            self.writer.deleteFeatures(to_clean)
             log.debug(_("Refused %d addresses existing in OSM") % len(to_clean))
         to_clean = [feat.id() for feat in self.search("designator = '%s'" \
             % setup.no_number)]
         if to_clean:
-            self.deleteFeatures(to_clean)
+            self.writer.deleteFeatures(to_clean)
             log.debug(_("Deleted %d addresses without house number") % len(to_clean))
 
     def del_address(self, building_osm):
@@ -819,7 +817,7 @@ class AddressLayer(BaseLayer):
             if ref not in building_refs:
                 to_clean.append(ad.id())
         if to_clean:
-            self.deleteFeatures(to_clean)
+            self.writer.deleteFeatures(to_clean)
             log.info(_("Deleted %d addresses without associated building"), len(to_clean))
 
     def get_highway_names(self, highway):
@@ -924,7 +922,7 @@ class ConsLayer(PolygonLayer):
         """Remove all parts with 'lev_above' field equal 0 and 'lev_below' > 0"""
         to_clean = [f.id() for f in self.search('lev_above=0 and lev_below>0')]
         if to_clean:
-            self.deleteFeatures(to_clean)
+            self.writer.deleteFeatures(to_clean)
             log.debug(_("Deleted %d building parts with no floors above ground"),
                 len(to_clean))
 
@@ -966,7 +964,7 @@ class ConsLayer(PolygonLayer):
                     if not is_inside(part, bu[0]):
                         to_clean.append(part.id())
         if to_clean:
-            self.deleteFeatures(to_clean)
+            self.writer.deleteFeatures(to_clean)
             log.debug(_("Removed %d building parts outside the footprint"), len(to_clean))
 
     def get_parts(self, footprint, parts):
@@ -1038,8 +1036,8 @@ class ConsLayer(PolygonLayer):
         if to_clean:
             self.writer.changeAttributeValues(to_change)
             self.writer.changeGeometryValues(to_change_g)
-            self.deleteFeatures(to_clean)
-            self.deleteFeatures(to_clean_g)
+            self.writer.deleteFeatures(to_clean)
+            self.writer.deleteFeatures(to_clean_g)
             log.debug(_("Merged %d building parts to the footprint"), len(to_clean))
             log.debug(_("Merged %d adjacent parts"), len(to_clean_g))
 

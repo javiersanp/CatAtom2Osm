@@ -213,7 +213,7 @@ class TestCatAtom2Osm(unittest.TestCase):
             mock.call(self.m_app.urban_zoning, m1, None),
             mock.call(self.m_app.rustic_zoning, poligono, None),
         ])
-        poligono.deleteFeatures.assert_called_once_with([4,5])
+        poligono.writer.deleteFeatures.assert_called_once_with([4,5])
 
     @mock.patch('catatom2osm.os')
     @mock.patch('catatom2osm.layer')

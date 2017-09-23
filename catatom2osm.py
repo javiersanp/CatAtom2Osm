@@ -153,7 +153,7 @@ class CatAtom2Osm:
                 if uprocessed:
                     to_clean = [f.id() for f in poligono.getFeatures() \
                         if f['localId'].split('_')[0] in uprocessed]
-                    poligono.deleteFeatures(to_clean)
+                    poligono.writer.deleteFeatures(to_clean)
                 self.write_task(self.rustic_zoning, poligono, temp_address)
                 del temp_address
                 del uindex
