@@ -397,17 +397,11 @@ class TestZoningLayer(unittest.TestCase):
     def setUp(self):
         self.fixture = QgsVectorLayer('test/zoning.gml', 'zoning', 'ogr')
         self.assertTrue(self.fixture.isValid(), "Loading fixture")
-        fn = 'test_layer.shp'
-        #ZoningLayer.create_shp(fn, self.fixture.crs())
-        self.layer = ZoningLayer(fn, 'zoning', 'ogr')
         self.layer = ZoningLayer()
         self.assertTrue(self.layer.isValid(), "Init QGIS")
         self.layer.append(self.fixture)
         self.assertEquals(self.layer.featureCount(), self.fixture.featureCount())
         self.layer.explode_multi_parts()
-
-    def tearDown(self):
-        QgsVectorFileWriter.deleteShapeFile('test_layer.shp')
 
     def test_get_adjacents_and_features(self):
         (groups, features) = self.layer.get_adjacents_and_features()
@@ -433,6 +427,11 @@ class TestZoningLayer(unittest.TestCase):
             self.assertEquals(f['levelName'][3], 'M')
         for f in layer2.getFeatures():
             self.assertEquals(f['levelName'][3], 'P')
+        exp = QgsExpression("localId = '69297CS5262N'")
+        request = QgsFeatureRequest(exp)
+        f = layer1.getFeatures(request).next()
+        g = f.geometry()
+        self.assertTrue(g.isMultipart())
 
 
 class TestConsLayer(unittest.TestCase):

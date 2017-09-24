@@ -808,6 +808,70 @@ class TimerOsm(BaseTimer):
             if el in self.obj.elements:
                 self.obj.remove(el)
 
+class TimerZoningLayer(BaseTimer):
+
+    def __init__(self):
+        mun = '28900'
+        zoning_fn = BASEPATH + '{0}/A.ES.SDGC.CP.{0}.cadastralzoning.gml'.format(mun)
+        self.zoning_gml = QgsVectorLayer(zoning_fn, 'zoning', 'ogr')
+        layer.ZoningLayer.create_shp('urban_zoning.shp', self.zoning_gml.crs())
+        self.obj = layer.ZoningLayer()
+
+    def _test_append_urban(self):
+        fn = 'urban_zoning.shp'
+        layer.ZoningLayer.create_shp(fn, self.zoning_gml.crs())
+        urban = layer.ZoningLayer(fn, 'zoning', 'ogr')
+        urban.append(self.zoning_gml, 'M')
+        QgsVectorFileWriter.deleteShapeFile(fn)
+
+    def _test_append_rustic(self):
+        fn = 'rustic_zoning.shp'
+        layer.ZoningLayer.create_shp(fn, self.zoning_gml.crs())
+        rustic = layer.ZoningLayer(fn, 'zoning', 'ogr')
+        rustic.append(self.zoning_gml, 'M')
+        QgsVectorFileWriter.deleteShapeFile(fn)
+        
+    def _test_copy(self):
+        fn1 = 'urban_zoning.shp'
+        fn2 = 'rustic_zoning.shp'
+        fields = self.zoning_gml.pendingFields()
+        attrs = [fields.indexFromName('levelName'), fields.indexFromName('label')]
+        QgsVectorFileWriter.writeAsVectorFormat(self.zoning_gml, fn1, 'utf-8', 
+            self.zoning_gml.crs(), 'ESRI Shapefile', attributes=attrs,
+            forceMulti=True, overrideGeometryType=QgsWKBTypes.Polygon)
+        layer1 = layer.ZoningLayer(fn1, 'urban_zoning', 'ogr')
+        layer1.selectByExpression("levelName like '%POLIGONO%'")
+        QgsVectorFileWriter.writeAsVectorFormat(layer1, fn2, 'utf-8', 
+            layer1.crs(), 'ESRI Shapefile', onlySelected=True)
+        layer2 = layer.ZoningLayer(fn2, 'rustic_zoning', 'ogr')
+        layer1.writer.deleteFeatures(layer1.selectedFeaturesIds())
+        QgsVectorFileWriter.deleteShapeFile(fn1)
+        QgsVectorFileWriter.deleteShapeFile(fn2)
+    
+    def _test_mem(self):
+        layer1 = layer.ZoningLayer()
+        layer1.append(self.zoning_gml, 'M')
+        layer2 = layer.ZoningLayer()
+        layer2.append(self.zoning_gml, 'P')
+    
+    def test_multi(self):
+        """Some multisurface features in zoning gml are wrongly converted to polygons"""
+        fn = 'urban_zoning.shp'
+        layer.ZoningLayer.create_shp(fn, self.zoning_gml.crs())
+        urban = layer.ZoningLayer(fn, 'zoning', 'ogr')
+        fixture = QgsVectorLayer('test/zoning.gml', 'zoning', 'ogr')
+        exp = QgsExpression("inspireId_localId = '69297CS5262N'")
+        request = QgsFeatureRequest(exp)
+        f = fixture.getFeatures(request).next()
+        g = f.geometry()
+        print 'multipolygon', [[[len(r)] for r in p] for p in g.asMultiPolygon()]
+        urban.writer.addFeatures([f])
+        f = urban.getFeatures().next()
+        g = f.geometry()
+        print 'to wrong polygon', [len(r) for r in g.asPolygon()]
+        QgsVectorFileWriter.deleteShapeFile(fn)
+
+
 if __name__ == '__main__':
     #TimerBaseLayer().run()
     #TimerPolygonLayer().run()
@@ -826,5 +890,5 @@ if __name__ == '__main__':
     print 'SHP', 1000 * (time.time() - d)
     d = time.time()
     """
-    TimerFixMemUsageAd().run()
-
+    #TimerFixMemUsageAd().run()
+    TimerZoningLayer().run()
