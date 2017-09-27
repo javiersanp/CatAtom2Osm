@@ -652,6 +652,9 @@ class PolygonLayer(BaseLayer):
                         if log.getEffectiveLevel() <= logging.DEBUG:
                             debshp.add_point(c, "invalid geometry")
                         break
+        if to_change:
+            self.writer.changeGeometryValues(to_change)
+        to_change = {}
         if to_clean:
             self.writer.deleteFeatures(to_clean)
             log.debug(_("Deleted %d invalid geometries in the '%s' layer"),
@@ -1035,11 +1038,11 @@ class ConsLayer(PolygonLayer):
                     to_change_g.update(chg)
         if to_clean:
             self.writer.changeAttributeValues(to_change)
+            log.debug(_("Translated %d level values to the footprint"), len(to_change))
             self.writer.changeGeometryValues(to_change_g)
-            self.writer.deleteFeatures(to_clean)
-            self.writer.deleteFeatures(to_clean_g)
-            log.debug(_("Merged %d building parts to the footprint"), len(to_clean))
+            self.writer.deleteFeatures(to_clean + to_clean_g)
             log.debug(_("Merged %d adjacent parts"), len(to_clean_g))
+            log.debug(_("Merged %d building parts to the footprint"), len(to_clean))
 
     def clean(self):
         """

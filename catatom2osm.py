@@ -75,10 +75,10 @@ class CatAtom2Osm:
                 self.process_building()
         if self.options.address:
             self.process_address()
-        if self.options.zoning:
-            self.process_zoning()
-        del self.urban_zoning
-        del self.rustic_zoning
+        #if self.options.zoning:
+        #    self.process_zoning()
+        #del self.urban_zoning
+        #del self.rustic_zoning
         if self.options.building:
             self.write_building()
         if self.options.parcel:
@@ -88,7 +88,7 @@ class CatAtom2Osm:
     def start(self):
         """Initializes data sets"""
         log.info(_("Start processing '%s'"), self.zip_code)
-        self.get_zoning()
+        #self.get_zoning()
         self.is_new = False
         if self.options.address:
             self.read_address()
@@ -227,7 +227,11 @@ class CatAtom2Osm:
 
     def process_building(self):
         """Process all buildings dataset"""
-        building = layer.ConsLayer(source_date = self.building_gml.source_date)
+        bfn = os.path.join(self.path, 'building.shp')
+        layer.ConsLayer.create_shp(bfn, self.building_gml.crs())
+        building = layer.ConsLayer(bfn, providerLib='ogr', 
+            source_date=self.building_gml.source_date)
+        #building = layer.ConsLayer(source_date=self.building_gml.source_date)
         building.append(self.building_gml)
         del self.building_gml
         building.append(self.part_gml)
@@ -235,7 +239,7 @@ class CatAtom2Osm:
         if self.other_gml:
             building.append(self.other_gml)
             del self.other_gml
-        if self.debug: self.export_layer(building, 'building.shp')
+        #if self.debug: self.export_layer(building, 'building.shp')
         building.remove_outside_parts()
         building.explode_multi_parts(getattr(self, 'address', False))
         building.remove_parts_below_ground()
