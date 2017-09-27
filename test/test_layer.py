@@ -711,12 +711,10 @@ class TestConsLayer(unittest.TestCase):
                     building = self.layer.search("localId = '%s'" % refcat).next()
                     self.assertTrue(ad.geometry().touches(building.geometry()))
 
-    def test_check_levels_and_area(self):
+    def test_validate(self):
         self.layer.merge_building_parts()
-        min_level = {}
-        max_level = {}
+        (max_level, min_level) = self.layer.validate()
         refs = ['7239208CS5273N', '38012A00400007']
-        self.layer.check_levels_and_area(min_level, max_level)
         for (l, v) in {1: 126, 2: 114, 3: 67, 4: 16, 5: 1}.items():
             self.assertEquals(Counter(max_level.values())[l], v)
         for (l, v) in {1: 68, 2: 2}.items():

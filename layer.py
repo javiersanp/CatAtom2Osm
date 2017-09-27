@@ -1106,27 +1106,37 @@ class ConsLayer(PolygonLayer):
         log.debug(_("Moved %d addresses to entrance, %d changed to parcel"),
             len(to_move), len(to_change))
 
-    def check_levels_and_area(self, min_level, max_level):
-        """Shows distribution of floors and put fixmes to buildings too small or big"""
+    def validate(self):
+        """Put fixmes to buildings with not valid geometry, too small or big.
+        Returns distribution of floors"""
         to_change = {}
-        field_ndx = self.pendingFields().fieldNameIndex('fixme')
+        min_level = {}
+        max_level = {}
+        fixme_ndx = self.pendingFields().fieldNameIndex('fixme')
         for feat in self.getFeatures():
+            attributes = get_attributes(feat)
+            geom = feat.geometry()
+            errors = geom.validateGeometry()
+            if errors:
+                attributes[fixme_ndx] = '; '.join([e.what() for e in errors])
+                to_change[feat.id()] = attributes
             if ConsLayer.is_building(feat):
                 localid = feat['localId']
                 if isinstance(feat['lev_above'], int) and feat['lev_above'] > 0:
                     max_level[localid] = feat['lev_above']
                 if isinstance(feat['lev_below'], int) and feat['lev_below'] > 0:
                     min_level[localid] = feat['lev_below']
-                area = feat.geometry().area()
-                attributes = get_attributes(feat)
-                if area < setup.warning_min_area:
-                    attributes[field_ndx] = _("Check, area too small")
-                    to_change[feat.id()] = attributes
-                if area > setup.warning_max_area:
-                    attributes[field_ndx] = _("Check, area too big")
-                    to_change[feat.id()] = attributes
+                if feat.id() not in to_change:
+                    area = geom.area()
+                    if area < setup.warning_min_area:
+                        attributes[fixme_ndx] = _("Check, area too small")
+                        to_change[feat.id()] = attributes
+                    if area > setup.warning_max_area:
+                        attributes[fixme_ndx] = _("Check, area too big")
+                        to_change[feat.id()] = attributes
         if to_change:
             self.writer.changeAttributeValues(to_change)
+        return (max_level, min_level)
 
     def conflate(self, current_bu_osm, delete=True):
         """

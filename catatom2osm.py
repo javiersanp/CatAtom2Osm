@@ -62,8 +62,6 @@ class CatAtom2Osm:
         log.debug(_("Initialized QGIS API"))
         self.debug = log.getEffectiveLevel() == logging.DEBUG
         self.fixmes = 0
-        self.min_level = {}
-        self.max_level = {}
 
     def run(self):
         """Launches the app"""
@@ -246,7 +244,7 @@ class CatAtom2Osm:
         building.clean()
         if self.options.address:
             building.move_address(self.address)
-        building.check_levels_and_area(self.min_level, self.max_level)
+        (self.max_level, self.min_level) = building.validate()
         if self.options.tasks:
             self.process_tasks(building)
         building.reproject()
