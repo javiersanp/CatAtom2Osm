@@ -16,6 +16,8 @@ import setup
 import translate
 log = logging.getLogger(setup.app_name + "." + __name__)
 
+CACHE_SIZE = 512
+
 is_inside = lambda f1, f2: \
     f2.geometry().contains(f1.geometry()) or f2.geometry().overlaps(f1.geometry())
 
@@ -163,13 +165,19 @@ class BaseLayer(QgsVectorLayer):
             See also copy_feature().
         """
         self.setCrs(layer.crs())
+        total = 0
         to_add = []
         for feature in layer.getFeatures():
             if not query or query(feature, kwargs):
                 to_add.append(self.copy_feature(feature, rename, resolve))
-        if to_add:
+                total += 1
+            if len(to_add) > CACHE_SIZE:
+                self.writer.addFeatures(to_add)
+                to_add = []
+        if len(to_add) > 0:
             self.writer.addFeatures(to_add)
-            log.debug (_("Loaded %d features in '%s' from '%s'"), len(to_add),
+        if total:
+            log.debug (_("Loaded %d features in '%s' from '%s'"), total,
                 self.name().encode('utf-8'), layer.name().encode('utf-8'))
 
     def reproject(self, target_crs=None):
