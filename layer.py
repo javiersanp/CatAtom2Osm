@@ -436,7 +436,7 @@ class PolygonLayer(BaseLayer):
         parents_per_vertex = defaultdict(list)
         features = {}
         for feature in self.getFeatures():
-            #features[feature.id()] = feature
+            features[feature.id()] = feature
             for point in self.get_vertices_list(feature):
                 parents_per_vertex[point].append(feature.id())
                 assert len(str(parents_per_vertex[point])) < 256
@@ -492,7 +492,6 @@ class PolygonLayer(BaseLayer):
         Two vertices are duplicated if they are nearest than dup_thr.
         """
         vertices = self.get_vertices()
-        return
         vertices_by_fid = {feat.id(): feat for feat in vertices.getFeatures()}
         index = vertices.get_index()
         dup_thr = self.dup_thr if dup_thr is None else dup_thr
@@ -516,9 +515,7 @@ class PolygonLayer(BaseLayer):
         dup_thr = self.dup_thr
         if log.getEffectiveLevel() <= logging.DEBUG:
             debshp = DebugWriter("debug_duplicated.shp", self.crs())
-        duplicates = self.get_duplicates()
-        return
-        (parents_per_vertex, nil) = self.get_parents_per_vertex_and_features()
+        (parents_per_vertex, features) = self.get_parents_per_vertex_and_features()
         dupes = 0
         duplicates = self.get_duplicates()
         duplist = sorted(duplicates.keys(), key=lambda x: -len(duplicates[x]))
@@ -1048,8 +1045,11 @@ class ConsLayer(PolygonLayer):
         to_change_g = {}
         for (refcat, group) in buildings.items():
             if refcat in parts:
-                for building in group:
-                    cn, cng, ch, chg= self.merge_adjacent_parts(building, parts[refcat])
+                for bu_id in group:
+                    building = self.get_feature(bu_id)
+                    request = QgsFeatureRequest().setFilterFids(parts[refcat])
+                    it_parts = [f for f in self.getFeatures(request)]
+                    cn, cng, ch, chg= self.merge_adjacent_parts(building, it_parts)
                     to_clean += cn
                     to_clean_g += cng
                     to_change.update(ch)
@@ -1068,7 +1068,6 @@ class ConsLayer(PolygonLayer):
         and merge building parts.
         """
         self.merge_duplicates()
-        return
         self.clean_duplicated_nodes_in_polygons()
         self.add_topological_points()
         self.merge_building_parts()
@@ -1093,6 +1092,9 @@ class ConsLayer(PolygonLayer):
             building_count = len(buildings[refcat])
             if building_count == 1:
                 building = buildings[refcat][0]
+                building = self.get_feature(buildings[refcat][0])
+                request = QgsFeatureRequest().setFilterFids(parts[refcat])
+                it_parts = [f for f in self.getFeatures(request)]
                 if ad['spec'] == 'Entrance':
                     point = ad.geometry().asPoint()
                     bg = building.geometry()
@@ -1108,14 +1110,14 @@ class ConsLayer(PolygonLayer):
                             dg = QgsGeometry.fromPoint(closest)
                             to_move[ad.id()] = dg
                             bg.insertVertex(closest.x(), closest.y(), vertex)
-                            to_insert[building.id()] = bg
-                            for part in parts[refcat]:
+                            to_insert[building.id()] = QgsGeometry(bg)
+                            for part in it_parts:
                                 pg = part.geometry()
                                 for (i, vpa) in enumerate(pg.asPolygon()[0][0:-1]):
                                     vpb = pg.vertexAt(i+1)
                                     if va in (vpa, vpb) and vb in (vpa, vpb):
                                         pg.insertVertex(closest.x(), closest.y(), i+1)
-                                        to_insert[part.id()] = pg
+                                        to_insert[part.id()] = QgsGeometry(pg)
                     else:
                         attributes[ad.fieldNameIndex('spec')] = 'remote'
                         to_change[ad.id()] = attributes
