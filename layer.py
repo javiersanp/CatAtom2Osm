@@ -85,6 +85,10 @@ class BaseLayer(QgsVectorLayer):
     def create_shp(name, crs, fields=QgsFields(), geom_type=QGis.WKBMultiPolygon):
         QgsVectorFileWriter(name, 'UTF-8', fields, geom_type, crs, 'ESRI Shapefile')
 
+    def get_feature(self, fid):
+        request = QgsFeatureRequest().setFilterFids([fid])
+        return self.getFeatures(request).next()
+
     def copy_feature(self, feature, rename=None, resolve=None):
         """
         Return a copy of feature renaming attributes or resolving xlink references.
@@ -432,9 +436,10 @@ class PolygonLayer(BaseLayer):
         parents_per_vertex = defaultdict(list)
         features = {}
         for feature in self.getFeatures():
-            features[feature.id()] = feature
+            #features[feature.id()] = feature
             for point in self.get_vertices_list(feature):
                 parents_per_vertex[point].append(feature.id())
+                assert len(str(parents_per_vertex[point])) < 256
         return (parents_per_vertex, features)
 
     def get_adjacents_and_features(self):
@@ -487,6 +492,7 @@ class PolygonLayer(BaseLayer):
         Two vertices are duplicated if they are nearest than dup_thr.
         """
         vertices = self.get_vertices()
+        return
         vertices_by_fid = {feat.id(): feat for feat in vertices.getFeatures()}
         index = vertices.get_index()
         dup_thr = self.dup_thr if dup_thr is None else dup_thr
@@ -510,7 +516,9 @@ class PolygonLayer(BaseLayer):
         dup_thr = self.dup_thr
         if log.getEffectiveLevel() <= logging.DEBUG:
             debshp = DebugWriter("debug_duplicated.shp", self.crs())
-        (parents_per_vertex, features) = self.get_parents_per_vertex_and_features()
+        duplicates = self.get_duplicates()
+        return
+        (parents_per_vertex, nil) = self.get_parents_per_vertex_and_features()
         dupes = 0
         duplicates = self.get_duplicates()
         duplist = sorted(duplicates.keys(), key=lambda x: -len(duplicates[x]))
@@ -951,10 +959,10 @@ class ConsLayer(PolygonLayer):
         parts = defaultdict(list)
         for feature in self.getFeatures():
             if self.is_building(feature):
-                buildings[feature['localId']].append(feature)
+                buildings[feature['localId']].append(feature.id())
             elif self.is_part(feature):
                 localId = feature['localId'].split('_')[0]
-                parts[localId].append(feature)
+                parts[localId].append(feature.id())
         return (buildings, parts)
 
     def remove_outside_parts(self):
@@ -967,13 +975,15 @@ class ConsLayer(PolygonLayer):
         (buildings, parts) = self.index_of_building_and_parts()
         for refcat in parts.keys():
             if refcat not in buildings:
-                for part in parts[refcat]:
-                    to_clean.append(part.id())
-        for (refcat, bu) in buildings.items():
+                for part_id in parts[refcat]:
+                    to_clean.append(part_id)
+        for (refcat, bu_id) in buildings.items():
             if refcat in parts:
-                for part in parts[refcat]:
-                    if not is_inside(part, bu[0]):
-                        to_clean.append(part.id())
+                for part_id in parts[refcat]:
+                    part = self.get_feature(part_id)
+                    bu = self.get_feature(bu_id[0])
+                    if not is_inside(part, bu):
+                        to_clean.append(part_id)
         if to_clean:
             self.writer.deleteFeatures(to_clean)
             log.debug(_("Removed %d building parts outside the footprint"), len(to_clean))
@@ -1058,6 +1068,7 @@ class ConsLayer(PolygonLayer):
         and merge building parts.
         """
         self.merge_duplicates()
+        return
         self.clean_duplicated_nodes_in_polygons()
         self.add_topological_points()
         self.merge_building_parts()
