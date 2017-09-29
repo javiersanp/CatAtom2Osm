@@ -85,6 +85,13 @@ class BaseLayer(QgsVectorLayer):
     def create_shp(name, crs, fields=QgsFields(), geom_type=QGis.WKBMultiPolygon):
         QgsVectorFileWriter(name, 'UTF-8', fields, geom_type, crs, 'ESRI Shapefile')
 
+    def delete_shp(self):
+        path = self.writer.dataSourceUri().split('|')[0]
+        QgsVectorFileWriter.deleteShapeFile(path)
+        path = os.path.splitext(path)[0] + '.cpg'
+        if os.path.exists(path):
+            os.remove(path)
+            
     def get_feature(self, fid):
         request = QgsFeatureRequest().setFilterFids([fid])
         return self.getFeatures(request).next()
