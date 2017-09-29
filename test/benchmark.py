@@ -194,7 +194,6 @@ class TimerConsLayer(BaseTimer):
         self.building_shp = QgsVectorLayer('temp.shp', 'building', 'ogr')
         c = self.building_gml.featureCount()
         #self.fids = [int(c*0.5) + i for i in range(50)]
-        self.fids = [random.randrange(c) for i in range(5)]
         """
         self.zone = self.zoning_gml.getFeatures().next()
         self.request = QgsFeatureRequest().setFilterFids(self.fids)
@@ -208,18 +207,29 @@ class TimerConsLayer(BaseTimer):
         print 'Seleccionando {} edificios de {}'.format(len(self.fids), c)
         self.test(self.get_fids_by_loop)
         """
-        print self.building_shp.featureCount()
-        #self.test(self.get_features)
+        self.test(self.get_features)
         #self.test(self.get_index)
         self.test(self.get_index_shp)
-        #self.test(self.get_fids_by_dict_mem)
+        print '5 /', self.building_shp.featureCount()
+        self.fids = [random.randrange(c) for i in range(5)]
+        self.test(self.get_fids_by_dict_mem)
         self.test(self.get_fids_by_filter_shp)
+        self.test(self.get_fids_by_filter_mem)
+        print '50 /', self.building_shp.featureCount()
         self.fids = [random.randrange(c) for i in range(50)]
+        self.test(self.get_fids_by_dict_mem)
         self.test(self.get_fids_by_filter_shp)
+        self.test(self.get_fids_by_filter_mem)
+        print '500 /', self.building_shp.featureCount()
         self.fids = [random.randrange(c) for i in range(500)]
+        self.test(self.get_fids_by_dict_mem)
         self.test(self.get_fids_by_filter_shp)
+        self.test(self.get_fids_by_filter_mem)
+        print '5000 /', self.building_shp.featureCount()
         self.fids = [random.randrange(c) for i in range(5000)]
+        self.test(self.get_fids_by_dict_mem)
         self.test(self.get_fids_by_filter_shp)
+        self.test(self.get_fids_by_filter_mem)
         """
         self.test(self.get_fids_by_loop_mem)
         self.test(self.get_fid_by_fid)
@@ -293,9 +303,8 @@ class TimerConsLayer(BaseTimer):
     
     def get_fids_by_filter_shp(self):
         """
-        Extremely fast, even more than in memory layer. 
+        Very fast. 
         Example select 4 randon features in 08900 (70K buildings)
-        2x get_fids_by_dict_mem
         10x get_fids_by_filter_mem
         4000x get_fids_by_loop2
         9000x get_fids_by_filter
@@ -319,19 +328,13 @@ class TimerConsLayer(BaseTimer):
         [f for f in self.obj.getFeatures() if f.id() in s]
         
     def get_fids_by_dict_mem(self):
-        """
-        Winner if you have enough interactions to amortize the cost of build 
-        the index. Example: selectiong 1K buildings from 32K ten times:
-        get_fids_by_dict_mem = 200 ms + 10 * 5ms = 250 ms
-        get_fids_by_filter_mem = 10 * 25 ms = 250 ms
-        """
-        s = set(self.fids)
-        [f for f in self.features if f in s]
+        """Absolute winner. 70x faster than get_fids_by_filter_shp"""
+        [self.features[i] for i in self.fids]
 
     def get_fids_by_filter_mem(self):
         """
-        Absolute winner for one interaction
-        Don't suffer grown exp10 with the number of elements to select
+        When the number of elements to select is very big, is faster than get_fids_by_filter_shp
+        Don't suffer grown exp10 with the number of elements to select of gmls
         200x faster than get_fids_by_loop
         """
         request = QgsFeatureRequest().setFilterFids(self.fids)
@@ -791,6 +794,87 @@ class TimerShpLayer(ConsTimer):
     def __del__(self):
         QgsVectorFileWriter.deleteShapeFile('building.shp')
 
+class TimerVertices(BaseConsTimer):
+
+    def __init__(self):
+        print 'start', datetime.now()
+        d = time.time()
+        super(TimerVertices, self).__init__()
+        building = layer.ConsLayer()
+        building.append(self.building_gml)
+        print 'building', 1000 * (time.time() - d), building.featureCount()
+        d = time.time()
+        building.append(self.part_gml)
+        print 'parts', 1000 * (time.time() - d), building.featureCount()
+        d = time.time()
+        building.append(self.other_gml)
+        print 'others', 1000 * (time.time() - d), building.featureCount()
+        d = time.time()
+        self.obj_shp = building.get_vertices()
+        print 'vertices_shp', 1000 * (time.time() - d), self.obj_shp.featureCount()
+        d = time.time()
+        self.obj = layer.BaseLayer('Point', 'vertices', 'memory')
+        self.obj.append(self.obj_shp)
+        print 'vertices_mem', 1000 * (time.time() - d), self.obj.featureCount()
+
+    def __del__(self):
+        self.obj_shp.delete_shp()
+
+    def _test_duplicates_mem(self):
+        dup_thr = 0.012
+        duplicates = defaultdict(list)
+        index = self.obj.get_index()
+        vertices_by_fid = {feat.id(): feat for feat in self.obj.getFeatures()}
+        for vertex in self.obj.getFeatures():
+            point = layer.Point(vertex.geometry().asPoint())
+            area_of_candidates = point.boundingBox(dup_thr)
+            fids = index.intersects(area_of_candidates)
+            fids.remove(vertex.id())
+            for fid in fids:
+                dup = vertices_by_fid[fid].geometry().asPoint()
+                dist = point.sqrDist(dup)
+                if dist < dup_thr**2:
+                    duplicates[point].append(dup)
+        print("duplicados %d" % len(duplicates))
+
+    def _test_duplicates_shp1(self):
+        """3x slower than test_duplicates_mem, 3x less memory"""
+        dup_thr = 0.012
+        duplicates = defaultdict(list)
+        index = self.obj_shp.get_index()
+        request = QgsFeatureRequest()
+        for vertex in self.obj_shp.getFeatures():
+            point = layer.Point(vertex.geometry().asPoint())
+            area_of_candidates = point.boundingBox(dup_thr)
+            fids = index.intersects(area_of_candidates)
+            fids.remove(vertex.id())
+            if fids:
+                request.setFilterFids(fids)
+                for v in self.obj_shp.getFeatures(request):
+                    dup = v.geometry().asPoint()
+                    dist = point.sqrDist(dup)
+                    if dist < dup_thr**2:
+                        duplicates[point].append(dup)
+        print("duplicados %d" % len(duplicates))
+
+    def test_duplicates_shp2(self):
+        """1.1x slower than test_duplicates_mem, 2x less memory"""
+        dup_thr = 0.012
+        duplicates = defaultdict(list)
+        index = self.obj_shp.get_index()
+        vertices_by_fid = {feat.id(): feat.geometry().asPoint() for feat in self.obj_shp.getFeatures()}
+        for vertex in self.obj_shp.getFeatures():
+            point = layer.Point(vertex.geometry().asPoint())
+            area_of_candidates = point.boundingBox(dup_thr)
+            fids = index.intersects(area_of_candidates)
+            fids.remove(vertex.id())
+            for fid in fids:
+                dup = vertices_by_fid[fid]
+                dist = point.sqrDist(dup)
+                if dist < dup_thr**2:
+                    duplicates[point].append(dup)
+        print("duplicados %d" % len(duplicates))
+
 class TimerOsm(BaseTimer):
 
     def set_up(self):
@@ -877,8 +961,8 @@ if __name__ == '__main__':
     #TimerPolygonLayer().run()
     #TimerAddressLayer2().run()
     #TimerOsm().run()
-    #TimerConsLayer().run()
     """
+    TimerConsLayer().run()
     d = time.time()
     TimerMemLayer().run()
     print 'MEM', 1000 * (time.time() - d)
@@ -889,6 +973,7 @@ if __name__ == '__main__':
     TimerShpLayer().run()
     print 'SHP', 1000 * (time.time() - d)
     d = time.time()
-    """
-    #TimerFixMemUsageAd().run()
+    TimerFixMemUsageAd().run()
     TimerZoningLayer().run()
+    """
+    TimerVertices().run()
