@@ -62,15 +62,39 @@ class CatAtom2Osm:
         log.debug(_("Initialized QGIS API"))
         self.debug = log.getEffectiveLevel() == logging.DEBUG
         self.fixmes = 0
+        self.is_new = False
 
     def run(self):
         """Launches the app"""
-        self.start()
-        if not self.is_new:
+        log.info(_("Start processing '%s'"), self.zip_code)
+        self.get_zoning()
+        if self.options.address:
+            self.read_address()
+            highway = self.get_highway()
+            (highway_names, self.is_new) = self.get_translations(self.address, highway)
+            self.address.translate_field('TN_text', highway_names)
+            if self.is_new:
+                self.options.taskslm = False
+                self.options.tasks = False
+                self.options.building = False
+            elif not self.options.manual:
+                current_address = self.get_current_ad_osm()
+                self.address.conflate(current_address)
+            self.address_osm = osm.Osm()
+        if self.options.building or self.options.tasks or self.options.taskslm:
+            self.get_building()
+            #self.building_gml = self.cat.read("building")
+            #self.part_gml = self.cat.read("buildingpart")
+            #self.other_gml = self.cat.read("otherconstruction", True)
+            self.building_osm = osm.Osm()
+            if not self.options.manual:
+                self.current_bu_osm = self.get_current_bu_osm()
             if self.options.taskslm:
-                self.process_tasks(self.building_gml)
-            elif self.options.building or self.options.tasks:
+                self.process_tasks(self.building)
+            else:
                 self.process_building()
+        log.info(_("Finished!"))
+        return
         if self.options.address:
             self.process_address()
         #if self.options.zoning:
@@ -83,31 +107,23 @@ class CatAtom2Osm:
             self.process_parcel()
         self.end_messages()
 
-    def start(self):
-        """Initializes data sets"""
-        log.info(_("Start processing '%s'"), self.zip_code)
-        #self.get_zoning()
-        self.is_new = False
-        if self.options.address:
-            self.read_address()
-            highway = self.get_highway()
-            (highway_names, self.is_new) = self.get_translations(self.address, highway)
-            self.address.translate_field('TN_text', highway_names)
-            if self.is_new:
-                self.options.tasks = False
-                self.options.building = False
-                return
-            if not self.options.manual:
-                current_address = self.get_current_ad_osm()
-                self.address.conflate(current_address)
-            self.address_osm = osm.Osm()
-        if self.options.building or self.options.tasks or self.options.taskslm:
-            self.building_gml = self.cat.read("building")
-            self.part_gml = self.cat.read("buildingpart")
-            self.other_gml = self.cat.read("otherconstruction", True)
-            if not self.options.manual:
-                self.current_bu_osm = self.get_current_bu_osm()
-            self.building_osm = osm.Osm()
+    def get_building(self):
+        """Merge building, parts and pools"""
+        building_gml = self.cat.read("building")
+        fn = os.path.join(self.path, 'building.shp')
+        layer.ConsLayer.create_shp(fn, building_gml.crs())
+        self.building = layer.ConsLayer(fn, providerLib='ogr', 
+            source_date=building_gml.source_date)
+        #self.building = layer.ConsLayer(source_date=self.building_gml.source_date)
+        self.building.append(building_gml)
+        del building_gml
+        part_gml = self.cat.read("buildingpart")
+        self.building.append(part_gml)
+        del part_gml
+        other_gml = self.cat.read("otherconstruction", True)
+        if other_gml:
+            self.building.append(other_gml)
+        del other_gml
 
     def process_tasks(self, source):
         base_path = os.path.join(self.path, 'tasks')
@@ -134,20 +150,21 @@ class CatAtom2Osm:
                 for uzone in self.urban_zoning.getFeatures():
                     if uzone.id not in zone_processed:
                         if layer.is_inside(uzone, rzone):
-                            manzana, refs = self.process_zone(uzone, uindex, 
-                                uprocessed, poligono)
+                            manzana, refs = self.process_zone(uzone, uindex, uprocessed, poligono)
                             if refs:
                                 zone_processed.add(uzone.id())
                                 uprocessed = uprocessed.union(refs)
-                                manzana.reproject()
-                                self.write_task(self.urban_zoning, manzana, temp_address)
+                                #manzana.reproject()
+                                #self.write_task(self.urban_zoning, manzana, temp_address)
                             del manzana
+                """
                 poligono.reproject()
                 if source.providerType() == 'ogr':
                     if not self.options.manual:
                         poligono.conflate(self.current_bu_osm, delete=False)
                     if self.options.building:
                         self.building_osm = poligono.to_osm(data=self.building_osm)
+                """
                 if uprocessed:
                     to_clean = [f.id() for f in poligono.getFeatures() \
                         if f['localId'].split('_')[0] in uprocessed]
@@ -156,6 +173,7 @@ class CatAtom2Osm:
                 del temp_address
                 del uindex
             del poligono
+        return
         if source.providerType() == 'ogr':
             if not self.options.manual:
                 to_clean = []
@@ -185,14 +203,14 @@ class CatAtom2Osm:
         refs = set()
         task = layer.ConsLayer(baseName=zone['label'],
             source_date = source.source_date)
-        if source.providerType() == 'memory':
-            task.rename = {}
+        #if source.providerType() == 'memory':
+        task.rename = {}
         task.append_zone(source, zone, processed, index)
         if task.featureCount() > 0:
             for feat in task.getFeatures():
                 refs.add(feat['localId'])
-            if source.providerType() == 'memory':
-                task.append_task(source, refs)
+            task.append_task(source, refs)
+        """
             else:
                 task.append_task(self.part_gml, refs)
                 if self.other_gml:
@@ -202,6 +220,7 @@ class CatAtom2Osm:
                 task.remove_parts_below_ground()
                 task.clean()
                 task.check_levels_and_area(self.min_level, self.max_level)
+        """
         return task, refs
 
     def process_address(self):
@@ -225,33 +244,22 @@ class CatAtom2Osm:
 
     def process_building(self):
         """Process all buildings dataset"""
-        bfn = os.path.join(self.path, 'building.shp')
-        layer.ConsLayer.create_shp(bfn, self.building_gml.crs())
-        building = layer.ConsLayer(bfn, providerLib='ogr', 
-            source_date=self.building_gml.source_date)
-        #building = layer.ConsLayer(source_date=self.building_gml.source_date)
-        building.append(self.building_gml)
-        del self.building_gml
-        building.append(self.part_gml)
-        del self.part_gml
-        if self.other_gml:
-            building.append(self.other_gml)
-            del self.other_gml
         #if self.debug: self.export_layer(building, 'building.shp')
-        building.remove_outside_parts()
-        building.explode_multi_parts(getattr(self, 'address', False))
-        building.remove_parts_below_ground()
-        building.clean()
+        self.building.remove_outside_parts()
+        self.building.explode_multi_parts(getattr(self, 'address', False))
+        self.building.remove_parts_below_ground()
+        self.building.clean()
+        return
         if self.options.address:
-            building.move_address(self.address)
-        (self.max_level, self.min_level) = building.validate()
+            self.building.move_address(self.address)
+        (self.max_level, self.min_level) = self.building.validate()
         if self.options.tasks:
-            self.process_tasks(building)
-        building.reproject()
-        if not self.options.manual and building.conflate(self.current_bu_osm):
+            self.process_tasks(self.building)
+        self.building.reproject()
+        if not self.options.manual and self.building.conflate(self.current_bu_osm):
             self.write_osm(self.current_bu_osm, 'current_building.osm')
             del self.current_bu_osm
-        self.building_osm = building.to_osm()
+        self.building_osm = self.building.to_osm()
 
     def write_building(self):
         self.write_osm(self.building_osm, 'building.osm')
@@ -375,6 +383,8 @@ class CatAtom2Osm:
         self.urban_zoning.task_number = 1
         self.rustic_zoning.task_filename = 'r%03d.osm'
         self.urban_zoning.task_filename = 'u%05d.osm'
+        self.rustic_zoning.task_pattern = 'r%03d'
+        self.urban_zoning.task_pattern = 'u%05d'
 
     def read_address(self):
         """Reads Address GML dataset"""
