@@ -757,7 +757,7 @@ class ParcelLayer(BaseLayer):
 class ZoningLayer(PolygonLayer):
     """Class for cadastral zoning"""
 
-    def __init__(self, path="Polygon", baseName="cadastralzoning",
+    def __init__(self, pattern='{}', path="Polygon", baseName="cadastralzoning",
             providerLib="memory", source_date=None):
         super(ZoningLayer, self).__init__(path, baseName, providerLib)
         if self.pendingFields().isEmpty():
@@ -770,6 +770,12 @@ class ZoningLayer(PolygonLayer):
             self.updateFields()
         self.rename = {'localId': 'inspireId_localId'}
         self.source_date = source_date
+        self.task_number = 0
+        self.task_pattern = pattern
+
+    def get_task(self):
+        self.task_number += 1
+        return self.task_pattern.format(self.task_number)        
 
     def append(self, layer, level=None):
         """Append features of layer with levelName 'M' for rustic or 'P' for urban"""
@@ -882,6 +888,7 @@ class ConsLayer(PolygonLayer):
                 QgsField('lev_above', QVariant.Int),
                 QgsField('lev_below', QVariant.Int),
                 QgsField('nature', QVariant.String, len=254),
+                QgsField('task', QVariant.String, len=254),
                 QgsField('fixme', QVariant.String, len=254)
             ])
             self.updateFields()
@@ -929,17 +936,37 @@ class ConsLayer(PolygonLayer):
 
     def append_zone(self, layer, zone, processed, index):
         """Append features of layer inside zone excluding processed localId's'"""
-        query = lambda f, kwargs: f.id() in fids and \
-            f['localId'] not in kwargs['excluding'] and is_inside(f, kwargs['zone'])
+        self.setCrs(layer.crs())
         fids = index.intersects(zone.geometry().boundingBox())
-        super(ConsLayer, self).append(layer, query=query, zone=zone, fids=fids, 
-            excluding=processed)
-
-    def append_task(self, layer, task):
-        """Append features of layer including task localId's'"""
-        query = lambda f, kwargs: '_' in f['localId'] and \
-            f['localId'].split('_')[0] in kwargs['including']
-        super(ConsLayer, self).append(layer, query=query, including=task)
+        request = QgsFeatureRequest().setFilterFids(fids)
+        to_add = []
+        features = []
+        refs = set()
+        total = 0
+        for feat in layer.getFeatures(request):
+            if not feat['localId'] in processed:
+                if not '_' in feat['localId'] and is_inside(feat, zone):
+                    to_add.append(self.copy_feature(feat))
+                    refs.add(feat['localId'])
+                    total += 1
+                else:
+                    features.append(feat)
+            if len(to_add) > CACHE_SIZE:
+                self.writer.addFeatures(to_add)
+                to_add = []
+        for feat in features:
+            if '_' in feat['localId'] and feat['localId'].split('_')[0] in refs:
+                to_add.append(self.copy_feature(feat))
+                total += 1
+            if len(to_add) > CACHE_SIZE:
+                self.writer.addFeatures(to_add)
+                to_add = []
+        if len(to_add) > 0:
+            self.writer.addFeatures(to_add)
+        if total > 0:
+            log.debug (_("Loaded %d features in '%s' from '%s'"), total,
+                self.name().encode('utf-8'), layer.name().encode('utf-8'))
+        return refs
 
     def remove_parts_below_ground(self):
         """Remove all parts with 'lev_above' field equal 0 and 'lev_below' > 0"""

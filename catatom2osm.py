@@ -148,7 +148,7 @@ class CatAtom2Osm:
                 uprocessed = set()
                 uindex = QgsSpatialIndex(poligono.getFeatures())
                 for uzone in self.urban_zoning.getFeatures():
-                    if uzone.id not in zone_processed:
+                    if uzone.id() not in zone_processed:
                         if layer.is_inside(uzone, rzone):
                             manzana, refs = self.process_zone(uzone, uindex, uprocessed, poligono)
                             if refs:
@@ -169,7 +169,7 @@ class CatAtom2Osm:
                     to_clean = [f.id() for f in poligono.getFeatures() \
                         if f['localId'].split('_')[0] in uprocessed]
                     poligono.writer.deleteFeatures(to_clean)
-                self.write_task(self.rustic_zoning, poligono, temp_address)
+                #self.write_task(self.rustic_zoning, poligono, temp_address)
                 del temp_address
                 del uindex
             del poligono
@@ -200,26 +200,23 @@ class CatAtom2Osm:
         del rindex
 
     def process_zone(self, zone, index, processed, source):
-        refs = set()
         task = layer.ConsLayer(baseName=zone['label'],
             source_date = source.source_date)
         #if source.providerType() == 'memory':
         task.rename = {}
-        task.append_zone(source, zone, processed, index)
-        if task.featureCount() > 0:
-            for feat in task.getFeatures():
-                refs.add(feat['localId'])
-            task.append_task(source, refs)
+        refs = task.append_zone(source, zone, processed, index)
         """
-            else:
-                task.append_task(self.part_gml, refs)
-                if self.other_gml:
-                    task.append_task(self.other_gml, refs)
-                task.remove_outside_parts()
-                task.explode_multi_parts(getattr(self, 'address', False))
-                task.remove_parts_below_ground()
-                task.clean()
-                task.check_levels_and_area(self.min_level, self.max_level)
+        if task.featureCount() > 0:
+            task.append_task(source, refs)
+        else:
+            task.append_task(self.part_gml, refs)
+            if self.other_gml:
+                task.append_task(self.other_gml, refs)
+            task.remove_outside_parts()
+            task.explode_multi_parts(getattr(self, 'address', False))
+            task.remove_parts_below_ground()
+            task.clean()
+            task.check_levels_and_area(self.min_level, self.max_level)
         """
         return task, refs
 
@@ -369,8 +366,8 @@ class CatAtom2Osm:
         (rustic)
         """
         zoning_gml = self.cat.read("cadastralzoning")
-        self.urban_zoning = layer.ZoningLayer(baseName='urbanzoning')
-        self.rustic_zoning = layer.ZoningLayer(baseName='rusticzoning')
+        self.urban_zoning = layer.ZoningLayer('u{:05}', baseName='urbanzoning')
+        self.rustic_zoning = layer.ZoningLayer('r{:03}', baseName='rusticzoning')
         self.urban_zoning.append(zoning_gml, level='M')
         self.rustic_zoning.append(zoning_gml, level='P')
         self.cat.get_boundary(self.rustic_zoning)
@@ -379,12 +376,8 @@ class CatAtom2Osm:
         self.rustic_zoning.explode_multi_parts()
         self.urban_zoning.add_topological_points()
         self.urban_zoning.merge_adjacents()
-        self.rustic_zoning.task_number = 1
-        self.urban_zoning.task_number = 1
         self.rustic_zoning.task_filename = 'r%03d.osm'
         self.urban_zoning.task_filename = 'u%05d.osm'
-        self.rustic_zoning.task_pattern = 'r%03d'
-        self.urban_zoning.task_pattern = 'u%05d'
 
     def read_address(self):
         """Reads Address GML dataset"""

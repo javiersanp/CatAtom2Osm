@@ -532,33 +532,24 @@ class TestConsLayer(unittest.TestCase):
     def test_append_zone(self):
         layer = ConsLayer()
         self.assertTrue(layer.isValid(), "Init QGIS")
-        fixture = QgsVectorLayer('test/building.gml', 'building', 'ogr')
+        fixture = QgsVectorLayer('test/cons.shp', 'building', 'ogr')
         self.assertTrue(fixture.isValid())
         index = QgsSpatialIndex(fixture.getFeatures())
-        poly = [(357485.75, 3124157.86), (357483.21, 3124119.41), (357512.30,
-            3124116.16), (357514.54, 3124154.81), (357485.75, 3124157.86)]
+        poly = [(358627.4, 3124199.8), (358641.8, 3124190.4), (358652.2,
+            3124207.7), (358635.2, 3124217.1), (358627.4, 3124199.8)]
         geom = QgsGeometry().fromPolygon([[QgsPoint(p[0], p[1]) for p in poly]])
         zone = QgsFeature(self.layer.pendingFields())
         zone.setGeometry(geom)
         layer.append_zone(fixture, zone, [], index)
-        self.assertEquals(layer.featureCount(), 4)
-        processed = ['7541401CS5274S', '7541412CS5274S', '7541413CS5274S',
-            '7541415CS5274S']
+        self.assertEquals(layer.featureCount(), 13)
+        processed = ['8641601CS5284S', '8641602CS5284S', '8641603CS5284S',
+            '8641655CS5284S', '8641656CS5284S', '8641657CS5284S', 
+            '8641658CS5284S', '8742701CS5284S']
         for f in layer.getFeatures():
-            self.assertIn(f['localId'], processed)
+            self.assertIn(f['localId'].split('_')[0], processed)
         layer = ConsLayer()
         layer.append_zone(fixture, zone, processed, index)
         self.assertEquals(layer.featureCount(), 0)
-
-    def test_append_task(self):
-        layer = ConsLayer()
-        self.assertTrue(layer.isValid(), "Init QGIS")
-        fixture = QgsVectorLayer('test/buildingpart.gml', 'part', 'ogr')
-        self.assertTrue(fixture.isValid())
-        processed = ['7541401CS5274S', '7541412CS5274S', '7541413CS5274S',
-            '7541415CS5274S']
-        layer.append_task(fixture, processed)
-        self.assertEquals(layer.featureCount(), 5)
 
     def test_remove_parts_below_ground(self):
         to_clean = [f.id() for f in self.layer.search('lev_above=0 and lev_below>0')]
