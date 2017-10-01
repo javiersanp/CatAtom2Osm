@@ -148,7 +148,7 @@ class CatAtom2Osm:
                 uprocessed = set()
                 uindex = QgsSpatialIndex(poligono.getFeatures())
                 for uzone in self.urban_zoning.getFeatures():
-                    if uzone.id not in zone_processed:
+                    if uzone.id() not in zone_processed:
                         if layer.is_inside(uzone, rzone):
                             manzana, refs = self.process_zone(uzone, uindex, uprocessed, poligono)
                             if refs:
@@ -169,58 +169,43 @@ class CatAtom2Osm:
                     to_clean = [f.id() for f in poligono.getFeatures() \
                         if f['localId'].split('_')[0] in uprocessed]
                     poligono.writer.deleteFeatures(to_clean)
-                self.write_task(self.rustic_zoning, poligono, temp_address)
+                #self.write_task(self.rustic_zoning, poligono, temp_address)
                 del temp_address
                 del uindex
             del poligono
         return
-        if source.providerType() == 'ogr':
-            if not self.options.manual:
-                to_clean = []
-                num_buildings = 0
-                conflicts = 0
-                for el in self.current_bu_osm.elements:
-                    if 'building' in el.tags:
-                        num_buildings += 1
-                        if 'conflict' not in el.tags:
-                            to_clean.append(el)
-                        else:
-                            conflicts += 1
-                            del el.tags['conflict']
-                for el in to_clean:
-                    self.current_bu_osm.remove(el)
-                if to_clean:
-                    self.write_osm(self.current_bu_osm, 'current_building.osm')
-                log.debug(_("Detected %d conflicts in %d buildings from OSM"), 
-                    conflicts, num_buildings)
-                del self.current_bu_osm
-            del self.building_gml
-            del self.part_gml
-            del self.other_gml
+        if self.options.taskslm and not self.options.manual:
+            to_clean = []
+            num_buildings = 0
+            conflicts = 0
+            for el in self.current_bu_osm.elements:
+                if 'building' in el.tags:
+                    num_buildings += 1
+                    if 'conflict' not in el.tags:
+                        to_clean.append(el)
+                    else:
+                        conflicts += 1
+                        del el.tags['conflict']
+            for el in to_clean:
+                self.current_bu_osm.remove(el)
+            if to_clean:
+                self.write_osm(self.current_bu_osm, 'current_building.osm')
+            log.debug(_("Detected %d conflicts in %d buildings from OSM"), 
+                conflicts, num_buildings)
+            del self.current_bu_osm
         del rindex
 
     def process_zone(self, zone, index, processed, source):
-        refs = set()
         task = layer.ConsLayer(baseName=zone['label'],
             source_date = source.source_date)
-        #if source.providerType() == 'memory':
         task.rename = {}
-        task.append_zone(source, zone, processed, index)
-        if task.featureCount() > 0:
-            for feat in task.getFeatures():
-                refs.add(feat['localId'])
-            task.append_task(source, refs)
-        """
-            else:
-                task.append_task(self.part_gml, refs)
-                if self.other_gml:
-                    task.append_task(self.other_gml, refs)
-                task.remove_outside_parts()
-                task.explode_multi_parts(getattr(self, 'address', False))
-                task.remove_parts_below_ground()
-                task.clean()
-                task.check_levels_and_area(self.min_level, self.max_level)
-        """
+        refs = task.append_zone(source, zone, processed, index)
+        if task.featureCount() > 0 and self.options.taskslm:
+            task.remove_outside_parts()
+            task.explode_multi_parts(getattr(self, 'address', False))
+            task.remove_parts_below_ground()
+            task.clean()
+            #task.validate(self.min_level, self.max_level)
         return task, refs
 
     def process_address(self):
@@ -249,12 +234,12 @@ class CatAtom2Osm:
         self.building.explode_multi_parts(getattr(self, 'address', False))
         self.building.remove_parts_below_ground()
         self.building.clean()
-        return
         if self.options.address:
             self.building.move_address(self.address)
-        (self.max_level, self.min_level) = self.building.validate()
+        #self.building.validate(self.max_level, self.min_level)
         if self.options.tasks:
             self.process_tasks(self.building)
+        return
         self.building.reproject()
         if not self.options.manual and self.building.conflate(self.current_bu_osm):
             self.write_osm(self.current_bu_osm, 'current_building.osm')
@@ -369,8 +354,8 @@ class CatAtom2Osm:
         (rustic)
         """
         zoning_gml = self.cat.read("cadastralzoning")
-        self.urban_zoning = layer.ZoningLayer(baseName='urbanzoning')
-        self.rustic_zoning = layer.ZoningLayer(baseName='rusticzoning')
+        self.urban_zoning = layer.ZoningLayer('u{:05}', baseName='urbanzoning')
+        self.rustic_zoning = layer.ZoningLayer('r{:03}', baseName='rusticzoning')
         self.urban_zoning.append(zoning_gml, level='M')
         self.rustic_zoning.append(zoning_gml, level='P')
         self.cat.get_boundary(self.rustic_zoning)
@@ -379,12 +364,8 @@ class CatAtom2Osm:
         self.rustic_zoning.explode_multi_parts()
         self.urban_zoning.add_topological_points()
         self.urban_zoning.merge_adjacents()
-        self.rustic_zoning.task_number = 1
-        self.urban_zoning.task_number = 1
         self.rustic_zoning.task_filename = 'r%03d.osm'
         self.urban_zoning.task_filename = 'u%05d.osm'
-        self.rustic_zoning.task_pattern = 'r%03d'
-        self.urban_zoning.task_pattern = 'u%05d'
 
     def read_address(self):
         """Reads Address GML dataset"""

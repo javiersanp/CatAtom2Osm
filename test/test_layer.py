@@ -532,33 +532,24 @@ class TestConsLayer(unittest.TestCase):
     def test_append_zone(self):
         layer = ConsLayer()
         self.assertTrue(layer.isValid(), "Init QGIS")
-        fixture = QgsVectorLayer('test/building.gml', 'building', 'ogr')
+        fixture = QgsVectorLayer('test/cons.shp', 'building', 'ogr')
         self.assertTrue(fixture.isValid())
         index = QgsSpatialIndex(fixture.getFeatures())
-        poly = [(357485.75, 3124157.86), (357483.21, 3124119.41), (357512.30,
-            3124116.16), (357514.54, 3124154.81), (357485.75, 3124157.86)]
+        poly = [(358627.4, 3124199.8), (358641.8, 3124190.4), (358652.2,
+            3124207.7), (358635.2, 3124217.1), (358627.4, 3124199.8)]
         geom = QgsGeometry().fromPolygon([[QgsPoint(p[0], p[1]) for p in poly]])
         zone = QgsFeature(self.layer.pendingFields())
         zone.setGeometry(geom)
         layer.append_zone(fixture, zone, [], index)
-        self.assertEquals(layer.featureCount(), 4)
-        processed = ['7541401CS5274S', '7541412CS5274S', '7541413CS5274S',
-            '7541415CS5274S']
+        self.assertEquals(layer.featureCount(), 13)
+        processed = ['8641601CS5284S', '8641602CS5284S', '8641603CS5284S',
+            '8641655CS5284S', '8641656CS5284S', '8641657CS5284S', 
+            '8641658CS5284S', '8742701CS5284S']
         for f in layer.getFeatures():
-            self.assertIn(f['localId'], processed)
+            self.assertIn(f['localId'].split('_')[0], processed)
         layer = ConsLayer()
         layer.append_zone(fixture, zone, processed, index)
         self.assertEquals(layer.featureCount(), 0)
-
-    def test_append_task(self):
-        layer = ConsLayer()
-        self.assertTrue(layer.isValid(), "Init QGIS")
-        fixture = QgsVectorLayer('test/buildingpart.gml', 'part', 'ogr')
-        self.assertTrue(fixture.isValid())
-        processed = ['7541401CS5274S', '7541412CS5274S', '7541413CS5274S',
-            '7541415CS5274S']
-        layer.append_task(fixture, processed)
-        self.assertEquals(layer.featureCount(), 5)
 
     def test_remove_parts_below_ground(self):
         to_clean = [f.id() for f in self.layer.search('lev_above=0 and lev_below>0')]
@@ -569,14 +560,20 @@ class TestConsLayer(unittest.TestCase):
 
     def test_index_of_building_and_parts(self):
         (buildings, parts) = self.layer.index_of_building_and_parts()
-        b = [f for f in self.layer.getFeatures() if self.layer.is_building(f)]
-        p = [f for f in self.layer.getFeatures() if self.layer.is_part(f)]
+        b = {f.id(): f for f in self.layer.getFeatures() if self.layer.is_building(f)}
+        p = {f.id(): f for f in self.layer.getFeatures() if self.layer.is_part(f)}
         self.assertEqual(sum(len(g) for g in buildings.values()), len(b))
         self.assertEqual(sum(len(g) for g in parts.values()), len(p))
-        self.assertTrue(all([localid==bu['localid']
-            for (localid, group) in buildings.items() for bu in group]))
-        self.assertTrue(all([localid==pa['localid'][0:14]
-            for (localid, group) in parts.items() for pa in group]))
+        for (localid, group) in buildings.items():
+            for fid in group:
+                bu = self.layer.get_feature(fid)
+                self.assertTrue(localid, bu['localid'])
+                self.assertNotIn('_', localid)
+        for (localid, group) in parts.items():
+            for fid in group:
+                pa = self.layer.get_feature(fid)
+                self.assertTrue(localid, pa['localid'].split('_')[0])
+                self.assertIn('_', pa['localid'])
 
     def test_remove_outside_parts(self):
         refs = [

@@ -183,12 +183,10 @@ class TimerConsLayer(BaseTimer):
         building_fn = BASEPATH + '{0}/A.ES.SDGC.BU.{0}.building.gml'.format(mun)
         buildingpart_fn = BASEPATH + '{0}/A.ES.SDGC.BU.{0}.buildingpart.gml'.format(mun)
         other_fn = BASEPATH + '{0}/A.ES.SDGC.BU.{0}.otherconstruction.gml'.format(mun)
-        zoning_fn = BASEPATH + '{0}/A.ES.SDGC.CP.{0}.cadastralzoning.gml'.format(mun)
         self.building_gml = QgsVectorLayer(building_fn, 'building', 'ogr')
         self.obj.append(self.building_gml)
         self.part_gml = QgsVectorLayer(buildingpart_fn, 'buildingpart', 'ogr')
         self.other_gml = QgsVectorLayer(other_fn, 'otherconstruction', 'ogr')
-        self.zoning_gml = QgsVectorLayer(zoning_fn, 'zoning', 'ogr')
         QgsVectorFileWriter.writeAsVectorFormat(self.building_gml, 'temp.shp', "utf-8",
                 self.building_gml.crs(), 'ESRI Shapefile')
         self.building_shp = QgsVectorLayer('temp.shp', 'building', 'ogr')
@@ -455,21 +453,13 @@ class TimerConsLayer(BaseTimer):
 class BaseConsTimer(BaseTimer):
 
     def __init__(self):
-        mun = '38900'
-        building_fn = BASEPATH + '{0}/A.ES.SDGC.BU.{0}.building.gml'.format(mun)
-        buildingpart_fn = BASEPATH + '{0}/A.ES.SDGC.BU.{0}.buildingpart.gml'.format(mun)
-        other_fn = BASEPATH + '{0}/A.ES.SDGC.BU.{0}.otherconstruction.gml'.format(mun)
-        zoning_fn = BASEPATH + '{0}/A.ES.SDGC.CP.{0}.cadastralzoning.gml'.format(mun)
+        self.mun = '38001'
+        building_fn = BASEPATH + '{0}/A.ES.SDGC.BU.{0}.building.gml'.format(self.mun)
+        buildingpart_fn = BASEPATH + '{0}/A.ES.SDGC.BU.{0}.buildingpart.gml'.format(self.mun)
+        other_fn = BASEPATH + '{0}/A.ES.SDGC.BU.{0}.otherconstruction.gml'.format(self.mun)
         self.building_gml = QgsVectorLayer(building_fn, 'building', 'ogr')
         self.part_gml = QgsVectorLayer(buildingpart_fn, 'buildingpart', 'ogr')
         self.other_gml = QgsVectorLayer(other_fn, 'otherconstruction', 'ogr')
-        """
-        zoning_gml = QgsVectorLayer(zoning_fn, 'zoning', 'ogr')
-        self.urban_zoning = layer.ZoningLayer(baseName='urbanzoning')
-        self.rustic_zoning = layer.ZoningLayer(baseName='rusticzoning')
-        self.urban_zoning.append(zoning_gml, level='M')
-        self.rustic_zoning.append(zoning_gml, level='P')
-        """
         print self.building_gml.featureCount(), self.part_gml.featureCount(), \
             self.other_gml.featureCount()
 
@@ -794,23 +784,33 @@ class TimerShpLayer(ConsTimer):
     def __del__(self):
         QgsVectorFileWriter.deleteShapeFile('building.shp')
 
-class TimerVertices(BaseConsTimer):
+class BaseBuildingTimer(BaseConsTimer):
 
     def __init__(self):
         print 'start', datetime.now()
         d = time.time()
+        super(BaseBuildingTimer, self).__init__()
+        self.create_shp('building.shp')
+        self.obj = layer.ConsLayer('building.shp', 'building', 'ogr')
+        #self.obj = layer.ConsLayer()
+        self.obj.append(self.building_gml)
+        print 'building', 1000 * (time.time() - d), self.obj.featureCount()
+        d = time.time()
+        self.obj.append(self.part_gml)
+        print 'parts', 1000 * (time.time() - d), self.obj.featureCount()
+        d = time.time()
+        self.obj.append(self.other_gml)
+        print 'others', 1000 * (time.time() - d), self.obj.featureCount()
+
+    def __del__(self):
+        QgsVectorFileWriter.deleteShapeFile('building.shp')
+
+class TimerVertices(BaseBuildingTimer):
+
+    def __init__(self):
         super(TimerVertices, self).__init__()
-        building = layer.ConsLayer()
-        building.append(self.building_gml)
-        print 'building', 1000 * (time.time() - d), building.featureCount()
         d = time.time()
-        building.append(self.part_gml)
-        print 'parts', 1000 * (time.time() - d), building.featureCount()
-        d = time.time()
-        building.append(self.other_gml)
-        print 'others', 1000 * (time.time() - d), building.featureCount()
-        d = time.time()
-        self.obj_shp = building.get_vertices()
+        self.obj_shp = self.obj.get_vertices()
         print 'vertices_shp', 1000 * (time.time() - d), self.obj_shp.featureCount()
         d = time.time()
         self.obj = layer.BaseLayer('Point', 'vertices', 'memory')
@@ -874,6 +874,117 @@ class TimerVertices(BaseConsTimer):
                 if dist < dup_thr**2:
                     duplicates[point].append(dup)
         print("duplicados %d" % len(duplicates))
+
+class AppendZoneTimer(BaseBuildingTimer):
+
+    def __init__(self):
+        super(AppendZoneTimer, self).__init__()
+        d = time.time()
+        self.index = QgsSpatialIndex(self.obj.getFeatures())
+        print 'index', 1000 * (time.time() - d)
+        d = time.time()
+        zoning_fn = BASEPATH + '{0}/A.ES.SDGC.CP.{0}.cadastralzoning.gml'.format(self.mun)
+        zoning_gml = QgsVectorLayer(zoning_fn, 'zoning', 'ogr')
+        self.urban_zoning = layer.ZoningLayer(baseName='urbanzoning')
+        self.rustic_zoning = layer.ZoningLayer(baseName='rusticzoning')
+        self.urban_zoning.append(zoning_gml, level='M')
+        print 'urban_zoning', 1000 * (time.time() - d), self.urban_zoning.featureCount()
+        d = time.time()
+        self.rustic_zoning.append(zoning_gml, level='P')
+        print 'rustic_zoning', 1000 * (time.time() - d), self.rustic_zoning.featureCount()
+
+    def append_zone(self, dest, source, zone, processed, index):
+        query = lambda f, kwargs: not '_' in f['localId'] and f.id() in fids and \
+            f['localId'] not in kwargs['excluding'] and layer.is_inside(f, kwargs['zone'])
+        fids = index.intersects(zone.geometry().boundingBox())
+        super(layer.ConsLayer, dest).append(source, query=query, zone=zone, fids=fids, 
+            excluding=processed)
+
+    def append_task(self, dest, source, task):
+        query = lambda f, kwargs: '_' in f['localId'] and \
+            f['localId'].split('_')[0] in kwargs['including']
+        super(layer.ConsLayer, dest).append(source, query=query, including=task)
+
+    def append_zone2(self, dest, source, zone, processed, index, parts=False):
+        dest.setCrs(source.crs())
+        fids = index.intersects(zone.geometry().boundingBox())
+        request = QgsFeatureRequest().setFilterFids(fids)
+        to_add = []
+        features = []
+        refs = set()
+        total = 0
+        for feat in source.getFeatures(request):
+            if not feat['localId'] in processed:
+                if not '_' in feat['localId'] and layer.is_inside(feat, zone):
+                    to_add.append(dest.copy_feature(feat))
+                    refs.add(feat['localId'])
+                    total += 1
+                else:
+                    features.append(feat)
+            if len(to_add) > layer.CACHE_SIZE:
+                dest.writer.addFeatures(to_add)
+                to_add = []
+        if parts:
+            for feat in features:
+                if '_' in feat['localId'] and feat['localId'].split('_')[0] in refs:
+                    to_add.append(dest.copy_feature(feat))
+                    total += 1
+                if len(to_add) > layer.CACHE_SIZE:
+                    dest.writer.addFeatures(to_add)
+                    to_add = []
+        if len(to_add) > 0:
+             dest.writer.addFeatures(to_add)
+        return refs
+
+    def test_append_zone_0(self):
+        rprocessed = set()
+        rindex = self.index
+        rzone = self.rustic_zoning.getFeatures().next()
+        task = layer.ConsLayer(baseName=rzone['label'])
+        self.append_zone(task, self.building_gml, rzone, rprocessed, rindex)
+        refs = set()
+        for feat in task.getFeatures():
+            refs.add(feat['localId'])
+        print 'refs', len(refs)
+        self.append_task(task, self.part_gml, refs)
+        print task.featureCount()
+        self.append_task(task, self.other_gml, refs)
+        print task.featureCount()
+
+    def test_append_zone_1(self):
+        rprocessed = set()
+        rindex = self.index
+        rzone = self.rustic_zoning.getFeatures().next()
+        task = layer.ConsLayer(baseName=rzone['label'])
+        task.rename = {}
+        self.append_zone(task, self.obj, rzone, rprocessed, rindex)
+        refs = set()
+        for feat in task.getFeatures():
+            refs.add(feat['localId'])
+        print 'refs', len(refs)
+        self.append_task(task, self.obj, refs)
+        print task.featureCount()
+
+    def test_append_zone2(self):
+        rprocessed = set()
+        rindex = self.index
+        rzone = self.rustic_zoning.getFeatures().next()
+        task = layer.ConsLayer(baseName=rzone['label'])
+        task.rename = {}
+        refs = self.append_zone2(task, self.obj, rzone, rprocessed, rindex)
+        print 'refs', len(refs)
+        self.append_task(task, self.obj, refs)
+        print task.featureCount()
+
+    def test_append_zone3(self):
+        rprocessed = set()
+        rindex = self.index
+        rzone = self.rustic_zoning.getFeatures().next()
+        task = layer.ConsLayer(baseName=rzone['label'])
+        task.rename = {}
+        refs = self.append_zone2(task, self.obj, rzone, rprocessed, rindex, True)
+        print 'refs', len(refs)
+        print task.featureCount()
 
 class TimerOsm(BaseTimer):
 
@@ -975,5 +1086,6 @@ if __name__ == '__main__':
     d = time.time()
     TimerFixMemUsageAd().run()
     TimerZoningLayer().run()
-    """
     TimerVertices().run()
+    """
+    AppendZoneTimer().run()
