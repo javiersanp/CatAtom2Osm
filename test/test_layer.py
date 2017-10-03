@@ -314,14 +314,14 @@ class TestPolygonLayer(unittest.TestCase):
         self.assertTrue(all([not f.geometry().isMultipart()
             for f in self.layer.getFeatures()]), m)
 
-    def test_get_parents_per_vertex_and_features(self):
-        (parents_per_vertex, features) = self.layer.get_parents_per_vertex_and_features()
-        self.assertEquals(len(features), self.layer.featureCount())
-        self.assertTrue(all([features[fid].id() == fid for fid in features]))
+    def test_get_parents_per_vertex(self):
+        parents_per_vertex = self.layer.get_parents_per_vertex()
         self.assertGreater(len(parents_per_vertex), 0)
-        self.assertTrue(all([QgsGeometry().fromPoint(vertex) \
-            .intersects(features[fid].geometry())
-                for (vertex, fids) in parents_per_vertex.items() for fid in fids]))
+        for (vertex, fids) in parents_per_vertex.items():
+            for fid in fids:
+                f = self.layer.get_feature(fid)
+                (__, __, __, __, dist) = f.geometry().closestVertex(vertex)
+                self.assertEquals(dist, 0)
 
     def test_get_vertices(self):
         vertices = self.layer.get_vertices()
@@ -332,6 +332,7 @@ class TestPolygonLayer(unittest.TestCase):
                     for point in ring[0:-1]:
                         vcount += 1
         self.assertEquals(vcount, vertices.featureCount())
+        vertices.delete_shp()
 
     def test_get_duplicates(self):
         duplicates = self.layer.get_duplicates()
@@ -710,7 +711,9 @@ class TestConsLayer(unittest.TestCase):
 
     def test_validate(self):
         self.layer.merge_building_parts()
-        (max_level, min_level) = self.layer.validate()
+        max_level = {}
+        min_level = {}
+        self.layer.validate(max_level, min_level)
         refs = ['7239208CS5273N', '38012A00400007']
         for (l, v) in {1: 126, 2: 114, 3: 67, 4: 16, 5: 1}.items():
             self.assertEquals(Counter(max_level.values())[l], v)

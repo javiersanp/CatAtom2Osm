@@ -67,7 +67,8 @@ class CatAtom2Osm:
     def run(self):
         """Launches the app"""
         log.info(_("Start processing '%s'"), self.zip_code)
-        self.get_zoning()
+        if self.options.taskslm:
+            self.get_zoning()
         if self.options.address:
             self.read_address()
             highway = self.get_highway()
@@ -110,11 +111,13 @@ class CatAtom2Osm:
     def get_building(self):
         """Merge building, parts and pools"""
         building_gml = self.cat.read("building")
+        #"""
         fn = os.path.join(self.path, 'building.shp')
         layer.ConsLayer.create_shp(fn, building_gml.crs())
         self.building = layer.ConsLayer(fn, providerLib='ogr', 
             source_date=building_gml.source_date)
-        #self.building = layer.ConsLayer(source_date=self.building_gml.source_date)
+        #"""
+        #self.building = layer.ConsLayer(source_date=building_gml.source_date)
         self.building.append(building_gml)
         del building_gml
         part_gml = self.cat.read("buildingpart")
@@ -134,6 +137,8 @@ class CatAtom2Osm:
         zone_processed = set()
         for rzone in self.rustic_zoning.getFeatures():
             poligono, refs = self.process_zone(rzone, rindex, rprocessed, source)
+            del poligono
+            continue
             if refs:
                 rprocessed = rprocessed.union(refs)
                 temp_address = None
@@ -196,16 +201,26 @@ class CatAtom2Osm:
         del rindex
 
     def process_zone(self, zone, index, processed, source):
-        task = layer.ConsLayer(baseName=zone['label'],
+        #"""
+        fn = os.path.join(self.path, 'task.shp')
+        layer.ConsLayer.create_shp(fn, source.crs())
+        task = layer.ConsLayer(fn, zone['label'], 'ogr',
             source_date = source.source_date)
+        #"""
+        #task = layer.ConsLayer(baseName=zone['label'],
+        #    source_date = source.source_date)
         task.rename = {}
         refs = task.append_zone(source, zone, processed, index)
         if task.featureCount() > 0 and self.options.taskslm:
+            task.merge_duplicates()
+            """
+            vertices_by_fid = {f.id(): f.geometry().asPoint() for f in vertices.getFeatures()}
             task.remove_outside_parts()
             task.explode_multi_parts(getattr(self, 'address', False))
             task.remove_parts_below_ground()
             task.clean()
             #task.validate(self.min_level, self.max_level)
+            """
         return task, refs
 
     def process_address(self):
@@ -230,6 +245,8 @@ class CatAtom2Osm:
     def process_building(self):
         """Process all buildings dataset"""
         #if self.debug: self.export_layer(building, 'building.shp')
+        self.building.merge_duplicates()
+        return
         self.building.remove_outside_parts()
         self.building.explode_multi_parts(getattr(self, 'address', False))
         self.building.remove_parts_below_ground()
@@ -239,7 +256,6 @@ class CatAtom2Osm:
         #self.building.validate(self.max_level, self.min_level)
         if self.options.tasks:
             self.process_tasks(self.building)
-        return
         self.building.reproject()
         if not self.options.manual and self.building.conflate(self.current_bu_osm):
             self.write_osm(self.current_bu_osm, 'current_building.osm')

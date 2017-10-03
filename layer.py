@@ -435,6 +435,17 @@ class PolygonLayer(BaseLayer):
                 "the '%s' layer"), len(to_clean), len(to_add),
                 self.name().encode('utf-8'))
 
+    def get_parents_per_vertex(self):
+        """
+        Returns:
+            (dict) parent fids for each vertex
+        """
+        parents_per_vertex = defaultdict(list)
+        for feature in self.getFeatures():
+            for point in self.get_vertices_list(feature):
+                parents_per_vertex[point].append(feature.id())
+        return parents_per_vertex
+
     def get_parents_per_vertex_and_features(self):
         """
         Returns:
@@ -481,8 +492,11 @@ class PolygonLayer(BaseLayer):
         return (groups, features)
 
     def get_vertices(self):
-        """Returns a in memory layer with the coordinates of each vertex"""
-        vertices = BaseLayer("Point", "vertices", "memory")
+        """Returns a layer with the coordinates of each vertex"""
+        fn = os.path.join(os.path.dirname(self.writer.dataSourceUri()), 'vertices.shp')
+        BaseLayer.create_shp(fn, self.crs(), geom_type=QGis.WKBPoint)
+        vertices = BaseLayer(fn, 'vertices', 'ogr')
+        features = {}
         to_add = []
         for feature in self.getFeatures():
             for point in self.get_vertices_list(feature):
@@ -490,28 +504,36 @@ class PolygonLayer(BaseLayer):
                 geom = QgsGeometry.fromPoint(point)
                 feat.setGeometry(geom)
                 to_add.append(feat)
-        vertices.dataProvider().addFeatures(to_add)
+            if len(to_add) > CACHE_SIZE * 20:
+                vertices.dataProvider().addFeatures(to_add)
+                to_add = []
+        if len(to_add) > 0:
+            vertices.dataProvider().addFeatures(to_add)
         return vertices
+
 
     def get_duplicates(self, dup_thr=None):
         """
         Returns a dict of duplicated vertices for each coordinate.
         Two vertices are duplicated if they are nearest than dup_thr.
         """
-        vertices = self.get_vertices()
-        vertices_by_fid = {feat.id(): feat for feat in vertices.getFeatures()}
-        index = vertices.get_index()
         dup_thr = self.dup_thr if dup_thr is None else dup_thr
-        duplicates = defaultdict(list)
+        vertices = self.get_vertices()
+        vertex_by_fid = {f.id(): f.geometry().asPoint() for f in vertices.getFeatures() }
+        index = vertices.get_index()
+        duplicates = defaultdict(set)
         for vertex in vertices.getFeatures():
             point = Point(vertex.geometry().asPoint())
             area_of_candidates = point.boundingBox(dup_thr)
             fids = index.intersects(area_of_candidates)
+            fids.remove(vertex.id())
             for fid in fids:
-                dup = vertices_by_fid[fid].geometry().asPoint()
+                dup = vertex_by_fid[fid]
                 dist = point.sqrDist(dup)
-                if dup != point and dist < dup_thr**2:
-                    duplicates[point].append(dup)
+                if dist > 0 and dist < dup_thr**2:
+                    duplicates[point].add(dup)
+        vertices.delete_shp()
+        del vertices
         return duplicates
 
     def merge_duplicates(self):
@@ -522,16 +544,19 @@ class PolygonLayer(BaseLayer):
         dup_thr = self.dup_thr
         if log.getEffectiveLevel() <= logging.DEBUG:
             debshp = DebugWriter("debug_duplicated.shp", self.crs())
-        (parents_per_vertex, features) = self.get_parents_per_vertex_and_features()
+        parents_per_vertex = self.get_parents_per_vertex()
         dupes = 0
         duplicates = self.get_duplicates()
         duplist = sorted(duplicates.keys(), key=lambda x: -len(duplicates[x]))
         to_change = {}
-        for point in duplist:
+        for i, point in enumerate(duplist):
             for dup in duplicates[point]:
                 for fid in parents_per_vertex[dup]:
-                    feat = features[fid]
-                    geom = feat.geometry()
+                    if fid in to_change:
+                        geom = to_change[fid]
+                    else:
+                        feat = self.get_feature(fid)
+                        geom = QgsGeometry(feat.geometry())
                     (p, ndx, ndxa, ndxb, dist) = geom.closestVertex(dup)
                     geom.moveVertex(point.x(), point.y(), ndx)
                     note = "refused by isGeosValid"
