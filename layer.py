@@ -16,7 +16,7 @@ import setup
 import translate
 log = logging.getLogger(setup.app_name + "." + __name__)
 
-CACHE_SIZE = 512
+BUFFER_SIZE = 512
 
 is_inside = lambda f1, f2: \
     f2.geometry().contains(f1.geometry()) or f2.geometry().overlaps(f1.geometry())
@@ -182,7 +182,7 @@ class BaseLayer(QgsVectorLayer):
             if not query or query(feature, kwargs):
                 to_add.append(self.copy_feature(feature, rename, resolve))
                 total += 1
-            if len(to_add) > CACHE_SIZE:
+            if len(to_add) > BUFFER_SIZE:
                 self.writer.addFeatures(to_add)
                 to_add = []
         if len(to_add) > 0:
@@ -504,7 +504,7 @@ class PolygonLayer(BaseLayer):
                 geom = QgsGeometry.fromPoint(point)
                 feat.setGeometry(geom)
                 to_add.append(feat)
-            if len(to_add) > CACHE_SIZE * 20:
+            if len(to_add) > BUFFER_SIZE * 20:
                 vertices.dataProvider().addFeatures(to_add)
                 to_add = []
         if len(to_add) > 0:
@@ -549,7 +549,7 @@ class PolygonLayer(BaseLayer):
         duplicates = self.get_duplicates()
         duplist = sorted(duplicates.keys(), key=lambda x: -len(duplicates[x]))
         to_change = {}
-        for i, point in enumerate(duplist):
+        for point in duplist:
             for dup in duplicates[point]:
                 for fid in parents_per_vertex[dup]:
                     if fid in to_change:
@@ -975,14 +975,14 @@ class ConsLayer(PolygonLayer):
                     total += 1
                 else:
                     features.append(feat)
-            if len(to_add) > CACHE_SIZE:
+            if len(to_add) > BUFFER_SIZE:
                 self.writer.addFeatures(to_add)
                 to_add = []
         for feat in features:
             if '_' in feat['localId'] and feat['localId'].split('_')[0] in refs:
                 to_add.append(self.copy_feature(feat))
                 total += 1
-            if len(to_add) > CACHE_SIZE:
+            if len(to_add) > BUFFER_SIZE:
                 self.writer.addFeatures(to_add)
                 to_add = []
         if len(to_add) > 0:
@@ -1027,18 +1027,16 @@ class ConsLayer(PolygonLayer):
         Precondition: Called before merge_greatest_part
         """
         to_clean = []
-        (buildings, parts) = self.index_of_building_and_parts()
-        for refcat in parts.keys():
-            if refcat not in buildings:
-                for part_id in parts[refcat]:
-                    to_clean.append(part_id)
-        for (refcat, bu_id) in buildings.items():
-            if refcat in parts:
-                for part_id in parts[refcat]:
-                    part = self.get_feature(part_id)
-                    bu = self.get_feature(bu_id[0])
-                    if not is_inside(part, bu):
-                        to_clean.append(part_id)
+        buildings = {f['localId']: f for f in self.getFeatures() if self.is_building(f)}
+        for feat in self.getFeatures():
+            if self.is_part(feat):
+                ref = feat['localId'].split('_')[0]
+                if ref not in buildings:
+                    to_clean.append(feat.id())
+                else:
+                    bu = buildings[ref]
+                    if not is_inside(feat, bu):
+                        to_clean.append(feat.id())
         if to_clean:
             self.writer.deleteFeatures(to_clean)
             log.debug(_("Removed %d building parts outside the footprint"), len(to_clean))

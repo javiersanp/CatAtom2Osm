@@ -453,7 +453,7 @@ class TimerConsLayer(BaseTimer):
 class BaseConsTimer(BaseTimer):
 
     def __init__(self):
-        self.mun = '38001'
+        self.mun = '38900'
         building_fn = BASEPATH + '{0}/A.ES.SDGC.BU.{0}.building.gml'.format(self.mun)
         buildingpart_fn = BASEPATH + '{0}/A.ES.SDGC.BU.{0}.buildingpart.gml'.format(self.mun)
         other_fn = BASEPATH + '{0}/A.ES.SDGC.BU.{0}.otherconstruction.gml'.format(self.mun)
@@ -921,7 +921,7 @@ class AppendZoneTimer(BaseBuildingTimer):
                     total += 1
                 else:
                     features.append(feat)
-            if len(to_add) > layer.CACHE_SIZE:
+            if len(to_add) > layer.BUFFER_SIZE:
                 dest.writer.addFeatures(to_add)
                 to_add = []
         if parts:
@@ -929,7 +929,7 @@ class AppendZoneTimer(BaseBuildingTimer):
                 if '_' in feat['localId'] and feat['localId'].split('_')[0] in refs:
                     to_add.append(dest.copy_feature(feat))
                     total += 1
-                if len(to_add) > layer.CACHE_SIZE:
+                if len(to_add) > layer.BUFFER_SIZE:
                     dest.writer.addFeatures(to_add)
                     to_add = []
         if len(to_add) > 0:

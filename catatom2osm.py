@@ -212,7 +212,12 @@ class CatAtom2Osm:
         task.rename = {}
         refs = task.append_zone(source, zone, processed, index)
         if task.featureCount() > 0 and self.options.taskslm:
-            task.merge_duplicates()
+            task.remove_outside_parts()
+            #task.merge_duplicates()
+            #task.clean_duplicated_nodes_in_polygons()
+            #task.add_topological_points()
+            #task.merge_building_parts()
+            #task.simplify()
             """
             vertices_by_fid = {f.id(): f.geometry().asPoint() for f in vertices.getFeatures()}
             task.remove_outside_parts()
@@ -245,9 +250,13 @@ class CatAtom2Osm:
     def process_building(self):
         """Process all buildings dataset"""
         #if self.debug: self.export_layer(building, 'building.shp')
-        self.building.merge_duplicates()
-        return
+        #self.building.merge_duplicates()
+        #self.building.clean_duplicated_nodes_in_polygons()
+        #self.building.add_topological_points()
+        #self.building.merge_building_parts()
+        #self.building.simplify()
         self.building.remove_outside_parts()
+        return
         self.building.explode_multi_parts(getattr(self, 'address', False))
         self.building.remove_parts_below_ground()
         self.building.clean()
