@@ -85,12 +85,14 @@ class BaseLayer(QgsVectorLayer):
     def create_shp(name, crs, fields=QgsFields(), geom_type=QGis.WKBMultiPolygon):
         QgsVectorFileWriter(name, 'UTF-8', fields, geom_type, crs, 'ESRI Shapefile')
 
-    def delete_shp(self):
-        path = self.writer.dataSourceUri().split('|')[0]
-        QgsVectorFileWriter.deleteShapeFile(path)
-        path = os.path.splitext(path)[0] + '.cpg'
-        if os.path.exists(path):
-            os.remove(path)
+    def __del__(self):
+        if log.getEffectiveLevel() > logging.DEBUG and \
+                self.writer.storageType() == 'ESRI Shapefile':
+            path = self.writer.dataSourceUri().split('|')[0]
+            QgsVectorFileWriter.deleteShapeFile(path)
+            path = os.path.splitext(path)[0] + '.cpg'
+            if os.path.exists(path):
+                os.remove(path)
             
     def get_feature(self, fid):
         request = QgsFeatureRequest().setFilterFids([fid])
@@ -532,7 +534,6 @@ class PolygonLayer(BaseLayer):
                 dist = point.sqrDist(dup)
                 if dist > 0 and dist < dup_thr**2:
                     duplicates[point].add(dup)
-        vertices.delete_shp()
         del vertices
         return duplicates
 
@@ -804,12 +805,36 @@ class ZoningLayer(PolygonLayer):
 
     def append(self, layer, level=None):
         """Append features of layer with levelName 'M' for rustic or 'P' for urban"""
-        if level is None:
-            super(ZoningLayer, self).append(layer)
-        else:
-            query = lambda feat, kwargs: feat['levelName'][3] == kwargs['level']
-            super(ZoningLayer, self).append(layer, query=query, level=level)
-
+        self.setCrs(layer.crs())
+        total = 0
+        to_add = []
+        multi = 0
+        final = 0
+        for feature in layer.getFeatures():
+            if level == None or level == feature['levelName'][3]:
+                feat = self.copy_feature(feature)
+                geom = feature.geometry()
+                if geom.wkbType() == QGis.WKBMultiPolygon:
+                    for part in geom.asMultiPolygon():
+                        f = QgsFeature(feat)
+                        f.setGeometry(QgsGeometry.fromPolygon(part))
+                        to_add.append(f)
+                        final += 1
+                    multi += 1
+                else:
+                    to_add.append(feat)
+                total += 1
+            if len(to_add) > BUFFER_SIZE:
+                self.writer.addFeatures(to_add)
+                to_add = []
+        if len(to_add) > 0:
+            self.writer.addFeatures(to_add)
+        if total:
+            log.debug (_("Loaded %d features in '%s' from '%s'"), total,
+                self.name().encode('utf-8'), layer.name().encode('utf-8'))
+        if multi:
+            log.debug(_("%d multi-polygons splited into %d polygons in "
+                "the '%s' layer"), multi, final, self.name().encode('utf-8'))
 
 class AddressLayer(BaseLayer):
     """Class for address"""

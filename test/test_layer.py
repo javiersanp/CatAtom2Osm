@@ -332,7 +332,7 @@ class TestPolygonLayer(unittest.TestCase):
                     for point in ring[0:-1]:
                         vcount += 1
         self.assertEquals(vcount, vertices.featureCount())
-        vertices.delete_shp()
+        del vertices
 
     def test_get_duplicates(self):
         duplicates = self.layer.get_duplicates()
@@ -398,14 +398,29 @@ class TestZoningLayer(unittest.TestCase):
     def setUp(self):
         self.fixture = QgsVectorLayer('test/zoning.gml', 'zoning', 'ogr')
         self.assertTrue(self.fixture.isValid(), "Loading fixture")
-        self.layer = ZoningLayer()
-        self.assertTrue(self.layer.isValid(), "Init QGIS")
-        self.layer.append(self.fixture)
-        self.assertEquals(self.layer.featureCount(), self.fixture.featureCount())
-        self.layer.explode_multi_parts()
+        fn = 'urban_zoning.shp'
+        ZoningLayer.create_shp(fn, self.fixture.crs())
+        self.layer1 = ZoningLayer('u{:05}', fn, 'urbanzoning', 'ogr')
+        self.assertTrue(self.layer1.isValid(), "Init QGIS")
+        fn = 'rustic_zoning.shp'
+        ZoningLayer.create_shp(fn, self.fixture.crs())
+        self.layer2 = ZoningLayer('r{:03}', fn, 'rusticzoning', 'ogr')
+        self.assertTrue(self.layer2.isValid(), "Init QGIS")
+        self.layer1.append(self.fixture, 'M')
+        self.layer2.append(self.fixture, 'P')
+        self.assertGreater(self.layer1.featureCount() + self.layer2.featureCount(),
+            self.fixture.featureCount())
+        for f in self.layer1.getFeatures():
+            self.assertEquals(f['levelName'][3], 'M')
+            g = f.geometry()
+            self.assertFalse(g.isMultipart())
+        for f in self.layer2.getFeatures():
+            self.assertEquals(f['levelName'][3], 'P')
+            g = f.geometry()
+            self.assertFalse(g.isMultipart())
 
     def test_get_adjacents_and_features(self):
-        (groups, features) = self.layer.get_adjacents_and_features()
+        (groups, features) = self.layer1.get_adjacents_and_features()
         self.assertTrue(all([len(g) > 1 for g in groups]))
         for group in groups:
             for other in groups:
@@ -413,26 +428,9 @@ class TestZoningLayer(unittest.TestCase):
                     self.assertTrue(all(p not in other for p in group))
 
     def test_merge_adjacents(self):
-        self.layer.merge_adjacents()
-        (groups, features) = self.layer.get_adjacents_and_features()
+        self.layer1.merge_adjacents()
+        (groups, features) = self.layer1.get_adjacents_and_features()
         self.assertEquals(len(groups), 0)
-
-    def test_append(self):
-        layer1 = ZoningLayer()
-        layer1.append(self.fixture, 'M')
-        layer2 = ZoningLayer()
-        layer2.append(self.fixture, 'P')
-        self.assertEquals(layer1.featureCount() + layer2.featureCount(),
-            self.fixture.featureCount())
-        for f in layer1.getFeatures():
-            self.assertEquals(f['levelName'][3], 'M')
-        for f in layer2.getFeatures():
-            self.assertEquals(f['levelName'][3], 'P')
-        exp = QgsExpression("localId = '69297CS5262N'")
-        request = QgsFeatureRequest(exp)
-        f = layer1.getFeatures(request).next()
-        g = f.geometry()
-        self.assertTrue(g.isMultipart())
 
 
 class TestConsLayer(unittest.TestCase):

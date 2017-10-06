@@ -68,7 +68,8 @@ class CatAtom2Osm:
         """Launches the app"""
         log.info(_("Start processing '%s'"), self.zip_code)
         if self.options.taskslm:
-            self.get_zoning()
+            self.get_zoning2()
+        return
         if self.options.address:
             self.read_address()
             highway = self.get_highway()
@@ -383,14 +384,28 @@ class CatAtom2Osm:
         self.rustic_zoning = layer.ZoningLayer('r{:03}', baseName='rusticzoning')
         self.urban_zoning.append(zoning_gml, level='M')
         self.rustic_zoning.append(zoning_gml, level='P')
-        self.cat.get_boundary(self.rustic_zoning)
+        #self.cat.get_boundary(self.rustic_zoning)
         del zoning_gml
         self.urban_zoning.explode_multi_parts()
         self.rustic_zoning.explode_multi_parts()
-        self.urban_zoning.add_topological_points()
-        self.urban_zoning.merge_adjacents()
-        self.rustic_zoning.task_filename = 'r%03d.osm'
-        self.urban_zoning.task_filename = 'u%05d.osm'
+        #self.urban_zoning.add_topological_points()
+        #self.urban_zoning.merge_adjacents()
+
+    def get_zoning2(self):
+        """
+        Reads cadastralzoning and splits in 'MANZANA' (urban) and 'POLIGONO'
+        (rustic)
+        """
+        zoning_gml = self.cat.read("cadastralzoning")
+        fn = os.path.join(self.path, 'urban_zoning.shp')
+        layer.ZoningLayer.create_shp(fn, zoning_gml.crs())
+        self.urban_zoning = layer.ZoningLayer('u{:05}', fn, 'urbanzoning', 'ogr')
+        fn = os.path.join(self.path, 'rustic_zoning.shp')
+        layer.ZoningLayer.create_shp(fn, zoning_gml.crs())
+        self.rustic_zoning = layer.ZoningLayer('r{:03}', fn, 'rusticzoning', 'ogr')
+        self.urban_zoning.append2(zoning_gml, level='M')
+        self.rustic_zoning.append2(zoning_gml, level='P')
+        del zoning_gml
 
     def read_address(self):
         """Reads Address GML dataset"""
@@ -453,8 +468,7 @@ class CatAtom2Osm:
 
     def write_task(self, zoning, building, address=None):
         """Generates osm file for a task"""
-        fn = zoning.task_filename % zoning.task_number
-        zoning.task_number += 1
+        fn = zoning.get_task() + '.osm'
         base_path = os.path.join(self.path, 'tasks')
         task_path = os.path.join('tasks', fn)
         task_osm = building.to_osm(upload='yes')
