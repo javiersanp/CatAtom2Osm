@@ -68,8 +68,7 @@ class CatAtom2Osm:
         """Launches the app"""
         log.info(_("Start processing '%s'"), self.zip_code)
         if self.options.taskslm:
-            self.get_zoning2()
-        return
+            self.get_zoning()
         if self.options.address:
             self.read_address()
             highway = self.get_highway()
@@ -213,10 +212,10 @@ class CatAtom2Osm:
         task.rename = {}
         refs = task.append_zone(source, zone, processed, index)
         if task.featureCount() > 0 and self.options.taskslm:
-            task.remove_outside_parts()
+            #task.remove_outside_parts()
             #task.merge_duplicates()
             #task.clean_duplicated_nodes_in_polygons()
-            #task.add_topological_points()
+            task.add_topological_points()
             #task.merge_building_parts()
             #task.simplify()
             """
@@ -253,14 +252,14 @@ class CatAtom2Osm:
         #if self.debug: self.export_layer(building, 'building.shp')
         #self.building.merge_duplicates()
         #self.building.clean_duplicated_nodes_in_polygons()
-        #self.building.add_topological_points()
+        self.building.add_topological_points()
+        return
         #self.building.merge_building_parts()
         #self.building.simplify()
-        self.building.remove_outside_parts()
-        return
-        self.building.explode_multi_parts(getattr(self, 'address', False))
-        self.building.remove_parts_below_ground()
-        self.building.clean()
+        #self.building.remove_outside_parts()
+        #self.building.explode_multi_parts(getattr(self, 'address', False))
+        #self.building.remove_parts_below_ground()
+        #self.building.clean()
         if self.options.address:
             self.building.move_address(self.address)
         #self.building.validate(self.max_level, self.min_level)
@@ -380,32 +379,17 @@ class CatAtom2Osm:
         (rustic)
         """
         zoning_gml = self.cat.read("cadastralzoning")
-        self.urban_zoning = layer.ZoningLayer('u{:05}', baseName='urbanzoning')
-        self.rustic_zoning = layer.ZoningLayer('r{:03}', baseName='rusticzoning')
-        self.urban_zoning.append(zoning_gml, level='M')
-        self.rustic_zoning.append(zoning_gml, level='P')
-        #self.cat.get_boundary(self.rustic_zoning)
-        del zoning_gml
-        self.urban_zoning.explode_multi_parts()
-        self.rustic_zoning.explode_multi_parts()
-        #self.urban_zoning.add_topological_points()
-        #self.urban_zoning.merge_adjacents()
-
-    def get_zoning2(self):
-        """
-        Reads cadastralzoning and splits in 'MANZANA' (urban) and 'POLIGONO'
-        (rustic)
-        """
-        zoning_gml = self.cat.read("cadastralzoning")
         fn = os.path.join(self.path, 'urban_zoning.shp')
         layer.ZoningLayer.create_shp(fn, zoning_gml.crs())
         self.urban_zoning = layer.ZoningLayer('u{:05}', fn, 'urbanzoning', 'ogr')
         fn = os.path.join(self.path, 'rustic_zoning.shp')
         layer.ZoningLayer.create_shp(fn, zoning_gml.crs())
         self.rustic_zoning = layer.ZoningLayer('r{:03}', fn, 'rusticzoning', 'ogr')
-        self.urban_zoning.append2(zoning_gml, level='M')
-        self.rustic_zoning.append2(zoning_gml, level='P')
+        self.urban_zoning.append(zoning_gml, level='M')
+        self.rustic_zoning.append(zoning_gml, level='P')
         del zoning_gml
+        self.urban_zoning.add_topological_points()
+        #self.urban_zoning.merge_adjacents()
 
     def read_address(self):
         """Reads Address GML dataset"""

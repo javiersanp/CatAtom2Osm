@@ -621,18 +621,29 @@ class PolygonLayer(BaseLayer):
         tp = 0
         if log.getEffectiveLevel() <= logging.DEBUG:
             debshp = DebugWriter("debug_topology.shp", self.crs())
+        request = QgsFeatureRequest()
         index = self.get_index()
-        features = {feat.id(): feat for feat in self.getFeatures()}
         to_change = {}
-        for feature in features.values():
-            for point in self.get_outer_vertices(feature):
-                area_of_candidates = Point(point).boundingBox(threshold)
-                for fid in index.intersects(area_of_candidates):
-                    candidate = features[fid]
-                    if fid != feature.id():
-                        distance, closest, vertex = candidate.geometry() \
-                                .closestSegmentWithContext(point)
-                        g = QgsGeometry(candidate.geometry())
+        for feature in self.getFeatures():
+            candidates = {}
+            geom = feature.geometry()
+            area_of_candidates = geom.boundingBox().buffer(threshold)
+            fids = index.intersects(area_of_candidates)
+            fids.remove(feature.id())
+            request.setFilterFids(fids)
+            for candidate in self.getFeatures(request):
+                candidates[candidate.id()] = QgsGeometry(candidate.geometry())
+            if candidates:
+                for point in self.get_outer_vertices(feature):
+                    area_of_candidates = Point(point).boundingBox(threshold)
+                    fids = index.intersects(area_of_candidates)
+                    fids.remove(feature.id())
+                    for fid in fids:
+                        if fid in to_change:
+                            g = to_change[fid]
+                        else:
+                            g = candidates[fid]
+                        distance, closest, vertex = g.closestSegmentWithContext(point)
                         va = g.vertexAt(vertex)
                         vb = g.vertexAt(vertex - 1)
                         if distance < threshold**2 and point <> va and point <> vb:
@@ -643,14 +654,17 @@ class PolygonLayer(BaseLayer):
                                 if g.insertVertex(point.x(), point.y(), vertex):
                                     note = "refused by isGeosValid"
                                     if g.isGeosValid():
-                                        features[fid].setGeometry(g)
                                         note = "accepted"
                                         tp += 1
                                         to_change[fid] = g
                             if log.getEffectiveLevel() <= logging.DEBUG:
                                 debshp.add_point(point, note)
-        if to_change:
+            if len(to_change) > BUFFER_SIZE:
+                self.writer.changeGeometryValues(to_change)
+                to_change = {}
+        if len(to_change) > 0:
             self.writer.changeGeometryValues(to_change)
+        if tp:
             log.debug(_("Created %d topological points in the '%s' layer"),
                 tp, self.name().encode('utf-8'))
         if log.getEffectiveLevel() <= logging.DEBUG:
