@@ -396,7 +396,10 @@ class PolygonLayer(BaseLayer):
     @staticmethod
     def get_multipolygon(feature):
         """Returns feature geometry always as a multipolgon"""
-        geom = feature.geometry()
+        if isinstance(feature, QgsFeature):
+            geom = feature.geometry()
+        else:
+            geom = feature
         if geom.wkbType() == QGis.WKBPolygon:
             return [geom.asPolygon()]
         return geom.asMultiPolygon()
@@ -437,17 +440,6 @@ class PolygonLayer(BaseLayer):
                 "the '%s' layer"), len(to_clean), len(to_add),
                 self.name().encode('utf-8'))
 
-    def get_parents_per_vertex(self):
-        """
-        Returns:
-            (dict) parent fids for each vertex
-        """
-        parents_per_vertex = defaultdict(list)
-        for feature in self.getFeatures():
-            for point in self.get_vertices_list(feature):
-                parents_per_vertex[point].append(feature.id())
-        return parents_per_vertex
-
     def get_parents_per_vertex_and_features(self):
         """
         Returns:
@@ -459,7 +451,6 @@ class PolygonLayer(BaseLayer):
             features[feature.id()] = feature
             for point in self.get_vertices_list(feature):
                 parents_per_vertex[point].append(feature.id())
-                assert len(str(parents_per_vertex[point])) < 256
         return (parents_per_vertex, features)
 
     def get_adjacents_and_features(self):
@@ -492,87 +483,6 @@ class PolygonLayer(BaseLayer):
                         adjs.remove(adj)
             groups.append(group)
         return (groups, features)
-
-    def get_vertices(self):
-        """Returns a layer with the coordinates of each vertex"""
-        fn = os.path.join(os.path.dirname(self.writer.dataSourceUri()), 'vertices.shp')
-        BaseLayer.create_shp(fn, self.crs(), geom_type=QGis.WKBPoint)
-        vertices = BaseLayer(fn, 'vertices', 'ogr')
-        features = {}
-        to_add = []
-        for feature in self.getFeatures():
-            for point in self.get_vertices_list(feature):
-                feat = QgsFeature(QgsFields())
-                geom = QgsGeometry.fromPoint(point)
-                feat.setGeometry(geom)
-                to_add.append(feat)
-            if len(to_add) > BUFFER_SIZE * 20:
-                vertices.dataProvider().addFeatures(to_add)
-                to_add = []
-        if len(to_add) > 0:
-            vertices.dataProvider().addFeatures(to_add)
-        return vertices
-
-
-    def get_duplicates(self, dup_thr=None):
-        """
-        Returns a dict of duplicated vertices for each coordinate.
-        Two vertices are duplicated if they are nearest than dup_thr.
-        """
-        dup_thr = self.dup_thr if dup_thr is None else dup_thr
-        vertices = self.get_vertices()
-        vertex_by_fid = {f.id(): f.geometry().asPoint() for f in vertices.getFeatures() }
-        index = vertices.get_index()
-        duplicates = defaultdict(set)
-        for vertex in vertices.getFeatures():
-            point = Point(vertex.geometry().asPoint())
-            area_of_candidates = point.boundingBox(dup_thr)
-            fids = index.intersects(area_of_candidates)
-            fids.remove(vertex.id())
-            for fid in fids:
-                dup = vertex_by_fid[fid]
-                dist = point.sqrDist(dup)
-                if dist > 0 and dist < dup_thr**2:
-                    duplicates[point].add(dup)
-        del vertices
-        return duplicates
-
-    def merge_duplicates(self):
-        """
-        Reduces the number of distinct vertices in a polygon layer moving to the
-        same position vertices nearest than 'dup_thr' meters.
-        """
-        dup_thr = self.dup_thr
-        if log.getEffectiveLevel() <= logging.DEBUG:
-            debshp = DebugWriter("debug_duplicated.shp", self.crs())
-        parents_per_vertex = self.get_parents_per_vertex()
-        dupes = 0
-        duplicates = self.get_duplicates()
-        duplist = sorted(duplicates.keys(), key=lambda x: -len(duplicates[x]))
-        to_change = {}
-        for point in duplist:
-            for dup in duplicates[point]:
-                for fid in parents_per_vertex[dup]:
-                    if fid in to_change:
-                        geom = to_change[fid]
-                    else:
-                        feat = self.get_feature(fid)
-                        geom = QgsGeometry(feat.geometry())
-                    (p, ndx, ndxa, ndxb, dist) = geom.closestVertex(dup)
-                    geom.moveVertex(point.x(), point.y(), ndx)
-                    note = "refused by isGeosValid"
-                    if geom.isGeosValid():
-                        note = "Merge. %s" % feat['localId']
-                        dupes += 1
-                        to_change[fid] = geom
-                    if log.getEffectiveLevel() <= logging.DEBUG:
-                        debshp.add_point(p, note)
-                if dup in duplist:
-                    duplist.remove(dup)
-        if to_change:
-            self.writer.changeGeometryValues(to_change)
-            log.debug(_("Merged %d close vertices in the '%s' layer"), dupes,
-                self.name().encode('utf-8'))
 
     def clean_duplicated_nodes_in_polygons(self):
         """
@@ -614,56 +524,81 @@ class PolygonLayer(BaseLayer):
             log.debug(_("Deleted %d invalid geometries in the '%s' layer"),
                 len(to_clean), self.name().encode('utf-8'))
 
-    def add_topological_points(self):
+    def topology(self):
         """For each vertex in a polygon layer, adds it to nearest segments."""
         threshold = self.dist_thr # Distance threshold to create nodes
+        dup_thr = self.dup_thr
         straight_thr = self.straight_thr
         tp = 0
+        td = 0
         if log.getEffectiveLevel() <= logging.DEBUG:
             debshp = DebugWriter("debug_topology.shp", self.crs())
-        request = QgsFeatureRequest()
+        geometries = {f.id(): QgsGeometry(f.geometry()) for f in self.getFeatures()}
         index = self.get_index()
         to_change = {}
-        for feature in self.getFeatures():
-            candidates = {}
-            geom = feature.geometry()
-            area_of_candidates = geom.boundingBox().buffer(threshold)
-            fids = index.intersects(area_of_candidates)
-            fids.remove(feature.id())
-            request.setFilterFids(fids)
-            for candidate in self.getFeatures(request):
-                candidates[candidate.id()] = QgsGeometry(candidate.geometry())
-            if candidates:
-                for point in self.get_outer_vertices(feature):
+        nodes = set()
+        for (gid, geom) in geometries.items():
+            for point in self.get_outer_vertices(geom):
+                if point not in nodes:
                     area_of_candidates = Point(point).boundingBox(threshold)
                     fids = index.intersects(area_of_candidates)
-                    fids.remove(feature.id())
+                    #fids.remove(gid)
                     for fid in fids:
-                        if fid in to_change:
-                            g = to_change[fid]
-                        else:
-                            g = candidates[fid]
-                        distance, closest, vertex = g.closestSegmentWithContext(point)
-                        va = g.vertexAt(vertex)
-                        vb = g.vertexAt(vertex - 1)
-                        if distance < threshold**2 and point <> va and point <> vb:
-                            note = "refused by angle"
+                        g = geometries[fid]
+                        (p, ndx, ndxa, ndxb, dist_v) = g.closestVertex(point)
+                        (dist_s, closest, vertex) = g.closestSegmentWithContext(point)
+                        note = ""
+                        if dist_v == 0:
+                            va = g.vertexAt(ndxa)
+                            vb = g.vertexAt(ndxb)
+                            dist_a = va.sqrDist(point)
+                            dist_b = vb.sqrDist(point)
+                            if dist_a > 0 and dist_a < dup_thr**2:
+                                g.moveVertex(point.x(), point.y(), ndxa)
+                                note = "dupe refused by isGeosValid"
+                                if g.isGeosValid():
+                                    note = "Merge dup. %.10f %.5f,%.5f->%.5f,%.5f" % (dist_a, va.x(), va.y(), point.x(), point.y())
+                                    nodes.add(p)
+                                    td += 1
+                            if dist_b > 0 and dist_b < dup_thr**2:
+                                g.moveVertex(point.x(), point.y(), ndxb)
+                                note = "dupe refused by isGeosValid"
+                                if g.isGeosValid():
+                                    note = "Merge dup. %.10f %.5f,%.5f->%.5f,%.5f" % (dist_b, vb.x(), vb.y(), point.x(), point.y())
+                                    nodes.add(p)
+                                    td += 1
+                        elif dist_v < dup_thr**2:
+                            g.moveVertex(point.x(), point.y(), ndx)
+                            note = "dupe refused by isGeosValid"
+                            if g.isGeosValid():
+                                note = "Merge dup. %.10f %.5f,%.5f->%.5f,%.5f" % (dist_v, p.x(), p.y(), point.x(), point.y())
+                                nodes.add(p)
+                                td += 1
+                        elif dist_s < threshold**2 and dist_v > 0:
+                            va = g.vertexAt(vertex)
+                            vb = g.vertexAt(vertex - 1)
+                            note = "Topo refused by angle"
                             angle = abs(point.azimuth(va) - point.azimuth(vb))
                             if abs(180 - angle) <= straight_thr:
-                                note = "refused by insertVertex"
+                                note = "Topo refused by insertVertex"
                                 if g.insertVertex(point.x(), point.y(), vertex):
-                                    note = "refused by isGeosValid"
+                                    note = "Topo refused by isGeosValid"
                                     if g.isGeosValid():
-                                        note = "accepted"
+                                        note = "Add topo %.6f %.5f,%.5f" % (dist_s, point.x(), point.y())
                                         tp += 1
-                                        to_change[fid] = g
-                            if log.getEffectiveLevel() <= logging.DEBUG:
-                                debshp.add_point(point, note)
+                        if note.startswith('Merge') or note.startswith('Add'):
+                            to_change[fid] = g
+                            geometries[fid] = g
+                        if note and log.getEffectiveLevel() <= logging.DEBUG:
+                            debshp.add_point(point, note)
             if len(to_change) > BUFFER_SIZE:
                 self.writer.changeGeometryValues(to_change)
                 to_change = {}
         if len(to_change) > 0:
             self.writer.changeGeometryValues(to_change)
+        if td:
+            log.debug(_("Merged %d close vertices in the '%s' layer"), td,
+                self.name().encode('utf-8'))
         if tp:
             log.debug(_("Created %d topological points in the '%s' layer"),
                 tp, self.name().encode('utf-8'))

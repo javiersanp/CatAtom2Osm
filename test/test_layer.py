@@ -314,38 +314,42 @@ class TestPolygonLayer(unittest.TestCase):
         self.assertTrue(all([not f.geometry().isMultipart()
             for f in self.layer.getFeatures()]), m)
 
-    def test_get_parents_per_vertex(self):
-        parents_per_vertex = self.layer.get_parents_per_vertex()
-        self.assertGreater(len(parents_per_vertex), 0)
-        for (vertex, fids) in parents_per_vertex.items():
-            for fid in fids:
-                f = self.layer.get_feature(fid)
-                (__, __, __, __, dist) = f.geometry().closestVertex(vertex)
-                self.assertEquals(dist, 0)
-
-    def test_get_vertices(self):
-        vertices = self.layer.get_vertices()
-        vcount = 0
+    def get_duplicates(self):
+        """
+        Returns a dict of duplicated vertices for each coordinate.
+        Two vertices are duplicated if they are nearest than dup_thr.
+        """
+        vertices = BaseLayer('Point', 'vertices', 'memory')
         for feature in self.layer.getFeatures():
-            for part in PolygonLayer.get_multipolygon(feature):
-                for ring in part:
-                    for point in ring[0:-1]:
-                        vcount += 1
-        self.assertEquals(vcount, vertices.featureCount())
+            for point in self.layer.get_vertices_list(feature):
+                feat = QgsFeature(QgsFields())
+                geom = QgsGeometry.fromPoint(point)
+                feat.setGeometry(geom)
+                vertices.dataProvider().addFeatures([feat])
+        dup_thr = self.layer.dup_thr
+        vertex_by_fid = {f.id(): f.geometry().asPoint() for f in vertices.getFeatures() }
+        index = vertices.get_index()
+        duplicates = defaultdict(set)
+        for vertex in vertices.getFeatures():
+            point = Point(vertex.geometry().asPoint())
+            area_of_candidates = point.boundingBox(dup_thr)
+            fids = index.intersects(area_of_candidates)
+            fids.remove(vertex.id())
+            for fid in fids:
+                dup = vertex_by_fid[fid]
+                dist = point.sqrDist(dup)
+                if dist > 0 and dist < dup_thr**2:
+                    duplicates[point].add(dup)
         del vertices
-
-    def test_get_duplicates(self):
-        duplicates = self.layer.get_duplicates()
-        self.assertGreater(len(duplicates), 0)
-        distances = [point.sqrDist(dup) for point, dupes in duplicates.items()
-            for dup in dupes]
-        self.assertTrue(all([dist < setup.dup_thr for dist in distances]))
+        return duplicates
 
     def test_merge_duplicates(self):
-        duplicates = self.layer.get_duplicates()
+        duplicates = self.get_duplicates()
         self.assertGreater(len(duplicates), 0)
-        self.layer.merge_duplicates()
-        duplicates = self.layer.get_duplicates()
+        self.layer.topology()
+        duplicates = self.get_duplicates()
+        for dup in duplicates:
+            print "%.5f, %.5f" % (dup.x(), dup.y())
         self.assertEquals(len(duplicates), 0)
 
     def test_clean_duplicated_nodes_in_polygons(self):
@@ -644,7 +648,7 @@ class TestConsLayer(unittest.TestCase):
             building = self.layer.search("localId = '%s'" % ref[0]).next()
             poly = PolygonLayer.get_multipolygon(building)
             self.assertNotIn(ref[1], poly[ref[2]][0])
-        self.layer.add_topological_points()
+        self.layer.topology()
         for ref in refs:
             building = self.layer.search("localId = '%s'" % ref[0]).next()
             poly = PolygonLayer.get_multipolygon(building)
@@ -675,9 +679,8 @@ class TestConsLayer(unittest.TestCase):
         self.assertEquals(layer.featureCount(), fixture1.featureCount() + fixture2.featureCount())
         layer.explode_multi_parts()
         layer.remove_parts_below_ground()
-        layer.merge_duplicates()
+        layer.topology()
         layer.clean_duplicated_nodes_in_polygons()
-        layer.add_topological_points()
         layer.simplify()
         for feat in layer.getFeatures():
             geom = feat.geometry()
