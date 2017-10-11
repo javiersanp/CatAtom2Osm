@@ -440,6 +440,20 @@ class PolygonLayer(BaseLayer):
                 "the '%s' layer"), len(to_clean), len(to_add),
                 self.name().encode('utf-8'))
 
+    def get_parents_per_vertex_and_geometries(self):
+        """
+        Returns:
+            (dict) parent fids for each vertex, (dict) geometry for each fid.
+        """
+        parents_per_vertex = defaultdict(list)
+        geometries = {}
+        for feature in self.getFeatures():
+            geom = QgsGeometry(feature.geometry())
+            geometries[feature.id()] = geom
+            for point in self.get_vertices_list(feature):
+                parents_per_vertex[point].append(feature.id())
+        return (parents_per_vertex, geometries)
+
     def get_parents_per_vertex_and_features(self):
         """
         Returns:
@@ -452,6 +466,37 @@ class PolygonLayer(BaseLayer):
             for point in self.get_vertices_list(feature):
                 parents_per_vertex[point].append(feature.id())
         return (parents_per_vertex, features)
+
+    def get_adjacents_and_geometries(self):
+        """
+        Returns:
+            (list) groups of adjacent polygons
+        """
+        parents_per_vertex, geometries = self.get_parents_per_vertex_and_geometries()
+        adjs = []
+        for (point, parents) in parents_per_vertex.items():
+            if len(parents) > 1:
+                for fid in parents:
+                    geom = geometries[fid]
+                    (point, ndx, ndxa, ndxb, dist) = geom.closestVertex(point)
+                    next = geom.vertexAt(ndxb)
+                    parents_next = parents_per_vertex[next]
+                    common = set(x for x in parents if x in parents_next)
+                    if len(common) > 1:
+                        adjs.append(common)
+        adjs = list(adjs)
+        groups = []
+        while adjs:
+            group = set(adjs.pop())
+            lastlen = -1
+            while len(group) > lastlen:
+                lastlen = len(group)
+                for adj in adjs[:]:
+                    if len({p for p in adj if p in group}) > 0:
+                        group |= adj
+                        adjs.remove(adj)
+            groups.append(group)
+        return (groups, geometries)
 
     def get_adjacents_and_features(self):
         """
@@ -538,13 +583,12 @@ class PolygonLayer(BaseLayer):
         to_change = {}
         nodes = set()
         for (gid, geom) in geometries.items():
-            for point in self.get_outer_vertices(geom):
+            for point in frozenset(self.get_outer_vertices(geom)):
                 if point not in nodes:
                     area_of_candidates = Point(point).boundingBox(threshold)
                     fids = index.intersects(area_of_candidates)
-                    #fids.remove(gid)
                     for fid in fids:
-                        g = geometries[fid]
+                        g = QgsGeometry(geometries[fid])
                         (p, ndx, ndxa, ndxb, dist_v) = g.closestVertex(point)
                         (dist_s, closest, vertex) = g.closestSegmentWithContext(point)
                         note = ""
@@ -650,6 +694,7 @@ class PolygonLayer(BaseLayer):
         if to_change:
             self.writer.changeGeometryValues(to_change)
         to_change = {}
+        total = 0
         if to_clean:
             self.writer.deleteFeatures(to_clean)
             log.debug(_("Deleted %d invalid geometries in the '%s' layer"),
@@ -679,25 +724,30 @@ class PolygonLayer(BaseLayer):
                         feat.setGeometry(geom)
                         parents.remove(fid)
                         to_change[fid] = geom
+                        total += 1
                 if log.getEffectiveLevel() <= logging.DEBUG:
                     debshp.add_point(point, "Deleted. %s" % msg)
             elif log.getEffectiveLevel() <= logging.DEBUG:
                 debshp.add_point(point, "Keep. %s" % msg)
-        if to_change:
+            if len(to_change) > BUFFER_SIZE:
+                self.writer.changeGeometryValues(to_change)
+                to_change = {}
+        if len(to_change) > 0:
             self.writer.changeGeometryValues(to_change)
+        if total:
             log.debug(_("Simplified %d vertices in the '%s' layer"), killed,
                 self.name().encode('utf-8'))
 
     def merge_adjacents(self):
         """Merge polygons with shared segments"""
-        (groups, features) = self.get_adjacents_and_features()
+        (groups, geometries) = self.get_adjacents_and_geometries()
         to_clean = []
         to_change = {}
         for group in groups:
             group = list(group)
-            geom = features[group[0]].geometry()
+            geom = geometries[group[0]]
             for fid in group[1:]:
-                geom = geom.combine(features[fid].geometry())
+                geom = geom.combine(geometries[fid])
             to_clean += group[1:]
             to_change[group[0]] = geom
         if to_clean:

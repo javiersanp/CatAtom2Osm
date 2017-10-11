@@ -267,10 +267,14 @@ class TestPolygonLayer(unittest.TestCase):
         p = [[QgsPoint(0,0), QgsPoint(1,0), QgsPoint(1,1), QgsPoint(0,0)]]
         mp = [[[QgsPoint(2,0), QgsPoint(3,0), QgsPoint(3,1), QgsPoint(2,0)]], p]
         f = QgsFeature(QgsFields())
-        f.setGeometry(QgsGeometry().fromPolygon(p))
+        g = QgsGeometry().fromPolygon(p)
+        f.setGeometry(g)
         self.assertEquals(PolygonLayer.get_multipolygon(f), [p])
-        f.setGeometry(QgsGeometry().fromMultiPolygon(mp))
+        self.assertEquals(PolygonLayer.get_multipolygon(g), [p])
+        g = QgsGeometry().fromMultiPolygon(mp)
+        f.setGeometry(g)
         self.assertEquals(PolygonLayer.get_multipolygon(f), mp)
+        self.assertEquals(PolygonLayer.get_multipolygon(g), mp)
 
     def test_get_vertices_list(self):
         p = [[QgsPoint(0,0), QgsPoint(1,0), QgsPoint(1,1), QgsPoint(0,0)]]
@@ -313,6 +317,15 @@ class TestPolygonLayer(unittest.TestCase):
         m = "Parts must be single polygons"
         self.assertTrue(all([not f.geometry().isMultipart()
             for f in self.layer.getFeatures()]), m)
+
+    def test_get_parents_per_vertex_and_geometries(self):
+        (parents_per_vertex, geometries) = self.layer.get_parents_per_vertex_and_geometries()
+        self.assertEquals(len(geometries), self.layer.featureCount())
+        self.assertTrue(all([geometries[f.id()].equals(f.geometry())
+            for f in self.layer.getFeatures()]))
+        self.assertGreater(len(parents_per_vertex), 0)
+        self.assertTrue(all([QgsGeometry().fromPoint(vertex).intersects(geometries[fid])
+            for (vertex, fids) in parents_per_vertex.items() for fid in fids]))
 
     def get_duplicates(self):
         """
@@ -423,8 +436,8 @@ class TestZoningLayer(unittest.TestCase):
             g = f.geometry()
             self.assertFalse(g.isMultipart())
 
-    def test_get_adjacents_and_features(self):
-        (groups, features) = self.layer1.get_adjacents_and_features()
+    def test_get_adjacents_and_geometries(self):
+        (groups, geometries) = self.layer1.get_adjacents_and_geometries()
         self.assertTrue(all([len(g) > 1 for g in groups]))
         for group in groups:
             for other in groups:
