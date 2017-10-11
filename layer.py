@@ -649,65 +649,71 @@ class PolygonLayer(BaseLayer):
         if log.getEffectiveLevel() <= logging.DEBUG:
             del debshp
 
+    def delete_invalid_geometries(self):
+        debshp = QgsVectorFileWriter('debug_notvalid.shp', 'UTF-8', QgsFields(),
+            QGis.WKBPolygon, self.crs(), 'ESRI Shapefile')
+        to_change = {}
+        to_clean = []
+        rings = 0
+        geometries = {feat.id(): QgsGeometry(feat.geometry()) for feat in self.getFeatures()}
+        for fid, geom in geometries.items():
+            for i, ring in enumerate(geom.asPolygon()):
+                n = -1
+                while n < 0 or v != QgsPoint(0, 0):
+                    n += 1
+                    g = QgsGeometry().fromPolygon([ring])
+                    f = QgsFeature(QgsFields())
+                    f.setGeometry(QgsGeometry(g))
+                    v = g.vertexAt(n)
+                    (__, is_acute, __, __) = Point(v).get_angle_with_context(g,
+                        acute_thr=setup.acute_thr/10.0)
+                    if is_acute:
+                        g.deleteVertex(n)
+                        if not g.isGeosValid() or g.area() < setup.min_area:
+                            if i > 0:
+                                rings += 1
+                                geom.deleteRing(i)
+                                to_change[fid] = geom
+                                if log.getEffectiveLevel() <= logging.DEBUG:
+                                    debshp.addFeature(f)
+                            else:
+                                to_clean.append(fid)
+                                if fid in to_change: del to_change[fid]
+                                if log.getEffectiveLevel() <= logging.DEBUG:
+                                    debshp.addFeature(f)
+                                break
+        if to_change:
+            self.writer.changeGeometryValues(to_change)
+        if rings:
+            log.debug(_("Deleted %d invalid ring geometries in the '%s' layer"),
+                rings, self.name().encode('utf-8'))
+        if to_clean:
+            self.writer.deleteFeatures(to_clean)
+            log.debug(_("Deleted %d invalid geometries in the '%s' layer"),
+                len(to_clean), self.name().encode('utf-8'))
+    
     def simplify(self):
         """
         Reduces the number of vertices in a polygon layer according to:
-
-        * Delete vertex if the angle with its adjacents is below 'acute_thr'
 
         * Delete vertex if the angle with its adjacents is near of the straight
           angle for less than 'straight_thr' degrees in all its parents.
 
         * Delete vertex if the distance to the segment formed by its parents is
           less than 'cath_thr' meters.
-
-        * Delete invalid geometries
         """
         if log.getEffectiveLevel() <= logging.DEBUG:
             debshp = DebugWriter("debug_simplify.shp", self.crs())
         killed = 0
         to_change = {}
-        to_clean = []
-        # Clean acute vertices
-        features = {feat.id(): feat for feat in self.getFeatures()}
-        for fid, feat in features.items():
-            geom = QgsGeometry(feat.geometry())
-            n = -1
-            while n < 0 or v != QgsPoint(0, 0):
-                n += 1
-                v = geom.vertexAt(n)
-                (__, is_acute, __, __) = Point(v).get_angle_with_context(geom)
-                if is_acute:
-                    killed += 1
-                    c = geom.centroid().asPoint()
-                    geom.deleteVertex(n)
-                    if geom.isGeosValid() and geom.area() > setup.min_area:
-                        feat.setGeometry(geom)
-                        to_change[fid] = geom
-                        n = -1
-                    else:
-                        to_clean.append(fid)
-                        if fid in to_change: del to_change[fid]
-                        if log.getEffectiveLevel() <= logging.DEBUG:
-                            debshp.add_point(c, "invalid geometry")
-                        break
-        if to_change:
-            self.writer.changeGeometryValues(to_change)
-        to_change = {}
-        total = 0
-        if to_clean:
-            self.writer.deleteFeatures(to_clean)
-            log.debug(_("Deleted %d invalid geometries in the '%s' layer"),
-                len(to_clean), self.name().encode('utf-8'))
         # Clean non corners
-        (parents_per_vertex, features) = self.get_parents_per_vertex_and_features()
+        (parents_per_vertex, geometries) = self.get_parents_per_vertex_and_geometries()
         for pnt, parents in parents_per_vertex.items():
             # Test if this vertex is a 'corner' in any of its parent polygons
             point = Point(pnt)
             deb_values = []
             for fid in parents:
-                feat = features[fid]
-                geom = feat.geometry()
+                geom = geometries[fid]
                 (angle, is_acute, is_corner, cath) = point.get_angle_with_context(geom)
                 deb_values.append((angle, is_acute, is_corner, cath))
                 if is_corner: break
@@ -716,25 +722,19 @@ class PolygonLayer(BaseLayer):
             if not is_corner:
                 killed += 1      # delete the vertex from all its parents.
                 for fid in frozenset(parents):
-                    feat = features[fid]
-                    geom = QgsGeometry(feat.geometry())
+                    geom = QgsGeometry(geometries[fid])
                     (__, ndx, __, __, __) = geom.closestVertex(point)
                     geom.deleteVertex(ndx)
                     if geom.isGeosValid():
-                        feat.setGeometry(geom)
                         parents.remove(fid)
+                        geometries[fid] = geom
                         to_change[fid] = geom
-                        total += 1
                 if log.getEffectiveLevel() <= logging.DEBUG:
                     debshp.add_point(point, "Deleted. %s" % msg)
             elif log.getEffectiveLevel() <= logging.DEBUG:
                 debshp.add_point(point, "Keep. %s" % msg)
-            if len(to_change) > BUFFER_SIZE:
-                self.writer.changeGeometryValues(to_change)
-                to_change = {}
-        if len(to_change) > 0:
+        if to_change:
             self.writer.changeGeometryValues(to_change)
-        if total:
             log.debug(_("Simplified %d vertices in the '%s' layer"), killed,
                 self.name().encode('utf-8'))
 

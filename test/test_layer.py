@@ -667,6 +667,47 @@ class TestConsLayer(unittest.TestCase):
             poly = PolygonLayer.get_multipolygon(building)
             self.assertIn(ref[1], poly[ref[2]][0])
 
+    def test_delete_invalid_geometries(self):
+        f1 = QgsFeature(self.layer.pendingFields())
+        g1 = QgsGeometry.fromPolygon([[
+            QgsPoint(358794.000, 3124330.000),
+            QgsPoint(358794.200, 3124329.800),
+            QgsPoint(358794.400, 3124330.000),
+            QgsPoint(358794.200, 3124500.000),
+            QgsPoint(358794.000, 3124330.000)
+        ]])
+        f1.setGeometry(g1)
+        f2 = QgsFeature(self.layer.pendingFields())
+        g2 = QgsGeometry.fromPolygon([[
+            QgsPoint(358794.000, 3124330.000),
+            QgsPoint(358795.000, 3124331.000),
+            QgsPoint(358794.500, 3124500.000),
+            QgsPoint(358794.000, 3124330.000)
+        ]])
+        f2.setGeometry(g2)
+        f3 = QgsFeature(self.layer.pendingFields())
+        g3 = QgsGeometry.fromPolygon([[
+            QgsPoint(358890.000, 3124329.000),
+            QgsPoint(358900.000, 3124329.000),
+            QgsPoint(358900.000, 3124501.000),
+            QgsPoint(358890.000, 3124501.000),
+            QgsPoint(358890.000, 3124330.000)
+        ], [
+            QgsPoint(358894.000, 3124330.000),
+            QgsPoint(358895.000, 3124331.000),
+            QgsPoint(358894.500, 3124500.000),
+            QgsPoint(358894.000, 3124330.000)
+        ]])
+        f3.setGeometry(g3)
+        fc = self.layer.featureCount()
+        self.layer.writer.addFeatures([f1, f2, f3])
+        self.layer.delete_invalid_geometries()
+        self.assertEquals(fc, self.layer.featureCount() - 1)
+        request = QgsFeatureRequest().setFilterFid(self.layer.featureCount() - 1)
+        f = self.layer.getFeatures(request).next()
+        g = f.geometry()
+        self.assertEquals(len(g.asPolygon()), 1)
+
     def test_simplify1(self):
         refs = [
             ('8643326CS5284S', QgsPoint(358684.62, 3124377.54), True),
