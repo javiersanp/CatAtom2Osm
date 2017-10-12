@@ -574,6 +574,16 @@ class TestConsLayer(unittest.TestCase):
         to_clean = [f.id() for f in self.layer.search('lev_above=0 and lev_below>0')]
         self.assertEquals(len(to_clean), 0, 'There are not parts below ground')
 
+    def test_index_of_parts(self):
+        parts = self.layer.index_of_parts()
+        p = {f.id(): f for f in self.layer.getFeatures() if self.layer.is_part(f)}
+        self.assertEqual(sum(len(g) for g in parts.values()), len(p))
+        for (localid, group) in parts.items():
+            for fid in group:
+                pa = self.layer.get_feature(fid)
+                self.assertTrue(localid, pa['localid'].split('_')[0])
+                self.assertIn('_', pa['localid'])
+
     def test_index_of_building_and_parts(self):
         (buildings, parts) = self.layer.index_of_building_and_parts()
         b = {f.id(): f for f in self.layer.getFeatures() if self.layer.is_building(f)}

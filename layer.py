@@ -601,21 +601,24 @@ class PolygonLayer(BaseLayer):
                                 g.moveVertex(point.x(), point.y(), ndxa)
                                 note = "dupe refused by isGeosValid"
                                 if g.isGeosValid():
-                                    note = "Merge dup. %.10f %.5f,%.5f->%.5f,%.5f" % (dist_a, va.x(), va.y(), point.x(), point.y())
+                                    note = "Merge dup. %.10f %.5f,%.5f->%.5f,%.5f" % \
+                                        (dist_a, va.x(), va.y(), point.x(), point.y())
                                     nodes.add(p)
                                     td += 1
                             if dist_b > 0 and dist_b < dup_thr**2:
                                 g.moveVertex(point.x(), point.y(), ndxb)
                                 note = "dupe refused by isGeosValid"
                                 if g.isGeosValid():
-                                    note = "Merge dup. %.10f %.5f,%.5f->%.5f,%.5f" % (dist_b, vb.x(), vb.y(), point.x(), point.y())
+                                    note = "Merge dup. %.10f %.5f,%.5f->%.5f,%.5f" % \
+                                        (dist_b, vb.x(), vb.y(), point.x(), point.y())
                                     nodes.add(p)
                                     td += 1
                         elif dist_v < dup_thr**2:
                             g.moveVertex(point.x(), point.y(), ndx)
                             note = "dupe refused by isGeosValid"
                             if g.isGeosValid():
-                                note = "Merge dup. %.10f %.5f,%.5f->%.5f,%.5f" % (dist_v, p.x(), p.y(), point.x(), point.y())
+                                note = "Merge dup. %.10f %.5f,%.5f->%.5f,%.5f" % \
+                                    (dist_v, p.x(), p.y(), point.x(), point.y())
                                 nodes.add(p)
                                 td += 1
                         elif dist_s < threshold**2 and dist_v > 0:
@@ -628,7 +631,8 @@ class PolygonLayer(BaseLayer):
                                 if g.insertVertex(point.x(), point.y(), vertex):
                                     note = "Topo refused by isGeosValid"
                                     if g.isGeosValid():
-                                        note = "Add topo %.6f %.5f,%.5f" % (dist_s, point.x(), point.y())
+                                        note = "Add topo %.6f %.5f,%.5f" % \
+                                            (dist_s, point.x(), point.y())
                                         tp += 1
                         if note.startswith('Merge') or note.startswith('Add'):
                             to_change[fid] = g
@@ -1028,6 +1032,14 @@ class ConsLayer(PolygonLayer):
         """Export to OSM"""
         return super(ConsLayer, self).to_osm(translate.building_tags, data, upload)
 
+    def index_of_parts(self):
+        """ Index parts of building by building localid. """
+        parts = defaultdict(list)
+        for part in self.search("regexp_match(localId, '_part')"):
+            localId = part['localId'].split('_')[0]
+            parts[localId].append(part)
+        return parts
+
     def index_of_building_and_parts(self):
         """
         Constructs some utility dicts.
@@ -1118,22 +1130,18 @@ class ConsLayer(PolygonLayer):
 
     def merge_building_parts(self):
         """Apply merge_adjacent_parts to each set of building and its parts"""
-        (buildings, parts) = self.index_of_building_and_parts()
+        parts = self.index_of_parts()
         to_clean = []
         to_clean_g = []
         to_change = {}
         to_change_g = {}
-        for (refcat, group) in buildings.items():
-            if refcat in parts:
-                for bu_id in group:
-                    building = self.get_feature(bu_id)
-                    request = QgsFeatureRequest().setFilterFids(parts[refcat])
-                    it_parts = [f for f in self.getFeatures(request)]
-                    cn, cng, ch, chg= self.merge_adjacent_parts(building, it_parts)
-                    to_clean += cn
-                    to_clean_g += cng
-                    to_change.update(ch)
-                    to_change_g.update(chg)
+        for building in self.search("not regexp_match(localId, '_')"):
+            it_parts = parts[building['localId']]
+            cn, cng, ch, chg= self.merge_adjacent_parts(building, it_parts)
+            to_clean += cn
+            to_clean_g += cng
+            to_change.update(ch)
+            to_change_g.update(chg)
         if to_clean:
             self.writer.changeAttributeValues(to_change)
             log.debug(_("Translated %d level values to the footprint"), len(to_change))
