@@ -62,6 +62,8 @@ class CatAtom2Osm:
         log.debug(_("Initialized QGIS API"))
         self.debug = log.getEffectiveLevel() == logging.DEBUG
         self.fixmes = 0
+        self.min_level = {}
+        self.max_level = {}
         self.is_new = False
 
     def run(self):
@@ -84,9 +86,6 @@ class CatAtom2Osm:
             self.address_osm = osm.Osm()
         if self.options.building or self.options.tasks or self.options.taskslm:
             self.get_building()
-            #self.building_gml = self.cat.read("building")
-            #self.part_gml = self.cat.read("buildingpart")
-            #self.other_gml = self.cat.read("otherconstruction", True)
             self.building_osm = osm.Osm()
             if not self.options.manual:
                 self.current_bu_osm = self.get_current_bu_osm()
@@ -94,7 +93,7 @@ class CatAtom2Osm:
                 self.process_tasks(self.building)
             else:
                 self.process_building()
-        log.info(_("Finished!"))
+        self.end_messages()
         return
         if self.options.address:
             self.process_address()
@@ -212,21 +211,18 @@ class CatAtom2Osm:
         task.rename = {}
         refs = task.append_zone(source, zone, processed, index)
         if task.featureCount() > 0 and self.options.taskslm:
-            #task.remove_outside_parts()
-            #task.merge_duplicates2()
-            #task.clean_duplicated_nodes_in_polygons()
-            #task.add_topological_points()
-            task.topology()
-            #task.merge_building_parts()
-            #task.simplify()
-            """
-            vertices_by_fid = {f.id(): f.geometry().asPoint() for f in vertices.getFeatures()}
             task.remove_outside_parts()
             task.explode_multi_parts(getattr(self, 'address', False))
             task.remove_parts_below_ground()
             task.clean()
-            #task.validate(self.min_level, self.max_level)
             """
+            task.topology()
+            task.clean_duplicated_nodes_in_polygons()
+            task.merge_building_parts()
+            task.delete_invalid_geometries()
+            task.simplify()
+            """
+            task.validate(self.max_level, self.min_level)
         return task, refs
 
     def process_address(self):
@@ -241,7 +237,8 @@ class CatAtom2Osm:
         del address_osm
 
     def process_zoning(self):
-        self.urban_zoning.clean()
+        self.urban_zoning.delete_invalid_geometries()
+        self.urban_zoning.simplify()
         self.rustic_zoning.clean()
         self.urban_zoning.reproject()
         self.rustic_zoning.reproject()
@@ -251,23 +248,24 @@ class CatAtom2Osm:
     def process_building(self):
         """Process all buildings dataset"""
         #if self.debug: self.export_layer(building, 'building.shp')
-        #self.building.remove_outside_parts()
-        #self.building.explode_multi_parts(getattr(self, 'address', False))
-        #self.building.remove_parts_below_ground()
-        #self.building.clean()
-        #self.building.merge_duplicates2()
-        #self.building.clean_duplicated_nodes_in_polygons()
-        #self.building.add_topological_points()
+        self.building.remove_outside_parts()
+        self.building.explode_multi_parts(getattr(self, 'address', False))
+        self.building.remove_parts_below_ground()
+        self.building.clean()
+        """
         self.building.topology()
-        return
-        #self.building.merge_building_parts()
-        #self.building.simplify()
+        self.building.clean_duplicated_nodes_in_polygons()
+        self.building.merge_building_parts()
+        self.building.delete_invalid_geometries()
+        self.building.simplify()
+        """
         if self.options.address:
             self.building.move_address(self.address)
-        #self.building.validate(self.max_level, self.min_level)
+        self.building.validate(self.max_level, self.min_level)
         if self.options.tasks:
             self.process_tasks(self.building)
         self.building.reproject()
+        return
         if not self.options.manual and self.building.conflate(self.current_bu_osm):
             self.write_osm(self.current_bu_osm, 'current_building.osm')
             del self.current_bu_osm
@@ -390,8 +388,9 @@ class CatAtom2Osm:
         self.urban_zoning.append(zoning_gml, level='M')
         self.rustic_zoning.append(zoning_gml, level='P')
         del zoning_gml
-        self.urban_zoning.add_topological_points()
-        #self.urban_zoning.merge_adjacents()
+        self.urban_zoning.topology()
+        self.urban_zoning.clean_duplicated_nodes_in_polygons()
+        self.urban_zoning.merge_adjacents()
 
     def read_address(self):
         """Reads Address GML dataset"""
@@ -403,11 +402,17 @@ class CatAtom2Osm:
                     "'%s' layer") % address_gml.name())
         postaldescriptor = self.cat.read("postaldescriptor")
         thoroughfarename = self.cat.read("thoroughfarename")
-        self.address = layer.AddressLayer(source_date = address_gml.source_date)
+        #"""
+        fn = os.path.join(self.path, 'address.shp')
+        layer.AddressLayer.create_shp(fn, address_gml.crs())
+        self.address = layer.AddressLayer(fn, providerLib='ogr', 
+            source_date=address_gml.source_date)
+        #"""
+        #self.address = layer.AddressLayer(source_date = address_gml.source_date)
         self.address.append(address_gml)
         self.address.join_field(postaldescriptor, 'PD_id', 'gml_id', ['postCode'])
         self.address.join_field(thoroughfarename, 'TN_id', 'gml_id', ['text'], 'TN_')
-        if self.debug: self.export_layer(self.address, 'address.shp')
+        #if self.debug: self.export_layer(self.address, 'address.shp')
 
     def merge_address(self, building_osm, address_osm):
         """

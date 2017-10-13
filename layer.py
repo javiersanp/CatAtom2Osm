@@ -247,6 +247,7 @@ class BaseLayer(QgsVectorLayer):
         for feature in source_layer.getFeatures():
             source_values[feature[join_field_name]] = \
                     {attr: feature[attr] for attr in field_names_subset}
+        total = 0
         to_change = {}
         for feature in self.getFeatures():
             attrs = {}
@@ -257,8 +258,13 @@ class BaseLayer(QgsVectorLayer):
                     value = source_values[feature[target_field_name]][attr]
                 attrs[fieldId] = value
             to_change[feature.id()] = attrs
-        if to_change:
+            total += 1
+            if len(to_change) > BUFFER_SIZE:
+                self.writer.changeAttributeValues(to_change)
+                to_change = {}
+        if len(to_change) > 0:
             self.writer.changeAttributeValues(to_change)
+        if total:
             log.debug(_("Joined '%s' to '%s'"), source_layer.name().encode('utf-8'),
                 self.name().encode('utf-8'))
 
@@ -650,12 +656,11 @@ class PolygonLayer(BaseLayer):
         if tp:
             log.debug(_("Created %d topological points in the '%s' layer"),
                 tp, self.name().encode('utf-8'))
-        if log.getEffectiveLevel() <= logging.DEBUG:
-            del debshp
 
     def delete_invalid_geometries(self):
-        debshp = QgsVectorFileWriter('debug_notvalid.shp', 'UTF-8', QgsFields(),
-            QGis.WKBPolygon, self.crs(), 'ESRI Shapefile')
+        if log.getEffectiveLevel() <= logging.DEBUG:
+            debshp = QgsVectorFileWriter('debug_notvalid.shp', 'UTF-8', QgsFields(),
+                QGis.WKBPolygon, self.crs(), 'ESRI Shapefile')
         to_change = {}
         to_clean = []
         rings = 0
@@ -762,8 +767,9 @@ class PolygonLayer(BaseLayer):
 
     def clean(self):
         """Merge duplicated vertices and simplify layer"""
-        self.merge_duplicates()
+        self.topology()
         self.clean_duplicated_nodes_in_polygons()
+        self.delete_invalid_geometries()
         self.simplify()
 
 
@@ -1043,17 +1049,17 @@ class ConsLayer(PolygonLayer):
     def index_of_building_and_parts(self):
         """
         Constructs some utility dicts.
-        buildings index building by localid (many if it was a multipart building).
+        buildings index building by localid (call before explode_multi_parts).
         parts index parts of building by building localid.
         """
-        buildings = defaultdict(list)
+        buildings = {}
         parts = defaultdict(list)
         for feature in self.getFeatures():
             if self.is_building(feature):
-                buildings[feature['localId']].append(feature.id())
+                buildings[feature['localId']] = feature
             elif self.is_part(feature):
                 localId = feature['localId'].split('_')[0]
-                parts[localId].append(feature.id())
+                parts[localId].append(feature)
         return (buildings, parts)
 
     def remove_outside_parts(self):
@@ -1156,10 +1162,10 @@ class ConsLayer(PolygonLayer):
         Merge duplicated vertices, add topological points, simplify layer
         and merge building parts.
         """
-        self.merge_duplicates()
+        self.topology()
         self.clean_duplicated_nodes_in_polygons()
-        self.add_topological_points()
         self.merge_building_parts()
+        self.delete_invalid_geometries()
         self.simplify()
 
     def move_address(self, address):
@@ -1178,12 +1184,9 @@ class ConsLayer(PolygonLayer):
         for ad in address.getFeatures():
             attributes = get_attributes(ad)
             refcat = ad['localId'].split('.')[-1]
-            building_count = len(buildings[refcat])
-            if building_count == 1:
-                building = buildings[refcat][0]
-                building = self.get_feature(buildings[refcat][0])
-                request = QgsFeatureRequest().setFilterFids(parts[refcat])
-                it_parts = [f for f in self.getFeatures(request)]
+            if refcat in buildings:
+                building = buildings[refcat]#[0]
+                it_parts = parts[refcat]
                 if ad['spec'] == 'Entrance':
                     point = ad.geometry().asPoint()
                     bg = building.geometry()

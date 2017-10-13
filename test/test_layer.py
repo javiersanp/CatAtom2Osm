@@ -579,8 +579,7 @@ class TestConsLayer(unittest.TestCase):
         p = {f.id(): f for f in self.layer.getFeatures() if self.layer.is_part(f)}
         self.assertEqual(sum(len(g) for g in parts.values()), len(p))
         for (localid, group) in parts.items():
-            for fid in group:
-                pa = self.layer.get_feature(fid)
+            for pa in group:
                 self.assertTrue(localid, pa['localid'].split('_')[0])
                 self.assertIn('_', pa['localid'])
 
@@ -588,16 +587,13 @@ class TestConsLayer(unittest.TestCase):
         (buildings, parts) = self.layer.index_of_building_and_parts()
         b = {f.id(): f for f in self.layer.getFeatures() if self.layer.is_building(f)}
         p = {f.id(): f for f in self.layer.getFeatures() if self.layer.is_part(f)}
-        self.assertEqual(sum(len(g) for g in buildings.values()), len(b))
+        self.assertEqual(len(buildings), len(b))
         self.assertEqual(sum(len(g) for g in parts.values()), len(p))
-        for (localid, group) in buildings.items():
-            for fid in group:
-                bu = self.layer.get_feature(fid)
-                self.assertTrue(localid, bu['localid'])
-                self.assertNotIn('_', localid)
+        for (localid, bu) in buildings.items():
+            self.assertTrue(localid, bu['localid'])
+            self.assertNotIn('_', localid)
         for (localid, group) in parts.items():
-            for fid in group:
-                pa = self.layer.get_feature(fid)
+            for pa in group:
                 self.assertTrue(localid, pa['localid'].split('_')[0])
                 self.assertIn('_', pa['localid'])
 
