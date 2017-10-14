@@ -202,20 +202,25 @@ class BaseLayer(QgsVectorLayer):
         if target_crs is None:
             target_crs = QgsCoordinateReferenceSystem(4326)
         crs_transform = QgsCoordinateTransform(self.crs(), target_crs)
-        to_add = []
-        to_clean = []
+        to_change = {}
         for feature in self.getFeatures():
-            geom = feature.geometry()
+            geom = QgsGeometry(feature.geometry())
             geom.transform(crs_transform)
-            out_feat = QgsFeature()
-            out_feat.setGeometry(geom)
-            out_feat.setAttributes(feature.attributes())
-            to_add.append(out_feat)
-            to_clean.append(feature.id())
-        self.writer.deleteFeatures(to_clean)
-        self.writer.addFeatures(to_add)
+            to_change[feature.id()] = geom
+            if len(to_change) > BUFFER_SIZE:
+                self.writer.changeGeometryValues(to_change)
+                to_change = {}
+        if len(to_change) > 0:
+            self.writer.changeGeometryValues(to_change)
         self.setCrs(target_crs)
         self.updateExtents()
+        if self.writer.storageType() == 'ESRI Shapefile':
+            path = self.writer.dataSourceUri().split('|')[0]
+            path = os.path.splitext(path)[0]
+            if os.path.exists(path + '.prj'):
+                os.remove(path + '.prj')
+            if os.path.exists(path + '.qpj'):
+                os.remove(path + '.qpj')
         log.debug(_("Reprojected the '%s' layer to '%s' CRS"),
             self.name().encode('utf-8'), target_crs.description())
 
