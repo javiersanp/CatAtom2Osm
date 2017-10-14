@@ -69,8 +69,7 @@ class CatAtom2Osm:
     def run(self):
         """Launches the app"""
         log.info(_("Start processing '%s'"), self.zip_code)
-        if self.options.taskslm:
-            self.get_zoning()
+        self.get_zoning()
         if self.options.address:
             self.read_address()
             highway = self.get_highway()
@@ -260,10 +259,15 @@ class CatAtom2Osm:
 
     def process_parcel(self):
         parcel_gml = self.cat.read("cadastralparcel")
-        parcel = layer.ParcelLayer(source_date = parcel_gml.source_date)
+        #"""
+        fn = os.path.join(self.path, 'parcel.shp')
+        layer.ParcelLayer.create_shp(fn, parcel_gml.crs())
+        parcel = layer.ParcelLayer(fn, providerLib='ogr', 
+            source_date=parcel_gml.source_date)
+        #"""
+        #parcel = layer.ParcelLayer(source_date = parcel_gml.source_date)
         parcel.append(parcel_gml)
         del parcel_gml
-        if self.debug: self.export_layer(self.parcel, 'parcel.shp')
         parcel.reproject()
         parcel_osm = parcel.to_osm()
         self.write_osm(parcel_osm, "parcel.osm")
@@ -394,7 +398,6 @@ class CatAtom2Osm:
         self.address.append(address_gml)
         self.address.join_field(postaldescriptor, 'PD_id', 'gml_id', ['postCode'])
         self.address.join_field(thoroughfarename, 'TN_id', 'gml_id', ['text'], 'TN_')
-        #if self.debug: self.export_layer(self.address, 'address.shp')
 
     def merge_address(self, building_osm, address_osm):
         """
