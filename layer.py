@@ -700,7 +700,7 @@ class PolygonLayer(BaseLayer):
             self.writer.deleteFeatures(to_clean)
             log.debug(_("Deleted %d invalid geometries in the '%s' layer"),
                 len(to_clean), self.name().encode('utf-8'))
-    
+
     def simplify(self):
         """
         Reduces the number of vertices in a polygon layer according to:
@@ -1052,11 +1052,11 @@ class ConsLayer(PolygonLayer):
         buildings index building by localid (call before explode_multi_parts).
         parts index parts of building by building localid.
         """
-        buildings = {}
+        buildings = defaultdict(list)
         parts = defaultdict(list)
         for feature in self.getFeatures():
             if self.is_building(feature):
-                buildings[feature['localId']] = feature
+                buildings[feature['localId']].append(feature)
             elif self.is_part(feature):
                 localId = feature['localId'].split('_')[0]
                 parts[localId].append(feature)
@@ -1164,8 +1164,8 @@ class ConsLayer(PolygonLayer):
         """
         self.topology()
         self.clean_duplicated_nodes_in_polygons()
-        self.merge_building_parts()
         self.delete_invalid_geometries()
+        self.merge_building_parts()
         self.simplify()
 
     def move_address(self, address):
@@ -1184,8 +1184,9 @@ class ConsLayer(PolygonLayer):
         for ad in address.getFeatures():
             attributes = get_attributes(ad)
             refcat = ad['localId'].split('.')[-1]
-            if refcat in buildings:
-                building = buildings[refcat]#[0]
+            building_count = len(buildings[refcat])
+            if building_count == 1:
+                building = buildings[refcat][0]
                 it_parts = parts[refcat]
                 if ad['spec'] == 'Entrance':
                     point = ad.geometry().asPoint()

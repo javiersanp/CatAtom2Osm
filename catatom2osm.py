@@ -212,7 +212,7 @@ class CatAtom2Osm:
         refs = task.append_zone(source, zone, processed, index)
         if task.featureCount() > 0 and self.options.taskslm:
             task.remove_outside_parts()
-            task.explode_multi_parts(getattr(self, 'address', False))
+            task.explode_multi_parts()
             task.remove_parts_below_ground()
             task.clean()
             """
@@ -249,7 +249,7 @@ class CatAtom2Osm:
         """Process all buildings dataset"""
         #if self.debug: self.export_layer(building, 'building.shp')
         self.building.remove_outside_parts()
-        self.building.explode_multi_parts(getattr(self, 'address', False))
+        self.building.explode_multi_parts()
         self.building.remove_parts_below_ground()
         self.building.clean()
         """
