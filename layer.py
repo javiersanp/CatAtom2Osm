@@ -812,9 +812,13 @@ class ZoningLayer(PolygonLayer):
         self.task_number = 0
         self.task_pattern = pattern
 
-    def get_task(self):
-        self.task_number += 1
-        return self.task_pattern.format(self.task_number)        
+    def set_tasks(self):
+        to_change = {}
+        for i, zone in enumerate(self.getFeatures()):
+            zone['label'] = self.task_pattern.format(i + 1)        
+            attr = get_attributes(zone)
+            to_change[zone.id()] = attr
+        self.writer.changeAttributeValues(to_change)
 
     def append(self, layer, level=None):
         """Append features of layer with levelName 'M' for rustic or 'P' for urban"""
@@ -1255,6 +1259,7 @@ class ConsLayer(PolygonLayer):
         If delete=False, only mark buildings with conflicts
         """
         index = self.get_index()
+        geometries = {f.id(): QgsGeometry(f.geometry()) for f in self.getFeatures()}
         num_buildings = 0
         conflicts = 0
         to_clean = set()
@@ -1269,10 +1274,12 @@ class ConsLayer(PolygonLayer):
                 geom = QgsGeometry().fromMultiPolygon(poly)
                 if geom.isGeosValid():
                     fids = index.intersects(geom.boundingBox())
-                    request = QgsFeatureRequest().setFilterFids(fids)
+                    #request = QgsFeatureRequest().setFilterFids(fids)
                     conflict = False
-                    for feat in self.getFeatures(request):
-                        fg = feat.geometry()
+                    #for feat in self.getFeatures(request):
+                    for fid in fids:
+                        fg = geometries[fid]
+                        #fg = feat.geometry()
                         if geom.contains(fg) or fg.contains(geom) or geom.overlaps(fg):
                             conflict = True
                             conflicts += 1

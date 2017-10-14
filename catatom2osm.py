@@ -136,8 +136,6 @@ class CatAtom2Osm:
         zone_processed = set()
         for rzone in self.rustic_zoning.getFeatures():
             poligono, refs = self.process_zone(rzone, rindex, rprocessed, source)
-            del poligono
-            continue
             if refs:
                 rprocessed = rprocessed.union(refs)
                 temp_address = None
@@ -177,7 +175,6 @@ class CatAtom2Osm:
                 del temp_address
                 del uindex
             del poligono
-        return
         if self.options.taskslm and not self.options.manual:
             to_clean = []
             num_buildings = 0
@@ -201,7 +198,7 @@ class CatAtom2Osm:
 
     def process_zone(self, zone, index, processed, source):
         #"""
-        fn = os.path.join(self.path, 'task.shp')
+        fn = os.path.join(self.path, 'tasks', zone['label'] + '.shp')
         layer.ConsLayer.create_shp(fn, source.crs())
         task = layer.ConsLayer(fn, zone['label'], 'ogr',
             source_date = source.source_date)
@@ -210,18 +207,11 @@ class CatAtom2Osm:
         #    source_date = source.source_date)
         task.rename = {}
         refs = task.append_zone(source, zone, processed, index)
-        if task.featureCount() > 0 and self.options.taskslm:
+        if task.featureCount() > 0 and self.options.taskslm and zone['label'][0] == 'r':
             task.remove_outside_parts()
             task.explode_multi_parts()
             task.remove_parts_below_ground()
             task.clean()
-            """
-            task.topology()
-            task.clean_duplicated_nodes_in_polygons()
-            task.merge_building_parts()
-            task.delete_invalid_geometries()
-            task.simplify()
-            """
             task.validate(self.max_level, self.min_level)
         return task, refs
 
@@ -265,7 +255,6 @@ class CatAtom2Osm:
         if self.options.tasks:
             self.process_tasks(self.building)
         self.building.reproject()
-        return
         if not self.options.manual and self.building.conflate(self.current_bu_osm):
             self.write_osm(self.current_bu_osm, 'current_building.osm')
             del self.current_bu_osm
@@ -391,6 +380,8 @@ class CatAtom2Osm:
         self.urban_zoning.topology()
         self.urban_zoning.clean_duplicated_nodes_in_polygons()
         self.urban_zoning.merge_adjacents()
+        self.rustic_zoning.set_tasks()
+        self.urban_zoning.set_tasks()
 
     def read_address(self):
         """Reads Address GML dataset"""
