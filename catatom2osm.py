@@ -94,13 +94,12 @@ class CatAtom2Osm:
             else:
                 self.process_building()
         self.end_messages()
-        return
         if self.options.address:
             self.process_address()
-        #if self.options.zoning:
-        #    self.process_zoning()
-        #del self.urban_zoning
-        #del self.rustic_zoning
+        if self.options.zoning:
+            self.process_zoning()
+        del self.urban_zoning
+        del self.rustic_zoning
         if self.options.building:
             self.write_building()
         if self.options.parcel:
@@ -237,18 +236,10 @@ class CatAtom2Osm:
 
     def process_building(self):
         """Process all buildings dataset"""
-        #if self.debug: self.export_layer(building, 'building.shp')
         self.building.remove_outside_parts()
         self.building.explode_multi_parts()
         self.building.remove_parts_below_ground()
         self.building.clean()
-        """
-        self.building.topology()
-        self.building.clean_duplicated_nodes_in_polygons()
-        self.building.merge_building_parts()
-        self.building.delete_invalid_geometries()
-        self.building.simplify()
-        """
         if self.options.address:
             self.building.move_address(self.address)
         self.building.validate(self.max_level, self.min_level)
