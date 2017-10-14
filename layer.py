@@ -285,9 +285,8 @@ class BaseLayer(QgsVectorLayer):
                 value = feat[field_name]
                 if value in translations and translations[value] != '':
                     new_value = translations[value]
-                    attributes = get_attributes(feat)
-                    attributes[field_ndx] = new_value
-                    to_change[feat.id()] = attributes
+                    feat[field_name] = new_value
+                    to_change[feat.id()] = get_attributes(feat)
                 elif clean:
                     to_clean.append(feat.id())
             self.writer.changeAttributeValues(to_change)
@@ -1115,10 +1114,9 @@ class ConsLayer(PolygonLayer):
         to_change = {}
         to_change_g = {}
         parts_for_level, max_level, min_level = self.get_parts(footprint, parts)
-        attr = get_attributes(footprint)
-        attr[self.fieldNameIndex('lev_above')] = max_level
-        attr[self.fieldNameIndex('lev_below')] = min_level
-        to_change[footprint.id()] = attr
+        footprint['lev_above'] = max_level
+        footprint['lev_below'] = min_level
+        to_change[footprint.id()] = get_attributes(footprint)
         for (level, parts) in parts_for_level.items():
             if level == (max_level, min_level):
                 to_clean = [p.id() for p in parts_for_level[max_level, min_level]]
@@ -1182,7 +1180,6 @@ class ConsLayer(PolygonLayer):
         to_insert = {}
         (buildings, parts) = self.index_of_building_and_parts()
         for ad in address.getFeatures():
-            attributes = get_attributes(ad)
             refcat = ad['localId'].split('.')[-1]
             building_count = len(buildings[refcat])
             if building_count == 1:
@@ -1197,8 +1194,8 @@ class ConsLayer(PolygonLayer):
                     if distance < setup.addr_thr**2:
                         if closest.sqrDist(va) < setup.entrance_thr**2 \
                                 or closest.sqrDist(vb) < setup.entrance_thr**2:
-                            attributes[ad.fieldNameIndex('spec')] = 'corner'
-                            to_change[ad.id()] = attributes
+                            ad['spec'] = 'corner'
+                            to_change[ad.id()] = get_attributes(ad)
                         else:
                             dg = QgsGeometry.fromPoint(closest)
                             to_move[ad.id()] = dg
@@ -1212,8 +1209,8 @@ class ConsLayer(PolygonLayer):
                                         pg.insertVertex(closest.x(), closest.y(), i+1)
                                         to_insert[part.id()] = QgsGeometry(pg)
                     else:
-                        attributes[ad.fieldNameIndex('spec')] = 'remote'
-                        to_change[ad.id()] = attributes
+                        ad['spec'] = 'remote'
+                        to_change[ad.id()] = get_attributes(ad)
         address.writer.changeAttributeValues(to_change)
         address.writer.changeGeometryValues(to_move)
         self.writer.changeGeometryValues(to_insert)
@@ -1224,14 +1221,12 @@ class ConsLayer(PolygonLayer):
         """Put fixmes to buildings with not valid geometry, too small or big.
         Returns distribution of floors"""
         to_change = {}
-        fixme_ndx = self.pendingFields().fieldNameIndex('fixme')
         for feat in self.getFeatures():
-            attributes = get_attributes(feat)
             geom = feat.geometry()
             errors = geom.validateGeometry()
             if errors:
-                attributes[fixme_ndx] = '; '.join([e.what() for e in errors])
-                to_change[feat.id()] = attributes
+                feat['fixme'] = '; '.join([e.what() for e in errors])
+                to_change[feat.id()] = get_attributes(feat)
             if ConsLayer.is_building(feat):
                 localid = feat['localId']
                 if isinstance(feat['lev_above'], int) and feat['lev_above'] > 0:
@@ -1241,11 +1236,11 @@ class ConsLayer(PolygonLayer):
                 if feat.id() not in to_change:
                     area = geom.area()
                     if area < setup.warning_min_area:
-                        attributes[fixme_ndx] = _("Check, area too small")
-                        to_change[feat.id()] = attributes
+                        feat['fixme'] = _("Check, area too small")
+                        to_change[feat.id()] = get_attributes(feat)
                     if area > setup.warning_max_area:
-                        attributes[fixme_ndx] = _("Check, area too big")
-                        to_change[feat.id()] = attributes
+                        feat['fixme'] = _("Check, area too big")
+                        to_change[feat.id()] = get_attributes(feat)
         if to_change:
             self.writer.changeAttributeValues(to_change)
 
