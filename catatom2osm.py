@@ -107,13 +107,10 @@ class CatAtom2Osm:
     def get_building(self):
         """Merge building, parts and pools"""
         building_gml = self.cat.read("building")
-        #"""
         fn = os.path.join(self.path, 'building.shp')
         layer.ConsLayer.create_shp(fn, building_gml.crs())
         self.building = layer.ConsLayer(fn, providerLib='ogr', 
             source_date=building_gml.source_date)
-        #"""
-        #self.building = layer.ConsLayer(source_date=building_gml.source_date)
         self.building.append(building_gml)
         del building_gml
         part_gml = self.cat.read("buildingpart")
@@ -134,7 +131,7 @@ class CatAtom2Osm:
         for rzone in self.rustic_zoning.getFeatures():
             poligono, refs = self.process_zone(rzone, rindex, rprocessed, source)
             if refs:
-                rprocessed = rprocessed.union(refs)
+                rprocessed = rprocessed.unImproion(refs)
                 address_osm = None
                 if self.options.address:
                     poligono.move_address(self.address)
@@ -194,14 +191,10 @@ class CatAtom2Osm:
         del rindex
 
     def process_zone(self, zone, index, processed, source):
-        #"""
         fn = os.path.join(self.path, 'tasks', zone['label'] + '.shp')
         layer.ConsLayer.create_shp(fn, source.crs())
         task = layer.ConsLayer(fn, zone['label'], 'ogr',
             source_date = source.source_date)
-        #"""
-        #task = layer.ConsLayer(baseName=zone['label'],
-        #    source_date = source.source_date)
         task.rename = {}
         refs = task.append_zone(source, zone, processed, index)
         if task.featureCount() > 0 and self.options.taskslm and zone['label'][0] == 'r':
@@ -258,13 +251,10 @@ class CatAtom2Osm:
 
     def process_parcel(self):
         parcel_gml = self.cat.read("cadastralparcel")
-        #"""
         fn = os.path.join(self.path, 'parcel.shp')
         layer.ParcelLayer.create_shp(fn, parcel_gml.crs())
         parcel = layer.ParcelLayer(fn, providerLib='ogr', 
             source_date=parcel_gml.source_date)
-        #"""
-        #parcel = layer.ParcelLayer(source_date = parcel_gml.source_date)
         parcel.append(parcel_gml)
         del parcel_gml
         parcel.reproject()
@@ -388,13 +378,10 @@ class CatAtom2Osm:
                     "'%s' layer") % address_gml.name())
         postaldescriptor = self.cat.read("postaldescriptor")
         thoroughfarename = self.cat.read("thoroughfarename")
-        #"""
         fn = os.path.join(self.path, 'address.shp')
         layer.AddressLayer.create_shp(fn, address_gml.crs())
         self.address = layer.AddressLayer(fn, providerLib='ogr', 
             source_date=address_gml.source_date)
-        #"""
-        #self.address = layer.AddressLayer(source_date = address_gml.source_date)
         self.address.append(address_gml)
         self.address.join_field(postaldescriptor, 'PD_id', 'gml_id', ['postCode'])
         self.address.join_field(thoroughfarename, 'TN_id', 'gml_id', ['text'], 'TN_')
