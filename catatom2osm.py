@@ -92,7 +92,6 @@ class CatAtom2Osm:
                 self.process_tasks(self.building)
             else:
                 self.process_building()
-        self.end_messages()
         if self.options.address:
             self.process_address()
         if self.options.zoning:
@@ -136,7 +135,7 @@ class CatAtom2Osm:
             poligono, refs = self.process_zone(rzone, rindex, rprocessed, source)
             if refs:
                 rprocessed = rprocessed.union(refs)
-                temp_address = None
+                address_osm = None
                 if self.options.address:
                     poligono.move_address(self.address)
                     temp_address = layer.BaseLayer(path="Point", baseName="address",
@@ -145,6 +144,8 @@ class CatAtom2Osm:
                     query = lambda f, kwargs: f['localId'].split('.')[-1] in kwargs['including']
                     temp_address.append(self.address, query=query, including=refs)
                     temp_address.reproject()
+                    address_osm = temp_address.to_osm(translate.address_tags)
+                    del temp_address
                 uprocessed = set()
                 uindex = QgsSpatialIndex(poligono.getFeatures())
                 for uzone in self.urban_zoning.getFeatures():
@@ -154,23 +155,21 @@ class CatAtom2Osm:
                             if refs:
                                 zone_processed.add(uzone.id())
                                 uprocessed = uprocessed.union(refs)
-                                #manzana.reproject()
-                                #self.write_task(self.urban_zoning, manzana, temp_address)
+                                manzana.reproject()
+                                self.write_task(uzone['label'], manzana, address_osm)
                             del manzana
-                """
                 poligono.reproject()
-                if source.providerType() == 'ogr':
+                if self.options.taskslm:
                     if not self.options.manual:
                         poligono.conflate(self.current_bu_osm, delete=False)
                     if self.options.building:
                         self.building_osm = poligono.to_osm(data=self.building_osm)
-                """
                 if uprocessed:
                     to_clean = [f.id() for f in poligono.getFeatures() \
                         if f['localId'].split('_')[0] in uprocessed]
                     poligono.writer.deleteFeatures(to_clean)
-                #self.write_task(self.rustic_zoning, poligono, temp_address)
-                del temp_address
+                self.write_task(rzone['label'], poligono, address_osm)
+                del address_osm
                 del uindex
             del poligono
         if self.options.taskslm and not self.options.manual:
@@ -371,6 +370,7 @@ class CatAtom2Osm:
         self.rustic_zoning = layer.ZoningLayer('r{:03}', fn, 'rusticzoning', 'ogr')
         self.urban_zoning.append(zoning_gml, level='M')
         self.rustic_zoning.append(zoning_gml, level='P')
+        self.cat.get_boundary(self.rustic_zoning)
         del zoning_gml
         self.urban_zoning.topology()
         self.urban_zoning.clean_duplicated_nodes_in_polygons()
@@ -442,14 +442,11 @@ class CatAtom2Osm:
                 else:
                     bu.tags.update(ad.tags)
 
-    def write_task(self, zoning, building, address=None):
+    def write_task(self, fn, building, address_osm=None):
         """Generates osm file for a task"""
-        fn = zoning.get_task() + '.osm'
-        base_path = os.path.join(self.path, 'tasks')
-        task_path = os.path.join('tasks', fn)
+        task_path = os.path.join('tasks', fn + '.osm')
         task_osm = building.to_osm(upload='yes')
-        if address is not None:
-            address_osm = address.to_osm(translate.address_tags)
+        if address_osm is not None:
             self.merge_address(task_osm, address_osm)
         self.write_osm(task_osm, task_path)
 
