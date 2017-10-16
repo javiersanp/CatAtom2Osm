@@ -131,7 +131,7 @@ class CatAtom2Osm:
         for rzone in self.rustic_zoning.getFeatures():
             poligono, refs = self.process_zone(rzone, rindex, rprocessed, source)
             if refs:
-                rprocessed = rprocessed.unImproion(refs)
+                rprocessed = rprocessed.union(refs)
                 address_osm = None
                 if self.options.address:
                     poligono.move_address(self.address)
