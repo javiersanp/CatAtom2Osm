@@ -70,36 +70,46 @@ class CatAtom2Osm:
         """Launches the app"""
         log.info(_("Start processing '%s'"), self.zip_code)
         self.get_zoning()
+        if self.options.zoning:
+            self.process_zoning()
+        self.address_osm = osm.Osm()
+        self.building_osm = osm.Osm()
         if self.options.address:
             self.read_address()
-            highway = self.get_highway()
-            (highway_names, self.is_new) = self.get_translations(self.address, highway)
-            self.address.translate_field('TN_text', highway_names)
             if self.is_new:
-                self.options.taskslm = False
                 self.options.tasks = False
                 self.options.building = False
             elif not self.options.manual:
                 current_address = self.get_current_ad_osm()
                 self.address.conflate(current_address)
-            self.address_osm = osm.Osm()
-        if self.options.building or self.options.tasks or self.options.taskslm:
+        if self.options.building or self.options.tasks:
             self.get_building()
-            self.building_osm = osm.Osm()
+            self.process_building()
+            if self.options.address:
+                self.address.del_address(self.building)
+                self.building.move_address(self.address)
+            self.building.reproject()
+            if self.options.tasks:
+                self.building.set_tasks(self.urban_zoning, self.rustic_zoning)
             if not self.options.manual:
-                self.current_bu_osm = self.get_current_bu_osm()
-            if self.options.taskslm:
-                self.process_tasks(self.building)
-            else:
-                self.process_building()
+                current_bu_osm = self.get_current_bu_osm()
+                if self.building.conflate(current_bu_osm):
+                    self.write_osm(current_bu_osm, 'current_building.osm')
+                del current_bu_osm
         if self.options.address:
-            self.process_address()
-        if self.options.zoning:
-            self.process_zoning()
+            self.address.reproject()
+            self.address_osm = self.address.to_osm()
+        if self.options.tasks:
+            self.process_tasks(self.building)
         del self.urban_zoning
         del self.rustic_zoning
         if self.options.building:
+            self.building_osm = self.building.to_osm()
+            self.merge_address(self.building_osm, self.address_osm)
             self.write_building()
+        if self.options.address:
+            self.write_osm(self.address_osm, 'address.osm')
+            del self.address_osm
         if self.options.parcel:
             self.process_parcel()
         self.end_messages()
@@ -122,99 +132,45 @@ class CatAtom2Osm:
         del other_gml
 
     def process_tasks(self, source):
+        self.get_tasks(source)
+        for zoning in (self.rustic_zoning, self.urban_zoning):
+            for zone in zoning.getFeatures():
+                label = zone['label']
+                fn = os.path.join(self.path, 'tasks', label + '.shp')
+                if os.path.exists(fn):
+                    task = layer.ConsLayer(fn, label, 'ogr', source_date=source.source_date)
+                    if task.featureCount() > 0:
+                        fn = os.path.join('tasks', label + '.osm')
+                        task_osm = task.to_osm(upload='yes')
+                        self.merge_address(task_osm, self.address_osm)
+                        self.write_osm(task_osm, fn)
+
+    def get_tasks(self, source):
         base_path = os.path.join(self.path, 'tasks')
         if not os.path.exists(base_path):
             os.makedirs(base_path)
-        rprocessed = set()
-        rindex = QgsSpatialIndex(source.getFeatures())
-        zone_processed = set()
-        for rzone in self.rustic_zoning.getFeatures():
-            poligono, refs = self.process_zone(rzone, rindex, rprocessed, source)
-            if refs:
-                rprocessed = rprocessed.union(refs)
-                address_osm = None
-                if self.options.address:
-                    poligono.move_address(self.address)
-                    temp_address = layer.BaseLayer(path="Point", baseName="address",
-                        providerLib="memory")
-                    temp_address.source_date = False
-                    query = lambda f, kwargs: f['localId'].split('.')[-1] in kwargs['including']
-                    temp_address.append(self.address, query=query, including=refs)
-                    temp_address.reproject()
-                    address_osm = temp_address.to_osm(translate.address_tags)
-                    del temp_address
-                uprocessed = set()
-                uindex = QgsSpatialIndex(poligono.getFeatures())
-                for uzone in self.urban_zoning.getFeatures():
-                    if uzone.id() not in zone_processed:
-                        if layer.is_inside(uzone, rzone):
-                            manzana, refs = self.process_zone(uzone, uindex, uprocessed, poligono)
-                            if refs:
-                                zone_processed.add(uzone.id())
-                                uprocessed = uprocessed.union(refs)
-                                manzana.reproject()
-                                self.write_task(uzone['label'], manzana, address_osm)
-                            del manzana
-                poligono.reproject()
-                if self.options.taskslm:
-                    if not self.options.manual:
-                        poligono.conflate(self.current_bu_osm, delete=False)
-                    if self.options.building:
-                        self.building_osm = poligono.to_osm(data=self.building_osm)
-                if uprocessed:
-                    to_clean = [f.id() for f in poligono.getFeatures() \
-                        if f['localId'].split('_')[0] in uprocessed]
-                    poligono.writer.deleteFeatures(to_clean)
-                self.write_task(rzone['label'], poligono, address_osm)
-                del address_osm
-                del uindex
-            del poligono
-        if self.options.taskslm and not self.options.manual:
-            to_clean = []
-            num_buildings = 0
-            conflicts = 0
-            for el in self.current_bu_osm.elements:
-                if 'building' in el.tags:
-                    num_buildings += 1
-                    if 'conflict' not in el.tags:
-                        to_clean.append(el)
-                    else:
-                        conflicts += 1
-                        del el.tags['conflict']
-            for el in to_clean:
-                self.current_bu_osm.remove(el)
-            if to_clean:
-                self.write_osm(self.current_bu_osm, 'current_building.osm')
-            log.debug(_("Detected %d conflicts in %d buildings from OSM"), 
-                conflicts, num_buildings)
-            del self.current_bu_osm
-        del rindex
-
-    def process_zone(self, zone, index, processed, source):
-        fn = os.path.join(self.path, 'tasks', zone['label'] + '.shp')
-        layer.ConsLayer.create_shp(fn, source.crs())
-        task = layer.ConsLayer(fn, zone['label'], 'ogr',
-            source_date = source.source_date)
-        task.rename = {}
-        refs = task.append_zone(source, zone, processed, index)
-        if task.featureCount() > 0 and self.options.taskslm and zone['label'][0] == 'r':
-            task.remove_outside_parts()
-            task.explode_multi_parts()
-            task.remove_parts_below_ground()
-            task.clean()
-            task.validate(self.max_level, self.min_level)
-        return task, refs
-
-    def process_address(self):
-        if self.options.building:
-            self.address.del_address(self.building_osm)
-        self.address.reproject()
-        address_osm = self.address.to_osm()
-        del self.address
-        if self.options.building:
-            self.merge_address(self.building_osm, address_osm)
-        self.write_osm(address_osm, 'address.osm')
-        del address_osm
+        else:
+            for fn in os.listdir(base_path):
+                os.remove(os.path.join(base_path, fn))
+        tasks = 0
+        last_task = ''
+        to_add = []
+        for feat in self.building.getFeatures():
+            label = feat['task']
+            f = source.copy_feature(feat, {}, {})
+            if last_task == '' or label == last_task:
+                to_add.append(f)
+            else:
+                fn = os.path.join(self.path, 'tasks', last_task + '.shp')
+                if not os.path.exists(fn):
+                    layer.ConsLayer.create_shp(fn, source.crs())
+                    tasks += 1
+                task = layer.ConsLayer(fn, label, 'ogr', source_date=source.source_date)
+                task.keep = True
+                task.writer.addFeatures(to_add)
+                to_add = [f]
+            last_task = label
+        log.debug(_("Generated %d task files"), tasks)
 
     def process_zoning(self):
         self.urban_zoning.delete_invalid_geometries()
@@ -231,16 +187,7 @@ class CatAtom2Osm:
         self.building.explode_multi_parts()
         self.building.remove_parts_below_ground()
         self.building.clean()
-        if self.options.address:
-            self.building.move_address(self.address)
         self.building.validate(self.max_level, self.min_level)
-        if self.options.tasks:
-            self.process_tasks(self.building)
-        self.building.reproject()
-        if not self.options.manual and self.building.conflate(self.current_bu_osm):
-            self.write_osm(self.current_bu_osm, 'current_building.osm')
-            del self.current_bu_osm
-        self.building_osm = self.building.to_osm()
 
     def write_building(self):
         self.write_osm(self.building_osm, 'building.osm')
@@ -262,7 +209,7 @@ class CatAtom2Osm:
         self.write_osm(parcel_osm, "parcel.osm")
 
     def end_messages(self):
-        if self.options.tasks or self.options.building or self.options.taskslm:
+        if self.options.tasks or self.options.building:
             dlag = ', '.join(["%d: %d" % (l, c) for (l, c) in \
                 OrderedDict(Counter(self.max_level.values())).items()])
             dlbg = ', '.join(["%d: %d" % (l, c) for (l, c) in \
@@ -385,6 +332,9 @@ class CatAtom2Osm:
         self.address.append(address_gml)
         self.address.join_field(postaldescriptor, 'PD_id', 'gml_id', ['postCode'])
         self.address.join_field(thoroughfarename, 'TN_id', 'gml_id', ['text'], 'TN_')
+        highway = self.get_highway()
+        (highway_names, self.is_new) = self.get_translations(self.address, highway)
+        self.address.translate_field('TN_text', highway_names)
 
     def merge_address(self, building_osm, address_osm):
         """
@@ -408,12 +358,13 @@ class CatAtom2Osm:
         if 'source:date' in address_osm.tags:
             building_osm.tags['source:date:addr'] = address_osm.tags['source:date']
         address_index = {}
-        for ad in address_osm.nodes:
-            address_index[ad.tags['ref']] = ad
         building_index = {}
         for bu in building_osm.elements:
             if 'ref' in bu.tags:
                 building_index[bu.tags['ref']] = bu
+        for ad in address_osm.nodes:
+            if ad.tags['ref'] in building_index:
+                address_index[ad.tags['ref']] = ad
         for (ref, bu) in building_index.items():
             if ref in address_index:
                 ad = address_index[ref]

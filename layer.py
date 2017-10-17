@@ -907,18 +907,18 @@ class AddressLayer(BaseLayer):
             self.writer.deleteFeatures(to_clean)
             log.debug(_("Deleted %d addresses without house number") % len(to_clean))
 
-    def del_address(self, building_osm):
+    def del_address(self, building):#building_osm):
         """Delete the address if there aren't any associated building."""
         to_clean = []
-        building_refs = {el.tags['ref'] for el in building_osm.elements \
-            if 'ref' in el.tags}
+        building_refs = {bu['localId'] for bu in \
+            building.search("not regexp_match(localId, '_')")}
         for ad in self.getFeatures():
             ref = ad['localId'].split('.')[-1]
             if ref not in building_refs:
                 to_clean.append(ad.id())
         if to_clean:
             self.writer.deleteFeatures(to_clean)
-            log.info(_("Deleted %d addresses without associated building"), len(to_clean))
+            log.debug(_("Deleted %d addresses without associated building"), len(to_clean))
 
     def get_highway_names(self, highway):
         """
@@ -959,6 +959,7 @@ class ConsLayer(PolygonLayer):
                 QgsField('lev_above', QVariant.Int),
                 QgsField('lev_below', QVariant.Int),
                 QgsField('nature', QVariant.String, len=254),
+                QgsField('task', QVariant.String, len=254),
                 QgsField('fixme', QVariant.String, len=254)
             ])
             self.updateFields()
@@ -1037,6 +1038,39 @@ class ConsLayer(PolygonLayer):
             log.debug (_("Loaded %d features in '%s' from '%s'"), total,
                 self.name().encode('utf-8'), layer.name().encode('utf-8'))
         return refs
+
+    def set_tasks(self, uzoning, rzoning):
+        uindex = uzoning.get_index()
+        rindex = rzoning.get_index()
+        ufeatures = {f.id(): f for f in uzoning.getFeatures()}
+        rfeatures = {f.id(): f for f in rzoning.getFeatures()}
+        tasks = {}
+        for feat in self.search("not regexp_match(localId, '_part')"):
+            if feat['localId'] not in tasks:
+                label = None
+                fids = uindex.intersects(feat.geometry().boundingBox())
+                for fid in fids:
+                    zone = ufeatures[fid]
+                    if is_inside(feat, zone):
+                        label = tasks[feat['localId'].split('_')[0]] = zone['label']
+                        break
+                if label is None:
+                    fids = rindex.intersects(feat.geometry().boundingBox())
+                    for fid in fids:
+                        zone = rfeatures[fid]
+                        if is_inside(feat, zone):
+                            label = tasks[feat['localId'].split('_')[0]] = zone['label']
+                            break
+        del uindex, rindex, ufeatures, rfeatures
+        to_change = {}
+        for feat in self.getFeatures():
+            feat['task'] = tasks[feat['localId'].split('_')[0]]
+            to_change[feat.id()] = get_attributes(feat)
+            if len(to_change) > BUFFER_SIZE:
+                self.writer.changeAttributeValues(to_change)
+                to_change = {}
+        if len(to_change) > 0:
+            self.writer.changeAttributeValues(to_change)
 
     def remove_parts_below_ground(self):
         """Remove all parts with 'lev_above' field equal 0 and 'lev_below' > 0"""
