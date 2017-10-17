@@ -80,13 +80,17 @@ class BaseLayer(QgsVectorLayer):
         self.rename={}
         self.resolve={}
         self.reference_matchs={}
+        self.keep = False
 
     @staticmethod
     def create_shp(name, crs, fields=QgsFields(), geom_type=QGis.WKBMultiPolygon):
-        QgsVectorFileWriter(name, 'UTF-8', fields, geom_type, crs, 'ESRI Shapefile')
+        writer = QgsVectorFileWriter(name, 'UTF-8', fields, geom_type, crs, 'ESRI Shapefile')
+        if writer.hasError() != QgsVectorFileWriter.NoError:
+            raise IOError(_("Error when creating shapefile: '%s'") % writer.errorMessage())
+        return writer
 
     def __del__(self):
-        if log.getEffectiveLevel() > logging.DEBUG and \
+        if log.getEffectiveLevel() > logging.DEBUG and not self.keep and \
                 self.writer.storageType() == 'ESRI Shapefile':
             path = self.writer.dataSourceUri().split('|')[0]
             QgsVectorFileWriter.deleteShapeFile(path)
