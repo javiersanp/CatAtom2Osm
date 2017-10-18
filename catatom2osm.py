@@ -9,6 +9,7 @@ from collections import defaultdict, Counter, OrderedDict
 
 from qgis.core import *
 import qgis.utils
+qgis.utils.uninstallErrorHook()
 from osgeo import gdal
 
 import catatom
