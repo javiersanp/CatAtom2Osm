@@ -1119,20 +1119,28 @@ class ConsLayer(PolygonLayer):
         building.
         Precondition: Called before merge_greatest_part
         """
-        to_clean = []
+        to_clean_o = []
+        to_clean_b = []
         buildings = {f['localId']: f for f in self.getFeatures() if self.is_building(f)}
         for feat in self.getFeatures():
             if self.is_part(feat):
                 ref = feat['localId'].split('_')[0]
-                if ref not in buildings:
-                    to_clean.append(feat.id())
+                if feat['lev_above'] == 0:
+                    to_clean_b.append(feat.id())
+                elif ref not in buildings:
+                    to_clean_o.append(feat.id())
                 else:
                     bu = buildings[ref]
                     if not is_inside(feat, bu):
-                        to_clean.append(feat.id())
-        if to_clean:
-            self.writer.deleteFeatures(to_clean)
-            log.debug(_("Removed %d building parts outside the footprint"), len(to_clean))
+                        to_clean_o.append(feat.id())
+        if len(to_clean_o) + len(to_clean_b) > 0:
+            self.writer.deleteFeatures(to_clean_o + to_clean_b)
+        if len(to_clean_o) > 0:
+            log.debug(_("Removed %d building parts outside the footprint"), 
+                len(to_clean_o))
+        if len(to_clean_b) > 0:
+            log.debug(_("Deleted %d building parts with no floors above ground"),
+                len(to_clean_b))
 
     def get_parts(self, footprint, parts):
         """

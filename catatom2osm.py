@@ -91,7 +91,6 @@ class CatAtom2Osm:
         if self.options.building or self.options.tasks:
             self.get_building()
             self.process_building()
-            return
             if self.options.address:
                 self.address.del_address(self.building)
                 self.building.move_address(self.address)
@@ -193,7 +192,6 @@ class CatAtom2Osm:
         """Process all buildings dataset"""
         self.building.remove_outside_parts()
         self.building.explode_multi_parts()
-        self.building.remove_parts_below_ground()
         self.building.clean()
         self.building.validate(self.max_level, self.min_level)
 
