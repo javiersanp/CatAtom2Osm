@@ -638,8 +638,8 @@ class PolygonLayer(BaseLayer):
                         elif dist_s < threshold**2 and dist_v > 0:
                             va = g.vertexAt(vertex)
                             vb = g.vertexAt(vertex - 1)
-                            note = "Topo refused by angle"
                             angle = abs(point.azimuth(va) - point.azimuth(vb))
+                            note = "Topo refused by angle: %.2f" % angle
                             if abs(180 - angle) <= straight_thr:
                                 note = "Topo refused by insertVertex"
                                 if g.insertVertex(point.x(), point.y(), vertex):
@@ -683,7 +683,7 @@ class PolygonLayer(BaseLayer):
                     f.setGeometry(QgsGeometry(g))
                     v = g.vertexAt(n)
                     (__, is_acute, __, __) = Point(v).get_angle_with_context(g,
-                        acute_thr=setup.acute_thr/10.0)
+                        acute_thr=setup.acute_inv)
                     if is_acute:
                         g.deleteVertex(n)
                         if not g.isGeosValid() or g.area() < setup.min_area:
@@ -777,8 +777,8 @@ class PolygonLayer(BaseLayer):
         """Merge duplicated vertices and simplify layer"""
         self.topology()
         self.clean_duplicated_nodes_in_polygons()
-        self.delete_invalid_geometries()
         self.simplify()
+        self.delete_invalid_geometries()
 
 
 class ParcelLayer(BaseLayer):
@@ -1209,9 +1209,9 @@ class ConsLayer(PolygonLayer):
         """
         self.topology()
         self.clean_duplicated_nodes_in_polygons()
-        self.delete_invalid_geometries()
         self.merge_building_parts()
         self.simplify()
+        self.delete_invalid_geometries()
 
     def move_address(self, address):
         """
