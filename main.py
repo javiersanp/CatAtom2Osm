@@ -46,16 +46,14 @@ def run():
         "digits province code"))
     parser.add_option("-t", "--tasks", dest="tasks", default=False,
         action="store_true", help=_("Splits constructions into tasks files " \
-        "(default, implies -d and -z)"))
-    parser.add_option("-T", "--taskslm", dest="taskslm", default=False,
-        action="store_true", help=_("The same as -t but with lower memory consumption"))
+        "(default, implies -z)"))
     parser.add_option("-z", "--zoning", dest="zoning", default=False,
         action="store_true", help=_("Process the cadastral zoning dataset"))
     parser.add_option("-b", "--building", dest="building", default=False,
-        action="store_true", help=_("Process constructions to a single file " \
+        action="store_true", help=_("Process buildings to a single file " \
         "instead of tasks"))
     parser.add_option("-d", "--address", dest="address", default=False,
-        action="store_true", help=_("Process the address dataset"))
+        action="store_true", help=_("Process the address dataset (default)"))
     parser.add_option("-p", "--parcel", dest="parcel", default=False,
         action="store_true", help=_("Process the cadastral parcel dataset"))
     parser.add_option("-a", "--all", dest="all", default=False,
@@ -72,15 +70,12 @@ def run():
         options.tasks = True
         options.address = True
         options.parcel = True
-        options.taskslm = False
     if not (options.tasks or options.zoning or options.building or 
-            options.address or options.parcel or options.taskslm): # default options
+            options.address or options.parcel): # default options
         options.tasks = True
         options.address = True
-    if options.tasks or options.taskslm:
+    if options.tasks:
         options.zoning = True
-    if options.taskslm:
-        options.task = False
     log_level = getattr(logging, options.log_level.upper(), None)
     if log_level == None:
         log.error(_('Invalid log level: %s') % options.log_level)

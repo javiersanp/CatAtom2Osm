@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-10-18 09:34+WEST\n"
+"POT-Creation-Date: 2017-10-18 09:47+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -307,56 +307,51 @@ msgstr ""
 "Lista los municipios disponibles para el código provincial de dos dígitos"
 
 #: main.py:48
-msgid "Splits constructions into tasks files (default, implies -d and -z)"
+msgid "Splits constructions into tasks files (default, implies -z)"
 msgstr ""
-"Reparte las construcciones en archivos de tareas (predeterminada, implica -d "
-"y -z)"
+"Reparte las construcciones en archivos de tareas (predeterminada, implica -z)"
 
 #: main.py:51
-msgid "The same as -t but with lower memory consumption"
-msgstr "Lo mismo que -t pero con menor gasto de memoria"
-
-#: main.py:53
 msgid "Process the cadastral zoning dataset"
 msgstr "Procesa el conjunto de datos de zonificación catastral"
 
-#: main.py:55
-msgid "Process constructions to a single file instead of tasks"
-msgstr "Procesa las construcciones a un archivo individual en lugar de tareas"
+#: main.py:53
+msgid "Process buildings to a single file instead of tasks"
+msgstr "Procesa los edificios a un archivo individual en lugar de tareas"
+
+#: main.py:56
+msgid "Process the address dataset (default)"
+msgstr "Procesa el conjunto de datos de direcciones (predeterminada)"
 
 #: main.py:58
-msgid "Process the address dataset"
-msgstr "Procesa el conjunto de datos de direcciones"
-
-#: main.py:60
 msgid "Process the cadastral parcel dataset"
 msgstr "Procesa el conjunto de datos de parcelas catastrales"
 
-#: main.py:62
+#: main.py:60
 msgid "Process all datasets (equivalent to -bdptz)"
 msgstr "Procesa todos los conjuntos de datos (equivalente a -bdptz)"
 
-#: main.py:65
+#: main.py:63
 msgid "Dissable conflation of buildings and addresses"
 msgstr "Desactiva la combinación de edificios y de direcciones"
 
-#: main.py:67
+#: main.py:65
 msgid "Select the log level between DEBUG, INFO, WARNING, ERROR or CRITICAL."
 msgstr ""
 "Selecciona el nivel de registro entre DEBUG, INFO, WARNING, ERROR o CRITICAL."
 
-#: main.py:86
+#: main.py:81
 msgid "Invalid log level: %s"
 msgstr "Nivel de registro no válido: %s"
 
-#: main.py:91
+#: main.py:86
 msgid "%s version %s"
 msgstr "%s versión %s"
 
-#: main.py:93
+#: main.py:88
 msgid "Too many arguments, supply only a directory path."
 msgstr "Demasiados argumentos, proporcione sólo la ruta de un directorio."
 
-#: main.py:104
+#: main.py:99
 msgid "Please, install QGIS"
 msgstr "Por favor, instala QGIS"
