@@ -1077,14 +1077,6 @@ class ConsLayer(PolygonLayer):
         if len(to_change) > 0:
             self.writer.changeAttributeValues(to_change)
 
-    def remove_parts_below_ground(self):
-        """Remove all parts with 'lev_above' field equal 0 and 'lev_below' > 0"""
-        to_clean = [f.id() for f in self.search('lev_above=0 and lev_below>0')]
-        if to_clean:
-            self.writer.deleteFeatures(to_clean)
-            log.debug(_("Deleted %d building parts with no floors above ground"),
-                len(to_clean))
-
     def to_osm(self, data=None, upload='never'):
         """Export to OSM"""
         return super(ConsLayer, self).to_osm(translate.building_tags, data, upload)
@@ -1115,12 +1107,18 @@ class ConsLayer(PolygonLayer):
 
     def remove_outside_parts(self):
         """
-        Remove parts outside the footprint of it building or without associated
-        building.
+        Remove parts without levels above ground
+        Create footprint for parts without associated building
+        Remove parts outside the footprint of it building
         Precondition: Called before merge_greatest_part
         """
         to_clean_o = []
         to_clean_b = []
+<<<<<<< HEAD
+=======
+        to_add = []
+        parts_for_ref = defaultdict(list)
+>>>>>>> eedb954... Generate missing building footprints
         buildings = {f['localId']: f for f in self.getFeatures() if self.is_building(f)}
         for feat in self.getFeatures():
             if self.is_part(feat):
@@ -1128,11 +1126,25 @@ class ConsLayer(PolygonLayer):
                 if feat['lev_above'] == 0:
                     to_clean_b.append(feat.id())
                 elif ref not in buildings:
+<<<<<<< HEAD
                     to_clean_o.append(feat.id())
+=======
+                    print feat['localId'], feat['lev_above']
+                    parts_for_ref[ref].append(feat)
+>>>>>>> eedb954... Generate missing building footprints
                 else:
                     bu = buildings[ref]
                     if not is_inside(feat, bu):
                         to_clean_o.append(feat.id())
+<<<<<<< HEAD
+=======
+        for ref, parts in parts_for_ref.items():
+            feat = QgsFeature(QgsFields(self.pendingFields()))
+            feat['localId'] = ref
+            geom = self.merge_adjacent_features(parts)
+            feat.setGeometry(geom)
+            to_add.append(feat)
+>>>>>>> eedb954... Generate missing building footprints
         if len(to_clean_o) + len(to_clean_b) > 0:
             self.writer.deleteFeatures(to_clean_o + to_clean_b)
         if len(to_clean_o) > 0:
@@ -1141,6 +1153,12 @@ class ConsLayer(PolygonLayer):
         if len(to_clean_b) > 0:
             log.debug(_("Deleted %d building parts with no floors above ground"),
                 len(to_clean_b))
+<<<<<<< HEAD
+=======
+        if to_add:
+            self.writer.addFeatures(to_add)
+            log.debug(_("Generated %d building footprints"), len(to_add))
+>>>>>>> eedb954... Generate missing building footprints
 
     def get_parts(self, footprint, parts):
         """
@@ -1368,12 +1386,12 @@ class HighwayLayer(BaseLayer):
                     m.element.tags['name'] = r.tags['name']
         for w in data.ways:
             if 'name' in w.tags:
-              points = [QgsPoint(n.x, n.y) for n in w.nodes]
-              geom = QgsGeometry.fromPolyline(points)
-              feat = QgsFeature(QgsFields(self.pendingFields()))
-              feat.setGeometry(geom)
-              feat.setAttribute("name", w.tags['name'])
-              to_add.append(feat)
+                points = [QgsPoint(n.x, n.y) for n in w.nodes]
+                geom = QgsGeometry.fromPolyline(points)
+                feat = QgsFeature(QgsFields(self.pendingFields()))
+                feat.setGeometry(geom)
+                feat.setAttribute("name", w.tags['name'])
+                to_add.append(feat)
         self.writer.addFeatures(to_add)
 
 
