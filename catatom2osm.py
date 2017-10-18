@@ -72,6 +72,8 @@ class CatAtom2Osm:
         self.get_zoning()
         if self.options.zoning:
             self.process_zoning()
+            if not self.options.tasks:
+                del self.rustic_zoning
         self.address_osm = osm.Osm()
         self.building_osm = osm.Osm()
         if self.options.address:
@@ -101,8 +103,8 @@ class CatAtom2Osm:
             self.address_osm = self.address.to_osm()
         if self.options.tasks:
             self.process_tasks(self.building)
-        del self.urban_zoning
-        del self.rustic_zoning
+            del self.rustic_zoning
+            del self.urban_zoning
         if self.options.building:
             self.building_osm = self.building.to_osm()
             self.merge_address(self.building_osm, self.address_osm)
@@ -299,21 +301,22 @@ class CatAtom2Osm:
         (rustic)
         """
         zoning_gml = self.cat.read("cadastralzoning")
-        fn = os.path.join(self.path, 'urban_zoning.shp')
-        layer.ZoningLayer.create_shp(fn, zoning_gml.crs())
-        self.urban_zoning = layer.ZoningLayer('u{:05}', fn, 'urbanzoning', 'ogr')
         fn = os.path.join(self.path, 'rustic_zoning.shp')
         layer.ZoningLayer.create_shp(fn, zoning_gml.crs())
         self.rustic_zoning = layer.ZoningLayer('r{:03}', fn, 'rusticzoning', 'ogr')
-        self.urban_zoning.append(zoning_gml, level='M')
         self.rustic_zoning.append(zoning_gml, level='P')
         self.cat.get_boundary(self.rustic_zoning)
+        if self.options.tasks or self.options.zoning:
+            fn = os.path.join(self.path, 'urban_zoning.shp')
+            layer.ZoningLayer.create_shp(fn, zoning_gml.crs())
+            self.urban_zoning = layer.ZoningLayer('u{:05}', fn, 'urbanzoning', 'ogr')
+            self.urban_zoning.append(zoning_gml, level='M')
+            self.urban_zoning.topology()
+            self.urban_zoning.clean_duplicated_nodes_in_polygons()
+            self.urban_zoning.merge_adjacents()
+            self.rustic_zoning.set_tasks()
+            self.urban_zoning.set_tasks()
         del zoning_gml
-        self.urban_zoning.topology()
-        self.urban_zoning.clean_duplicated_nodes_in_polygons()
-        self.urban_zoning.merge_adjacents()
-        self.rustic_zoning.set_tasks()
-        self.urban_zoning.set_tasks()
 
     def read_address(self):
         """Reads Address GML dataset"""
