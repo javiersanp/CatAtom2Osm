@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-10-18 14:57+WEST\n"
+"POT-Creation-Date: 2017-10-18 15:07+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -41,7 +41,7 @@ msgstr "Buscando la url para la capa '%s' de '%s'..."
 msgid "Zip code '%s' don't exists"
 msgstr "El Código Postal '%s' no existe"
 
-#: catatom.py:78 catatom2osm.py:273
+#: catatom.py:78 catatom2osm.py:271
 msgid "Downloading '%s'"
 msgstr "Descargando '%s'"
 
@@ -90,63 +90,63 @@ msgstr "Usando GDAL %s"
 msgid "Start processing '%s'"
 msgstr "Comienza el procesado de '%s'"
 
-#: catatom2osm.py:180
+#: catatom2osm.py:179
 msgid "Generated %d task files"
 msgstr "Generados '%d' ficheros de tareas"
 
-#: catatom2osm.py:224
+#: catatom2osm.py:222
 msgid "Distribution of floors above ground %s"
 msgstr "Distribución de plantas sobre rasante %s"
 
-#: catatom2osm.py:225
+#: catatom2osm.py:223
 msgid "Distribution of floors below ground %s"
 msgstr "Distribución de plantas bajo rasante %s"
 
-#: catatom2osm.py:227
+#: catatom2osm.py:225
 msgid "Check %d fixme tags"
 msgstr "Revisa %d etiquetas fixme"
 
-#: catatom2osm.py:229
+#: catatom2osm.py:227
 msgid "The translation file '%s' have been writen in '%s'"
 msgstr "El fichero de conversiones '%s' ha sido generado en '%s'"
 
-#: catatom2osm.py:231
+#: catatom2osm.py:229
 msgid "Please, check it and run again"
 msgstr "Por favor, compruébelo y ejecute de nuevo"
 
-#: catatom2osm.py:233
+#: catatom2osm.py:231
 msgid "Finished!"
 msgstr "¡Terminado!"
 
-#: catatom2osm.py:234
+#: catatom2osm.py:232
 msgid "Only for testing purposses. Don't upload any result to OSM"
 msgstr "Sólo para fines de prueba. No cargue ningún resultado en OSM"
 
-#: catatom2osm.py:255
+#: catatom2osm.py:253
 msgid "Generated '%s'"
 msgstr "Generado '%s'"
 
-#: catatom2osm.py:257
+#: catatom2osm.py:255
 msgid "Failed to write layer: '%s'"
 msgstr "Error al escribir la capa: '%s'"
 
-#: catatom2osm.py:279
+#: catatom2osm.py:277
 msgid "No OSM data were obtained from '%s'"
 msgstr "No se obtuvieron datos OSM de '%s'"
 
-#: catatom2osm.py:281
+#: catatom2osm.py:279
 msgid "Read '%s': %d nodes, %d ways, %d relations"
 msgstr "Leído '%s': %d nodos, %d vías, %d relaciones"
 
-#: catatom2osm.py:300
+#: catatom2osm.py:298
 msgid "Generated '%s': %d nodes, %d ways, %d relations"
 msgstr "Generado '%s': %d nodos, %d vías, %d relaciones"
 
-#: catatom2osm.py:332
+#: catatom2osm.py:330
 msgid "Could not resolve joined tables for the '%s' layer"
 msgstr "No se pudieron resolver las tablas combinadas para la capa '%s'"
 
-#: catatom2osm.py:460
+#: catatom2osm.py:458
 msgid "There are %d address without house number in the OSM data"
 msgstr "Existen %d direcciones sin número de portal en OSM"
 
@@ -260,7 +260,7 @@ msgstr "Eliminadas %d partes de edificio sin plantas sobre el nivel del suelo"
 
 #: layer.py:1148
 msgid "Generated %d building footprints"
-msgstr "Generadas %d contornos de edificios"
+msgstr "Generados %d contornos de edificios"
 
 #: layer.py:1216
 msgid "Translated %d level values to the footprint"

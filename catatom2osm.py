@@ -163,20 +163,19 @@ class CatAtom2Osm:
         to_add = []
         for feat in self.building.getFeatures():
             label = feat['task']
-            if label:
-                f = source.copy_feature(feat, {}, {})
-                if last_task == '' or label == last_task:
-                    to_add.append(f)
-                else:
-                    fn = os.path.join(self.path, 'tasks', last_task + '.shp')
-                    if not os.path.exists(fn):
-                        layer.ConsLayer.create_shp(fn, source.crs())
-                        tasks += 1
-                    task = layer.ConsLayer(fn, label, 'ogr', source_date=source.source_date)
-                    task.keep = True
-                    task.writer.addFeatures(to_add)
-                    to_add = [f]
-                last_task = label
+            f = source.copy_feature(feat, {}, {})
+            if last_task == '' or label == last_task:
+                to_add.append(f)
+            else:
+                fn = os.path.join(self.path, 'tasks', last_task + '.shp')
+                if not os.path.exists(fn):
+                    layer.ConsLayer.create_shp(fn, source.crs())
+                    tasks += 1
+                task = layer.ConsLayer(fn, label, 'ogr', source_date=source.source_date)
+                task.keep = True
+                task.writer.addFeatures(to_add)
+                to_add = [f]
+            last_task = label
         log.debug(_("Generated %d task files"), tasks)
 
     def process_zoning(self):
