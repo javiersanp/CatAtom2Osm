@@ -742,7 +742,7 @@ class PolygonLayer(BaseLayer):
                     geom = QgsGeometry(geometries[fid])
                     (__, ndx, __, __, __) = geom.closestVertex(point)
                     geom.deleteVertex(ndx)
-                    if geom.isGeosValid():
+                    if geom.isGeosValid() and all([len(r) > 3 for r in geom.asPolygon()]):
                         parents.remove(fid)
                         geometries[fid] = geom
                         to_change[fid] = geom
