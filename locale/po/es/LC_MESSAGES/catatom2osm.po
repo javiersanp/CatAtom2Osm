@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-10-18 09:47+WEST\n"
+"POT-Creation-Date: 2017-10-18 10:18+WEST\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -41,7 +41,7 @@ msgstr "Buscando la url para la capa '%s' de '%s'..."
 msgid "Zip code '%s' don't exists"
 msgstr "El Código Postal '%s' no existe"
 
-#: catatom.py:78 catatom2osm.py:268
+#: catatom.py:78 catatom2osm.py:273
 msgid "Downloading '%s'"
 msgstr "Descargando '%s'"
 
@@ -78,91 +78,99 @@ msgstr ""
 msgid "Territorial office %s"
 msgstr "Oficina territorial %s"
 
-#: catatom2osm.py:62
-msgid "Initialized QGIS API"
-msgstr "Inicializada la API de QGIS"
+#: catatom2osm.py:65
+msgid "Initialized QGIS %s API"
+msgstr "Inicializada la API de QGIS %s"
 
-#: catatom2osm.py:71
+#: catatom2osm.py:66
+msgid "Using GDAL %s"
+msgstr "Usando GDAL %s"
+
+#: catatom2osm.py:75
 msgid "Start processing '%s'"
 msgstr "Comienza el procesado de '%s'"
 
-#: catatom2osm.py:175
+#: catatom2osm.py:180
 msgid "Generated %d task files"
 msgstr "Generados '%d' ficheros de tareas"
 
-#: catatom2osm.py:219
+#: catatom2osm.py:224
 msgid "Distribution of floors above ground %s"
 msgstr "Distribución de plantas sobre rasante %s"
 
-#: catatom2osm.py:220
+#: catatom2osm.py:225
 msgid "Distribution of floors below ground %s"
 msgstr "Distribución de plantas bajo rasante %s"
 
-#: catatom2osm.py:222
+#: catatom2osm.py:227
 msgid "Check %d fixme tags"
 msgstr "Revisa %d etiquetas fixme"
 
-#: catatom2osm.py:224
+#: catatom2osm.py:229
 msgid "The translation file '%s' have been writen in '%s'"
 msgstr "El fichero de conversiones '%s' ha sido generado en '%s'"
 
-#: catatom2osm.py:226
+#: catatom2osm.py:231
 msgid "Please, check it and run again"
 msgstr "Por favor, compruébelo y ejecute de nuevo"
 
-#: catatom2osm.py:228
+#: catatom2osm.py:233
 msgid "Finished!"
 msgstr "¡Terminado!"
 
-#: catatom2osm.py:229
+#: catatom2osm.py:234
 msgid "Only for testing purposses. Don't upload any result to OSM"
 msgstr "Sólo para fines de prueba. No cargue ningún resultado en OSM"
 
-#: catatom2osm.py:250
+#: catatom2osm.py:255
 msgid "Generated '%s'"
 msgstr "Generado '%s'"
 
-#: catatom2osm.py:252
+#: catatom2osm.py:257
 msgid "Failed to write layer: '%s'"
 msgstr "Error al escribir la capa: '%s'"
 
-#: catatom2osm.py:274
+#: catatom2osm.py:279
 msgid "No OSM data were obtained from '%s'"
 msgstr "No se obtuvieron datos OSM de '%s'"
 
-#: catatom2osm.py:276
+#: catatom2osm.py:281
 msgid "Read '%s': %d nodes, %d ways, %d relations"
 msgstr "Leído '%s': %d nodos, %d vías, %d relaciones"
 
-#: catatom2osm.py:295
+#: catatom2osm.py:300
 msgid "Generated '%s': %d nodes, %d ways, %d relations"
 msgstr "Generado '%s': %d nodos, %d vías, %d relaciones"
 
-#: catatom2osm.py:327
+#: catatom2osm.py:332
 msgid "Could not resolve joined tables for the '%s' layer"
 msgstr "No se pudieron resolver las tablas combinadas para la capa '%s'"
 
-#: catatom2osm.py:455
+#: catatom2osm.py:460
 msgid "There are %d address without house number in the OSM data"
 msgstr "Existen %d direcciones sin número de portal en OSM"
 
-#: compat.py:9
+#: compat.py:7
+msgid "Using Python %s.%s.%s"
+msgstr "Usando Python %s.%s.%s"
+
+#: compat.py:12
 msgid "Running with lxml.etree"
 msgstr "Usando lxml.etree"
 
-#: compat.py:13
+#: compat.py:16
 msgid "Running with ElementTree on Python 2.5+"
 msgstr "Usando ElementTree en Python 2.5+"
 
-#: compat.py:17
+#: compat.py:20
 msgid "Running with cElementTree"
 msgstr "Usando cElementTree"
 
-#: compat.py:21
+#: compat.py:24
 msgid "Running with ElementTree"
 msgstr "Usando ElementTree"
 
-#: compat.py:23
+#: compat.py:26
 msgid "Failed to import ElementTree from any known place"
 msgstr "No se pudo importar ElementTree desde ningún lugar conocido"
 
@@ -297,61 +305,61 @@ msgstr ""
 "del \n"
 "Catastro Español."
 
-#: main.py:43
+#: main.py:42
 msgid "Print CatAtom2Osm version and exit"
 msgstr "Imprime la versión de CatAtom2Osm y termina"
 
-#: main.py:45
+#: main.py:44
 msgid "List available municipalities given the two digits province code"
 msgstr ""
 "Lista los municipios disponibles para el código provincial de dos dígitos"
 
-#: main.py:48
+#: main.py:47
 msgid "Splits constructions into tasks files (default, implies -z)"
 msgstr ""
 "Reparte las construcciones en archivos de tareas (predeterminada, implica -z)"
 
-#: main.py:51
+#: main.py:50
 msgid "Process the cadastral zoning dataset"
 msgstr "Procesa el conjunto de datos de zonificación catastral"
 
-#: main.py:53
+#: main.py:52
 msgid "Process buildings to a single file instead of tasks"
 msgstr "Procesa los edificios a un archivo individual en lugar de tareas"
 
-#: main.py:56
+#: main.py:55
 msgid "Process the address dataset (default)"
 msgstr "Procesa el conjunto de datos de direcciones (predeterminada)"
 
-#: main.py:58
+#: main.py:57
 msgid "Process the cadastral parcel dataset"
 msgstr "Procesa el conjunto de datos de parcelas catastrales"
 
-#: main.py:60
+#: main.py:59
 msgid "Process all datasets (equivalent to -bdptz)"
 msgstr "Procesa todos los conjuntos de datos (equivalente a -bdptz)"
 
-#: main.py:63
+#: main.py:62
 msgid "Dissable conflation of buildings and addresses"
 msgstr "Desactiva la combinación de edificios y de direcciones"
 
-#: main.py:65
+#: main.py:64
 msgid "Select the log level between DEBUG, INFO, WARNING, ERROR or CRITICAL."
 msgstr ""
 "Selecciona el nivel de registro entre DEBUG, INFO, WARNING, ERROR o CRITICAL."
 
-#: main.py:81
+#: main.py:80
 msgid "Invalid log level: %s"
 msgstr "Nivel de registro no válido: %s"
 
-#: main.py:86
+#: main.py:85
 msgid "%s version %s"
 msgstr "%s versión %s"
 
-#: main.py:88
+#: main.py:87
 msgid "Too many arguments, supply only a directory path."
 msgstr "Demasiados argumentos, proporcione sólo la ruta de un directorio."
 
-#: main.py:99
+#: main.py:98
 msgid "Please, install QGIS"
 msgstr "Por favor, instala QGIS"

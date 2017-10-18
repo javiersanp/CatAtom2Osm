@@ -31,7 +31,6 @@ def process(args, options):
         from catatom import list_municipalities
         list_municipalities('{:>02}'.format(options.list))
     else:
-        import compat
         from catatom2osm import CatAtom2Osm
         app = CatAtom2Osm(args[0], options)
         app.run()

@@ -8,6 +8,7 @@ import logging
 from collections import defaultdict, Counter, OrderedDict
 
 from qgis.core import *
+import qgis.utils
 from osgeo import gdal
 
 import catatom
@@ -59,7 +60,10 @@ class CatAtom2Osm:
         self.path = self.cat.path
         self.zip_code = self.cat.zip_code
         self.qgs = QgsSingleton()
-        log.debug(_("Initialized QGIS API"))
+        self.qgs_version = qgis.utils.QGis.QGIS_VERSION
+        self.gdal_version = gdal.__version__
+        log.debug(_("Initialized QGIS %s API"), self.qgs_version)
+        log.debug(_("Using GDAL %s"), self.gdal_version)
         self.debug = log.getEffectiveLevel() == logging.DEBUG
         self.fixmes = 0
         self.min_level = {}
@@ -87,6 +91,7 @@ class CatAtom2Osm:
         if self.options.building or self.options.tasks:
             self.get_building()
             self.process_building()
+            return
             if self.options.address:
                 self.address.del_address(self.building)
                 self.building.move_address(self.address)

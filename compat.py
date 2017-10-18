@@ -1,7 +1,10 @@
+import sys
 import logging
 import setup
 
 log = logging.getLogger(setup.app_name + "." + __name__)
+
+log.debug(_("Using Python %s.%s.%s"), *sys.version_info[:3])
 
 # See http://lxml.de/tutorial.html for the source of the includes
 try:
