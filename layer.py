@@ -777,8 +777,8 @@ class PolygonLayer(BaseLayer):
         """Merge duplicated vertices and simplify layer"""
         self.topology()
         self.clean_duplicated_nodes_in_polygons()
-        self.simplify()
         self.delete_invalid_geometries()
+        self.simplify()
 
 
 class ParcelLayer(BaseLayer):
@@ -1064,7 +1064,12 @@ class ConsLayer(PolygonLayer):
         del uindex, rindex, ufeatures, rfeatures
         to_change = {}
         for feat in self.getFeatures():
-            feat['task'] = tasks[feat['localId'].split('_')[0]]
+            ref = feat['localId'].split('_')[0]
+            if ref in tasks:
+                feat['task'] = tasks[ref]
+            else:
+                feat['task'] = ''
+                log.warning(_("Missing building %s"), ref)
             to_change[feat.id()] = get_attributes(feat)
             if len(to_change) > BUFFER_SIZE:
                 self.writer.changeAttributeValues(to_change)
@@ -1210,8 +1215,8 @@ class ConsLayer(PolygonLayer):
         self.topology()
         self.clean_duplicated_nodes_in_polygons()
         self.merge_building_parts()
-        self.simplify()
         self.delete_invalid_geometries()
+        self.simplify()
 
     def move_address(self, address):
         """
