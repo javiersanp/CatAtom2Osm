@@ -163,7 +163,7 @@ class CatAtom2Osm:
         last_task = ''
         to_add = []
         for feat in self.building.getFeatures():
-            label = feat['task']
+            label = feat['task'] if isinstance(feat['task'], basestring) else ''
             f = source.copy_feature(feat, {}, {})
             if last_task == '' or label == last_task:
                 to_add.append(f)
