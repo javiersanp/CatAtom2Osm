@@ -253,7 +253,8 @@ class CatAtom2Osm:
         if layer.export(out_path, driver_name):
             log.info(_("Generated '%s'"), filename)
         else:
-            raise IOError(_("Failed to write layer: '%s'") % filename)
+            msg = _("Failed to write layer: '%s'") % filename
+            raise IOError(msg.encode(setup.encoding))
 
     def read_osm(self, ql, filename):
         """
@@ -328,8 +329,9 @@ class CatAtom2Osm:
         if address_gml.fieldNameIndex('component_href') == -1:
             address_gml = self.cat.read("address", force_zip=True)
             if address_gml.fieldNameIndex('component_href') == -1:
-                raise IOError(_("Could not resolve joined tables for the "
-                    "'%s' layer") % address_gml.name())
+                msg = _("Could not resolve joined tables for the "
+                    "'%s' layer") % address_gml.name()
+                raise IOError(msg.encode(setup.encoding))
         postaldescriptor = self.cat.read("postaldescriptor")
         thoroughfarename = self.cat.read("thoroughfarename")
         fn = os.path.join(self.path, 'address.shp')

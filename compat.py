@@ -23,5 +23,6 @@ except ImportError: # pragma: no cover
                 import elementtree.ElementTree as etree
                 log.debug(_("Running with ElementTree"))
             except ImportError:
-                raise ImportError(_("Failed to import ElementTree from any known place"))
+                msg = _("Failed to import ElementTree from any known place")
+                raise ImportError(msg.encode(setup.encoding))
 

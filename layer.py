@@ -86,7 +86,8 @@ class BaseLayer(QgsVectorLayer):
     def create_shp(name, crs, fields=QgsFields(), geom_type=QGis.WKBMultiPolygon):
         writer = QgsVectorFileWriter(name, 'UTF-8', fields, geom_type, crs, 'ESRI Shapefile')
         if writer.hasError() != QgsVectorFileWriter.NoError:
-            raise IOError(_("Error when creating shapefile: '%s'") % writer.errorMessage())
+            msg = _("Error when creating shapefile: '%s'") % writer.errorMessage()
+            raise IOError(msg.encode(setup.encoding))
         return writer
 
     def __del__(self):

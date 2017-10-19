@@ -26,15 +26,18 @@ class Reader(object):
         self.path = a_path
         m = re.match("^\d{5}$", os.path.split(a_path)[-1])
         if not m:
-            raise ValueError(_("Last directory name must be a 5 digits ZIP code"))
+            msg = _("Last directory name must be a 5 digits ZIP code")
+            raise ValueError(msg.encode(setup.encoding))
         self.zip_code = m.group()
         self.prov_code = self.zip_code[0:2]
         if self.prov_code not in setup.valid_provinces:
-            raise ValueError(_("Province code '%s' don't exists") % self.prov_code)
+            msg = _("Province code '%s' don't exists") % self.prov_code
+            raise ValueError(msg.encode(setup.encoding))
         if not os.path.exists(a_path):
             os.makedirs(a_path)
         if not os.path.isdir(a_path):
-            raise IOError(_("Not a directory: '%s'") % a_path)
+            msg = _("Not a directory: '%s'") % a_path
+            raise IOError(msg.encode(setup.encoding))
 
     def get_metadata(self, md_path, zip_path=""):
         """Get the metadata of the source file"""
@@ -53,7 +56,8 @@ class Reader(object):
             namespace = root.nsmap
         gml_date = root.find('gmd:dateStamp/gco:Date', namespace)
         if is_empty or gml_date == None:
-            raise IOError(_("Could not read metadata from '%s'") % md_path)
+            msg = _("Could not read metadata from '%s'") % md_path
+            raise IOError(msg.encode(setup.encoding))
         self.gml_date = gml_date.text
         gml_title = root.find('.//gmd:title/gco:CharacterString', namespace)
         self.cat_mun = gml_title.text.split('-')[-1].split('(')[0].strip()
@@ -71,7 +75,8 @@ class Reader(object):
         response = download.get_response(url)
         s = re.search('http.+/%s.+zip' % self.zip_code, response.text)
         if not s:
-            raise ValueError(_("Zip code '%s' don't exists") % self.zip_code)
+            msg = _("Zip code '%s' don't exists") % self.zip_code
+            raise ValueError(msg.encode(setup.encoding))
         url = s.group(0)
         filename = url.split('/')[-1]
         out_path = os.path.join(self.path, filename)
@@ -87,7 +92,8 @@ class Reader(object):
                 'adminunitname']:
             group = 'AD' 
         else:
-            raise ValueError(_("Unknow layer name '%s'") % layername)
+            msg = _("Unknow layer name '%s'") % layername
+            raise ValueError(msg.encode(setup.encoding))
         gml_fn = ".".join((setup.fn_prefix, group, self.zip_code, layername, "gml"))
         if group == 'AD':    
             gml_fn = ".".join((setup.fn_prefix, group, self.zip_code, 
@@ -145,7 +151,8 @@ class Reader(object):
         self.get_metadata(md_path, zip_path)
         if self.is_empty(gml_path, zip_path):
             if not allow_empty:
-                raise IOError(_("The layer '%s' is empty") % gml_path)
+                msg = _("The layer '%s' is empty") % gml_path
+                raise IOError(msg.encode(setup.encoding))
             else:
                 log.info(_("The layer '%s' is empty"), gml_path.encode('utf-8'))
                 return None
@@ -153,10 +160,12 @@ class Reader(object):
         if not gml.isValid():
             gml = layer.BaseLayer(gml_path, layername+'.gml', 'ogr')
             if not gml.isValid():
-                raise IOError(_("Failed to load layer '%s'") % gml_path)
+                msg = _("Failed to load layer '%s'") % gml_path
+                raise IOError(msg.encode(setup.encoding))
         crs = QgsCoordinateReferenceSystem(self.crs_ref)
         if not crs.isValid():
-            raise IOError(_("Could not determine the CRS of '%s'") % gml_path)
+            msg = _("Could not determine the CRS of '%s'") % gml_path
+            raise IOError(msg.encode(setup.encoding))
         gml.setCrs(crs)
         log.info(_("Read %d features in '%s'"), gml.featureCount(), 
             gml_path.encode('utf-8'))
@@ -194,7 +203,8 @@ class Reader(object):
 def list_municipalities(prov_code):
     """Get from the ATOM services a list of municipalities for a given province"""
     if prov_code not in setup.valid_provinces:
-        raise ValueError(_("Province code '%s' don't exists") % prov_code)
+        msg = _("Province code '%s' don't exists") % prov_code
+        raise ValueError(msg.encode(setup.encoding))
     url = setup.prov_url['BU'] % (prov_code, prov_code)
     response = download.get_response(url)
     root = etree.fromstring(response.content)
