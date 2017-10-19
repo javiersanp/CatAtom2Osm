@@ -21,7 +21,7 @@ class ProgressBar():
         """Increments progress by step and displays the percent as a bar"""
         self.progress += step
         if self.total == 0:
-            sys.stdout.write(_('Progress: %.1fK\r') % (self.progress / 1024.0))
+            sys.stdout.write(_('Progress: %.1fK') % (self.progress / 1024.0) + '\r')
         else:
             if self.progress > self.total: self.progress = self.total
             self.percent = round(100.0 * self.progress / float(self.total), 1)
