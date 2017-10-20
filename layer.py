@@ -759,20 +759,32 @@ class PolygonLayer(BaseLayer):
     def merge_adjacents(self):
         """Merge polygons with shared segments"""
         (groups, geometries) = self.get_adjacents_and_geometries()
+        features = {f.id(): f for f in self.getFeatures()}
         to_clean = []
         to_change = {}
+        count_adj = 0
+        count_com = 0
         for group in groups:
             group = list(group)
+            count_adj += len(group)
             geom = geometries[group[0]]
             for fid in group[1:]:
                 geom = geom.combine(geometries[fid])
-            to_clean += group[1:]
-            to_change[group[0]] = geom
+            if geom.isMultipart():
+                for i, part in enumerate(geom.asMultiPolygon()):
+                    g = QgsGeometry.fromPolygon(part)
+                    to_change[group[i]] = g
+                    count_com += 1
+                to_clean += group[i+1:]
+            else:
+                to_change[group[0]] = geom
+                to_clean += group[1:]
+                count_com += 1
         if to_clean:
             self.writer.changeGeometryValues(to_change)
             self.writer.deleteFeatures(to_clean)
             log.debug(_("%d adjacent polygons merged into %d polygons in the '%s' "
-                "layer"), len(to_clean), len(to_change), self.name().encode('utf-8'))
+                "layer"), count_adj, count_com, self.name().encode('utf-8'))
 
     def clean(self):
         """Merge duplicated vertices and simplify layer"""
