@@ -759,7 +759,6 @@ class PolygonLayer(BaseLayer):
     def merge_adjacents(self):
         """Merge polygons with shared segments"""
         (groups, geometries) = self.get_adjacents_and_geometries()
-        features = {f.id(): f for f in self.getFeatures()}
         to_clean = []
         to_change = {}
         count_adj = 0
