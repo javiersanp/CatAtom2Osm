@@ -469,19 +469,6 @@ class PolygonLayer(BaseLayer):
                 parents_per_vertex[point].append(feature.id())
         return (parents_per_vertex, geometries)
 
-    def get_parents_per_vertex_and_features(self):
-        """
-        Returns:
-            (dict) parent fids for each vertex, (dict) feature for each fid.
-        """
-        parents_per_vertex = defaultdict(list)
-        features = {}
-        for feature in self.getFeatures():
-            features[feature.id()] = feature
-            for point in self.get_vertices_list(feature):
-                parents_per_vertex[point].append(feature.id())
-        return (parents_per_vertex, features)
-
     def get_adjacents_and_geometries(self):
         """
         Returns:
@@ -512,37 +499,6 @@ class PolygonLayer(BaseLayer):
                         adjs.remove(adj)
             groups.append(group)
         return (groups, geometries)
-
-    def get_adjacents_and_features(self):
-        """
-        Returns:
-            (list) groups of fids of adjacent polygons, (dict) feature for each fid.
-        """
-        (parents_per_vertex, features) = self.get_parents_per_vertex_and_features()
-        adjs = []
-        for (point, parents) in parents_per_vertex.items():
-            if len(parents) > 1:
-                for fid in parents:
-                    geom = features[fid].geometry()
-                    (point, ndx, ndxa, ndxb, dist) = geom.closestVertex(point)
-                    next = geom.vertexAt(ndxb)
-                    parents_next = parents_per_vertex[next]
-                    common = set(x for x in parents if x in parents_next)
-                    if len(common) > 1:
-                        adjs.append(common)
-        adjs = list(adjs)
-        groups = []
-        while adjs:
-            group = set(adjs.pop())
-            lastlen = -1
-            while len(group) > lastlen:
-                lastlen = len(group)
-                for adj in adjs[:]:
-                    if len({p for p in adj if p in group}) > 0:
-                        group |= adj
-                        adjs.remove(adj)
-            groups.append(group)
-        return (groups, features)
 
     def clean_duplicated_nodes_in_polygons(self):
         """
