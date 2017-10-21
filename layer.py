@@ -682,36 +682,35 @@ class PolygonLayer(BaseLayer):
         to_change = {}
         # Clean non corners
         (parents_per_vertex, geometries) = self.get_parents_per_vertex_and_geometries()
-        for feat in self.getFeatures():
-            geom = feat.geometry()
-            for ring in geom.asPolygon():
-                if len(ring) > 4:
-                    for vertex in ring[:-1]:
-                        if vertex in parents_per_vertex:
-                            point = Point(vertex)
-                            parents = parents_per_vertex[point]
-                            # Test if this vertex is a 'corner' in any of its parent polygons
-                            for fid in parents:
-                                geom = geometries[fid]
-                                (angle, is_acute, is_corner, cath) = point.get_angle_with_context(geom)
-                                debmsg = "angle=%.1f, is_acute=%s, is_corner=%s, cath=%.4f" % (angle,
-                                    is_acute, is_corner, cath)
-                                if is_corner: break
-                            msg = "Keep"
-                            if not is_corner:
-                                killed += 1      # delete the vertex from all its parents.
-                                for fid in frozenset(parents):
-                                    g = QgsGeometry(geometries[fid])
-                                    (__, ndx, __, __, __) = g.closestVertex(point)
-                                    g.deleteVertex(ndx)
-                                    msg = "Refused"
-                                    if g.isGeosValid():
-                                        parents.remove(fid)
-                                        geometries[fid] = g
-                                        to_change[fid] = g
-                                        msg = "Deleted"
-                            if log.getEffectiveLevel() <= logging.DEBUG:
-                                debshp.add_point(point, msg + ' ' + debmsg)
+        for pnt, parents in parents_per_vertex.items():
+            point = Point(pnt)
+            # Test if this vertex is a 'corner' in any of its parent polygons
+            for fid in parents:
+                geom = geometries[fid]
+                (angle, is_acute, is_corner, cath) = point.get_angle_with_context(geom)
+                debmsg = "angle=%.1f, is_acute=%s, is_corner=%s, cath=%.4f" % (angle,
+                    is_acute, is_corner, cath)
+                if is_corner: break
+            msg = "Keep"
+            if not is_corner:
+                killed += 1      # delete the vertex from all its parents.
+                for fid in frozenset(parents):
+                    g = QgsGeometry(geometries[fid])
+                    (__, ndx, __, __, __) = g.closestVertex(point)
+                    g.deleteVertex(ndx)
+                    (ndxa, ndxb) = g.adjacentVertices(ndx)
+                    v = g.vertexAt(ndx)
+                    va = g.vertexAt(ndxa)
+                    vb = g.vertexAt(ndxb)
+                    invalid_ring = [v == va or v == vb or va == vb]
+                    msg = "Refused"
+                    if g.isGeosValid() and not invalid_ring:
+                        parents.remove(fid)
+                        geometries[fid] = g
+                        to_change[fid] = g
+                        msg = "Deleted"
+            if log.getEffectiveLevel() <= logging.DEBUG:
+                debshp.add_point(point, msg + ' ' + debmsg)
         if to_change:
             self.writer.changeGeometryValues(to_change)
             log.debug(_("Simplified %d vertices in the '%s' layer"), killed,
