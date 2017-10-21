@@ -1298,14 +1298,13 @@ class ConsLayer(PolygonLayer):
             if poly:
                 num_buildings += 1
                 geom = QgsGeometry().fromMultiPolygon(poly)
-                if geom.isGeosValid():
+                if geom is None or not geom.isGeosValid():
+                    log.warning(_("Osm building with id %d is not valid"), el.fid)
+                else:
                     fids = index.intersects(geom.boundingBox())
-                    #request = QgsFeatureRequest().setFilterFids(fids)
                     conflict = False
-                    #for feat in self.getFeatures(request):
                     for fid in fids:
                         fg = geometries[fid]
-                        #fg = feat.geometry()
                         if geom.contains(fg) or fg.contains(geom) or geom.overlaps(fg):
                             conflict = True
                             conflicts += 1
