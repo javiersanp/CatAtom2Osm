@@ -702,7 +702,7 @@ class PolygonLayer(BaseLayer):
                     v = g.vertexAt(ndx)
                     va = g.vertexAt(ndxa)
                     vb = g.vertexAt(ndxb)
-                    invalid_ring = [v == va or v == vb or va == vb]
+                    invalid_ring = (v == va or v == vb or va == vb)
                     msg = "Refused"
                     if g.isGeosValid() and not invalid_ring:
                         parents.remove(fid)
