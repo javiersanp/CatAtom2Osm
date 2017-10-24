@@ -83,6 +83,7 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.options = Values({'building': True, 'tasks': False, 
             'parcel': True, 'zoning': False, 'address': True, 'manual': False})
         self.m_app.is_new = False
+        self.m_app.building.conflate.return_value = False
         address_osm = self.m_app.address.to_osm.return_value
         self.m_app.run(self.m_app)
         self.m_app.process_tasks.assert_not_called()
@@ -92,7 +93,7 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.address.conflate.assert_called_once_with(current_address)
         self.m_app.building.move_address.assert_called_once_with(self.m_app.address)
         self.m_app.address.to_osm.assert_called_once_with()
-        self.m_app.write_osm.assert_called_with(address_osm, 'address.osm')
+        self.m_app.write_osm.assert_called_once_with(address_osm, 'address.osm')
         self.m_app.process_zoning.assert_not_called()
         self.m_app.write_building.assert_called_once_with()
         self.m_app.process_parcel.assert_called_once_with()
@@ -113,8 +114,17 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.run(self.m_app)
         self.m_app.process_tasks.assert_not_called()
 
+    def test_run5(self):
+        self.m_app.run = cat.CatAtom2Osm.run.__func__
+        self.m_app.options = Values({'building': True, 'tasks': False, 
+            'parcel': False, 'zoning': False, 'address': True, 'manual': True})
+        self.m_app.is_new = False
+        self.m_app.run(self.m_app)
+        self.m_app.address.conflate.assert_not_called()
+        self.m_app.building.conflate.assert_not_called()
+
     @mock.patch('catatom2osm.layer')
-    def test_get_building(self, m_layer):
+    def test_get_building1(self, m_layer):
         self.m_app.get_building = cat.CatAtom2Osm.get_building.__func__
         x = mock.MagicMock()
         x.source_date = 1
@@ -126,6 +136,18 @@ class TestCatAtom2Osm(unittest.TestCase):
         m_layer.ConsLayer.assert_called_once_with('foo/building.shp', providerLib='ogr', source_date = 1)
         building.append.assert_has_calls([
             mock.call(x), mock.call(y), mock.call(z)
+        ])
+
+    @mock.patch('catatom2osm.layer')
+    def test_get_building2(self, m_layer):
+        self.m_app.get_building = cat.CatAtom2Osm.get_building.__func__
+        x = mock.MagicMock()
+        y = mock.MagicMock()
+        self.m_app.cat.read.side_effect = [x, y, None]
+        building = m_layer.ConsLayer.return_value
+        self.m_app.get_building(self.m_app)
+        building.append.assert_has_calls([
+            mock.call(x), mock.call(y)
         ])
 
     @mock.patch('catatom2osm.layer')
