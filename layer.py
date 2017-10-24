@@ -879,7 +879,7 @@ class AddressLayer(BaseLayer):
             self.writer.deleteFeatures(to_clean)
             log.debug(_("Deleted %d addresses without house number") % len(to_clean))
 
-    def del_address(self, building):#building_osm):
+    def del_address(self, building):
         """Delete the address if there aren't any associated building."""
         to_clean = []
         building_refs = {bu['localId'] for bu in \

@@ -446,7 +446,7 @@ class TestZoningLayer(unittest.TestCase):
 
     def test_merge_adjacents(self):
         self.layer1.merge_adjacents()
-        (groups, features) = self.layer1.get_adjacents_and_features()
+        (groups, geometries) = self.layer1.get_adjacents_and_geometries()
         self.assertEquals(len(groups), 0)
 
 
@@ -570,7 +570,7 @@ class TestConsLayer(unittest.TestCase):
     def test_remove_parts_below_ground(self):
         to_clean = [f.id() for f in self.layer.search('lev_above=0 and lev_below>0')]
         self.assertGreater(len(to_clean), 0, 'There are parts below ground')
-        self.layer.remove_parts_below_ground()
+        self.layer.remove_outside_parts()
         to_clean = [f.id() for f in self.layer.search('lev_above=0 and lev_below>0')]
         self.assertEquals(len(to_clean), 0, 'There are not parts below ground')
 
@@ -585,28 +585,30 @@ class TestConsLayer(unittest.TestCase):
 
     def test_index_of_building_and_parts(self):
         (buildings, parts) = self.layer.index_of_building_and_parts()
-        b = {f.id(): f for f in self.layer.getFeatures() if self.layer.is_building(f)}
-        p = {f.id(): f for f in self.layer.getFeatures() if self.layer.is_part(f)}
-        self.assertEqual(len(buildings), len(b))
+        b = [f for f in self.layer.getFeatures() if self.layer.is_building(f)]
+        p = [f for f in self.layer.getFeatures() if self.layer.is_part(f)]
+        self.assertEqual(sum(len(g) for g in buildings.values()), len(b))
         self.assertEqual(sum(len(g) for g in parts.values()), len(p))
-        for (localid, bu) in buildings.items():
-            self.assertTrue(localid, bu['localid'])
-            self.assertNotIn('_', localid)
-        for (localid, group) in parts.items():
-            for pa in group:
-                self.assertTrue(localid, pa['localid'].split('_')[0])
-                self.assertIn('_', pa['localid'])
+        self.assertTrue(all([localid==bu['localid']
+            for (localid, group) in buildings.items() for bu in group]))
+        self.assertTrue(all([localid==pa['localid'][0:14]
+            for (localid, group) in parts.items() for pa in group]))
 
     def test_remove_outside_parts(self):
         refs = [
-            '000902900CS52D_part1',
             '8742721CS5284S_part10',
             '8742721CS5284S_part5',
             '8742708CS5284S_part1',
             '8742707CS5284S_part2',
             '8742707CS5284S_part6'
         ]
+        exp = QgsExpression("localId = '000902900CS52D'")
+        request = QgsFeatureRequest(exp)
+        with self.assertRaises(StopIteration):
+            self.layer.getFeatures(request).next()
         self.layer.remove_outside_parts()
+        f = self.layer.getFeatures(request).next()
+        self.assertEquals(f['localId'], '000902900CS52D')
         for feat in self.layer.getFeatures():
             self.assertNotIn(feat['localId'], refs)
 
@@ -648,7 +650,7 @@ class TestConsLayer(unittest.TestCase):
             self.assertEquals(set(cn), set([p.id() for p in parts_for_level[max_level, min_level]]))
 
     def test_merge_building_parts(self):
-        self.layer.remove_parts_below_ground()
+        self.layer.remove_outside_parts()
         self.layer.merge_building_parts()
         for ref in self.layer.getFeatures():
             if self.layer.is_building(ref):
@@ -737,8 +739,8 @@ class TestConsLayer(unittest.TestCase):
         self.assertTrue(fixture2.isValid(), "Loading fixture")
         layer.append(fixture2, rename='')
         self.assertEquals(layer.featureCount(), fixture1.featureCount() + fixture2.featureCount())
+        layer.remove_outside_parts()
         layer.explode_multi_parts()
-        layer.remove_parts_below_ground()
         layer.topology()
         layer.clean_duplicated_nodes_in_polygons()
         layer.simplify()
@@ -957,18 +959,13 @@ class TestAddressLayer(unittest.TestCase):
 
     def test_del_address(self):
         self.layer.append(self.address_gml)
-        building_osm = osm.Osm()
-        building_osm.Node(0,0, dict(ref='8345806CS5284S'))
-        building_osm.Node(0,0, dict(ref='8643403CS5284S'))
-        building_osm.Node(0,0, dict(ref='8745401CS5284N'))
-        building_osm.Node(0,0, dict(ref='8842304CS5284S'))
-        building_osm.Node(0,0, dict(ref='8842306CS5284S'))
-        building_osm.Node(0,0, dict(ref='8643407CS5284S'))
+        building = PolygonLayer('test/cons.shp', 'building', 'ogr')
+        building.keep = True
         self.assertEquals(self.layer.featureCount(), 14)
-        self.layer.del_address(building_osm)
-        self.assertEquals(self.layer.featureCount(), 6)
-        self.layer.del_address(building_osm)
-        self.assertEquals(self.layer.featureCount(), 6)
+        self.layer.del_address(building)
+        self.assertEquals(self.layer.featureCount(), 7)
+        self.layer.del_address(building)
+        self.assertEquals(self.layer.featureCount(), 7)
 
     def test_get_highway_names(self):
         layer = AddressLayer('test/address.geojson', 'address', 'ogr')
