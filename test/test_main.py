@@ -52,7 +52,7 @@ class TestMain(unittest.TestCase):
         options = mockcat.call_args_list[0][0][1]
         d = {'building': False, 'all': False, 'tasks': True, 'log_level': 'INFO', 
             'parcel': False, 'list': False, 'zoning': True, 'version': False, 
-            'address': True, 'taskslm': False}
+            'address': True}
         for (k, v) in d.items():
             self.assertEquals(getattr(options, k), v)
 
@@ -64,7 +64,7 @@ class TestMain(unittest.TestCase):
         options = mockcat.call_args_list[0][0][1]
         d = {'building': True, 'all': True, 'tasks': True, 'log_level': 'INFO', 
             'parcel': True, 'list': False, 'zoning': True, 'version': False, 
-            'address': True, 'taskslm': False}
+            'address': True}
         for (k, v) in d.items():
             self.assertEquals(getattr(options, k), v)
 
@@ -76,18 +76,7 @@ class TestMain(unittest.TestCase):
         options = mockcat.call_args_list[0][0][1]
         d = {'building': True, 'all': False, 'tasks': False, 'log_level': 'INFO', 
             'parcel': False, 'list': False, 'zoning': False, 'version': False, 
-            'address': False, 'taskslm': False}
-        for (k, v) in d.items():
-            self.assertEquals(getattr(options, k), v)
-
-    @mock.patch('main.sys.argv', ['catatom2osm.py', 'foobar', '-T'])
-    @mock.patch('catatom2osm.CatAtom2Osm')
-    def test_taskslm(self, mockcat):
-        main.run()
-        options = mockcat.call_args_list[0][0][1]
-        d = {'building': False, 'all': False, 'tasks': False, 'log_level': 'INFO', 
-            'parcel': False, 'list': False, 'zoning': True, 'version': False, 
-            'address': False, 'taskslm': True}
+            'address': False}
         for (k, v) in d.items():
             self.assertEquals(getattr(options, k), v)
 
