@@ -99,10 +99,6 @@ class BaseLayer(QgsVectorLayer):
             if os.path.exists(path):
                 os.remove(path)
             
-    def get_feature(self, fid):
-        request = QgsFeatureRequest().setFilterFids([fid])
-        return self.getFeatures(request).next()
-
     def copy_feature(self, feature, rename=None, resolve=None):
         """
         Return a copy of feature renaming attributes or resolving xlink references.
@@ -789,6 +785,8 @@ class ZoningLayer(PolygonLayer):
         self.task_pattern = pattern
 
     def set_tasks(self):
+        """Assings a unique task label to each zone by overriding splited 
+        multiparts and merged adjacent zones"""
         to_change = {}
         for i, zone in enumerate(self.getFeatures()):
             zone['label'] = self.task_pattern.format(i + 1)        
@@ -1012,6 +1010,9 @@ class ConsLayer(PolygonLayer):
         return refs
 
     def set_tasks(self, uzoning, rzoning):
+        """Assings to each building and pool the task label of the zone in witch
+        it is containd. Parts receives the label of the building it belongs. 
+        Parts without associated building are ignored"""
         uindex = uzoning.get_index()
         rindex = rzoning.get_index()
         ufeatures = {f.id(): f for f in uzoning.getFeatures()}
