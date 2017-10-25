@@ -1300,7 +1300,7 @@ class ConsLayer(PolygonLayer):
                 num_buildings += 1
                 geom = QgsGeometry().fromMultiPolygon(poly)
                 if geom is None or not geom.isGeosValid():
-                    log.warning(_("Osm building with id %d is not valid"), el.fid)
+                    log.warning(_("Osm building with id %s is not valid"), el.fid)
                 else:
                     fids = index.intersects(geom.boundingBox())
                     conflict = False
