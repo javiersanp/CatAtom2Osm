@@ -162,17 +162,18 @@ class CatAtom2Osm:
         tasks = 0
         last_task = ''
         to_add = []
-        for feat in self.building.getFeatures():
+        fcount = source.featureCount()
+        for i, feat in enumerate(source.getFeatures()):
             label = feat['task'] if isinstance(feat['task'], basestring) else ''
             f = source.copy_feature(feat, {}, {})
-            if last_task == '' or label == last_task:
+            if i == fcount - 1 or last_task == '' or label == last_task:
                 to_add.append(f)
-            else:
+            if i == fcount - 1 or (last_task != '' and label != last_task)  :
                 fn = os.path.join(self.path, 'tasks', last_task + '.shp')
                 if not os.path.exists(fn):
                     layer.ConsLayer.create_shp(fn, source.crs())
                     tasks += 1
-                task = layer.ConsLayer(fn, label, 'ogr', source_date=source.source_date)
+                task = layer.ConsLayer(fn, last_task, 'ogr', source_date=source.source_date)
                 task.keep = True
                 task.writer.addFeatures(to_add)
                 to_add = [f]
