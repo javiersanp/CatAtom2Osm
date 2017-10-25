@@ -179,6 +179,62 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.write_osm.assert_called_once_with(building_osm, 'building.osm')
         self.assertEquals(self.m_app.fixmes, 2)
 
+    @mock.patch('catatom2osm.os')
+    @mock.patch('catatom2osm.layer')
+    def test_process_tasks(self, m_layer, m_os):
+        m_os.path.join = lambda *args: '/'.join(args)
+        m_os.path.exists.return_value = True
+        task = mock.MagicMock()
+        task.featureCount.return_value = 999
+        m_layer.ConsLayer.return_value = task
+        building = mock.MagicMock()
+        building.source_date = 1234
+        self.m_app.urban_zoning.getFeatures.return_value = [{'label':'u00001'},
+            {'label':'u00002'}
+        ]
+        self.m_app.rustic_zoning.getFeatures.return_value = [{'label':'r001'},
+            {'label':'r002'}
+        ]
+        self.m_app.process_tasks = cat.CatAtom2Osm.process_tasks.__func__
+        self.m_app.process_tasks(self.m_app, building)
+        m_layer.ConsLayer.assert_has_calls([
+            mock.call('foo/tasks/r001.shp', 'r001', 'ogr', source_date=1234),
+            mock.call().featureCount(), mock.call().to_osm(upload='yes'),
+            mock.call('foo/tasks/r002.shp', 'r002', 'ogr', source_date=1234),
+            mock.call().featureCount(), mock.call().to_osm(upload='yes'),
+            mock.call('foo/tasks/u00001.shp', 'u00001', 'ogr', source_date=1234),
+            mock.call().featureCount(), mock.call().to_osm(upload='yes'),
+            mock.call('foo/tasks/u00002.shp', 'u00002', 'ogr', source_date=1234),
+            mock.call().featureCount(), mock.call().to_osm(upload='yes'),
+        ])
+
+    @mock.patch('catatom2osm.os')
+    @mock.patch('catatom2osm.layer')
+    def test_get_tasks(self, m_layer, m_os):
+        m_os.path.join = lambda *args: '/'.join(args)
+        m_os.path.exists.return_value = True
+        building = mock.MagicMock()
+        building.source_date = 1234
+        building.getFeatures.return_value = [{'task': 'a'}, {'task': 'b'}, {'task': 'b'}]
+        building.featureCount.return_value = 3
+        building.copy_feature.side_effect = [100, 101, 102]
+        m_os.listdir.return_value = ['1', '2', '3']
+        self.m_app.get_tasks = cat.CatAtom2Osm.get_tasks.__func__
+        self.m_app.get_tasks(self.m_app, building)
+        m_os.remove.assert_has_calls([
+            mock.call('foo/tasks/1'), mock.call('foo/tasks/2'), mock.call('foo/tasks/3')
+        ])
+        m_layer.ConsLayer.assert_has_calls([
+            mock.call('foo/tasks/a.shp', 'a', 'ogr', source_date=1234),
+            mock.call().writer.addFeatures([100]),
+            mock.call('foo/tasks/b.shp', 'b', 'ogr', source_date=1234),
+            mock.call().writer.addFeatures([101, 102])
+        ])
+        m_os.path.exists.return_value = False
+        building.copy_feature.side_effect = [100, 101, 102]
+        self.m_app.get_tasks(self.m_app, building)
+        m_os.makedirs.assert_called_once_with('foo/tasks')
+
     @mock.patch('catatom2osm.layer')
     def test_process_parcel(self, m_layer):
         self.m_app.process_parcel = cat.CatAtom2Osm.process_parcel.__func__
