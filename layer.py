@@ -743,9 +743,9 @@ class PolygonLayer(BaseLayer):
 
     def clean(self):
         """Merge duplicated vertices and simplify layer"""
+        self.delete_invalid_geometries()
         self.topology()
         self.clean_duplicated_nodes_in_polygons()
-        self.delete_invalid_geometries()
         self.simplify()
 
 
@@ -1196,10 +1196,10 @@ class ConsLayer(PolygonLayer):
         Merge duplicated vertices, add topological points, simplify layer
         and merge building parts.
         """
+        self.delete_invalid_geometries()
         self.topology()
         self.clean_duplicated_nodes_in_polygons()
         self.merge_building_parts()
-        self.delete_invalid_geometries()
         self.simplify()
 
     def move_address(self, address):
