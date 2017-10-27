@@ -68,15 +68,14 @@ msg:
 
 .PHONY: install
 install:
-	@echo "#!/bin/bash" > catatom2osm.sh
+	@echo "#!/bin/bash" > catatom2osm
 ifeq (${OS},$(filter $(OS),Sierra Darwin))
-	@echo "export PATH="'"'"/Applications/QGIS.app/Contents/MacOS/bin:$$"PATH'"' >> catatom2osm.sh
-	@echo "export PYTHONPATH="'"'"/Applications/QGIS.app/Contents/Resources/python:$$"PYTHONPATH'"' >> catatom2osm.sh
+	@echo "export PATH="'"'"/Applications/QGIS.app/Contents/MacOS/bin:$$"PATH'"' >> catatom2osm
+	@echo "export PYTHONPATH="'"'"/Applications/QGIS.app/Contents/Resources/python:$$"PYTHONPATH'"' >> catatom2osm
 endif
-	@echo "python $(shell pwd)/main.py $$"'*' >> catatom2osm.sh
-	@chmod +x catatom2osm.sh
-	@ln -sf $(shell pwd)/catatom2osm.sh /usr/bin/catatom2osm
+	@echo "python $(shell pwd)/main.py $$"'*' >> catatom2osm
+	@chmod +x catatom2osm
+	@ln -sf $(shell pwd)/catatom2osm /usr/bin/catatom2osm
 
 all: clean coverage api html msg
 .PHONY: all
-
