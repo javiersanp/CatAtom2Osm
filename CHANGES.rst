@@ -1,6 +1,11 @@
 Change log
 ==========
 
+**27-07-2017**
+
+* Rebuild code for better performance (issues #46, #48).
+* Conflation of existing OSM buildings and addresses (issues #43, #44).
+
 **2017-07-11**
 
 * Fix some errors.
