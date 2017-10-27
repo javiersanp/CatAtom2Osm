@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>catatom2osm module &#8212; documentación de CatAtom2Osm - 2017-07-11</title>
+    <title>catatom2osm module &#8212; documentación de CatAtom2Osm - 2017-11-27shp</title>
     
     <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -23,7 +23,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '2017-07-11',
+        VERSION:     '2017-11-27shp',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -58,7 +58,7 @@
         <li class="right" >
           <a href="catatom.html" title="catatom module"
              accesskey="P">anterior</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 2017-07-11</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 2017-11-27shp</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../api.html" >Referencia API</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="modules.html" accesskey="U">CatAtom2Osm</a> &#187;</li> 
       </ul>
@@ -166,6 +166,12 @@ Spanish Cadastre ATOM Services to OSM files.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="catatom2osm.CatAtom2Osm.get_building">
+<code class="descname">get_building</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.get_building"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.get_building" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Merge building, parts and pools</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="catatom2osm.CatAtom2Osm.get_current_ad_osm">
 <code class="descname">get_current_ad_osm</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.get_current_ad_osm"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.get_current_ad_osm" title="Enlazar permanentemente con esta definición">¶</a></dt>
 <dd><p>Gets OSM address for address conflation</p>
@@ -182,6 +188,11 @@ Spanish Cadastre ATOM Services to OSM files.</p>
 <code class="descname">get_highway</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.get_highway"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.get_highway" title="Enlazar permanentemente con esta definición">¶</a></dt>
 <dd><p>Gets OSM highways needed for street names conflation</p>
 </dd></dl>
+
+<dl class="method">
+<dt id="catatom2osm.CatAtom2Osm.get_tasks">
+<code class="descname">get_tasks</code><span class="sig-paren">(</span><em>source</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.get_tasks"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.get_tasks" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="catatom2osm.CatAtom2Osm.get_translations">
@@ -234,11 +245,6 @@ relation.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="catatom2osm.CatAtom2Osm.process_address">
-<code class="descname">process_address</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.process_address"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.process_address" title="Enlazar permanentemente con esta definición">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
 <dt id="catatom2osm.CatAtom2Osm.process_building">
 <code class="descname">process_building</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.process_building"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.process_building" title="Enlazar permanentemente con esta definición">¶</a></dt>
 <dd><p>Process all buildings dataset</p>
@@ -252,11 +258,6 @@ relation.</p>
 <dl class="method">
 <dt id="catatom2osm.CatAtom2Osm.process_tasks">
 <code class="descname">process_tasks</code><span class="sig-paren">(</span><em>source</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.process_tasks"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.process_tasks" title="Enlazar permanentemente con esta definición">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="catatom2osm.CatAtom2Osm.process_zone">
-<code class="descname">process_zone</code><span class="sig-paren">(</span><em>zone</em>, <em>index</em>, <em>processed</em>, <em>source</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.process_zone"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.process_zone" title="Enlazar permanentemente con esta definición">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -300,12 +301,6 @@ downloads data from overpass using ql query</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="catatom2osm.CatAtom2Osm.start">
-<code class="descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.start"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.start" title="Enlazar permanentemente con esta definición">¶</a></dt>
-<dd><p>Initializes data sets</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="catatom2osm.CatAtom2Osm.write_building">
 <code class="descname">write_building</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.write_building"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.write_building" title="Enlazar permanentemente con esta definición">¶</a></dt>
 <dd></dd></dl>
@@ -330,7 +325,7 @@ downloads data from overpass using ql query</p>
 
 <dl class="method">
 <dt id="catatom2osm.CatAtom2Osm.write_task">
-<code class="descname">write_task</code><span class="sig-paren">(</span><em>zoning</em>, <em>building</em>, <em>address=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.write_task"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.write_task" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<code class="descname">write_task</code><span class="sig-paren">(</span><em>fn</em>, <em>building</em>, <em>address_osm=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.write_task"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.write_task" title="Enlazar permanentemente con esta definición">¶</a></dt>
 <dd><p>Generates osm file for a task</p>
 </dd></dl>
 
@@ -378,7 +373,7 @@ downloads data from overpass using ql query</p>
         <li class="right" >
           <a href="catatom.html" title="catatom module"
              >anterior</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 2017-07-11</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 2017-11-27shp</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../api.html" >Referencia API</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="modules.html" >CatAtom2Osm</a> &#187;</li> 
       </ul>
