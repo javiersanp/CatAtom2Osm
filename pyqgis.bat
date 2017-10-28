@@ -1,4 +1,4 @@
-@call "C:\OSGeo4W\bin\o4w_env.bat"
+@call "C:\OSGeo4W\bin\o4w_env.bat" >NUL
 @echo off
 path %~dp0;%OSGEO4W_ROOT%\apps\qgis\bin;%PATH%
 set QGIS_PREFIX_PATH=%OSGEO4W_ROOT:\=/%/apps/qgis
