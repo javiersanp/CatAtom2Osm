@@ -361,41 +361,11 @@ class TestPolygonLayer(unittest.TestCase):
         self.assertGreater(len(duplicates), 0)
         self.layer.topology()
         duplicates = self.get_duplicates()
-        for dup in duplicates:
-            print "%.5f, %.5f" % (dup.x(), dup.y())
+        for p, dups in duplicates.items():
+            print '%.2f, %.2f' % (p.x(), p.y())
+            for d in dups:
+                print '  %.2f, %.2f' % (d.x(), d.y())                
         self.assertEquals(len(duplicates), 0)
-
-    def test_clean_duplicated_nodes_in_polygons(self):
-        features = self.layer.getFeatures()
-        feat1 = features.next()
-        geom1 = feat1.geometry()
-        new_geom1 = QgsGeometry(geom1)
-        l = len(new_geom1.asPolygon()[0])
-        self.assertGreater(l, 3)
-        v = new_geom1.vertexAt(l-1)
-        self.assertTrue(new_geom1.insertVertex(v.x(), v.y(), l-1))
-        v = new_geom1.vertexAt(0)
-        self.assertTrue(new_geom1.insertVertex(v.x(), v.y(), 0))
-        v = new_geom1.vertexAt(l/2)
-        self.assertTrue(new_geom1.insertVertex(v.x(), v.y(), l/2))
-        self.assertTrue(new_geom1.insertVertex(v.x(), v.y(), l/2))
-        feat2 = features.next()
-        geom2 = feat2.geometry()
-        self.assertGreater(len(geom2.asPolygon()[0]), 2)
-        v1 = geom2.vertexAt(0)
-        v2 = geom2.vertexAt(1)
-        new_geom2 = QgsGeometry().fromPolygon([[v1, v2, v2, v1]])
-        feat3 = features.next()
-        geom3 = feat3.geometry()
-        self.layer.writer.changeGeometryValues({feat1.id(): new_geom1})
-        self.layer.writer.changeGeometryValues({feat2.id(): new_geom2})
-        self.layer.clean_duplicated_nodes_in_polygons()
-        features = self.layer.getFeatures()
-        new_feat = features.next()
-        self.assertTrue(geom1.equals(new_feat.geometry()))
-        new_feat = features.next()
-        self.assertTrue(geom3.equals(new_feat.geometry()))
-
 
 class TestParcelLayer(unittest.TestCase):
 
@@ -774,7 +744,6 @@ class TestConsLayer(unittest.TestCase):
         layer.remove_outside_parts()
         layer.explode_multi_parts()
         layer.topology()
-        layer.clean_duplicated_nodes_in_polygons()
         layer.simplify()
         for feat in layer.getFeatures():
             geom = feat.geometry()

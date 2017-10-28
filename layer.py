@@ -496,46 +496,6 @@ class PolygonLayer(BaseLayer):
             groups.append(group)
         return (groups, geometries)
 
-    def clean_duplicated_nodes_in_polygons(self):
-        """
-        Cleans consecutives nodes with the same coordinates in any ring of a
-        polygon.
-        """
-        dupes = 0
-        to_clean = []
-        to_change = {}
-        for feature in self.getFeatures():
-            new_polygon = []
-            for part in self.get_multipolygon(feature):
-                new_part = []
-                for ring in part:
-                    if ring:
-                        merged = [ring[0]]
-                        for i, point in enumerate(ring[1:]):
-                            if point == ring[i]:
-                                dupes += 1
-                            else:
-                                merged.append(point)
-                        new_part.append(merged)
-                new_polygon.append(new_part)
-            if dupes:
-                if len(new_polygon) > 1:
-                    new_geom = QgsGeometry().fromMultiPolygon(new_polygon)
-                else:
-                    new_geom = QgsGeometry().fromPolygon(new_polygon[0])
-                if new_geom and new_geom.isGeosValid():
-                    to_change[feature.id()] = new_geom
-                else:
-                    to_clean.append(feature.id())
-        if to_change:
-            self.writer.changeGeometryValues(to_change)
-            log.debug(_("Merged %d duplicated vertices of polygons in "
-                "the '%s' layer"), dupes, self.name().encode('utf-8'))
-        if to_clean:
-            self.writer.deleteFeatures(to_clean)
-            log.debug(_("Deleted %d invalid geometries in the '%s' layer"),
-                len(to_clean), self.name().encode('utf-8'))
-
     def topology(self):
         """For each vertex in a polygon layer, adds it to nearest segments."""
         threshold = self.dist_thr # Distance threshold to create nodes
@@ -564,21 +524,23 @@ class PolygonLayer(BaseLayer):
                             vb = g.vertexAt(ndxb)
                             dist_a = va.sqrDist(point)
                             dist_b = vb.sqrDist(point)
-                            if dist_a > 0 and dist_a < dup_thr**2:
-                                g.moveVertex(point.x(), point.y(), ndxa)
+                            if dist_a < dist_b and dist_a < dup_thr**2:
+                                g.deleteVertex(ndxa)
                                 note = "dupe refused by isGeosValid"
                                 if g.isGeosValid():
                                     note = "Merge dup. %.10f %.5f,%.5f->%.5f,%.5f" % \
                                         (dist_a, va.x(), va.y(), point.x(), point.y())
                                     nodes.add(p)
+                                    nodes.add(va)
                                     td += 1
-                            if dist_b > 0 and dist_b < dup_thr**2:
-                                g.moveVertex(point.x(), point.y(), ndxb)
+                            if dist_b < dist_a and dist_b < dup_thr**2:
+                                g.deleteVertex(ndxb)
                                 note = "dupe refused by isGeosValid"
                                 if g.isGeosValid():
                                     note = "Merge dup. %.10f %.5f,%.5f->%.5f,%.5f" % \
                                         (dist_b, vb.x(), vb.y(), point.x(), point.y())
                                     nodes.add(p)
+                                    nodes.add(vb)
                                     td += 1
                         elif dist_v < dup_thr**2:
                             g.moveVertex(point.x(), point.y(), ndx)
@@ -745,7 +707,6 @@ class PolygonLayer(BaseLayer):
         """Merge duplicated vertices and simplify layer"""
         self.delete_invalid_geometries()
         self.topology()
-        self.clean_duplicated_nodes_in_polygons()
         self.simplify()
 
 
@@ -1198,7 +1159,6 @@ class ConsLayer(PolygonLayer):
         """
         self.delete_invalid_geometries()
         self.topology()
-        self.clean_duplicated_nodes_in_polygons()
         self.merge_building_parts()
         self.simplify()
 
