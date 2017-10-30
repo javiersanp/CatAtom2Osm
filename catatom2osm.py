@@ -318,7 +318,6 @@ class CatAtom2Osm:
             self.urban_zoning = layer.ZoningLayer('u{:05}', fn, 'urbanzoning', 'ogr')
             self.urban_zoning.append(zoning_gml, level='M')
             self.urban_zoning.topology()
-            self.urban_zoning.clean_duplicated_nodes_in_polygons()
             self.urban_zoning.merge_adjacents()
             self.rustic_zoning.set_tasks()
             self.urban_zoning.set_tasks()
