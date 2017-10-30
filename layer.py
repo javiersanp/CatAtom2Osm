@@ -1053,7 +1053,7 @@ class ConsLayer(PolygonLayer):
         for feat in self.getFeatures():
             if self.is_part(feat):
                 ref = feat['localId'].split('_')[0]
-                if feat['lev_above'] == 0:
+                if feat['lev_above'] == 0 and feat['lev_below'] != 0:
                     to_clean_b.append(feat.id())
                 elif ref not in buildings:
                     parts_for_ref[ref].append(feat)
