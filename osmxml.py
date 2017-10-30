@@ -94,13 +94,23 @@ def deserialize(infile, data=None):
         elem.clear()
     for way in data.ways:
         for i, ref in enumerate(way.nodes):
-            if 'n{}'.format(ref) in data.index:
-                way.nodes[i] = data.get(ref)
+            if isinstance(ref, basestring):
+                if 'n{}'.format(ref) in data.index:
+                    n = data.get(ref)
+                    way.nodes[i] = n
+                    data.parents[n].add(way)
+                else:
+                    msg = _("Reference to missing element '%s'") % ref
+                    raise IOError(msg.encode(setup.encoding))
     for rel in data.relations:
         for i, m in enumerate(rel.members):
             if isinstance(m, dict):
                 if m['type'][0].lower() + str(m['ref']) in data.index:
                     el = data.get(m['ref'], m['type'])
                     rel.members[i] = osm.Relation.Member(el, m['role'])
+                    data.parents[el].add(rel)
+                else:
+                    msg = _("Reference to missing element '%s'") % m['ref']
+                    raise IOError(msg.encode(setup.encoding))
     return data
 

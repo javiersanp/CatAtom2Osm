@@ -99,7 +99,7 @@ class OsmxmlTest(unittest.TestCase):
         root.append(relxml)
         relxml = etree.Element('relation', dict(id='-201'))
         relxml.append(etree.Element('tag', dict(k='test', v='nested relation')))
-        relxml.append(etree.Element('member', dict(type='way', ref='-110', role='dummy')))
+        relxml.append(etree.Element('member', dict(type='way', ref='-101', role='dummy')))
         root.append(relxml)
         root.append(etree.Element('dummy'))
         fo = StringIO(etree.tostring(root))
@@ -153,4 +153,17 @@ class OsmxmlTest(unittest.TestCase):
         fo = StringIO(etree.tostring(root))
         result = osmxml.deserialize(fo, result)
         self.assertEquals(len(result.nodes), 17)
+        root2 = root
+        wayxml = etree.Element('way', dict(id='-103'))
+        wayxml.append(etree.Element('nd', dict(ref='-99')))
+        root.append(wayxml)
+        fo = StringIO(etree.tostring(root))
+        with self.assertRaises(IOError):
+            result = osmxml.deserialize(fo)
+        relxml = etree.Element('relation', dict(id='-202'))
+        relxml.append(etree.Element('member', dict(type='way', ref='-199', role='dummy')))
+        root2.append(relxml)
+        fo = StringIO(etree.tostring(root2))
+        with self.assertRaises(IOError):
+            result = osmxml.deserialize(fo)
 

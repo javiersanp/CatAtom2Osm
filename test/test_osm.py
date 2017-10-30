@@ -59,6 +59,9 @@ class TestOsm(OsmTestCase):
         self.assertNotIn(r2, self.d.elements)
         self.assertNotIn(n4, self.d.elements)
         self.assertNotIn(n5, self.d.elements)
+        self.d.remove(r1)
+        self.assertEquals(len(self.d.parents[n1]), 0)
+        self.assertEquals(len(self.d.elements), 0)
 
     def test_replace(self):
         n1 = self.d.Node(1,1)
