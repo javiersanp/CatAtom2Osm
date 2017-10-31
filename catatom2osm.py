@@ -370,15 +370,19 @@ class CatAtom2Osm:
         if 'source:date' in address_osm.tags:
             building_osm.tags['source:date:addr'] = address_osm.tags['source:date']
         address_index = {}
-        building_index = {}
+        building_index = defaultdict(list)
         for bu in building_osm.elements:
             if 'ref' in bu.tags:
-                building_index[bu.tags['ref']] = bu
+                building_index[bu.tags['ref']].append(bu)
         for ad in address_osm.nodes:
             if ad.tags['ref'] in building_index:
                 address_index[ad.tags['ref']] = ad
-        for (ref, bu) in building_index.items():
-            if ref in address_index:
+        mp = 0
+        for (ref, group) in building_index.items():
+            if len(group) > 1:
+                mp += 1
+            elif ref in address_index:
+                bu = group[0]
                 ad = address_index[ref]
                 if 'entrance' in ad.tags:
                     footprint = [bu] if isinstance(bu, osm.Way) \
@@ -391,6 +395,8 @@ class CatAtom2Osm:
                             break
                 else:
                     bu.tags.update(ad.tags)
+        if mp > 0:
+            log.debug(_("Refused %d addresses belonging to multiple buildings"), mp)
 
     def write_task(self, fn, building, address_osm=None):
         """Generates osm file for a task"""
