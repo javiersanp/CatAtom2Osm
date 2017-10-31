@@ -1,10 +1,10 @@
 Registro de cambios
 ===================
 
-**27-07-2017**
+**31-11-2017**
 
 * Reconstruye el código para mejorar la eficiencia (cuestiones #46, #48).
-* Combinación de edificios y direcciones existentes en OSM (cuestiones #43, #44).
+* Combinación de edificios/piscinas y direcciones existentes en OSM (cuestiones #43, #44, #49).
 
 **11-07-2017**
 

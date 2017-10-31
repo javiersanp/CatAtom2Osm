@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" href="../../_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>test.test_layer &#8212; CatAtom2Osm 2017-11-27shp documentation</title>
+    <title>test.test_layer &#8212; CatAtom2Osm 2017-11-31shp documentation</title>
     
     <link rel="stylesheet" href="../../_static/guzzle.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -23,7 +23,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '2017-11-27shp',
+        VERSION:     '2017-11-31shp',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -49,7 +49,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">CatAtom2Osm 2017-11-27shp documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CatAtom2Osm 2017-11-31shp documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
       </ul>
     </div>
@@ -474,41 +474,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">assertGreater</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">duplicates</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">layer</span><span class="o">.</span><span class="n">topology</span><span class="p">()</span>
         <span class="n">duplicates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_duplicates</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">dup</span> <span class="ow">in</span> <span class="n">duplicates</span><span class="p">:</span>
-            <span class="nb">print</span> <span class="s2">&quot;</span><span class="si">%.5f</span><span class="s2">, </span><span class="si">%.5f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dup</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">dup</span><span class="o">.</span><span class="n">y</span><span class="p">())</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">duplicates</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="TestPolygonLayer.test_clean_duplicated_nodes_in_polygons"><a class="viewcode-back" href="../../api/test.test_layer.html#test.test_layer.TestPolygonLayer.test_clean_duplicated_nodes_in_polygons">[docs]</a>    <span class="k">def</span> <span class="nf">test_clean_duplicated_nodes_in_polygons</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">()</span>
-        <span class="n">feat1</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
-        <span class="n">geom1</span> <span class="o">=</span> <span class="n">feat1</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span>
-        <span class="n">new_geom1</span> <span class="o">=</span> <span class="n">QgsGeometry</span><span class="p">(</span><span class="n">geom1</span><span class="p">)</span>
-        <span class="n">l</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_geom1</span><span class="o">.</span><span class="n">asPolygon</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertGreater</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
-        <span class="n">v</span> <span class="o">=</span> <span class="n">new_geom1</span><span class="o">.</span><span class="n">vertexAt</span><span class="p">(</span><span class="n">l</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">new_geom1</span><span class="o">.</span><span class="n">insertVertex</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">v</span><span class="o">.</span><span class="n">y</span><span class="p">(),</span> <span class="n">l</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
-        <span class="n">v</span> <span class="o">=</span> <span class="n">new_geom1</span><span class="o">.</span><span class="n">vertexAt</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">new_geom1</span><span class="o">.</span><span class="n">insertVertex</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">v</span><span class="o">.</span><span class="n">y</span><span class="p">(),</span> <span class="mi">0</span><span class="p">))</span>
-        <span class="n">v</span> <span class="o">=</span> <span class="n">new_geom1</span><span class="o">.</span><span class="n">vertexAt</span><span class="p">(</span><span class="n">l</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">new_geom1</span><span class="o">.</span><span class="n">insertVertex</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">v</span><span class="o">.</span><span class="n">y</span><span class="p">(),</span> <span class="n">l</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">new_geom1</span><span class="o">.</span><span class="n">insertVertex</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">v</span><span class="o">.</span><span class="n">y</span><span class="p">(),</span> <span class="n">l</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span>
-        <span class="n">feat2</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
-        <span class="n">geom2</span> <span class="o">=</span> <span class="n">feat2</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertGreater</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">geom2</span><span class="o">.</span><span class="n">asPolygon</span><span class="p">()[</span><span class="mi">0</span><span class="p">]),</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="n">v1</span> <span class="o">=</span> <span class="n">geom2</span><span class="o">.</span><span class="n">vertexAt</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-        <span class="n">v2</span> <span class="o">=</span> <span class="n">geom2</span><span class="o">.</span><span class="n">vertexAt</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">new_geom2</span> <span class="o">=</span> <span class="n">QgsGeometry</span><span class="p">()</span><span class="o">.</span><span class="n">fromPolygon</span><span class="p">([[</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">,</span> <span class="n">v2</span><span class="p">,</span> <span class="n">v1</span><span class="p">]])</span>
-        <span class="n">feat3</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
-        <span class="n">geom3</span> <span class="o">=</span> <span class="n">feat3</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">layer</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">changeGeometryValues</span><span class="p">({</span><span class="n">feat1</span><span class="o">.</span><span class="n">id</span><span class="p">():</span> <span class="n">new_geom1</span><span class="p">})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">layer</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">changeGeometryValues</span><span class="p">({</span><span class="n">feat2</span><span class="o">.</span><span class="n">id</span><span class="p">():</span> <span class="n">new_geom2</span><span class="p">})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">layer</span><span class="o">.</span><span class="n">clean_duplicated_nodes_in_polygons</span><span class="p">()</span>
-        <span class="n">features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">()</span>
-        <span class="n">new_feat</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">geom1</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">new_feat</span><span class="o">.</span><span class="n">geometry</span><span class="p">()))</span>
-        <span class="n">new_feat</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">geom3</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">new_feat</span><span class="o">.</span><span class="n">geometry</span><span class="p">()))</span></div></div>
-
+        <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">dups</span> <span class="ow">in</span> <span class="n">duplicates</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%.2f</span><span class="s1">, </span><span class="si">%.2f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">p</span><span class="o">.</span><span class="n">y</span><span class="p">())</span>
+            <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dups</span><span class="p">:</span>
+                <span class="nb">print</span> <span class="s1">&#39;  </span><span class="si">%.2f</span><span class="s1">, </span><span class="si">%.2f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">d</span><span class="o">.</span><span class="n">y</span><span class="p">())</span>                
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">duplicates</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span></div></div>
 
 <div class="viewcode-block" id="TestParcelLayer"><a class="viewcode-back" href="../../api/test.test_layer.html#test.test_layer.TestParcelLayer">[docs]</a><span class="k">class</span> <span class="nc">TestParcelLayer</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
 
@@ -887,7 +857,6 @@
         <span class="n">layer</span><span class="o">.</span><span class="n">remove_outside_parts</span><span class="p">()</span>
         <span class="n">layer</span><span class="o">.</span><span class="n">explode_multi_parts</span><span class="p">()</span>
         <span class="n">layer</span><span class="o">.</span><span class="n">topology</span><span class="p">()</span>
-        <span class="n">layer</span><span class="o">.</span><span class="n">clean_duplicated_nodes_in_polygons</span><span class="p">()</span>
         <span class="n">layer</span><span class="o">.</span><span class="n">simplify</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">feat</span> <span class="ow">in</span> <span class="n">layer</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">():</span>
             <span class="n">geom</span> <span class="o">=</span> <span class="n">feat</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span>
@@ -1179,7 +1148,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">CatAtom2Osm 2017-11-27shp documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CatAtom2Osm 2017-11-31shp documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
       </ul>
     </div>
