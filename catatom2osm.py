@@ -21,6 +21,7 @@ import overpass
 import setup
 import translate
 from compat import etree
+from report import instance as report
 
 log = logging.getLogger(setup.app_name + "." + __name__)
 if setup.silence_gdal:
@@ -59,7 +60,7 @@ class CatAtom2Osm:
         self.options = options
         self.cat = catatom.Reader(a_path)
         self.path = self.cat.path
-        self.zip_code = self.cat.zip_code
+        report.mun_code = self.cat.zip_code
         self.qgs = QgsSingleton()
         self.qgs_version = qgis.utils.QGis.QGIS_VERSION
         self.gdal_version = gdal.__version__
@@ -76,7 +77,7 @@ class CatAtom2Osm:
 
     def run(self):
         """Launches the app"""
-        log.info(_("Start processing '%s'"), self.zip_code)
+        log.info(_("Start processing '%s'"), report.mun_code)
         self.get_zoning()
         if self.options.zoning:
             self.process_zoning()
@@ -109,13 +110,16 @@ class CatAtom2Osm:
         if self.options.address:
             self.address.reproject()
             self.address_osm = self.address.to_osm()
+            report.multiple_addresses = 0
+            report.out_address = 0
         if self.options.tasks:
             self.process_tasks(self.building)
             del self.rustic_zoning
             del self.urban_zoning
         if self.options.building:
             self.building_osm = self.building.to_osm()
-            self.merge_address(self.building_osm, self.address_osm)
+            if self.options.address:
+                self.merge_address(self.building_osm, self.address_osm)
             self.write_building()
         if self.options.address:
             self.write_osm(self.address_osm, 'address.osm')
@@ -123,6 +127,7 @@ class CatAtom2Osm:
         if self.options.parcel:
             self.process_parcel()
         self.end_messages()
+        print report.to_string()
 
     def get_building(self):
         """Merge building, parts and pools"""
@@ -132,13 +137,17 @@ class CatAtom2Osm:
         self.building = layer.ConsLayer(fn, providerLib='ogr', 
             source_date=building_gml.source_date)
         self.building.append(building_gml)
+        report.inp_buildings = building_gml.featureCount()
         del building_gml
         part_gml = self.cat.read("buildingpart")
         self.building.append(part_gml)
+        report.inp_parts = part_gml.featureCount()
         del part_gml
         other_gml = self.cat.read("otherconstruction", True)
+        report.inp_pools = 0
         if other_gml:
             self.building.append(other_gml)
+            report.inp_pools = other_gml.featureCount()
         del other_gml
 
     def process_tasks(self, source):
@@ -315,6 +324,9 @@ class CatAtom2Osm:
         self.rustic_zoning = layer.ZoningLayer('r{:03}', fn, 'rusticzoning', 'ogr')
         self.rustic_zoning.append(zoning_gml, level='P')
         self.cat.get_boundary(self.rustic_zoning)
+        report.mun_name = getattr(self.cat, 'boundary_name', None)
+        report.mun_area = round(sum([f.geometry().area() \
+            for f in self.rustic_zoning.getFeatures()]) / 1E6, 1)
         if self.options.tasks or self.options.zoning:
             fn = os.path.join(self.path, 'urban_zoning.shp')
             layer.ZoningLayer.create_shp(fn, zoning_gml.crs())
@@ -337,6 +349,11 @@ class CatAtom2Osm:
                 raise IOError(msg.encode(setup.encoding))
         postaldescriptor = self.cat.read("postaldescriptor")
         thoroughfarename = self.cat.read("thoroughfarename")
+        report.inp_address = address_gml.featureCount()
+        report.inp_zip_codes = postaldescriptor.featureCount()
+        report.inp_street_names = thoroughfarename.featureCount()
+        report.inp_address_entrance = address_gml.count("specification='Entrance'")
+        report.inp_address_parcel = address_gml.count("specification='Parcel'")
         fn = os.path.join(self.path, 'address.shp')
         layer.AddressLayer.create_shp(fn, address_gml.crs())
         self.address = layer.AddressLayer(fn, providerLib='ogr', 
@@ -384,6 +401,7 @@ class CatAtom2Osm:
             elif ref in address_index:
                 bu = group[0]
                 ad = address_index[ref]
+                report.out_address += 1
                 if 'entrance' in ad.tags:
                     footprint = [bu] if isinstance(bu, osm.Way) \
                         else [m.element for m in bu.members if m.role == 'outer']
@@ -397,6 +415,7 @@ class CatAtom2Osm:
                     bu.tags.update(ad.tags)
         if mp > 0:
             log.debug(_("Refused %d addresses belonging to multiple buildings"), mp)
+        report.multiple_addresses += mp
 
     def write_task(self, fn, building, address_osm=None):
         """Generates osm file for a task"""

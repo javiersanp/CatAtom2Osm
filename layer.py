@@ -14,6 +14,7 @@ import hgwnames
 import osm
 import setup
 import translate
+from report import instance as report
 log = logging.getLogger(setup.app_name + "." + __name__)
 
 BUFFER_SIZE = 512
@@ -387,11 +388,19 @@ class BaseLayer(QgsVectorLayer):
         return data
 
     def search(self, expression):
-        """Returns a features list for this search expression
-        """
+        """Returns a features iterator for this search expression"""
         exp = QgsExpression(expression)
         request = QgsFeatureRequest(exp)
         return self.getFeatures(request)
+
+    def count(self, expression):
+        """Returns number of features for this search expression"""
+        exp = QgsExpression(expression)
+        request = QgsFeatureRequest(exp)
+        count = 0
+        for f in self.getFeatures(request):
+            count += 1
+        return count
 
 
 class PolygonLayer(BaseLayer):
@@ -837,6 +846,7 @@ class AddressLayer(BaseLayer):
         if to_clean:
             self.writer.deleteFeatures(to_clean)
             log.debug(_("Deleted %d addresses without house number") % len(to_clean))
+            report.addresses_without_number = len(to_clean)
 
     def del_address(self, building):
         """Delete the address if there aren't any associated building."""
@@ -850,6 +860,7 @@ class AddressLayer(BaseLayer):
         if to_clean:
             self.writer.deleteFeatures(to_clean)
             log.debug(_("Deleted %d addresses without associated building"), len(to_clean))
+            report.orphand_addresses = len(to_clean)
 
     def get_highway_names(self, highway):
         """
