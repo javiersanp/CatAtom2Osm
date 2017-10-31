@@ -585,9 +585,11 @@ class PolygonLayer(BaseLayer):
         if td:
             log.debug(_("Merged %d close vertices in the '%s' layer"), td,
                 self.name().encode('utf-8'))
+            report.values['vertex_close_' + self.name()] = td
         if tp:
             log.debug(_("Created %d topological points in the '%s' layer"),
                 tp, self.name().encode('utf-8'))
+            report.values['vertex_topo_' + self.name()] = tp
 
     def delete_invalid_geometries(self):
         if log.getEffectiveLevel() <= logging.DEBUG:
@@ -628,10 +630,12 @@ class PolygonLayer(BaseLayer):
         if rings:
             log.debug(_("Deleted %d invalid ring geometries in the '%s' layer"),
                 rings, self.name().encode('utf-8'))
+            report.values['geom_rings_' + self.name()] = rings
         if to_clean:
             self.writer.deleteFeatures(to_clean)
             log.debug(_("Deleted %d invalid geometries in the '%s' layer"),
                 len(to_clean), self.name().encode('utf-8'))
+            report.values['geom_invalid_' + self.name()] = len(to_clean)
 
     def simplify(self):
         """
@@ -1083,9 +1087,11 @@ class ConsLayer(PolygonLayer):
         if len(to_clean_o) > 0:
             log.debug(_("Removed %d building parts outside the footprint"), 
                 len(to_clean_o))
+            report.values['orphand_parts_' + self.name()] = len(to_clean_o)
         if len(to_clean_b) > 0:
             log.debug(_("Deleted %d building parts with no floors above ground"),
                 len(to_clean_b))
+            report.values['below_removed_' + self.name()] = len(to_clean_b)
         if to_add:
             self.writer.addFeatures(to_add)
             log.debug(_("Generated %d building footprints"), len(to_add))

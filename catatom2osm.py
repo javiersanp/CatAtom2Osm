@@ -112,6 +112,8 @@ class CatAtom2Osm:
             self.address_osm = self.address.to_osm()
             report.multiple_addresses = 0
             report.out_address = 0
+            report.out_address_entrance = 0
+            report.out_address_building = 0
         if self.options.tasks:
             self.process_tasks(self.building)
             del self.rustic_zoning
@@ -122,6 +124,10 @@ class CatAtom2Osm:
                 self.merge_address(self.building_osm, self.address_osm)
             self.write_building()
         if self.options.address:
+            if not self.options.building and not self.options.tasks:
+                for el in self.address_osm.elements:
+                    if 'addr:street' in el.tags:
+                        report.out_address += 1
             self.write_osm(self.address_osm, 'address.osm')
             del self.address_osm
         if self.options.parcel:
@@ -410,9 +416,11 @@ class CatAtom2Osm:
                         if entrance:
                             entrance.tags.update(ad.tags)
                             entrance.tags.pop('ref', None)
+                            report.out_address_entrance += 1
                             break
                 else:
                     bu.tags.update(ad.tags)
+                    report.out_address_building += 1
         if mp > 0:
             log.debug(_("Refused %d addresses belonging to multiple buildings"), mp)
         report.multiple_addresses += mp
