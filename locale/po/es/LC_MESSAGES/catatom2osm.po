@@ -264,7 +264,7 @@ msgstr "Generados %d contornos de edificios"
 
 #: layer.py:1148
 msgid "Translated %d level values to the footprint"
-msgstr "Fusionados %d valores de niveles al contorno"
+msgstr "Trasladados %d valores de niveles al contorno"
 
 #: layer.py:1151
 msgid "Merged %d building parts to the footprint"
