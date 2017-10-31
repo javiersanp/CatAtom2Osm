@@ -466,7 +466,7 @@ class CatAtom2Osm:
 
     def get_current_bu_osm(self):
         """Gets OSM buildings for building conflation"""
-        ql = 'way["building"];relation["building"];'
+        ql = 'way[building];relation[building];way[leisure=swimming_pool];relation[leisure=swimming_pool]'
         current_bu_osm = self.read_osm(ql, 'current_building.osm')
         return current_bu_osm
 

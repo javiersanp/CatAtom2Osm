@@ -1252,9 +1252,11 @@ class ConsLayer(PolygonLayer):
         to_clean = set()
         for el in current_bu_osm.elements:
             poly = None
-            if el.type == 'way' and el.is_closed() and 'building' in el.tags:
+            is_pool = 'leisure' in el.tags and el.tags['leisure'] == 'swimming_pool'
+            is_building = 'building' in el.tags
+            if el.type == 'way' and el.is_closed() and (is_building or is_pool):
                 poly = [[map(Point, el.geometry())]]
-            elif el.type == 'relation' and 'building' in el.tags:
+            elif el.type == 'relation' and (is_building or is_pool):
                 poly = [[map(Point, w)] for w in el.outer_geometry()]
             if poly:
                 num_buildings += 1
@@ -1276,7 +1278,7 @@ class ConsLayer(PolygonLayer):
                         el.tags['conflict'] = 'yes'
         for el in to_clean:
             current_bu_osm.remove(el)
-        log.debug(_("Detected %d conflicts in %d buildings from OSM"), 
+        log.debug(_("Detected %d conflicts in %d buildings/pools from OSM"), 
                 conflicts, num_buildings)
         return len(to_clean) > 0
 
