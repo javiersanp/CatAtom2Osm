@@ -64,6 +64,9 @@ class CatAtom2Osm:
         self.qgs_version = qgis.utils.QGis.QGIS_VERSION
         self.gdal_version = gdal.__version__
         log.debug(_("Initialized QGIS %s API"), self.qgs_version)
+        if qgis.utils.QGis.QGIS_VERSION_INT < setup.MIN_QGIS_VERSION_INT:
+            msg = _("Required QGIS version %s or greater") % setup.MIN_QGIS_VERSION
+            raise ValueError(msg.encode(setup.encoding))
         log.debug(_("Using GDAL %s"), self.gdal_version)
         self.debug = log.getEffectiveLevel() == logging.DEBUG
         self.fixmes = 0

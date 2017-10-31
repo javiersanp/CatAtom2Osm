@@ -11,6 +11,9 @@ app_copyright = u'2017, Javier Sánchez Portero'
 app_desc = 'Tool to convert INSPIRE data sets from the Spanish Cadastre ATOM Services to OSM files'
 app_tags = ''
 
+MIN_QGIS_VERSION_INT = 21001
+MIN_QGIS_VERSION = '2.10.1'
+
 language, encoding = locale.getdefaultlocale()
 app_path = os.path.dirname(__file__)
 localedir = os.path.join(app_path, 'locale', 'po')
