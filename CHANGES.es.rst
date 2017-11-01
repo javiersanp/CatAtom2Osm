@@ -1,7 +1,11 @@
 Registro de cambios
 ===================
 
-**31-11-2017**
+**01-11-2017**
+
+* Genera informe de estadísticas (cuestión #50).
+
+**31-10-2017**
 
 * Reconstruye el código para mejorar la eficiencia (cuestiones #46, #48).
 * Combinación de edificios/piscinas y direcciones existentes en OSM (cuestiones #43, #44, #49).

@@ -1,7 +1,11 @@
 Change log
 ==========
 
-**2017-11-31**
+**2017-11-01**
+
+* Generate statistics report (issues #50).
+
+**2017-10-31**
 
 * Rebuild code for better performance (issues #46, #48).
 * Conflation of existing OSM buildings/pools and addresses (issues #43, #44, #49).

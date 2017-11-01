@@ -459,6 +459,8 @@ class PolygonLayer(BaseLayer):
             log.debug(_("%d multi-polygons splited into %d polygons in "
                 "the '%s' layer"), len(to_clean), len(to_add),
                 self.name().encode('utf-8'))
+            report.values['multipart_geoms_' + self.name()] = len(to_clean)
+            report.values['exploded_parts_' + self.name()] = len(to_add)
 
     def get_parents_per_vertex_and_geometries(self):
         """
@@ -686,6 +688,7 @@ class PolygonLayer(BaseLayer):
             self.writer.changeGeometryValues(to_change)
             log.debug(_("Simplified %d vertices in the '%s' layer"), killed,
                 self.name().encode('utf-8'))
+            report.values['vertex_simplify_' + self.name()] = killed
 
     def merge_adjacents(self):
         """Merge polygons with shared segments"""
@@ -845,6 +848,7 @@ class AddressLayer(BaseLayer):
         if to_clean:
             self.writer.deleteFeatures(to_clean)
             log.debug(_("Refused %d addresses existing in OSM") % len(to_clean))
+            report.refused_addresses = len(to_clean)
         to_clean = [feat.id() for feat in self.search("designator = '%s'" \
             % setup.no_number)]
         if to_clean:
@@ -1087,14 +1091,15 @@ class ConsLayer(PolygonLayer):
         if len(to_clean_o) > 0:
             log.debug(_("Removed %d building parts outside the footprint"), 
                 len(to_clean_o))
-            report.values['orphand_parts_' + self.name()] = len(to_clean_o)
+            report.orphand_parts = len(to_clean_o)
         if len(to_clean_b) > 0:
             log.debug(_("Deleted %d building parts with no floors above ground"),
                 len(to_clean_b))
-            report.values['below_removed_' + self.name()] = len(to_clean_b)
+            report.underground_parts = len(to_clean_b)
         if to_add:
             self.writer.addFeatures(to_add)
             log.debug(_("Generated %d building footprints"), len(to_add))
+            report.new_footprints = len(to_add)
 
     def get_parts(self, footprint, parts):
         """
@@ -1166,8 +1171,10 @@ class ConsLayer(PolygonLayer):
             self.writer.changeGeometryValues(to_change_g)
             self.writer.deleteFeatures(to_clean + to_clean_g)
             log.debug(_("Merged %d building parts to the footprint"), len(to_clean))
+            report.parts_to_footprint = len(to_clean)
         if to_clean_g:
             log.debug(_("Merged %d adjacent parts"), len(to_clean_g))
+            report.adjacent_parts = len(to_clean_g)
 
     def clean(self):
         """
@@ -1297,6 +1304,8 @@ class ConsLayer(PolygonLayer):
             current_bu_osm.remove(el)
         log.debug(_("Detected %d conflicts in %d buildings/pools from OSM"), 
                 conflicts, num_buildings)
+        report.osm_buildings = num_buildings
+        report.osm_building_conflicts = conflicts
         return len(to_clean) > 0
 
 
