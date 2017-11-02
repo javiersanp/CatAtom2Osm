@@ -1,16 +1,25 @@
 # -*- coding: utf-8 -*-
 """Statistics report"""
 
-from collections import OrderedDict
+from collections import OrderedDict, Counter
 from datetime import datetime
 import codecs
 
 import setup
 
+TAB = '  '
+
+
 class Report(object):
 
     def __init__(self):
-        self.values = {'date': datetime.now().strftime('%x')}
+        self.values = {
+            'date': datetime.now().strftime('%x'),
+            'fixme_counter': Counter(),
+            'warnings': [],
+            'min_level': {},
+            'max_level': {},
+        }
         self.titles = OrderedDict([
             ('mun_name', _('Municipality: {}')),
             ('mun_code', _('Code: {}')),
@@ -20,8 +29,8 @@ class Report(object):
             ('subgroup_ad_input', _('Input data')),
             ('address_date', _('Source date: {}')),
             ('inp_address', _('Feature count: {}')),
-            ('inp_address_entrance', _('  Type entrance: {}')),
-            ('inp_address_parcel', _('  Type parcel: {}')),
+            ('inp_address_entrance', TAB + _('Type entrance: {}')),
+            ('inp_address_parcel', TAB + _('Type parcel: {}')),
             ('inp_zip_codes', _('Postal codes: {}')),
             ('inp_street_names', _('Street names: {}')),
             ('subgroup_ad_process', _('Process')),
@@ -30,21 +39,21 @@ class Report(object):
             ('multiple_addresses', _('Addresses belonging to multiple buildings deleted: {}')),
             ('subgroup_ad_conflation', _("Conflation")),
             ('osm_addresses', _("OSM addresses : {}")),
-            ('osm_addresses_whithout_number', _("  Without house number: {}")),
-            ('refused_addresses', _("Refused addresses existing in OSM: {}")),
+            ('osm_addresses_whithout_number', TAB + _("Without house number: {}")),
+            ('refused_addresses', _("Addresses rejected because they exist in OSM: {}")),
             ('subgroup_ad_output', _('Output data')),
             ('out_address', _('Addresses: {}')),
-            ('out_address_entrance', _('  In entrance nodes: {}')),
-            ('out_address_building', _('  In buildings: {}')),
-            ('out_addr_str', _('  Type addr:street: {}')),
-            ('out_addr_plc', _('  Type addr:place: {}')),
+            ('out_address_entrance', TAB + _('In entrance nodes: {}')),
+            ('out_address_building', TAB + _('In buildings: {}')),
+            ('out_addr_str', TAB + _('Type addr:street: {}')),
+            ('out_addr_plc', TAB + _('Type addr:place: {}')),
             ('group_buildings', _('Buildings')),
             ('subgroup_bu_input', _('Input data')),
             ('building_date', _('Source date: {}')),
             ('inp_features', _('Feature count: {}')),
-            ('inp_buildings', '  ' + _('Edificios: {}')),
-            ('inp_parts', '  ' + _('Buildings parts: {}')),
-            ('inp_pools', '  ' + _('Swimming pools: {}')),
+            ('inp_buildings', TAB + _('Edificios: {}')),
+            ('inp_parts', TAB + _('Buildings parts: {}')),
+            ('inp_pools', TAB + _('Swimming pools: {}')),
             ('subgroup_bu_process', _('Process')),
             ('orphand_parts', _("Parts outside footprint deleted: {}")),
             ('underground_parts', _("Parts with no floors above ground: {}")),
@@ -60,7 +69,7 @@ class Report(object):
             ('vertex_simplify_building', _("Simplified vertices: {}")),
             ('subgroup_bu_conflation', _("Conflation")),
             ('osm_buildings', _("Buildings/pools in OSM: {}")),
-            ('osm_building_conflicts', _("Buildings/pools with conflic: {}")),
+            ('osm_building_conflicts', TAB + _("With conflic: {}")),
             ('subgroup_bu_output', _('Output data')),
             ('nodes', _("Nodes: {}")),
             ('ways', _("Ways: {}")),
@@ -74,7 +83,8 @@ class Report(object):
             ('tasks_r', _("Rustic tasks files: {}")),
             ('tasks_u', _("Urban tasks files: {}")),
             ('group_problems', _("Problems")),
-            ('fixmes', _("Fixmes: {}")),
+            ('fixme_count', _("Fixmes: {}")),
+            ('fixmes', ''),
             ('warnings', _("Warnings:")),
         ])
 
@@ -113,10 +123,10 @@ class Report(object):
             elif key in self.values:
                 if isinstance(self.values[key], list):
                     if len(self.values[key]) > 0:
-                        output += title
+                        if title:
+                            output += title + ' '  + str(len(self.values[key])) + setup.eol
                         for item in self.values[key]:
-                            output += setup.eol + item
-                        output += setup.eol
+                            output += TAB + item + setup.eol
                 else:
                     output += title.format(self.values[key])
                     output += setup.eol

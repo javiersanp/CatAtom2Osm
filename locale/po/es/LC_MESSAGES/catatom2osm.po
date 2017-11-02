@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-11-02 12:30+WET\n"
+"POT-Creation-Date: 2017-11-02 14:17+WET\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -41,7 +41,7 @@ msgstr "Buscando la url para la capa '%s' de '%s'..."
 msgid "Zip code '%s' don't exists"
 msgstr "El Código Postal '%s' no existe"
 
-#: catatom.py:83 catatom2osm.py:337
+#: catatom.py:83 catatom2osm.py:330
 msgid "Downloading '%s'"
 msgstr "Descargando '%s'"
 
@@ -90,63 +90,63 @@ msgstr "Se requiere QGIS versión %s o superior"
 msgid "Using GDAL %s"
 msgstr "Usando GDAL %s"
 
-#: catatom2osm.py:81
+#: catatom2osm.py:77
 msgid "Start processing '%s'"
 msgstr "Comienza el procesado de '%s'"
 
-#: catatom2osm.py:237
+#: catatom2osm.py:236
 msgid "Generated %d rustic and %d urban tasks files"
 msgstr "Generados %d ficheros de tareas de rústica y %d de urbana"
 
-#: catatom2osm.py:288
+#: catatom2osm.py:280
 msgid "Check %d fixme tags"
 msgstr "Revisa %d etiquetas fixme"
 
-#: catatom2osm.py:292
+#: catatom2osm.py:285
 msgid "The translation file '%s' have been writen in '%s'"
 msgstr "El fichero de conversiones '%s' ha sido generado en '%s'"
 
-#: catatom2osm.py:294
+#: catatom2osm.py:287
 msgid "Please, check it and run again"
 msgstr "Por favor, compruébelo y ejecute de nuevo"
 
-#: catatom2osm.py:296
+#: catatom2osm.py:289
 msgid "Finished!"
 msgstr "¡Terminado!"
 
-#: catatom2osm.py:297
+#: catatom2osm.py:290
 msgid "Only for testing purposses. Don't upload any result to OSM"
 msgstr "Sólo para fines de prueba. No cargue ningún resultado en OSM"
 
-#: catatom2osm.py:318
+#: catatom2osm.py:311
 msgid "Generated '%s'"
 msgstr "Generado '%s'"
 
-#: catatom2osm.py:320
+#: catatom2osm.py:313
 msgid "Failed to write layer: '%s'"
 msgstr "Error al escribir la capa: '%s'"
 
-#: catatom2osm.py:343
+#: catatom2osm.py:336
 msgid "No OSM data were obtained from '%s'"
 msgstr "No se obtuvieron datos OSM de '%s'"
 
-#: catatom2osm.py:345
+#: catatom2osm.py:338
 msgid "Read '%s': %d nodes, %d ways, %d relations"
 msgstr "Leído '%s': %d nodos, %d vías, %d relaciones"
 
-#: catatom2osm.py:364
+#: catatom2osm.py:357
 msgid "Generated '%s': %d nodes, %d ways, %d relations"
 msgstr "Generado '%s': %d nodos, %d vías, %d relaciones"
 
-#: catatom2osm.py:399
+#: catatom2osm.py:392
 msgid "Could not resolve joined tables for the '%s' layer"
 msgstr "No se pudieron resolver las tablas combinadas para la capa '%s'"
 
-#: catatom2osm.py:476
+#: catatom2osm.py:469
 msgid "Refused %d addresses belonging to multiple buildings"
 msgstr "Eliminadas %d direcciones pertenecientes a edificios múltiples"
 
-#: catatom2osm.py:554
+#: catatom2osm.py:539
 msgid "There are %d address without house number in the OSM data"
 msgstr "Existen %d direcciones sin número de portal en OSM"
 
@@ -182,7 +182,7 @@ msgstr "Progreso: %.1fK"
 msgid "Error when creating shapefile: '%s'"
 msgstr "Error al crear el fichero shapefile: '%s'"
 
-#: layer.py:195 layer.py:801 layer.py:988
+#: layer.py:195 layer.py:803 layer.py:990
 msgid "Loaded %d features in '%s' from '%s'"
 msgstr "Cargados %d elementos en '%s' desde '%s'"
 
@@ -198,95 +198,95 @@ msgstr "Combinado '%s' a '%s'"
 msgid "Detected a %s geometry in the '%s' layer"
 msgstr "Detectada una geometría %s en la capa '%s'"
 
-#: layer.py:385
+#: layer.py:387
 msgid "Loaded %d nodes, %d ways, %d relations from '%s' layer"
 msgstr "Cargados %d nodos, %d vías, %d relaciones de la capa '%s'"
 
-#: layer.py:459 layer.py:804
+#: layer.py:461 layer.py:806
 msgid "%d multi-polygons splited into %d polygons in the '%s' layer"
 msgstr "%d multipolígonos divididos a %d poligonos en la capa '%s'"
 
-#: layer.py:588
+#: layer.py:590
 msgid "Merged %d close vertices in the '%s' layer"
 msgstr "Fusionados %d vértices próximos en la capa '%s'"
 
-#: layer.py:592
+#: layer.py:594
 msgid "Created %d topological points in the '%s' layer"
 msgstr "Creados %d puntos topológicos en la capa '%s'"
 
-#: layer.py:633
+#: layer.py:635
 msgid "Deleted %d invalid ring geometries in the '%s' layer"
 msgstr "Eliminados %d anillos de geometrías no válidos en la capa '%s'"
 
-#: layer.py:638
+#: layer.py:640
 msgid "Deleted %d invalid geometries in the '%s' layer"
 msgstr "Eliminadas %d geometrías no válidas en la capa '%s'"
 
-#: layer.py:689
+#: layer.py:691
 msgid "Simplified %d vertices in the '%s' layer"
 msgstr "Simplificados %d vértices en la capa '%s'"
 
-#: layer.py:719
+#: layer.py:721
 msgid "%d adjacent polygons merged into %d polygons in the '%s' layer"
 msgstr "%d polígonos adyacentes fusionados a %d polígonos en la capa '%s'"
 
-#: layer.py:850
-msgid "Refused %d addresses existing in OSM"
-msgstr "Rechazadas %d direcciones existentes en OSM"
+#: layer.py:852
+msgid "Refused %d addresses because they exist in OSM"
+msgstr "Rechazadas %d direcciones por existir en OSM"
 
-#: layer.py:856
+#: layer.py:858
 msgid "Deleted %d addresses without house number"
 msgstr "Eliminadas %d direcciones sin número de portal"
 
-#: layer.py:870
+#: layer.py:872
 msgid "Deleted %d addresses without associated building"
 msgstr "Eliminadas %d direcciones sin edificio asociado"
 
-#: layer.py:1025
+#: layer.py:1027
 msgid "Missing building %s"
 msgstr "Falta el edificio %s"
 
-#: layer.py:1092
+#: layer.py:1094
 msgid "Removed %d building parts outside the footprint"
 msgstr "Eliminadas %d partes de edificio fuera del contorno"
 
-#: layer.py:1096
+#: layer.py:1098
 msgid "Deleted %d building parts with no floors above ground"
 msgstr "Eliminadas %d partes de edificio sin plantas sobre el nivel del suelo"
 
-#: layer.py:1101
+#: layer.py:1103
 msgid "Generated %d building footprints"
 msgstr "Generados %d contornos de edificios"
 
-#: layer.py:1170
+#: layer.py:1172
 msgid "Translated %d level values to the footprint"
 msgstr "Trasladados %d valores de niveles al contorno"
 
-#: layer.py:1173
+#: layer.py:1175
 msgid "Merged %d building parts to the footprint"
 msgstr "Fusionados %d partes de edificios al contorno"
 
-#: layer.py:1176
+#: layer.py:1178
 msgid "Merged %d adjacent parts"
 msgstr "Fusionadas %d partes adyacentes"
 
-#: layer.py:1237
+#: layer.py:1239
 msgid "Moved %d addresses to entrance, %d changed to parcel"
 msgstr "Desplazadas %d direcciones a entrada, %d cambiadas a parcela"
 
-#: layer.py:1259
+#: layer.py:1261
 msgid "Check, area too small"
 msgstr "Comprobar, área demasiado pequeña"
 
-#: layer.py:1262
+#: layer.py:1264
 msgid "Check, area too big"
 msgstr "Comprobar, área demasiado grande"
 
-#: layer.py:1289
+#: layer.py:1291
 msgid "Osm building with id %s is not valid"
 msgstr "El edificio de OSM con id %s no es váido"
 
-#: layer.py:1305
+#: layer.py:1309
 msgid "Detected %d conflicts in %d buildings/pools from OSM"
 msgstr "Detectados %d edificios/piscinas con conflicto de %d en OSM"
 
@@ -376,226 +376,226 @@ msgstr "Por favor, instala QGIS"
 msgid "Reference to missing element '%s'"
 msgstr "Referencia a elemento ausente '%s'"
 
-#: report.py:15
+#: report.py:24
 msgid "Municipality: {}"
 msgstr "Municipio: {}"
 
-#: report.py:16
+#: report.py:25
 msgid "Code: {}"
 msgstr "Código: {}"
 
-#: report.py:17
+#: report.py:26
 msgid "Area: {} km²"
 msgstr "Superficie: {} km²"
 
-#: report.py:18
+#: report.py:27
 msgid "Date: {}"
 msgstr "Fecha: {}"
 
-#: report.py:19
+#: report.py:28
 msgid "Addresses"
 msgstr "Direcciones"
 
-#: report.py:20 report.py:42
+#: report.py:29 report.py:51
 msgid "Input data"
 msgstr "Datos de entrada"
 
-#: report.py:21 report.py:43
+#: report.py:30 report.py:52
 msgid "Source date: {}"
 msgstr "Fecha de origen: {}"
 
-#: report.py:22 report.py:44
+#: report.py:31 report.py:53
 msgid "Feature count: {}"
 msgstr "Número de elementos: {}"
 
-#: report.py:23
-msgid "  Type entrance: {}"
-msgstr "  Tipo entrada: {}"
+#: report.py:32
+msgid "Type entrance: {}"
+msgstr "Tipo entrada: {}"
 
-#: report.py:24
-msgid "  Type parcel: {}"
-msgstr "  Tipo parcela: {}"
+#: report.py:33
+msgid "Type parcel: {}"
+msgstr "Tipo parcela: {}"
 
-#: report.py:25
+#: report.py:34
 msgid "Postal codes: {}"
 msgstr "Códigos postales: {}"
 
-#: report.py:26
+#: report.py:35
 msgid "Street names: {}"
 msgstr "Nombres de viales: {}"
 
-#: report.py:27 report.py:48
+#: report.py:36 report.py:57
 msgid "Process"
 msgstr "Procesado"
 
-#: report.py:28
+#: report.py:37
 msgid "Addresses without house number deleted: {}"
 msgstr "Direcciones sin número de portal eliminadas: {}"
 
-#: report.py:29
+#: report.py:38
 msgid "Addresses without associated building deleted: {}"
 msgstr "Direcciones sin edificio asociado eliminadas: {}"
 
-#: report.py:30
+#: report.py:39
 msgid "Addresses belonging to multiple buildings deleted: {}"
 msgstr "Direcciones correspondientes a edificios múltiples eliminadas: {}"
 
-#: report.py:31 report.py:61
+#: report.py:40 report.py:70
 msgid "Conflation"
 msgstr "Combinación"
 
-#: report.py:32
+#: report.py:41
 msgid "OSM addresses : {}"
 msgstr "Direcciones OSM: {}"
 
-#: report.py:33
-msgid "  Without house number: {}"
-msgstr "  Sin número de portal: {}"
+#: report.py:42
+msgid "Without house number: {}"
+msgstr "Sin número de portal: {}"
 
-#: report.py:34
-msgid "Refused addresses existing in OSM: {}"
-msgstr "Direcciones existentes en OSM rechazadas: {}"
+#: report.py:43
+msgid "Addresses rejected because they exist in OSM: {}"
+msgstr "Direcciones rechazadas por existir en OSM: {}"
 
-#: report.py:35 report.py:64
+#: report.py:44 report.py:73
 msgid "Output data"
 msgstr "Datos de salida"
 
-#: report.py:36
+#: report.py:45
 msgid "Addresses: {}"
 msgstr "Direcciones: {}"
 
-#: report.py:37
-msgid "  In entrance nodes: {}"
-msgstr "  En nodos de entrada: {}"
+#: report.py:46
+msgid "In entrance nodes: {}"
+msgstr "En nodos de entrada: {}"
 
-#: report.py:38
-msgid "  In buildings: {}"
-msgstr "  En edificios: {}"
+#: report.py:47
+msgid "In buildings: {}"
+msgstr "En edificios: {}"
 
-#: report.py:39
-msgid "  Type addr:street: {}"
-msgstr "  Tipo addr:street: {}"
+#: report.py:48
+msgid "Type addr:street: {}"
+msgstr "Tipo addr:street: {}"
 
-#: report.py:40
-msgid "  Type addr:place: {}"
-msgstr "  Tipo addr:place: {}"
+#: report.py:49
+msgid "Type addr:place: {}"
+msgstr "Tipo addr:place: {}"
 
-#: report.py:41
+#: report.py:50
 msgid "Buildings"
 msgstr "Edificios"
 
-#: report.py:45
+#: report.py:54
 msgid "Edificios: {}"
-msgstr ""
+msgstr "Edificios: {}"
 
-#: report.py:46 report.py:69
+#: report.py:55 report.py:78
 msgid "Buildings parts: {}"
 msgstr "Partes de edificios: {}"
 
-#: report.py:47 report.py:70
+#: report.py:56 report.py:79
 msgid "Swimming pools: {}"
 msgstr "Piscinas: {}"
 
-#: report.py:49
+#: report.py:58
 msgid "Parts outside footprint deleted: {}"
 msgstr "Partes fuera de contorno eliminadas: {}"
 
-#: report.py:50
+#: report.py:59
 msgid "Parts with no floors above ground: {}"
 msgstr "Partes bajo rasante eliminadas: {}"
 
-#: report.py:51
+#: report.py:60
 msgid "Building footprints created: {}"
 msgstr "Contornos de edificios creados: {}"
 
-#: report.py:52
+#: report.py:61
 msgid "Buildings with multipart geometries: {}"
 msgstr "Edificios con geometrías multiparte: {}"
 
-#: report.py:53
+#: report.py:62
 msgid "Buildings resulting from spliting multiparts: {}"
 msgstr "Edificios resultantes de dividir multipartes: {}"
 
-#: report.py:54
+#: report.py:63
 msgid "Parts merged to the footprint: {}"
 msgstr "Partes fusionadas al contorno: {}"
 
-#: report.py:55
+#: report.py:64
 msgid "Adjacent parts merged: {}"
 msgstr "Partes adyacentes fusionadas: {}"
 
-#: report.py:56
+#: report.py:65
 msgid "Invalid geometry rings deleted: {}"
 msgstr "Anillos de geometrías no válidos eliminados: {}"
 
-#: report.py:57
+#: report.py:66
 msgid "Invalid geometries deleted: {}"
 msgstr "Geometrías no válidas eliminadas: {}"
 
-#: report.py:58
+#: report.py:67
 msgid "Close vertices merged: {}"
 msgstr "Vértices próximos fusionados: {}"
 
-#: report.py:59
+#: report.py:68
 msgid "Topological points created: {}"
 msgstr "Puntos topológicos creados: {}"
 
-#: report.py:60
+#: report.py:69
 msgid "Simplified vertices: {}"
 msgstr "Vértices simplificados {}"
 
-#: report.py:62
+#: report.py:71
 msgid "Buildings/pools in OSM: {}"
 msgstr "Edificios/piscinas en OSM: {}"
 
-#: report.py:63
-msgid "Buildings/pools with conflic: {}"
-msgstr "Edificios/piscinas con conflicto: {}"
+#: report.py:72
+msgid "With conflic: {}"
+msgstr "Con conflicto: {}"
 
-#: report.py:65
+#: report.py:74
 msgid "Nodes: {}"
 msgstr "Nodos: {}"
 
-#: report.py:66
+#: report.py:75
 msgid "Ways: {}"
 msgstr "Vías: {}"
 
-#: report.py:67
+#: report.py:76
 msgid "Relations: {}"
 msgstr "Relaciones: {}"
 
-#: report.py:68
+#: report.py:77
 msgid "Buildings: {}"
 msgstr "Edificios: {}"
 
-#: report.py:71
+#: report.py:80
 msgid "Building types counter: {}"
 msgstr "Recuento de tipos de edificios: {}"
 
-#: report.py:72
+#: report.py:81
 msgid "Max. levels above ground (level: # of buildings): {}"
 msgstr "Plantas sobre rasante (nivel: nº de edificios): {}"
 
-#: report.py:73
+#: report.py:82
 msgid "Min. levels below ground (level: # of buildings): {}"
 msgstr "Plantas bajo rasante (nivel: nº de edificios): {}"
 
-#: report.py:74
+#: report.py:83
 msgid "Rustic tasks files: {}"
 msgstr "Ficheros de tareas de rústica: {}"
 
-#: report.py:75
+#: report.py:84
 msgid "Urban tasks files: {}"
 msgstr "Ficheros de tareas de urbana: {}"
 
-#: report.py:76
+#: report.py:85
 msgid "Problems"
-msgstr "Procesado"
+msgstr "Problemas"
 
-#: report.py:77
+#: report.py:86
 msgid "Fixmes: {}"
-msgstr "Notas de corrección: {}"
+msgstr "Correcciones (fixmes): {}"
 
-#: report.py:78
+#: report.py:88
 msgid "Warnings:"
 msgstr "Avisos:"

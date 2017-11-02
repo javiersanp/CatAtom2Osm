@@ -37,7 +37,7 @@ class TestReport(unittest.TestCase):
             + "Date: " + datetime.now().strftime('%x') + setup.eol + setup.eol \
             + "=Addresses=" + setup.eol + setup.eol \
             + "==Input data==" + setup.eol \
-            + "Addresses: 1000" + setup.eol
+            + "Feature count: 1000" + setup.eol
         self.assertEquals(output, expected)
 
     def test_to_string2(self):
@@ -46,8 +46,8 @@ class TestReport(unittest.TestCase):
         output = r.to_string()
         expected = u"Date: " + datetime.now().strftime('%x') + setup.eol \
             + setup.eol + "=Problems=" + setup.eol \
-            + "Warnings:" + setup.eol \
-            + "w1" + setup.eol + "w2" + setup.eol
+            + "Warnings: 2" + setup.eol \
+            + report.TAB + "w1" + setup.eol + report.TAB + "w2" + setup.eol
         self.assertEquals(output, expected)
 
     def test_to_file(self):

@@ -79,7 +79,6 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.write_osm.assert_called_once_with(current_bu_osm, 'current_building.osm')
         self.m_app.building.set_tasks.assert_called_once_with(u, r)
         self.m_app.process_tasks.assert_called_once_with(self.m_app.building)
-        self.m_app.write_building.assert_not_called()
         self.m_app.process_parcel.assert_not_called()
 
     @mock.patch('catatom2osm.report')
@@ -90,6 +89,7 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.is_new = False
         self.m_app.building.conflate.return_value = False
         address_osm = self.m_app.address.to_osm.return_value
+        building_osm = self.m_app.building.to_osm.return_value
         self.m_app.run(self.m_app)
         self.m_app.process_tasks.assert_not_called()
         self.m_app.process_building.assert_called_once_with()
@@ -98,9 +98,11 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.address.conflate.assert_called_once_with(current_address)
         self.m_app.building.move_address.assert_called_once_with(self.m_app.address)
         self.m_app.address.to_osm.assert_called_once_with()
-        self.m_app.write_osm.assert_called_once_with(address_osm, 'address.osm')
+        self.m_app.write_osm.assert_has_calls([
+            mock.call(building_osm, 'building.osm'),
+            mock.call(address_osm, 'address.osm')
+        ])
         self.m_app.process_zoning.assert_not_called()
-        self.m_app.write_building.assert_called_once_with()
         self.m_app.process_parcel.assert_called_once_with()
 
     @mock.patch('catatom2osm.report')
@@ -110,7 +112,7 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.options.building = False
         self.m_app.options.tasks = False
         self.m_app.run(self.m_app)
-        self.m_app.write_building.assert_not_called()
+        self.m_app.write_osm.assert_not_called()
 
     @mock.patch('catatom2osm.report')
     def test_run4(self, m_report):
@@ -193,21 +195,6 @@ class TestCatAtom2Osm(unittest.TestCase):
             mock.call(self.m_app.rustic_zoning, 'rustic_zoning.geojson', 'GeoJSON')
         ])
 
-    @mock.patch('catatom2osm.report')
-    def test_write_building(self, m_report):
-        self.m_app.write_building = cat.CatAtom2Osm.write_building.__func__
-        building_osm = osm.Osm()
-        building_osm.Node(0,0, {'fixme': 'f1'})
-        building_osm.Node(1,2, {'fixme': 'f2'})
-        building_osm.Node(2,2, {'fixme': 'f2'})
-        building_osm.Node(2,3)
-        self.m_app.building_osm = building_osm
-        m_report.fixme_counter = Counter()
-        self.m_app.write_building(self.m_app)
-        self.m_app.write_osm.assert_called_once_with(building_osm, 'building.osm')
-        self.assertEquals(m_report.fixme_counter['f1'], 1)
-        self.assertEquals(m_report.fixme_counter['f2'], 2)
-
     @mock.patch('catatom2osm.os')
     @mock.patch('catatom2osm.layer')
     def test_process_tasks(self, m_layer, m_os):
@@ -246,16 +233,19 @@ class TestCatAtom2Osm(unittest.TestCase):
         m_report.building_counter = Counter()
         data = osm.Osm()
         data.Node(0,0, {'leisure': 'swimming_pool'})
-        data.Node(0,0, {'building': 'a'})
-        data.Node(0,0, {'building': 'b'})
-        data.Node(0,0, {'building:part': 'yes'})
+        data.Node(0,0, {'building': 'a', 'fixme': 'f1'})
+        data.Node(0,0, {'building': 'b', 'fixme': 'f2'})
+        data.Node(0,0, {'building:part': 'yes', 'fixme': 'f2'})
         data.Node(0,0)
+        m_report.fixme_counter = Counter()
         self.m_app.cons_stats(self.m_app, data)
         self.assertEquals(m_report.out_pools, 1)
         self.assertEquals(m_report.out_buildings, 2)
         self.assertEquals(m_report.out_parts, 1)
         self.assertEquals(m_report.building_counter['a'], 1)
         self.assertEquals(m_report.building_counter['b'], 1)
+        self.assertEquals(m_report.fixme_counter['f1'], 1)
+        self.assertEquals(m_report.fixme_counter['f2'], 2)
 
     @mock.patch('catatom2osm.os')
     @mock.patch('catatom2osm.layer')
@@ -489,25 +479,6 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.assertEquals(building.tags['source:date:addr'], address.tags['source:date'])
 
     @mock.patch('catatom2osm.os')
-    def test_write_task1(self, m_os):
-        self.m_app.write_task = cat.CatAtom2Osm.write_task.__func__
-        m_os.path.join = lambda *args: '/'.join(args)
-        m_bu = mock.MagicMock()
-        m_bu.to_osm.return_value = 'foo'
-        self.m_app.write_task(self.m_app, 'bar', m_bu)
-        self.m_app.write_osm.assert_called_once_with('foo', 'tasks/bar.osm')
-
-    @mock.patch('catatom2osm.os')
-    def test_write_task2(self, m_os):
-        self.m_app.write_task = cat.CatAtom2Osm.write_task.__func__
-        m_os.path.join = lambda *args: '/'.join(args)
-        m_bu = mock.MagicMock()
-        m_bu.to_osm.return_value = 'foo'
-        m_ad = mock.MagicMock()
-        self.m_app.write_task(self.m_app, 'bar', m_bu, m_ad)
-        self.m_app.merge_address.assert_called_once_with('foo', m_ad)
-
-    @mock.patch('catatom2osm.os')
     @mock.patch('catatom2osm.csvtools')
     def test_get_translations(self, m_csv, m_os):
         self.m_app.get_translations = cat.CatAtom2Osm.get_translations.__func__
@@ -552,7 +523,8 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.assertEquals(c, 1234)
 
     @mock.patch('catatom2osm.log')
-    def test_get_current_ad_osm(self, m_log):
+    @mock.patch('catatom2osm.report')
+    def test_get_current_ad_osm(self, m_report, m_log):
         d = osm.Osm()
         d.Node(0,0, {'addr:housenumber': '12', 'addr:street': 'foobar'})
         d.Node(1,1, {'addr:housenumber': '14', 'addr:street': 'foobar'})
@@ -561,9 +533,9 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.read_osm.return_value = d
         address = self.m_app.get_current_ad_osm(self.m_app)
         self.assertEquals(address, set(['foobar14', 'foobar12', 'bartaz10']))
-        m_log.warning.assert_not_called()
+        self.assertNotIn('osm_addresses_whithout_number', m_report)
         d.Node(3,3, {'addr:street': 'x'})
+        d.Node(4,4, {'addr:place': 'y'})
         self.m_app.read_osm.return_value = d
         address = self.m_app.get_current_ad_osm(self.m_app)
-        output = m_log.warning.call_args_list[0][0][0]
-        self.assertIn('without house number', output)
+        self.assertEquals(m_report.osm_addresses_whithout_number, 2)

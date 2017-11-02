@@ -375,8 +375,10 @@ class BaseLayer(QgsVectorLayer):
             elif geom.wkbType() == QGis.WKBPoint:
                 e = data.Node(geom.asPoint())
             else:
-                log.warning(_("Detected a %s geometry in the '%s' layer"),
-                    geom.wkbType(), self.name().encode('utf-8'))
+                msg = _("Detected a %s geometry in the '%s' layer") % \
+                    (geom.wkbType(), self.name().encode('utf-8'))
+                log.warning(msg)
+                report.warnings.add(msg)
             if e: e.tags.update(tags_translation(feature))
         for (key, value) in setup.changeset_tags.items():
             data.tags[key] = value
@@ -847,7 +849,7 @@ class AddressLayer(BaseLayer):
             if feat['TN_text'] + feat['designator'] in current_address]
         if to_clean:
             self.writer.deleteFeatures(to_clean)
-            log.debug(_("Refused %d addresses existing in OSM") % len(to_clean))
+            log.debug(_("Refused %d addresses because they exist in OSM") % len(to_clean))
             report.refused_addresses = len(to_clean)
         to_clean = [feat.id() for feat in self.search("designator = '%s'" \
             % setup.no_number)]
@@ -1286,7 +1288,9 @@ class ConsLayer(PolygonLayer):
                 num_buildings += 1
                 geom = QgsGeometry().fromMultiPolygon(poly)
                 if geom is None or not geom.isGeosValid():
-                    log.warning(_("Osm building with id %s is not valid"), el.fid)
+                    msg = _("Osm building with id %s is not valid") % el.fid
+                    log.warning(msg)
+                    report.warnings.append(msg)
                 else:
                     fids = index.intersects(geom.boundingBox())
                     conflict = False

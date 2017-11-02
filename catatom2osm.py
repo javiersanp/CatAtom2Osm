@@ -70,10 +70,6 @@ class CatAtom2Osm:
             raise ValueError(msg.encode(setup.encoding))
         log.debug(_("Using GDAL %s"), self.gdal_version)
         self.debug = log.getEffectiveLevel() == logging.DEBUG
-        report.fixme_counter = Counter()
-        report.warnings = []
-        report.min_level = {}
-        report.max_level = {}
         self.is_new = False
 
     def run(self):
@@ -134,7 +130,8 @@ class CatAtom2Osm:
                 self.cons_stats(self.building_osm)
             if self.options.address:
                 self.merge_address(self.building_osm, self.address_osm)
-            self.write_building()
+            self.write_osm(self.building_osm, 'building.osm')
+            del self.building_osm
         if self.options.address:
             if not self.options.building and not self.options.tasks:
                 for el in self.address_osm.elements:
@@ -203,6 +200,8 @@ class CatAtom2Osm:
                 report.building_counter[el.tags['building']] += 1
             if 'building:part' in el.tags:
                 report.out_parts += 1
+            if 'fixme' in el.tags:
+                report.fixme_counter[el.tags['fixme']] += 1
 
     def get_tasks(self, source):
         base_path = os.path.join(self.path, 'tasks')
@@ -254,13 +253,6 @@ class CatAtom2Osm:
         self.building.clean()
         self.building.validate(report.max_level, report.min_level)
 
-    def write_building(self):
-        self.write_osm(self.building_osm, 'building.osm')
-        for el in self.building_osm.elements:
-            if 'fixme' in el.tags:
-                report.fixme_counter[el.tags['fixme']] += 1
-        del self.building_osm
-
     def process_parcel(self):
         parcel_gml = self.cat.read("cadastralparcel")
         fn = os.path.join(self.path, 'parcel.shp')
@@ -286,8 +278,9 @@ class CatAtom2Osm:
         fixmes = sum(report.fixme_counter.values())
         if fixmes:
             log.warning(_("Check %d fixme tags"), fixmes)
-            report.fixmes = ', '.join(['%s: %d' % (f, c) \
-                for (f, c) in report.fixme_counter.items()])
+            report.fixme_count = fixmes
+            report.fixmes = ['%s: %d' % (f, c) \
+                for (f, c) in report.fixme_counter.items()]
         if self.is_new:
             log.info(_("The translation file '%s' have been writen in "
                 "'%s'"), 'highway_names.csv', self.path)
@@ -476,14 +469,6 @@ class CatAtom2Osm:
             log.debug(_("Refused %d addresses belonging to multiple buildings"), mp)
         report.multiple_addresses += mp
 
-    def write_task(self, fn, building, address_osm=None):
-        """Generates osm file for a task"""
-        task_path = os.path.join('tasks', fn + '.osm')
-        task_osm = building.to_osm(upload='yes')
-        if address_osm is not None:
-            self.merge_address(task_osm, address_osm)
-        self.write_osm(task_osm, task_path)
-
     def get_translations(self, address, highway):
         """
         If there exists the configuration file 'highway_types.csv', read it,
@@ -548,8 +533,6 @@ class CatAtom2Osm:
             elif 'addr:place' in d.tags:
                 current_address.add(d.tags['addr:place'] + d.tags['addr:housenumber'])
                 report.osm_addresses += 1
-                if 'addr:housenumber' not in d.tags:
-                    w += 1
         if w > 0:
             log.warning(_("There are %d address without house number in the OSM data"), w)
             report.osm_addresses_whithout_number = w
