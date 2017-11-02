@@ -161,16 +161,19 @@ class CatAtom2Osm:
             source_date=building_gml.source_date)
         self.building.append(building_gml)
         report.inp_buildings = building_gml.featureCount()
+        report.inp_features = report.inp_buildings
         del building_gml
         part_gml = self.cat.read("buildingpart")
         self.building.append(part_gml)
         report.inp_parts = part_gml.featureCount()
+        report.inp_features += report.inp_parts
         del part_gml
         other_gml = self.cat.read("otherconstruction", True)
         report.inp_pools = 0
         if other_gml:
             self.building.append(other_gml)
             report.inp_pools = other_gml.featureCount()
+            report.inp_features += report.inp_pools
         del other_gml
 
     def process_tasks(self, source):

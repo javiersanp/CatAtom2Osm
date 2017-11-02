@@ -35,9 +35,9 @@ class TestReport(unittest.TestCase):
         output = r.to_string()
         expected = u"Municipality: Foobar" + setup.eol \
             + "Date: " + datetime.now().strftime('%x') + setup.eol + setup.eol \
-            + "=Input data=" + setup.eol \
-            + "Addresses: 1000" + setup.eol + setup.eol \
-            + "=Output data=" + setup.eol
+            + "=Addresses=" + setup.eol + setup.eol \
+            + "==Input data==" + setup.eol \
+            + "Addresses: 1000" + setup.eol
         self.assertEquals(output, expected)
 
     def test_to_string2(self):
@@ -45,7 +45,7 @@ class TestReport(unittest.TestCase):
         r.warnings = ['w1', 'w2']        
         output = r.to_string()
         expected = u"Date: " + datetime.now().strftime('%x') + setup.eol \
-            + setup.eol + "=Output data=" + setup.eol \
+            + setup.eol + "=Problems=" + setup.eol \
             + "Warnings:" + setup.eol \
             + "w1" + setup.eol + "w2" + setup.eol
         self.assertEquals(output, expected)
