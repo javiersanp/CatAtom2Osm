@@ -1024,7 +1024,9 @@ class ConsLayer(PolygonLayer):
                 feat['task'] = tasks[ref]
                 to_change[feat.id()] = get_attributes(feat)
             else:
-                log.warning(_("Missing building footprint for part '%s'"), feat['localId'])
+                msg = _("Missing building footprint for part '%s'") % feat['localId']
+                log.warning(msg)
+                report.warnings.append(msg)
             if len(to_change) > BUFFER_SIZE:
                 self.writer.changeAttributeValues(to_change)
                 to_change = {}
@@ -1288,7 +1290,7 @@ class ConsLayer(PolygonLayer):
                 num_buildings += 1
                 geom = QgsGeometry().fromMultiPolygon(poly)
                 if geom is None or not geom.isGeosValid():
-                    msg = _("Osm building with id %s is not valid") % el.fid
+                    msg = _("OSM building with id %s is not valid") % el.fid
                     log.warning(msg)
                     report.warnings.append(msg)
                 else:

@@ -12,6 +12,7 @@ import layer
 import overpass
 import setup
 from compat import etree
+from report import instance as report
 
 log = logging.getLogger(setup.app_name + "." + __name__)
 
@@ -197,8 +198,10 @@ class Reader(object):
             log.info(_("Municipality: '%s'"), self.boundary_name)
         else:
             self.boundary_search_area = self.boundary_bbox
-            log.warning(_("Failed to find administrative boundary, falling "
-                "back to bounding box"))
+            msg = _("Failed to find administrative boundary, falling "
+                "back to bounding box")
+            log.warning(msg)
+            report.warnings.append(msg)
 
 def list_municipalities(prov_code):
     """Get from the ATOM services a list of municipalities for a given province"""
