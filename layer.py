@@ -1024,7 +1024,7 @@ class ConsLayer(PolygonLayer):
                 feat['task'] = tasks[ref]
                 to_change[feat.id()] = get_attributes(feat)
             else:
-                log.warning(_("Missing building %s"), ref)
+                log.warning(_("Missing building footprint for part '%s'"), feat['localId'])
             if len(to_change) > BUFFER_SIZE:
                 self.writer.changeAttributeValues(to_change)
                 to_change = {}

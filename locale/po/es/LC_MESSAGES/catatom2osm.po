@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-11-02 14:17+WET\n"
+"POT-Creation-Date: 2017-11-02 17:58+WET\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -146,7 +146,7 @@ msgstr "No se pudieron resolver las tablas combinadas para la capa '%s'"
 msgid "Refused %d addresses belonging to multiple buildings"
 msgstr "Eliminadas %d direcciones pertenecientes a edificios múltiples"
 
-#: catatom2osm.py:539
+#: catatom2osm.py:537
 msgid "There are %d address without house number in the OSM data"
 msgstr "Existen %d direcciones sin número de portal en OSM"
 
@@ -243,8 +243,8 @@ msgid "Deleted %d addresses without associated building"
 msgstr "Eliminadas %d direcciones sin edificio asociado"
 
 #: layer.py:1027
-msgid "Missing building %s"
-msgstr "Falta el edificio %s"
+msgid "Missing building footprint for part '%s'"
+msgstr "Falta el contorno del edificio para la parte '%s'"
 
 #: layer.py:1094
 msgid "Removed %d building parts outside the footprint"
