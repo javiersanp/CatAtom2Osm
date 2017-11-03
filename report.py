@@ -17,6 +17,7 @@ class Report(object):
             'date': datetime.now().strftime('%x'),
             'fixme_counter': Counter(),
             'warnings': [],
+            'errors': [],
             'min_level': {},
             'max_level': {},
         }
@@ -74,15 +75,17 @@ class Report(object):
             ('nodes', _("Nodes: {}")),
             ('ways', _("Ways: {}")),
             ('relations', _("Relations: {}")),
-            ('out_buildings', _('Buildings: {}')),
-            ('out_parts', _('Buildings parts: {}')),
-            ('out_pools', _('Swimming pools: {}')),
+            ('out_features', _("Feature count: {}")),
+            ('out_buildings', TAB + _('Buildings: {}')),
+            ('out_parts', TAB + _('Buildings parts: {}')),
+            ('out_pools', TAB + _('Swimming pools: {}')),
             ('building_types', _("Building types counter: {}")),
             ('dlag', _("Max. levels above ground (level: # of buildings): {}")),
             ('dlbg', _("Min. levels below ground (level: # of buildings): {}")),
             ('tasks_r', _("Rustic tasks files: {}")),
             ('tasks_u', _("Urban tasks files: {}")),
             ('group_problems', _("Problems")),
+            ('errors', _("Report validation:")),
             ('fixme_count', _("Fixmes: {}")),
             ('fixmes', ''),
             ('warnings', _("Warnings:")),
@@ -97,7 +100,49 @@ class Report(object):
     def __getattr__(self, key):
         return self.values[key]
 
+    def get(self, key, default=0):
+        return self.values.get(key, default)  
+    
+    def sum(self, *args):
+        return sum(self.get(key) for key in args)
+
+    def validate(self):
+        if self.sum('inp_address_entrance', 'inp_address_parcel') != \
+                self.get('inp_address'):
+            self.errors.append(_("Sum of address types should be equal "
+                "to the input addresses"))
+        if self.sum('addresses_without_number', 'orphand_addresses', 
+                'multiple_addresses', 'refused_addresses', 'out_address') != \
+                    self.get('inp_address'):
+            self.errors.append(_("Sum of output and deleted addresses "
+                "should be equal to the input addresses"))
+        if self.sum('out_address_entrance', 'out_address_building') != \
+                self.get('out_address'):
+            self.errors.append(_("Sum of entrance and building address "
+                "should be equal to output addresses"))
+        if self.sum('out_addr_str', 'out_addr_plc') != \
+                self.get('out_address'):
+            self.errors.append(_("Sum of street and place addresses "
+                "should be equal to output addresses"))
+        if self.sum('inp_buildings', 'inp_parts', 'inp_pools') != \
+                self.get('inp_features'):
+            self.errors.append(_("Sum of buildings, parts and pools should "
+                "be equal to the feature count"))
+        if self.sum('out_features', 'orphand_parts', 'underground_parts', 
+                'multipart_geoms_building', 'parts_to_footprint',
+                'adjacent_parts', 'geom_invalid_building') - \
+                self.sum('new_footprints', 'exploded_parts_building') != \
+                    self.get('inp_features'):
+            self.errors.append(_("Sum of output and deleted minus created "
+                "features should be equal to input features"))
+        if 'building_counter' in self.values:
+            if sum(self.values['building_counter'].values()) != \
+                    self.get('out_buildings'):
+                self.errors.append(_("Sum of building types should be equal "
+                    "to the number of buildings"))
+
     def to_string(self):
+        self.validate()
         groups = set()
         last_group = False
         last_subgroup = False
@@ -124,7 +169,7 @@ class Report(object):
                 if isinstance(self.values[key], list):
                     if len(self.values[key]) > 0:
                         if title:
-                            output += title + ' '  + str(len(self.values[key])) + setup.eol
+                            output += title + ' ' + str(len(self.values[key])) + setup.eol
                         for item in self.values[key]:
                             output += TAB + item + setup.eol
                 else:

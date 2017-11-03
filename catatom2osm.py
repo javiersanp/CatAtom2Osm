@@ -107,6 +107,7 @@ class CatAtom2Osm:
             report.nodes = 0
             report.ways = 0
             report.relations = 0
+            report.out_features = 0
             report.out_pools = 0
             report.out_buildings = 0
             report.out_parts = 0
@@ -195,11 +196,14 @@ class CatAtom2Osm:
         for el in data.elements:
             if 'leisure' in el.tags and el.tags['leisure'] == 'swimming_pool':
                 report.out_pools += 1
+                report.out_features += 1
             if 'building' in el.tags:
                 report.out_buildings += 1
                 report.building_counter[el.tags['building']] += 1
+                report.out_features += 1
             if 'building:part' in el.tags:
                 report.out_parts += 1
+                report.out_features += 1
             if 'fixme' in el.tags:
                 report.fixme_counter[el.tags['fixme']] += 1
 
@@ -417,15 +421,12 @@ class CatAtom2Osm:
         Copy address from address_osm to building_osm using 'ref' tag.
 
         If there exists one building with the same 'ref' that an address, copy
-        the address tags to the building if isn't a 'entrace' type address or
+        the address tags to the building if it isn't a 'entrace' type address or
         else to the entrance if there exist a node with the address coordinates
         in the building.
 
-        If there exists many buildings withe the same 'ref' than an address,
-        creates a multipolygon relation and copy the address tags to it. Each
-        building will be a member with outer role in the relation if it's a way.
-        If it's a relation, each outer member of it is aggregated to the address
-        relation.
+        If there exists many buildings with the same 'ref' the address is 
+        ignored.
 
         Args:
             building_osm (Osm): OSM data set with addresses
