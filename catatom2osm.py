@@ -104,23 +104,11 @@ class CatAtom2Osm:
                 if self.building.conflate(current_bu_osm):
                     self.write_osm(current_bu_osm, 'current_building.osm')
                 del current_bu_osm
-            report.nodes = 0
-            report.ways = 0
-            report.relations = 0
-            report.out_features = 0
-            report.out_pools = 0
-            report.out_buildings = 0
-            report.out_parts = 0
-            report.building_counter = Counter()
-            report.out_address_entrance = 0
-            report.out_address_building = 0
+            report.init_building_values()
         if self.options.address:
             self.address.reproject()
             self.address_osm = self.address.to_osm()
-            report.multiple_addresses = 0
-            report.out_address = 0
-            report.out_addr_str = 0
-            report.out_addr_plc = 0
+            report.init_address_values()
         if self.options.tasks:
             self.process_tasks(self.building)
             del self.rustic_zoning
@@ -128,19 +116,14 @@ class CatAtom2Osm:
         if self.options.building:
             self.building_osm = self.building.to_osm()
             if not self.options.tasks:
-                self.cons_stats(self.building_osm)
+                report.cons_stats(self.building_osm)
             if self.options.address:
                 self.merge_address(self.building_osm, self.address_osm)
             self.write_osm(self.building_osm, 'building.osm')
             del self.building_osm
         if self.options.address:
             if not self.options.building and not self.options.tasks:
-                for el in self.address_osm.elements:
-                    if 'addr:street' in el.tags:
-                        report.out_addr_str += 1
-                    if 'addr:place' in el.tags:
-                        report.out_addr_plc += 1
-                report.out_address = len(self.address_osm.elements)
+                report.address_stats(self.address_osm)
             self.write_osm(self.address_osm, 'address.osm')
             del self.address_osm
         if self.options.parcel:
@@ -187,25 +170,7 @@ class CatAtom2Osm:
                         task_osm = task.to_osm(upload='yes')
                         self.merge_address(task_osm, self.address_osm)
                         self.write_osm(task_osm, fn)
-                        self.cons_stats(task_osm)
-
-    def cons_stats(self, data):
-        report.nodes += len(data.nodes)
-        report.ways += len(data.ways)
-        report.relations += len(data.relations)
-        for el in data.elements:
-            if 'leisure' in el.tags and el.tags['leisure'] == 'swimming_pool':
-                report.out_pools += 1
-                report.out_features += 1
-            if 'building' in el.tags:
-                report.out_buildings += 1
-                report.building_counter[el.tags['building']] += 1
-                report.out_features += 1
-            if 'building:part' in el.tags:
-                report.out_parts += 1
-                report.out_features += 1
-            if 'fixme' in el.tags:
-                report.fixme_counter[el.tags['fixme']] += 1
+                        report.cons_stats(task_osm)
 
     def get_tasks(self, source):
         base_path = os.path.join(self.path, 'tasks')
@@ -271,20 +236,9 @@ class CatAtom2Osm:
 
     def end_messages(self):
         if self.options.tasks or self.options.building:
-            dlag = ', '.join(["%d: %d" % (l, c) for (l, c) in \
-                OrderedDict(Counter(report.max_level.values())).items()])
-            dlbg = ', '.join(["%d: %d" % (l, c) for (l, c) in \
-                OrderedDict(Counter(report.min_level.values())).items()])
-            report.dlag = dlag
-            report.dlbg = dlbg
-            report.building_types = ', '.join(['%s: %d' % (b, c) \
-                for (b, c) in report.building_counter.items()])
-        fixmes = sum(report.fixme_counter.values())
-        if fixmes:
-            log.warning(_("Check %d fixme tags"), fixmes)
-            report.fixme_count = fixmes
-            report.fixmes = ['%s: %d' % (f, c) \
-                for (f, c) in report.fixme_counter.items()]
+            report.cons_end_stats()
+        if report.fixme_stats():
+            log.warning(_("Check %d fixme tags"), report.fixme_count)
         if self.is_new:
             log.info(_("The translation file '%s' have been writen in "
                 "'%s'"), 'highway_names.csv', self.path)
@@ -375,8 +329,7 @@ class CatAtom2Osm:
         self.rustic_zoning.append(zoning_gml, level='P')
         self.cat.get_boundary(self.rustic_zoning)
         report.mun_name = getattr(self.cat, 'boundary_name', None)
-        report.mun_area = round(sum([f.geometry().area() \
-            for f in self.rustic_zoning.getFeatures()]) / 1E6, 1)
+        report.get_mun_area(self.rustic_zoning)
         if self.options.tasks or self.options.zoning:
             fn = os.path.join(self.path, 'urban_zoning.shp')
             layer.ZoningLayer.create_shp(fn, zoning_gml.crs())
@@ -537,7 +490,9 @@ class CatAtom2Osm:
                 current_address.add(d.tags['addr:place'] + d.tags['addr:housenumber'])
                 report.osm_addresses += 1
         if w > 0:
-            log.warning(_("There are %d address without house number in the OSM data"), w)
+            msg = _("There are %d address without house number in the OSM data") % w
+            log.warning(msg)
+            report.warnings.append(msg)
             report.osm_addresses_whithout_number = w
         return current_address
 

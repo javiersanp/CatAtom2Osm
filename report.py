@@ -4,6 +4,7 @@
 from collections import OrderedDict, Counter
 from datetime import datetime
 import codecs
+import time
 
 import setup
 
@@ -12,7 +13,7 @@ TAB = '  '
 
 class Report(object):
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.values = {
             'date': datetime.now().strftime('%x'),
             'fixme_counter': Counter(),
@@ -20,12 +21,16 @@ class Report(object):
             'errors': [],
             'min_level': {},
             'max_level': {},
+            'start_time': time.time()
         }
+        for k,v in kwargs.items():
+            self.values[k] = v
         self.titles = OrderedDict([
             ('mun_name', _('Municipality: {}')),
             ('mun_code', _('Code: {}')),
             ('mun_area', _(u'Area: {} km²')),
             ('date', _('Date: {}')),
+            ('ex_time', _('Execution time: {:.2f} seconds')),
             ('group_address', _('Addresses')),
             ('subgroup_ad_input', _('Input data')),
             ('address_date', _('Source date: {}')),
@@ -100,6 +105,70 @@ class Report(object):
     def __getattr__(self, key):
         return self.values[key]
 
+    def init_building_values(self):
+        self.nodes = 0
+        self.ways = 0
+        self.relations = 0
+        self.out_features = 0
+        self.out_pools = 0
+        self.out_buildings = 0
+        self.out_parts = 0
+        self.building_counter = Counter()
+        self.out_address_entrance = 0
+        self.out_address_building = 0
+        
+    def init_address_values(self):
+        self.multiple_addresses = 0
+        self.out_address = 0
+        self.out_addr_str = 0
+        self.out_addr_plc = 0
+
+    def address_stats(self, address_osm):
+        for el in address_osm.elements:
+            if 'addr:street' in el.tags:
+                self.out_addr_str += 1
+            if 'addr:place' in el.tags:
+                self.out_addr_plc += 1
+        self.out_address = len(address_osm.elements)
+
+    def cons_stats(self, data):
+        self.nodes += len(data.nodes)
+        self.ways += len(data.ways)
+        self.relations += len(data.relations)
+        for el in data.elements:
+            if 'leisure' in el.tags and el.tags['leisure'] == 'swimming_pool':
+                self.out_pools += 1
+                self.out_features += 1
+            if 'building' in el.tags:
+                self.out_buildings += 1
+                self.building_counter[el.tags['building']] += 1
+                self.out_features += 1
+            if 'building:part' in el.tags:
+                self.out_parts += 1
+                self.out_features += 1
+            if 'fixme' in el.tags:
+                self.fixme_counter[el.tags['fixme']] += 1
+
+    def cons_end_stats(self):
+        self.dlag = ', '.join(["%d: %d" % (l, c) for (l, c) in \
+            OrderedDict(Counter(self.max_level.values())).items()])
+        self.dlbg = ', '.join(["%d: %d" % (l, c) for (l, c) in \
+            OrderedDict(Counter(self.min_level.values())).items()])
+        self.building_types = ', '.join(['%s: %d' % (b, c) \
+            for (b, c) in self.building_counter.items()])
+
+    def fixme_stats(self):
+        fixme_count = sum(self.fixme_counter.values())
+        if fixme_count:
+            self.fixme_count = fixme_count
+            self.fixmes = ['%s: %d' % (f, c) \
+                for (f, c) in self.fixme_counter.items()]
+        return fixme_count
+    
+    def get_mun_area(self, rustic):
+        self.mun_area = round(sum([f.geometry().area() \
+            for f in rustic.getFeatures()]) / 1E6, 1)
+            
     def get(self, key, default=0):
         return self.values.get(key, default)  
     
@@ -143,6 +212,8 @@ class Report(object):
 
     def to_string(self):
         self.validate()
+        if self.get('start_time'):
+            self.ex_time = time.time() - self.start_time
         groups = set()
         last_group = False
         last_subgroup = False

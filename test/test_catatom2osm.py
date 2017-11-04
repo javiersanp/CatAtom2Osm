@@ -2,7 +2,6 @@
 import mock
 import unittest
 import os, sys
-import random
 from collections import Counter
 from optparse import Values
 from qgis.core import QgsVectorLayer
@@ -133,21 +132,6 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.address.conflate.assert_not_called()
         self.m_app.building.conflate.assert_not_called()
 
-    @mock.patch('catatom2osm.report')
-    def test_run6(self, m_report):
-        self.m_app.run = cat.CatAtom2Osm.run.__func__
-        self.m_app.options = Values({'building': False, 'tasks': False, 
-            'parcel': False, 'zoning': False, 'address': True, 'manual': True})
-        self.m_app.is_new = False
-        ad = osm.Osm()
-        ad.Node(0,0, {'addr:street': 's1'})
-        ad.Node(2,0, {'addr:street': 's2'})
-        ad.Node(4,0, {'addr:place': 'p1'})
-        self.m_app.address.to_osm.return_value = ad
-        self.m_app.run(self.m_app)
-        self.assertEquals(m_report.out_addr_str, 2)
-        self.assertEquals(m_report.out_addr_plc, 1)
-
     @mock.patch('catatom2osm.layer')
     def test_get_building1(self, m_layer):
         self.m_app.get_building = cat.CatAtom2Osm.get_building.__func__
@@ -197,7 +181,8 @@ class TestCatAtom2Osm(unittest.TestCase):
 
     @mock.patch('catatom2osm.os')
     @mock.patch('catatom2osm.layer')
-    def test_process_tasks(self, m_layer, m_os):
+    @mock.patch('catatom2osm.report')
+    def test_process_tasks(self, m_report, m_layer, m_os):
         m_os.path.join = lambda *args: '/'.join(args)
         m_os.path.exists.return_value = True
         task = mock.MagicMock()
@@ -223,29 +208,6 @@ class TestCatAtom2Osm(unittest.TestCase):
             mock.call('foo/tasks/u00002.shp', 'u00002', 'ogr', source_date=1234),
             mock.call().featureCount(), mock.call().to_osm(upload='yes'),
         ])
-
-    @mock.patch('catatom2osm.report')
-    def test_cons_stats(self, m_report):
-        self.m_app.cons_stats = cat.CatAtom2Osm.cons_stats.__func__
-        m_report.out_pools = 0
-        m_report.out_buildings = 0
-        m_report.out_parts = 0
-        m_report.building_counter = Counter()
-        data = osm.Osm()
-        data.Node(0,0, {'leisure': 'swimming_pool'})
-        data.Node(0,0, {'building': 'a', 'fixme': 'f1'})
-        data.Node(0,0, {'building': 'b', 'fixme': 'f2'})
-        data.Node(0,0, {'building:part': 'yes', 'fixme': 'f2'})
-        data.Node(0,0)
-        m_report.fixme_counter = Counter()
-        self.m_app.cons_stats(self.m_app, data)
-        self.assertEquals(m_report.out_pools, 1)
-        self.assertEquals(m_report.out_buildings, 2)
-        self.assertEquals(m_report.out_parts, 1)
-        self.assertEquals(m_report.building_counter['a'], 1)
-        self.assertEquals(m_report.building_counter['b'], 1)
-        self.assertEquals(m_report.fixme_counter['f1'], 1)
-        self.assertEquals(m_report.fixme_counter['f2'], 2)
 
     @mock.patch('catatom2osm.os')
     @mock.patch('catatom2osm.layer')
@@ -291,13 +253,9 @@ class TestCatAtom2Osm(unittest.TestCase):
     @mock.patch('catatom2osm.report')
     def test_end_messages(self, m_report, m_log):
         self.m_app.end_messages = cat.CatAtom2Osm.end_messages.__func__
-        m_report.max_level = {'a': 1, 'b': 2, 'c': 2}
-        m_report.min_level = {'a': 1, 'b': 1, 'c': 2}
-        m_report.fixme_counter = {'a': 2, 'b': 1}
         self.m_app.is_new = True
+        m_report.fixme_count = 3
         self.m_app.end_messages(self.m_app)
-        self.assertEquals(m_report.dlag, '1: 1, 2: 2')
-        self.assertEquals(m_report.dlbg, '1: 2, 2: 1')
         self.assertEquals(m_log.warning.call_args_list[0][0][1], 3)
         self.assertIn('translation', m_log.info.call_args_list[0][0][0])
         self.m_app.fixmes = 0
@@ -385,17 +343,11 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.cat.boundary_name = 'foobar'
         m_zoning_gml = mock.MagicMock()
         self.m_app.cat.read.return_value = m_zoning_gml
-        rz = mock.MagicMock()
-        m_layer.ZoningLayer.return_value = rz
-        f = mock.MagicMock()
-        f.geometry.return_value.area.return_value = random.randint(5,9) * 1E6
-        rz.getFeatures.return_value = [f, f, f]
         self.m_app.get_zoning = cat.CatAtom2Osm.get_zoning.__func__
         self.m_app.get_zoning(self.m_app)
         self.m_app.rustic_zoning.append.assert_called_once_with(m_zoning_gml, level='P')
         self.m_app.cat.get_boundary.assert_called_once_with(self.m_app.rustic_zoning)
         self.assertEquals(m_report.mun_name, 'foobar')
-        self.assertEquals(m_report.mun_area, f.geometry().area() * 3 / 1E6)
 
     @mock.patch('catatom2osm.layer')
     def test_get_zoning2(self, m_layer):

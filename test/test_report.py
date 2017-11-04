@@ -1,14 +1,27 @@
 # -*- coding: utf-8 -*-
+import mock
 import unittest
 import os
+import random
+import time
 from datetime import datetime
 
 os.environ['LANGUAGE'] = 'C'
 import setup
+import osm
 import report
 
 
 class TestReport(unittest.TestCase):
+
+    def test_init(self):
+        r = report.Report(start_time = 0)
+        self.assertEquals(r.start_time, 0)
+        t1 = time.time()
+        r = report.Report()
+        t2 = time.time()
+        self.assertGreater(r.start_time, t1)
+        self.assertGreater(t2, r.start_time)
 
     def test_setattr(self):
         r = report.Report()
@@ -84,13 +97,13 @@ class TestReport(unittest.TestCase):
             self.assertIn(msg, r.errors)
 
     def test_to_string0(self):
-        r = report.Report()
+        r = report.Report(start_time = 0)
         output = r.to_string()
         expected = "Date: " + datetime.now().strftime('%x') + setup.eol
         self.assertEquals(output, expected)
 
     def test_to_string1(self):
-        r = report.Report()
+        r = report.Report(start_time = 0)
         r.mun_name = 'Foobar'
         r.code = 99999
         r.inp_zip_codes = 1000
@@ -104,7 +117,7 @@ class TestReport(unittest.TestCase):
         self.assertEquals(output, expected)
 
     def test_to_string2(self):
-        r = report.Report()
+        r = report.Report(start_time = 0)
         r.fixme_count = 2
         r.fixmes = ['f1', 'f2']
         r.warnings = ['w1', 'w2']
@@ -116,9 +129,16 @@ class TestReport(unittest.TestCase):
             + "Warnings: 2" + setup.eol \
             + report.TAB + "w1" + setup.eol + report.TAB + "w2" + setup.eol
         self.assertEquals(output, expected)
+    
+    def test_to_string3(self):
+        r = report.Report()
+        output = r.to_string()
+        expected = u"Date: " + datetime.now().strftime('%x') + setup.eol \
+            + "Execution time: {:.2f} seconds".format(r.ex_time) + setup.eol
+        self.assertEquals(output, expected)
 
     def test_to_file(self):
-        r = report.Report()
+        r = report.Report(start_time = 0)
         r.mun_name = u"áéíóúñ"
         output = r.to_string()
         fn = 'test_report.txt'
@@ -128,3 +148,61 @@ class TestReport(unittest.TestCase):
         self.assertEquals(output, text)
         if os.path.exists(fn):
             os.remove(fn)
+
+    def test_get_mun_area(self):
+        r = report.Report()
+        rz = mock.MagicMock()
+        f = mock.MagicMock()
+        f.geometry.return_value.area.return_value = random.randint(5,9) * 1E6
+        rz.getFeatures.return_value = [f, f, f]
+        r.get_mun_area(rz)
+        self.assertEquals(r.mun_area, f.geometry().area() * 3 / 1E6)
+
+    def test_address_stats(self):
+        ad = osm.Osm()
+        ad.Node(0,0, {'addr:street': 's1'})
+        ad.Node(2,0, {'addr:street': 's2'})
+        ad.Node(4,0, {'addr:place': 'p1'})
+        r = report.Report()
+        r.init_address_values()
+        r.address_stats(ad)
+        self.assertEquals(r.out_addr_str, 2)
+        self.assertEquals(r.out_addr_plc, 1)
+
+    def test_cons_end_stats(self):
+        r = report.Report()
+        r.max_level = {'a': 1, 'b': 2, 'c': 2}
+        r.min_level = {'a': 1, 'b': 1, 'c': 2}
+        r.building_counter = {'a': 1, 'b': 2}
+        r.cons_end_stats()
+        self.assertEquals(r.dlag, '1: 1, 2: 2')
+        self.assertEquals(r.dlbg, '1: 2, 2: 1')
+        self.assertEquals(r.building_types, 'a: 1, b: 2')
+
+    def test_cons_stats(self):
+        r = report.Report()
+        r.init_building_values()
+        data = osm.Osm()
+        data.Node(0,0, {'leisure': 'swimming_pool'})
+        data.Node(0,0, {'building': 'a', 'fixme': 'f1'})
+        data.Node(0,0, {'building': 'b', 'fixme': 'f2'})
+        data.Node(0,0, {'building:part': 'yes', 'fixme': 'f2'})
+        data.Node(0,0)
+        r.cons_stats(data)
+        self.assertEquals(r.out_pools, 1)
+        self.assertEquals(r.out_buildings, 2)
+        self.assertEquals(r.out_parts, 1)
+        self.assertEquals(r.building_counter['a'], 1)
+        self.assertEquals(r.building_counter['b'], 1)
+        self.assertEquals(r.fixme_counter['f1'], 1)
+        self.assertEquals(r.fixme_counter['f2'], 2)
+
+    def test_fixme_stats(self):
+        r = report.Report()
+        r.fixme_counter = {}
+        r.fixme_stats()
+        self.assertEquals(r.fixme_stats(), 0)
+        r.fixme_counter = {'a': 1, 'b': 2}
+        r.fixme_stats()
+        self.assertEquals(r.fixme_stats(), 3)
+        self.assertEquals(len(r.fixmes), 2)
