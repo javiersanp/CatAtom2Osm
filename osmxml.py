@@ -93,6 +93,7 @@ def deserialize(infile, data=None):
             last_elem.tags[elem.get('k')] = elem.get('v')
         elem.clear()
     for way in data.ways:
+        missing = []
         for i, ref in enumerate(way.nodes):
             if isinstance(ref, basestring):
                 if 'n{}'.format(ref) in data.index:
@@ -100,9 +101,13 @@ def deserialize(infile, data=None):
                     way.nodes[i] = n
                     data.parents[n].add(way)
                 else:
-                    msg = _("Reference to missing element '%s'") % ref
-                    raise IOError(msg.encode(setup.encoding))
+                    missing.append(i)
+        if len(missing) > 0:
+            for i in sorted(missing, reverse=True):
+                way.nodes.pop(i)
+            data.remove(way)
     for rel in data.relations:
+        missing = []
         for i, m in enumerate(rel.members):
             if isinstance(m, dict):
                 if m['type'][0].lower() + str(m['ref']) in data.index:
@@ -110,7 +115,10 @@ def deserialize(infile, data=None):
                     rel.members[i] = osm.Relation.Member(el, m['role'])
                     data.parents[el].add(rel)
                 else:
-                    msg = _("Reference to missing element '%s'") % m['ref']
-                    raise IOError(msg.encode(setup.encoding))
+                    missing.append(i)
+        if len(missing) > 0:
+            for i in sorted(missing, reverse=True):
+                rel.members.pop(i)
+            data.remove(rel)
     return data
 

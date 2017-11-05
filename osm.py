@@ -54,14 +54,16 @@ class Osm(object):
     def remove(self, el):
         """Remove el from element, from its parents and its orphand childs"""
         self.elements.discard(el)
-        del self.index[el.fid]
+        if el.fid in self.index:
+            del self.index[el.fid]
         for parent in frozenset(self.parents[el]):
             parent.remove(el)
         for child in el.childs:
-            if self.parents[child] == set([el]):
-                self.remove(child)
-            else:
-                self.parents[child].remove(el)
+            if isinstance(child, Element):
+                if self.parents[child] == set([el]):
+                    self.remove(child)
+                else:
+                    self.parents[child].remove(el)
 
     def replace(self, n1, n2):
         """Replaces n1 witn n2 in elements."""
