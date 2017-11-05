@@ -15,13 +15,8 @@ import report
 class TestReport(unittest.TestCase):
 
     def test_init(self):
-        r = report.Report(start_time = 0)
-        self.assertEquals(r.start_time, 0)
-        t1 = time.time()
-        r = report.Report()
-        t2 = time.time()
-        self.assertGreater(r.start_time, t1)
-        self.assertGreater(t2, r.start_time)
+        r = report.Report(foo = 'bar')
+        self.assertEquals(r.foo, 'bar')
 
     def test_setattr(self):
         r = report.Report()
@@ -97,13 +92,13 @@ class TestReport(unittest.TestCase):
             self.assertIn(msg, r.errors)
 
     def test_to_string0(self):
-        r = report.Report(start_time = 0)
+        r = report.Report()
         output = r.to_string()
         expected = "Date: " + datetime.now().strftime('%x') + setup.eol
         self.assertEquals(output, expected)
 
     def test_to_string1(self):
-        r = report.Report(start_time = 0)
+        r = report.Report()
         r.mun_name = 'Foobar'
         r.code = 99999
         r.inp_zip_codes = 1000
@@ -117,7 +112,7 @@ class TestReport(unittest.TestCase):
         self.assertEquals(output, expected)
 
     def test_to_string2(self):
-        r = report.Report(start_time = 0)
+        r = report.Report()
         r.fixme_count = 2
         r.fixmes = ['f1', 'f2']
         r.warnings = ['w1', 'w2']
@@ -131,14 +126,13 @@ class TestReport(unittest.TestCase):
         self.assertEquals(output, expected)
     
     def test_to_string3(self):
-        r = report.Report()
+        r = report.Report(sys_info=True)
         output = r.to_string()
-        expected = u"Date: " + datetime.now().strftime('%x') + setup.eol \
-            + "Execution time: {:.2f} seconds".format(r.ex_time) + setup.eol
-        self.assertEquals(output, expected)
+        expected = "Execution time: {:.2f} seconds".format(r.ex_time)
+        self.assertIn(expected, output)
 
     def test_to_file(self):
-        r = report.Report(start_time = 0)
+        r = report.Report()
         r.mun_name = u"áéíóúñ"
         output = r.to_string()
         fn = 'test_report.txt'

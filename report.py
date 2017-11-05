@@ -4,11 +4,13 @@
 from collections import OrderedDict, Counter
 from datetime import datetime
 import codecs
+import os
 import time
 
 import setup
 
 TAB = '  '
+MEMORY_UNIT = 1048576.0
 
 
 class Report(object):
@@ -21,7 +23,6 @@ class Report(object):
             'errors': [],
             'min_level': {},
             'max_level': {},
-            'start_time': time.time()
         }
         for k,v in kwargs.items():
             self.values[k] = v
@@ -30,7 +31,16 @@ class Report(object):
             ('mun_code', _('Code: {}')),
             ('mun_area', _(u'Area: {} km²')),
             ('date', _('Date: {}')),
+            ('group_system_info', _('=System info=')),
+            ('app_version', _('Application version: {}')),
+            ('platform', _('Platform: {}')),
+            ('qgs_version', _('QGIS version: {}')),
+            ('cpu_count', _('CPU count: {}')),
+            ('cpu_freq', _('CPU frequency: {} Mhz')),
             ('ex_time', _('Execution time: {:.2f} seconds')),
+            ('memory', _('Total memory: {:.2f} GB')),
+            ('rss', _('Physical memory usage: {:.2f} GB')),
+            ('vms', _('Virtual memory usage: {:.2f} GB')),
             ('group_address', _('Addresses')),
             ('subgroup_ad_input', _('Input data')),
             ('address_date', _('Source date: {}')),
@@ -175,6 +185,23 @@ class Report(object):
     def sum(self, *args):
         return sum(self.get(key) for key in args)
 
+    def get_sys_info(self):
+        try:
+            import psutil
+            p = psutil.Process()
+            v = list(os.uname())
+            v.pop(1)
+            self.platform = ' '.join(v)
+            self.app_version = setup.app_name + ' ' + setup.app_version
+            self.cpu_count = psutil.cpu_count(logical=False)
+            self.cpu_freq = psutil.cpu_freq().max
+            self.memory = psutil.virtual_memory().total / MEMORY_UNIT
+            self.rss = p.memory_info().rss / MEMORY_UNIT
+            self.vms = p.memory_info().vms / MEMORY_UNIT
+            self.ex_time = time.time() - p.create_time()
+        except ImportError:
+            pass
+
     def validate(self):
         if self.sum('inp_address_entrance', 'inp_address_parcel') != \
                 self.get('inp_address'):
@@ -212,8 +239,8 @@ class Report(object):
 
     def to_string(self):
         self.validate()
-        if self.get('start_time'):
-            self.ex_time = time.time() - self.start_time
+        if self.get('sys_info'):
+            self.get_sys_info()
         groups = set()
         last_group = False
         last_subgroup = False

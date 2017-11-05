@@ -61,15 +61,16 @@ class CatAtom2Osm:
         self.cat = catatom.Reader(a_path)
         self.path = self.cat.path
         report.mun_code = self.cat.zip_code
+        report.sys_info = log.getEffectiveLevel() == logging.DEBUG
         self.qgs = QgsSingleton()
-        self.qgs_version = qgis.utils.QGis.QGIS_VERSION
-        self.gdal_version = gdal.__version__
-        log.debug(_("Initialized QGIS %s API"), self.qgs_version)
+        if report.sys_info:
+            report.qgs_version = qgis.utils.QGis.QGIS_VERSION
+            report.gdal_version = gdal.__version__
+            log.debug(_("Initialized QGIS %s API"), report.qgs_version)
+            log.debug(_("Using GDAL %s"), report.gdal_version)
         if qgis.utils.QGis.QGIS_VERSION_INT < setup.MIN_QGIS_VERSION_INT:
             msg = _("Required QGIS version %s or greater") % setup.MIN_QGIS_VERSION
             raise ValueError(msg.encode(setup.encoding))
-        log.debug(_("Using GDAL %s"), self.gdal_version)
-        self.debug = log.getEffectiveLevel() == logging.DEBUG
         self.is_new = False
 
     def run(self):
@@ -129,8 +130,6 @@ class CatAtom2Osm:
         if self.options.parcel:
             self.process_parcel()
         self.end_messages()
-        fn = os.path.join(self.path, 'report.txt')
-        report.to_file(fn)
 
     def get_building(self):
         """Merge building, parts and pools"""
@@ -239,6 +238,9 @@ class CatAtom2Osm:
             report.cons_end_stats()
         if report.fixme_stats():
             log.warning(_("Check %d fixme tags"), report.fixme_count)
+        if self.options.tasks or self.options.building or self.options.address:
+            fn = os.path.join(self.path, 'report.txt')
+            report.to_file(fn)
         if self.is_new:
             log.info(_("The translation file '%s' have been writen in "
                 "'%s'"), 'highway_names.csv', self.path)

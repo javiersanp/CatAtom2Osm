@@ -14,6 +14,7 @@ Requeriments
 ------------
 
 * fuzzywuzzy[speedup]
+* psutil
 * pyqgis
 * requests
 * GDAL
