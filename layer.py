@@ -284,9 +284,9 @@ class BaseLayer(QgsVectorLayer):
             translations (dict): A dictionary used to transform field values
             clean (bool): If true (default), delete features without translation
         """
+        to_clean = []
         field_ndx = self.pendingFields().fieldNameIndex(field_name)
         if field_ndx >= 0:
-            to_clean = []
             to_change = {}
             for feat in self.getFeatures():
                 value = feat[field_name]
@@ -297,7 +297,9 @@ class BaseLayer(QgsVectorLayer):
                 elif clean:
                     to_clean.append(feat.id())
             self.writer.changeAttributeValues(to_change)
+        if len(to_clean):
             self.writer.deleteFeatures(to_clean)
+        return len(to_clean)
 
     def get_index(self):
         """Returns a QgsSpatialIndex of all features in this layer (overpass 

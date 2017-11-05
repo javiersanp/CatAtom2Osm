@@ -50,6 +50,7 @@ class Report(object):
             ('inp_zip_codes', _('Postal codes: {}')),
             ('inp_street_names', _('Street names: {}')),
             ('subgroup_ad_process', _('Process')),
+            ('ignored_addresses', _('Addresses deleted by street name: {}')),
             ('addresses_without_number', _('Addresses without house number deleted: {}')),
             ('orphand_addresses', _('Addresses without associated building deleted: {}')),
             ('multiple_addresses', _('Addresses belonging to multiple buildings deleted: {}')),
@@ -208,11 +209,12 @@ class Report(object):
             self.errors.append(_("Sum of address types should be equal "
                 "to the input addresses"))
         if self.sum('addresses_without_number', 'orphand_addresses', 
-                'multiple_addresses', 'refused_addresses', 'out_address') != \
-                    self.get('inp_address'):
+                'multiple_addresses', 'refused_addresses', 'ignored_addresses', 
+                'out_address') != self.get('inp_address'):
             self.errors.append(_("Sum of output and deleted addresses "
                 "should be equal to the input addresses"))
-        if self.sum('out_address_entrance', 'out_address_building') != \
+        if self.sum('out_address_entrance', 'out_address_building') > 0 and \
+                self.sum('out_address_entrance', 'out_address_building') != \
                 self.get('out_address'):
             self.errors.append(_("Sum of entrance and building address "
                 "should be equal to output addresses"))

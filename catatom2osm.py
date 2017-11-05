@@ -234,10 +234,12 @@ class CatAtom2Osm:
         self.write_osm(parcel_osm, "parcel.osm")
 
     def end_messages(self):
-        if self.options.tasks or self.options.building:
-            report.cons_end_stats()
         if report.fixme_stats():
             log.warning(_("Check %d fixme tags"), report.fixme_count)
+        if self.options.tasks or self.options.building:
+            report.cons_end_stats()
+        if self.options.address:
+            if report.multiple_addresses == 0: del report.values['multiple_addresses']
         if self.options.tasks or self.options.building or self.options.address:
             fn = os.path.join(self.path, 'report.txt')
             report.to_file(fn)
@@ -369,7 +371,10 @@ class CatAtom2Osm:
         self.address.join_field(thoroughfarename, 'TN_id', 'gml_id', ['text'], 'TN_')
         highway = self.get_highway()
         (highway_names, self.is_new) = self.get_translations(self.address, highway)
-        self.address.translate_field('TN_text', highway_names)
+        ia = self.address.translate_field('TN_text', highway_names)
+        if ia > 0:
+            log.debug(_("Deleted %d addresses refused by street name"), ia)
+            report.values['ignored_addresses'] = ia
 
     def merge_address(self, building_osm, address_osm):
         """
