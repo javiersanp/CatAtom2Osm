@@ -105,7 +105,8 @@ def deserialize(infile, data=None):
         if len(missing) > 0:
             for i in sorted(missing, reverse=True):
                 way.nodes.pop(i)
-            data.remove(way)
+            if way.version is not None:
+                way.version = int(way.version) + 1
     for rel in data.relations:
         missing = []
         for i, m in enumerate(rel.members):
@@ -119,6 +120,7 @@ def deserialize(infile, data=None):
         if len(missing) > 0:
             for i in sorted(missing, reverse=True):
                 rel.members.pop(i)
-            data.remove(rel)
+            if rel.version is not None:
+                rel.version = int(rel.version) + 1
     return data
 
