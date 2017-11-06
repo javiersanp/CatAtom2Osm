@@ -116,11 +116,11 @@ class CatAtom2Osm:
             del self.urban_zoning
         if self.options.building:
             self.building_osm = self.building.to_osm()
-            if not self.options.tasks:
-                report.cons_stats(self.building_osm)
             if self.options.address:
                 self.merge_address(self.building_osm, self.address_osm)
             self.write_osm(self.building_osm, 'building.osm')
+            if not self.options.tasks:
+                report.cons_stats(self.building_osm)
             del self.building_osm
         if self.options.address:
             if not self.options.building and not self.options.tasks:
