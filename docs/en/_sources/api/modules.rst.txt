@@ -15,6 +15,7 @@ CatAtom2Osm
    osm
    osmxml
    overpass
+   report
    setup
    test
    translate

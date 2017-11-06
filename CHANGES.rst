@@ -1,7 +1,7 @@
 Change log
 ==========
 
-**2017-11-01**
+**2017-11-06**
 
 * Generate statistics report (issues #50).
 

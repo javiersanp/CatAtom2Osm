@@ -16,7 +16,7 @@
   <link rel="stylesheet" type="text/css" href="_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>Índice &#8212; documentación de CatAtom2Osm - 2017-11-31shp</title>
+    <title>Índice &#8212; documentación de CatAtom2Osm - 2017-11-06deb</title>
     
     <link rel="stylesheet" href="_static/guzzle.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,7 +24,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017-11-31shp',
+        VERSION:     '2017-11-06deb',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -51,7 +51,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Índice de Módulos Python"
              >módulos</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">documentación de CatAtom2Osm - 2017-11-31shp</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">documentación de CatAtom2Osm - 2017-11-06deb</a> &#187;</li> 
       </ul>
     </div>
     <div class="container-wrapper">
@@ -150,6 +150,8 @@
 </li>
       <li><a href="api/layer.html#layer.DebugWriter.add_point">add_point() (método de layer.DebugWriter)</a>
 </li>
+      <li><a href="api/report.html#report.Report.address_stats">address_stats() (método de report.Report)</a>
+</li>
       <li><a href="api/translate.html#translate.address_tags">address_tags() (en el módulo translate)</a>
 </li>
       <li><a href="api/layer.html#layer.AddressLayer">AddressLayer (clase en layer)</a>
@@ -246,21 +248,27 @@
       </ul></li>
       <li><a href="api/osm.html#osm.Way.clean_duplicated_nodes">clean_duplicated_nodes() (método de osm.Way)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/compat.html#module-compat">compat (módulo)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/layer.html#layer.AddressLayer.conflate">conflate() (método de layer.AddressLayer)</a>
 
       <ul>
         <li><a href="api/layer.html#layer.ConsLayer.conflate">(método de layer.ConsLayer)</a>
 </li>
       </ul></li>
+      <li><a href="api/report.html#report.Report.cons_end_stats">cons_end_stats() (método de report.Report)</a>
+</li>
+      <li><a href="api/report.html#report.Report.cons_stats">cons_stats() (método de report.Report)</a>
+</li>
       <li><a href="api/layer.html#layer.ConsLayer">ConsLayer (clase en layer)</a>
 </li>
       <li><a href="api/test.benchmark.html#test.benchmark.ConsTimer">ConsTimer (clase en test.benchmark)</a>
 </li>
       <li><a href="api/layer.html#layer.BaseLayer.copy_feature">copy_feature() (método de layer.BaseLayer)</a>
+</li>
+      <li><a href="api/layer.html#layer.BaseLayer.count">count() (método de layer.BaseLayer)</a>
 </li>
       <li><a href="api/test.benchmark.html#test.benchmark.BaseConsTimer.create_bd">create_bd() (método de test.benchmark.BaseConsTimer)</a>
 </li>
@@ -333,6 +341,10 @@
       <li><a href="api/osm.html#osm.Element.fid">fid (atributo de osm.Element)</a>
 </li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/report.html#report.Report.fixme_stats">fixme_stats() (método de report.Report)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="G">G</h2>
@@ -347,7 +359,11 @@
 </li>
       </ul></li>
       <li><a href="api/osm.html#osm.Osm.get">get() (método de osm.Osm)</a>
+
+      <ul>
+        <li><a href="api/report.html#report.Report.get">(método de report.Report)</a>
 </li>
+      </ul></li>
       <li><a href="api/layer.html#layer.PolygonLayer.get_adjacents_and_geometries">get_adjacents_and_geometries() (método de layer.PolygonLayer)</a>
 </li>
       <li><a href="api/layer.html#layer.Point.get_angle_with_context">get_angle_with_context() (método de layer.Point)</a>
@@ -382,10 +398,10 @@
 </li>
       <li><a href="api/test.benchmark.html#test.benchmark.TimerConsLayer.get_fids_by_loop">get_fids_by_loop() (método de test.benchmark.TimerConsLayer)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/test.benchmark.html#test.benchmark.TimerConsLayer.get_fids_by_loop2">get_fids_by_loop2() (método de test.benchmark.TimerConsLayer)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/test.benchmark.html#test.benchmark.TimerConsLayer.get_fids_by_loop_mem">get_fids_by_loop_mem() (método de test.benchmark.TimerConsLayer)</a>
 </li>
       <li><a href="api/test.benchmark.html#test.benchmark.TimerConsLayer.get_fids_by_loop_mem2">get_fids_by_loop_mem2() (método de test.benchmark.TimerConsLayer)</a>
@@ -412,6 +428,8 @@
 </li>
       <li><a href="api/layer.html#layer.PolygonLayer.get_multipolygon">get_multipolygon() (método estático de layer.PolygonLayer)</a>
 </li>
+      <li><a href="api/report.html#report.Report.get_mun_area">get_mun_area() (método de report.Report)</a>
+</li>
       <li><a href="api/layer.html#layer.PolygonLayer.get_outer_vertices">get_outer_vertices() (método estático de layer.PolygonLayer)</a>
 </li>
       <li><a href="api/layer.html#layer.PolygonLayer.get_parents_per_vertex_and_geometries">get_parents_per_vertex_and_geometries() (método de layer.PolygonLayer)</a>
@@ -419,6 +437,8 @@
       <li><a href="api/layer.html#layer.ConsLayer.get_parts">get_parts() (método de layer.ConsLayer)</a>
 </li>
       <li><a href="api/download.html#download.get_response">get_response() (en el módulo download)</a>
+</li>
+      <li><a href="api/report.html#report.Report.get_sys_info">get_sys_info() (método de report.Report)</a>
 </li>
       <li><a href="api/catatom2osm.html#catatom2osm.CatAtom2Osm.get_tasks">get_tasks() (método de catatom2osm.CatAtom2Osm)</a>
 </li>
@@ -452,14 +472,18 @@
 </li>
       <li><a href="api/layer.html#layer.ConsLayer.index_of_parts">index_of_parts() (método de layer.ConsLayer)</a>
 </li>
+      <li><a href="api/report.html#report.Report.init_address_values">init_address_values() (método de report.Report)</a>
+</li>
+      <li><a href="api/report.html#report.Report.init_building_values">init_building_values() (método de report.Report)</a>
+</li>
       <li><a href="api/layer.html#layer.ConsLayer.is_building">is_building() (método estático de layer.ConsLayer)</a>
 </li>
       <li><a href="api/osm.html#osm.Way.is_closed">is_closed() (método de osm.Way)</a>
 </li>
-      <li><a href="api/catatom.html#catatom.Reader.is_empty">is_empty() (método de catatom.Reader)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/catatom.html#catatom.Reader.is_empty">is_empty() (método de catatom.Reader)</a>
+</li>
       <li><a href="api/layer.html#layer.is_inside">is_inside() (en el módulo layer)</a>
 </li>
       <li><a href="api/osm.html#osm.Element.is_new">is_new() (método de osm.Element)</a>
@@ -642,10 +666,10 @@
 </li>
       <li><a href="api/osm.html#osm.Relation.Member">Relation.Member (clase en osm)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/osm.html#osm.Osm.relations">relations (atributo de osm.Osm)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/osm.html#osm.Osm.remove">remove() (método de osm.Osm)</a>
 
       <ul>
@@ -664,6 +688,10 @@
         <li><a href="api/osm.html#osm.Way.replace">(método de osm.Way)</a>
 </li>
       </ul></li>
+      <li><a href="api/report.html#report.Report">Report (clase en report)</a>
+</li>
+      <li><a href="api/report.html#module-report">report (módulo)</a>
+</li>
       <li><a href="api/layer.html#layer.BaseLayer.reproject">reproject() (método de layer.BaseLayer)</a>
 </li>
       <li><a href="api/main.html#main.run">run() (en el módulo main)</a>
@@ -728,6 +756,8 @@
 </li>
       <li><a href="api/layer.html#layer.PolygonLayer.simplify">simplify() (método de layer.PolygonLayer)</a>
 </li>
+      <li><a href="api/report.html#report.Report.sum">sum() (método de report.Report)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -772,6 +802,8 @@
 </li>
       <li><a href="api/test.test_overpass.html#module-test.test_overpass">test.test_overpass (módulo)</a>
 </li>
+      <li><a href="api/test.test_report.html#module-test.test_report">test.test_report (módulo)</a>
+</li>
       <li><a href="api/test.test_setup.html#module-test.test_setup">test.test_setup (módulo)</a>
 </li>
       <li><a href="api/test.test_translate.html#module-test.test_translate">test.test_translate (módulo)</a>
@@ -811,6 +843,8 @@
       <li><a href="api/test.test_layer.html#test.test_layer.TestDebugWriter.test_add_point">test_add_point() (método de test.test_layer.TestDebugWriter)</a>
 </li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestConsLayer.test_add_topological_points">test_add_topological_points() (método de test.test_layer.TestConsLayer)</a>
+</li>
+      <li><a href="api/test.test_report.html#test.test_report.TestReport.test_address_stats">test_address_stats() (método de test.test_report.TestReport)</a>
 </li>
       <li><a href="api/test.test_translate.html#test.test_translate.TestTranslate.test_address_tags">test_address_tags() (método de test.test_translate.TestTranslate)</a>
 </li>
@@ -892,6 +926,10 @@
         <li><a href="api/test.test_layer.html#test.test_layer.TestConsLayer.test_conflate">(método de test.test_layer.TestConsLayer)</a>
 </li>
       </ul></li>
+      <li><a href="api/test.test_report.html#test.test_report.TestReport.test_cons_end_stats">test_cons_end_stats() (método de test.test_report.TestReport)</a>
+</li>
+      <li><a href="api/test.test_report.html#test.test_report.TestReport.test_cons_stats">test_cons_stats() (método de test.test_report.TestReport)</a>
+</li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestBaseLayer.test_copy_feature_all_fields">test_copy_feature_all_fields() (método de test.test_layer.TestBaseLayer)</a>
 </li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestBaseLayer.test_copy_feature_with_rename">test_copy_feature_with_rename() (método de test.test_layer.TestBaseLayer)</a>
@@ -945,6 +983,8 @@
       <li><a href="api/test.test_catatom2osm.html#test.test_catatom2osm.TestCatAtom2Osm.test_export_layer">test_export_layer() (método de test.test_catatom2osm.TestCatAtom2Osm)</a>
 </li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestBaseLayer.test_export_other">test_export_other() (método de test.test_layer.TestBaseLayer)</a>
+</li>
+      <li><a href="api/test.test_report.html#test.test_report.TestReport.test_fixme_stats">test_fixme_stats() (método de test.test_report.TestReport)</a>
 </li>
       <li><a href="api/test.test_hgwnames.html#test.test_hgwnames.TestHgwnames.test_fuzzy_dsmatch">test_fuzzy_dsmatch() (método de test.test_hgwnames.TestHgwnames)</a>
 </li>
@@ -1004,6 +1044,8 @@
 </li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestPolygonLayer.test_get_multipolygon">test_get_multipolygon() (método de test.test_layer.TestPolygonLayer)</a>
 </li>
+      <li><a href="api/test.test_report.html#test.test_report.TestReport.test_get_mun_area">test_get_mun_area() (método de test.test_report.TestReport)</a>
+</li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestPolygonLayer.test_get_outer_vertices">test_get_outer_vertices() (método de test.test_layer.TestPolygonLayer)</a>
 </li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestPolygonLayer.test_get_parents_per_vertex_and_geometries">test_get_parents_per_vertex_and_geometries() (método de test.test_layer.TestPolygonLayer)</a>
@@ -1029,7 +1071,11 @@
       <li><a href="api/test.test_catatom2osm.html#test.test_catatom2osm.TestCatAtom2Osm.test_get_zoning2">test_get_zoning2() (método de test.test_catatom2osm.TestCatAtom2Osm)</a>
 </li>
       <li><a href="api/test.test_osm.html#test.test_osm.TestOsm.test_getattr">test_getattr() (método de test.test_osm.TestOsm)</a>
+
+      <ul>
+        <li><a href="api/test.test_report.html#test.test_report.TestReport.test_getattr">(método de test.test_report.TestReport)</a>
 </li>
+      </ul></li>
       <li><a href="api/test.test_osm.html#test.test_osm.TestOsmNode.test_getitem">test_getitem() (método de test.test_osm.TestOsmNode)</a>
 </li>
       <li><a href="api/test.test_main.html#test.test_main.TestMain.test_ImportError">test_ImportError() (método de test.test_main.TestMain)</a>
@@ -1070,6 +1116,8 @@
         <li><a href="api/test.test_osm.html#test.test_osm.TestOsmWay.test_init">(método de test.test_osm.TestOsmWay)</a>
 </li>
         <li><a href="api/test.test_overpass.html#test.test_overpass.TestQuery.test_init">(método de test.test_overpass.TestQuery)</a>
+</li>
+        <li><a href="api/test.test_report.html#test.test_report.TestReport.test_init">(método de test.test_report.TestReport)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -1238,6 +1286,8 @@
 </li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestZoningLayer.test_set_tasks">test_set_tasks() (método de test.test_layer.TestZoningLayer)</a>
 </li>
+      <li><a href="api/test.test_report.html#test.test_report.TestReport.test_setattr">test_setattr() (método de test.test_report.TestReport)</a>
+</li>
       <li><a href="api/test.test_osm.html#test.test_osm.TestOsmWay.test_shoelace">test_shoelace() (método de test.test_osm.TestOsmWay)</a>
 </li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestConsLayer.test_simplify1">test_simplify1() (método de test.test_layer.TestConsLayer)</a>
@@ -1246,12 +1296,22 @@
 </li>
       <li><a href="api/test.test_osm.html#test.test_osm.TestOsmNode.test_str">test_str() (método de test.test_osm.TestOsmNode)</a>
 </li>
+      <li><a href="api/test.test_report.html#test.test_report.TestReport.test_to_file">test_to_file() (método de test.test_report.TestReport)</a>
+</li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestAddressLayer.test_to_osm">test_to_osm() (método de test.test_layer.TestAddressLayer)</a>
 
       <ul>
         <li><a href="api/test.test_layer.html#test.test_layer.TestConsLayer.test_to_osm">(método de test.test_layer.TestConsLayer)</a>
 </li>
       </ul></li>
+      <li><a href="api/test.test_report.html#test.test_report.TestReport.test_to_string0">test_to_string0() (método de test.test_report.TestReport)</a>
+</li>
+      <li><a href="api/test.test_report.html#test.test_report.TestReport.test_to_string1">test_to_string1() (método de test.test_report.TestReport)</a>
+</li>
+      <li><a href="api/test.test_report.html#test.test_report.TestReport.test_to_string2">test_to_string2() (método de test.test_report.TestReport)</a>
+</li>
+      <li><a href="api/test.test_report.html#test.test_report.TestReport.test_to_string3">test_to_string3() (método de test.test_report.TestReport)</a>
+</li>
       <li><a href="api/test.test_main.html#test.test_main.TestMain.test_too_many_args">test_too_many_args() (método de test.test_main.TestMain)</a>
 </li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestBaseLayer.test_translate_field">test_translate_field() (método de test.test_layer.TestBaseLayer)</a>
@@ -1266,6 +1326,10 @@
 </li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestConsLayer.test_validate">test_validate() (método de test.test_layer.TestConsLayer)</a>
 </li>
+      <li><a href="api/test.test_report.html#test.test_report.TestReport.test_validate1">test_validate1() (método de test.test_report.TestReport)</a>
+</li>
+      <li><a href="api/test.test_report.html#test.test_report.TestReport.test_validate2">test_validate2() (método de test.test_report.TestReport)</a>
+</li>
       <li><a href="api/test.test_main.html#test.test_main.TestMain.test_version">test_version() (método de test.test_main.TestMain)</a>
 </li>
       <li><a href="api/test.test_download.html#test.test_download.TestWget.test_wget">test_wget() (método de test.test_download.TestWget)</a>
@@ -1274,13 +1338,7 @@
 </li>
       <li><a href="api/test.test_setup.html#test.test_setup.TestSetup.test_win">test_win() (método de test.test_setup.TestSetup)</a>
 </li>
-      <li><a href="api/test.test_catatom2osm.html#test.test_catatom2osm.TestCatAtom2Osm.test_write_building">test_write_building() (método de test.test_catatom2osm.TestCatAtom2Osm)</a>
-</li>
       <li><a href="api/test.test_catatom2osm.html#test.test_catatom2osm.TestCatAtom2Osm.test_write_osm">test_write_osm() (método de test.test_catatom2osm.TestCatAtom2Osm)</a>
-</li>
-      <li><a href="api/test.test_catatom2osm.html#test.test_catatom2osm.TestCatAtom2Osm.test_write_task1">test_write_task1() (método de test.test_catatom2osm.TestCatAtom2Osm)</a>
-</li>
-      <li><a href="api/test.test_catatom2osm.html#test.test_catatom2osm.TestCatAtom2Osm.test_write_task2">test_write_task2() (método de test.test_catatom2osm.TestCatAtom2Osm)</a>
 </li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestAddressLayer">TestAddressLayer (clase en test.test_layer)</a>
 </li>
@@ -1330,6 +1388,8 @@
 </li>
       <li><a href="api/test.test_overpass.html#test.test_overpass.TestQuery">TestQuery (clase en test.test_overpass)</a>
 </li>
+      <li><a href="api/test.test_report.html#test.test_report.TestReport">TestReport (clase en test.test_report)</a>
+</li>
       <li><a href="api/test.test_setup.html#test.test_setup.TestSetup">TestSetup (clase en test.test_setup)</a>
 </li>
       <li><a href="api/test.test_translate.html#test.test_translate.TestTranslate">TestTranslate (clase en test.test_translate)</a>
@@ -1364,6 +1424,8 @@
 </li>
       <li><a href="api/test.benchmark.html#test.benchmark.TimerZoningLayer">TimerZoningLayer (clase en test.benchmark)</a>
 </li>
+      <li><a href="api/report.html#report.Report.to_file">to_file() (método de report.Report)</a>
+</li>
       <li><a href="api/layer.html#layer.AddressLayer.to_osm">to_osm() (método de layer.AddressLayer)</a>
 
       <ul>
@@ -1372,6 +1434,8 @@
         <li><a href="api/layer.html#layer.ConsLayer.to_osm">(método de layer.ConsLayer)</a>
 </li>
       </ul></li>
+      <li><a href="api/report.html#report.Report.to_string">to_string() (método de report.Report)</a>
+</li>
       <li><a href="api/layer.html#layer.PolygonLayer.topology">topology() (método de layer.PolygonLayer)</a>
 </li>
       <li><a href="api/translate.html#module-translate">translate (módulo)</a>
@@ -1399,7 +1463,11 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/layer.html#layer.ConsLayer.validate">validate() (método de layer.ConsLayer)</a>
+
+      <ul>
+        <li><a href="api/report.html#report.Report.validate">(método de report.Report)</a>
 </li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -1412,17 +1480,13 @@
 </li>
       <li><a href="api/download.html#download.wget">wget() (en el módulo download)</a>
 </li>
-      <li><a href="api/setup.html#setup.winenv">winenv() (en el módulo setup)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/catatom2osm.html#catatom2osm.CatAtom2Osm.write_building">write_building() (método de catatom2osm.CatAtom2Osm)</a>
+      <li><a href="api/setup.html#setup.winenv">winenv() (en el módulo setup)</a>
 </li>
       <li><a href="api/osmxml.html#osmxml.write_elem">write_elem() (en el módulo osmxml)</a>
 </li>
       <li><a href="api/catatom2osm.html#catatom2osm.CatAtom2Osm.write_osm">write_osm() (método de catatom2osm.CatAtom2Osm)</a>
-</li>
-      <li><a href="api/catatom2osm.html#catatom2osm.CatAtom2Osm.write_task">write_task() (método de catatom2osm.CatAtom2Osm)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1455,7 +1519,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Índice de Módulos Python"
              >módulos</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">documentación de CatAtom2Osm - 2017-11-31shp</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">documentación de CatAtom2Osm - 2017-11-06deb</a> &#187;</li> 
       </ul>
     </div>
 <script type="text/javascript">

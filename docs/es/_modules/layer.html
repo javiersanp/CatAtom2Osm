@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>layer &#8212; documentación de CatAtom2Osm - 2017-11-31shp</title>
+    <title>layer &#8212; documentación de CatAtom2Osm - 2017-11-06deb</title>
     
     <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -23,7 +23,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '2017-11-31shp',
+        VERSION:     '2017-11-06deb',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -50,7 +50,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Índice de Módulos Python"
              >módulos</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 2017-11-31shp</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 2017-11-06deb</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Código de módulo</a> &#187;</li> 
       </ul>
     </div>
@@ -128,6 +128,7 @@
 <span class="kn">import</span> <span class="nn">osm</span>
 <span class="kn">import</span> <span class="nn">setup</span>
 <span class="kn">import</span> <span class="nn">translate</span>
+<span class="kn">from</span> <span class="nn">report</span> <span class="k">import</span> <span class="n">instance</span> <span class="k">as</span> <span class="n">report</span>
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">setup</span><span class="o">.</span><span class="n">app_name</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="vm">__name__</span><span class="p">)</span>
 
 <span class="n">BUFFER_SIZE</span> <span class="o">=</span> <span class="mi">512</span>
@@ -397,9 +398,9 @@
 <span class="sd">            translations (dict): A dictionary used to transform field values</span>
 <span class="sd">            clean (bool): If true (default), delete features without translation</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">to_clean</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">field_ndx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pendingFields</span><span class="p">()</span><span class="o">.</span><span class="n">fieldNameIndex</span><span class="p">(</span><span class="n">field_name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">field_ndx</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">to_clean</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">to_change</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">for</span> <span class="n">feat</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">():</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="n">feat</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span>
@@ -410,7 +411,9 @@
                 <span class="k">elif</span> <span class="n">clean</span><span class="p">:</span>
                     <span class="n">to_clean</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feat</span><span class="o">.</span><span class="n">id</span><span class="p">())</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">changeAttributeValues</span><span class="p">(</span><span class="n">to_change</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">deleteFeatures</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">deleteFeatures</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="BaseLayer.get_index"><a class="viewcode-back" href="../api/layer.html#layer.BaseLayer.get_index">[documentos]</a>    <span class="k">def</span> <span class="nf">get_index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a QgsSpatialIndex of all features in this layer (overpass </span>
@@ -488,8 +491,10 @@
             <span class="k">elif</span> <span class="n">geom</span><span class="o">.</span><span class="n">wkbType</span><span class="p">()</span> <span class="o">==</span> <span class="n">QGis</span><span class="o">.</span><span class="n">WKBPoint</span><span class="p">:</span>
                 <span class="n">e</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="n">geom</span><span class="o">.</span><span class="n">asPoint</span><span class="p">())</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Detected a </span><span class="si">%s</span><span class="s2"> geometry in the &#39;</span><span class="si">%s</span><span class="s2">&#39; layer&quot;</span><span class="p">),</span>
-                    <span class="n">geom</span><span class="o">.</span><span class="n">wkbType</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Detected a </span><span class="si">%s</span><span class="s2"> geometry in the &#39;</span><span class="si">%s</span><span class="s2">&#39; layer&quot;</span><span class="p">)</span> <span class="o">%</span> \
+                    <span class="p">(</span><span class="n">geom</span><span class="o">.</span><span class="n">wkbType</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                <span class="n">report</span><span class="o">.</span><span class="n">warnings</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">tags_translation</span><span class="p">(</span><span class="n">feature</span><span class="p">))</span>
         <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="n">setup</span><span class="o">.</span><span class="n">changeset_tags</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">data</span><span class="o">.</span><span class="n">tags</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
@@ -501,11 +506,19 @@
         <span class="k">return</span> <span class="n">data</span></div>
 
 <div class="viewcode-block" id="BaseLayer.search"><a class="viewcode-back" href="../api/layer.html#layer.BaseLayer.search">[documentos]</a>    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns a features list for this search expression</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Returns a features iterator for this search expression&quot;&quot;&quot;</span>
         <span class="n">exp</span> <span class="o">=</span> <span class="n">QgsExpression</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span>
         <span class="n">request</span> <span class="o">=</span> <span class="n">QgsFeatureRequest</span><span class="p">(</span><span class="n">exp</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">(</span><span class="n">request</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">(</span><span class="n">request</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BaseLayer.count"><a class="viewcode-back" href="../api/layer.html#layer.BaseLayer.count">[documentos]</a>    <span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns number of features for this search expression&quot;&quot;&quot;</span>
+        <span class="n">exp</span> <span class="o">=</span> <span class="n">QgsExpression</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="n">QgsFeatureRequest</span><span class="p">(</span><span class="n">exp</span><span class="p">)</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">count</span></div></div>
 
 
 <div class="viewcode-block" id="PolygonLayer"><a class="viewcode-back" href="../api/layer.html#layer.PolygonLayer">[documentos]</a><span class="k">class</span> <span class="nc">PolygonLayer</span><span class="p">(</span><span class="n">BaseLayer</span><span class="p">):</span>
@@ -563,7 +576,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">addFeatures</span><span class="p">(</span><span class="n">to_add</span><span class="p">)</span>
             <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> multi-polygons splited into </span><span class="si">%d</span><span class="s2"> polygons in &quot;</span>
                 <span class="s2">&quot;the &#39;</span><span class="si">%s</span><span class="s2">&#39; layer&quot;</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_add</span><span class="p">),</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s1">&#39;multipart_geoms_&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s1">&#39;exploded_parts_&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_add</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PolygonLayer.get_parents_per_vertex_and_geometries"><a class="viewcode-back" href="../api/layer.html#layer.PolygonLayer.get_parents_per_vertex_and_geometries">[documentos]</a>    <span class="k">def</span> <span class="nf">get_parents_per_vertex_and_geometries</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -690,9 +705,11 @@
         <span class="k">if</span> <span class="n">td</span><span class="p">:</span>
             <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Merged </span><span class="si">%d</span><span class="s2"> close vertices in the &#39;</span><span class="si">%s</span><span class="s2">&#39; layer&quot;</span><span class="p">),</span> <span class="n">td</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s1">&#39;vertex_close_&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()]</span> <span class="o">=</span> <span class="n">td</span>
         <span class="k">if</span> <span class="n">tp</span><span class="p">:</span>
             <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Created </span><span class="si">%d</span><span class="s2"> topological points in the &#39;</span><span class="si">%s</span><span class="s2">&#39; layer&quot;</span><span class="p">),</span>
-                <span class="n">tp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span></div>
+                <span class="n">tp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s1">&#39;vertex_topo_&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()]</span> <span class="o">=</span> <span class="n">tp</span></div>
 
 <div class="viewcode-block" id="PolygonLayer.delete_invalid_geometries"><a class="viewcode-back" href="../api/layer.html#layer.PolygonLayer.delete_invalid_geometries">[documentos]</a>    <span class="k">def</span> <span class="nf">delete_invalid_geometries</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">log</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
@@ -733,10 +750,12 @@
         <span class="k">if</span> <span class="n">rings</span><span class="p">:</span>
             <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Deleted </span><span class="si">%d</span><span class="s2"> invalid ring geometries in the &#39;</span><span class="si">%s</span><span class="s2">&#39; layer&quot;</span><span class="p">),</span>
                 <span class="n">rings</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s1">&#39;geom_rings_&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()]</span> <span class="o">=</span> <span class="n">rings</span>
         <span class="k">if</span> <span class="n">to_clean</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">deleteFeatures</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span>
             <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Deleted </span><span class="si">%d</span><span class="s2"> invalid geometries in the &#39;</span><span class="si">%s</span><span class="s2">&#39; layer&quot;</span><span class="p">),</span>
-                <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span></div>
+                <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s1">&#39;geom_invalid_&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PolygonLayer.simplify"><a class="viewcode-back" href="../api/layer.html#layer.PolygonLayer.simplify">[documentos]</a>    <span class="k">def</span> <span class="nf">simplify</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -786,7 +805,8 @@
         <span class="k">if</span> <span class="n">to_change</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">changeGeometryValues</span><span class="p">(</span><span class="n">to_change</span><span class="p">)</span>
             <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Simplified </span><span class="si">%d</span><span class="s2"> vertices in the &#39;</span><span class="si">%s</span><span class="s2">&#39; layer&quot;</span><span class="p">),</span> <span class="n">killed</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s1">&#39;vertex_simplify_&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()]</span> <span class="o">=</span> <span class="n">killed</span></div>
 
 <div class="viewcode-block" id="PolygonLayer.merge_adjacents"><a class="viewcode-back" href="../api/layer.html#layer.PolygonLayer.merge_adjacents">[documentos]</a>    <span class="k">def</span> <span class="nf">merge_adjacents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Merge polygons with shared segments&quot;&quot;&quot;</span>
@@ -945,12 +965,14 @@
             <span class="k">if</span> <span class="n">feat</span><span class="p">[</span><span class="s1">&#39;TN_text&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">feat</span><span class="p">[</span><span class="s1">&#39;designator&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">current_address</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">to_clean</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">deleteFeatures</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Refused </span><span class="si">%d</span><span class="s2"> addresses existing in OSM&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">))</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Refused </span><span class="si">%d</span><span class="s2"> addresses because they exist in OSM&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">))</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">refused_addresses</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span>
         <span class="n">to_clean</span> <span class="o">=</span> <span class="p">[</span><span class="n">feat</span><span class="o">.</span><span class="n">id</span><span class="p">()</span> <span class="k">for</span> <span class="n">feat</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;designator = &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> \
             <span class="o">%</span> <span class="n">setup</span><span class="o">.</span><span class="n">no_number</span><span class="p">)]</span>
         <span class="k">if</span> <span class="n">to_clean</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">deleteFeatures</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Deleted </span><span class="si">%d</span><span class="s2"> addresses without house number&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">))</span></div>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Deleted </span><span class="si">%d</span><span class="s2"> addresses without house number&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">))</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">addresses_without_number</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AddressLayer.del_address"><a class="viewcode-back" href="../api/layer.html#layer.AddressLayer.del_address">[documentos]</a>    <span class="k">def</span> <span class="nf">del_address</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">building</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Delete the address if there aren&#39;t any associated building.&quot;&quot;&quot;</span>
@@ -963,7 +985,8 @@
                 <span class="n">to_clean</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ad</span><span class="o">.</span><span class="n">id</span><span class="p">())</span>
         <span class="k">if</span> <span class="n">to_clean</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">deleteFeatures</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Deleted </span><span class="si">%d</span><span class="s2"> addresses without associated building&quot;</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">))</span></div>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Deleted </span><span class="si">%d</span><span class="s2"> addresses without associated building&quot;</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">))</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">orphand_addresses</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AddressLayer.get_highway_names"><a class="viewcode-back" href="../api/layer.html#layer.AddressLayer.get_highway_names">[documentos]</a>    <span class="k">def</span> <span class="nf">get_highway_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">highway</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1117,7 +1140,9 @@
                 <span class="n">feat</span><span class="p">[</span><span class="s1">&#39;task&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tasks</span><span class="p">[</span><span class="n">ref</span><span class="p">]</span>
                 <span class="n">to_change</span><span class="p">[</span><span class="n">feat</span><span class="o">.</span><span class="n">id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">get_attributes</span><span class="p">(</span><span class="n">feat</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Missing building </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">),</span> <span class="n">ref</span><span class="p">)</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Missing building footprint for part &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">feat</span><span class="p">[</span><span class="s1">&#39;localId&#39;</span><span class="p">]</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                <span class="n">report</span><span class="o">.</span><span class="n">warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_change</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">BUFFER_SIZE</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">changeAttributeValues</span><span class="p">(</span><span class="n">to_change</span><span class="p">)</span>
                 <span class="n">to_change</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1186,12 +1211,15 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean_o</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Removed </span><span class="si">%d</span><span class="s2"> building parts outside the footprint&quot;</span><span class="p">),</span> 
                 <span class="nb">len</span><span class="p">(</span><span class="n">to_clean_o</span><span class="p">))</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">orphand_parts</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean_o</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean_b</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Deleted </span><span class="si">%d</span><span class="s2"> building parts with no floors above ground&quot;</span><span class="p">),</span>
                 <span class="nb">len</span><span class="p">(</span><span class="n">to_clean_b</span><span class="p">))</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">underground_parts</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean_b</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">to_add</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">addFeatures</span><span class="p">(</span><span class="n">to_add</span><span class="p">)</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Generated </span><span class="si">%d</span><span class="s2"> building footprints&quot;</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_add</span><span class="p">))</span></div>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Generated </span><span class="si">%d</span><span class="s2"> building footprints&quot;</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_add</span><span class="p">))</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">new_footprints</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_add</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ConsLayer.get_parts"><a class="viewcode-back" href="../api/layer.html#layer.ConsLayer.get_parts">[documentos]</a>    <span class="k">def</span> <span class="nf">get_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">footprint</span><span class="p">,</span> <span class="n">parts</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1263,8 +1291,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">changeGeometryValues</span><span class="p">(</span><span class="n">to_change_g</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">deleteFeatures</span><span class="p">(</span><span class="n">to_clean</span> <span class="o">+</span> <span class="n">to_clean_g</span><span class="p">)</span>
             <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Merged </span><span class="si">%d</span><span class="s2"> building parts to the footprint&quot;</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">))</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">parts_to_footprint</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">to_clean_g</span><span class="p">:</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Merged </span><span class="si">%d</span><span class="s2"> adjacent parts&quot;</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean_g</span><span class="p">))</span></div>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Merged </span><span class="si">%d</span><span class="s2"> adjacent parts&quot;</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean_g</span><span class="p">))</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">adjacent_parts</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean_g</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ConsLayer.clean"><a class="viewcode-back" href="../api/layer.html#layer.ConsLayer.clean">[documentos]</a>    <span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1376,7 +1406,9 @@
                 <span class="n">num_buildings</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="n">geom</span> <span class="o">=</span> <span class="n">QgsGeometry</span><span class="p">()</span><span class="o">.</span><span class="n">fromMultiPolygon</span><span class="p">(</span><span class="n">poly</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">geom</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">geom</span><span class="o">.</span><span class="n">isGeosValid</span><span class="p">():</span>
-                    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Osm building with id </span><span class="si">%s</span><span class="s2"> is not valid&quot;</span><span class="p">),</span> <span class="n">el</span><span class="o">.</span><span class="n">fid</span><span class="p">)</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;OSM building with id </span><span class="si">%s</span><span class="s2"> is not valid&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">el</span><span class="o">.</span><span class="n">fid</span>
+                    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                    <span class="n">report</span><span class="o">.</span><span class="n">warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">fids</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">intersects</span><span class="p">(</span><span class="n">geom</span><span class="o">.</span><span class="n">boundingBox</span><span class="p">())</span>
                     <span class="n">conflict</span> <span class="o">=</span> <span class="kc">False</span>
@@ -1394,6 +1426,8 @@
             <span class="n">current_bu_osm</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
         <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Detected </span><span class="si">%d</span><span class="s2"> conflicts in </span><span class="si">%d</span><span class="s2"> buildings/pools from OSM&quot;</span><span class="p">),</span> 
                 <span class="n">conflicts</span><span class="p">,</span> <span class="n">num_buildings</span><span class="p">)</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">osm_buildings</span> <span class="o">=</span> <span class="n">num_buildings</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">osm_building_conflicts</span> <span class="o">=</span> <span class="n">conflicts</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span></div></div>
 
 
@@ -1468,7 +1502,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Índice de Módulos Python"
              >módulos</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 2017-11-31shp</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 2017-11-06deb</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" >Código de módulo</a> &#187;</li> 
       </ul>
     </div>

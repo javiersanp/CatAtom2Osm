@@ -17,6 +17,7 @@ Submodules
    test.test_osm
    test.test_osmxml
    test.test_overpass
+   test.test_report
    test.test_setup
    test.test_translate
    test.unittest_main

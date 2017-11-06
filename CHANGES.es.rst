@@ -1,7 +1,7 @@
 Registro de cambios
 ===================
 
-**01-11-2017**
+**06-11-2017**
 
 * Genera informe de estadísticas (cuestión #50).
 
