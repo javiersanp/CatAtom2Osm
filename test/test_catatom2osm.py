@@ -393,7 +393,7 @@ class TestCatAtom2Osm(unittest.TestCase):
         # entrance exists, tags to node
         n2 = building.Node(2,0)
         w2 = building.Way([n2, (3,0), (3,1), (2,0)], {'ref': '2'})
-        # entrance don't exists, no tags
+        # entrance don't exists, tags to way
         w3 = building.Way([(4,1), (5,0), (5,1), (4,1)], {'ref': '3'})
         # entrance exists, tags to node in relation
         n5 = building.Node(6,0)
@@ -412,7 +412,7 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.assertNotIn('addrtags', w0.tags)
         self.assertEquals(w1.tags['addr:street'], 'address1')
         self.assertEquals(n2.tags['addr:street'], 'address2')
-        self.assertNotIn('addr:street', w3.tags)
+        self.assertEquals(w3.tags['addr:street'], 'address3')
         self.assertNotIn('addr:street', [k for n in w3.nodes for k in n.tags.keys()])
         self.assertEquals(n5.tags['addr:place'], 'address5')
         address.tags['source:date'] = 'foobar'

@@ -1209,14 +1209,17 @@ class ConsLayer(PolygonLayer):
                     va = bg.vertexAt(vertex - 1)
                     vb = bg.vertexAt(vertex)
                     if distance < setup.addr_thr**2:
-                        if closest.sqrDist(va) < setup.entrance_thr**2 \
+                        if vertex > len(bg.asPolygon()[0]):
+                            ad['spec'] = 'inner'
+                            to_change[ad.id()] = get_attributes(ad)
+                        elif closest.sqrDist(va) < setup.entrance_thr**2 \
                                 or closest.sqrDist(vb) < setup.entrance_thr**2:
                             ad['spec'] = 'corner'
                             to_change[ad.id()] = get_attributes(ad)
                         else:
                             dg = QgsGeometry.fromPoint(closest)
                             to_move[ad.id()] = dg
-                            bg.insertVertex(closest.x(), closest.y(), vertex)
+                            x = bg.insertVertex(closest.x(), closest.y(), vertex)
                             to_insert[building.id()] = QgsGeometry(bg)
                             for part in it_parts:
                                 pg = part.geometry()

@@ -409,6 +409,7 @@ class CatAtom2Osm:
                     report.out_addr_str += 1
                 if 'addr:place' in ad.tags:
                     report.out_addr_plc += 1
+                entrance = False
                 if 'entrance' in ad.tags:
                     footprint = [bu] if isinstance(bu, osm.Way) \
                         else [m.element for m in bu.members if m.role == 'outer']
@@ -419,7 +420,7 @@ class CatAtom2Osm:
                             entrance.tags.pop('ref', None)
                             report.out_address_entrance += 1
                             break
-                else:
+                if not entrance:
                     bu.tags.update(ad.tags)
                     report.out_address_building += 1
 
