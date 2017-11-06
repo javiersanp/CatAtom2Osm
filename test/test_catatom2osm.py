@@ -385,8 +385,7 @@ class TestCatAtom2Osm(unittest.TestCase):
         address.Node(0,0, {'ref': '1', 'addr:street': 'address1'})
         address.Node(2,0, {'ref': '2', 'addr:street': 'address2', 'entrance': 'yes'})
         address.Node(4,0, {'ref': '3', 'addr:street': 'address3', 'entrance': 'yes'})
-        address.Node(2,5, {'ref': '4', 'addr:place': 'address4'})
-        address.Node(6,0, {'ref': '5', 'addr:place': 'address5', 'entrance': 'yes'})
+        address.Node(6,0, {'ref': '4', 'addr:place': 'address5', 'entrance': 'yes'})
         building = osm.Osm()
         w0 = building.Way([], {'ref': '0'}) # building with ref not in address
         # no entrance address, tags to way
@@ -396,19 +395,15 @@ class TestCatAtom2Osm(unittest.TestCase):
         w2 = building.Way([n2, (3,0), (3,1), (2,0)], {'ref': '2'})
         # entrance don't exists, no tags
         w3 = building.Way([(4,1), (5,0), (5,1), (4,1)], {'ref': '3'})
-        # multipart, refused
-        w4 = building.Way([(0,4), (4,4), (4,8), (0,4)], {'ref': '4'})
-        w5 = building.Way([(1,5), (3,5), (3,6), (1,5)], {'ref': '4'})
         # entrance exists, tags to node in relation
         n5 = building.Node(6,0)
         w6 = building.Way([(6,5), (9,5), (9,8), (6,8), (6,5)])
         w7 = building.Way([n5, (9,0), (9,3), (6,3), (6,0)])
         w8 = building.Way([(7,1), (8,1), (8,2), (7,2), (7,1)])
-        r1 = building.Relation(tags = {'ref': '5'})
+        r1 = building.Relation(tags = {'ref': '4'})
         r1.append(w6, 'outer')
         r1.append(w7, 'outer')
         r1.append(w8, 'inner')
-        # building without address
         self.m_app.merge_address = cat.CatAtom2Osm.merge_address.__func__
         self.m_app.merge_address(self.m_app, building, address)
         self.assertEquals(m_report.out_address, 14)
@@ -419,7 +414,6 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.assertEquals(n2.tags['addr:street'], 'address2')
         self.assertNotIn('addr:street', w3.tags)
         self.assertNotIn('addr:street', [k for n in w3.nodes for k in n.tags.keys()])
-        self.assertNotIn('addr:place', w4.tags)
         self.assertEquals(n5.tags['addr:place'], 'address5')
         address.tags['source:date'] = 'foobar'
         self.m_app.merge_address(self.m_app, building, address)

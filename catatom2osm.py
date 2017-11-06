@@ -394,41 +394,34 @@ class CatAtom2Osm:
         if 'source:date' in address_osm.tags:
             building_osm.tags['source:date:addr'] = address_osm.tags['source:date']
         address_index = {}
-        building_index = defaultdict(list)
+        building_index = {}
         for bu in building_osm.elements:
             if 'ref' in bu.tags:
-                building_index[bu.tags['ref']].append(bu)
+                building_index[bu.tags['ref']] = bu
         for ad in address_osm.nodes:
             if ad.tags['ref'] in building_index:
                 address_index[ad.tags['ref']] = ad
-        mp = 0
-        for (ref, group) in building_index.items():
+        for (ref, bu) in building_index.items():
             if ref in address_index:
-                if len(group) > 1:
-                    mp += 1
+                ad = address_index[ref]
+                report.out_address += 1
+                if 'addr:street' in ad.tags:
+                    report.out_addr_str += 1
+                if 'addr:place' in ad.tags:
+                    report.out_addr_plc += 1
+                if 'entrance' in ad.tags:
+                    footprint = [bu] if isinstance(bu, osm.Way) \
+                        else [m.element for m in bu.members if m.role == 'outer']
+                    for w in footprint:
+                        entrance = w.search_node(ad.x, ad.y)
+                        if entrance:
+                            entrance.tags.update(ad.tags)
+                            entrance.tags.pop('ref', None)
+                            report.out_address_entrance += 1
+                            break
                 else:
-                    bu = group[0]
-                    ad = address_index[ref]
-                    report.out_address += 1
-                    if 'addr:street' in ad.tags:
-                        report.out_addr_str += 1
-                    if 'addr:place' in ad.tags:
-                        report.out_addr_plc += 1
-                    if 'entrance' in ad.tags:
-                        footprint = [bu] if isinstance(bu, osm.Way) \
-                            else [m.element for m in bu.members if m.role == 'outer']
-                        for w in footprint:
-                            entrance = w.search_node(ad.x, ad.y)
-                            if entrance:
-                                entrance.tags.update(ad.tags)
-                                entrance.tags.pop('ref', None)
-                                report.out_address_entrance += 1
-                                break
-                    else:
-                        bu.tags.update(ad.tags)
-                        report.out_address_building += 1
-        if mp > 0:
-            log.debug(_("Refused %d addresses belonging to multiple buildings"), mp)
+                    bu.tags.update(ad.tags)
+                    report.out_address_building += 1
 
     def get_translations(self, address, highway):
         """
