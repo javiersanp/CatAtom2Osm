@@ -14,6 +14,7 @@ app_tags = ''
 MIN_QGIS_VERSION_INT = 21001
 MIN_QGIS_VERSION = '2.10.1'
 
+locale.resetlocale(locale.LC_ALL)
 language, encoding = locale.getdefaultlocale()
 app_path = os.path.dirname(__file__)
 localedir = os.path.join(app_path, 'locale', 'po')
