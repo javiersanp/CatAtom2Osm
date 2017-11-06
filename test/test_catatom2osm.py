@@ -97,10 +97,7 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.address.conflate.assert_called_once_with(current_address)
         self.m_app.building.move_address.assert_called_once_with(self.m_app.address)
         self.m_app.address.to_osm.assert_called_once_with()
-        self.m_app.write_osm.assert_has_calls([
-            mock.call(building_osm, 'building.osm'),
-            mock.call(address_osm, 'address.osm')
-        ])
+        self.m_app.write_osm.assert_called_once_with(building_osm, 'building.osm')
         self.m_app.process_zoning.assert_not_called()
         self.m_app.process_parcel.assert_called_once_with()
 
