@@ -165,5 +165,5 @@ class OsmxmlTest(unittest.TestCase):
         self.assertEquals(len(result.nodes), 17)
         self.assertEquals(len(result.ways), 4)
         self.assertEquals(len(result.relations), 3)
-        self.assertEquals(result.get(-103, 'w').version, 2)
+        self.assertEquals(result.get(-103, 'w').version, '2')
         self.assertEquals(result.get(-202, 'r').version, None)
