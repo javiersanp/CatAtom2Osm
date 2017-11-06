@@ -860,20 +860,6 @@ class AddressLayer(BaseLayer):
             log.debug(_("Deleted %d addresses without house number") % len(to_clean))
             report.addresses_without_number = len(to_clean)
 
-    def del_address(self, building):
-        """Delete the address if there aren't any associated building."""
-        to_clean = []
-        building_refs = {bu['localId'] for bu in \
-            building.search("not regexp_match(localId, '_')")}
-        for ad in self.getFeatures():
-            ref = ad['localId'].split('.')[-1]
-            if ref not in building_refs:
-                to_clean.append(ad.id())
-        if to_clean:
-            self.writer.deleteFeatures(to_clean)
-            log.debug(_("Deleted %d addresses without associated building"), len(to_clean))
-            report.orphand_addresses = len(to_clean)
-
     def get_highway_names(self, highway):
         """
         Returns a dictionary with the translation for each street name.
@@ -1192,6 +1178,20 @@ class ConsLayer(PolygonLayer):
         self.merge_building_parts()
         self.simplify()
 
+    def del_address(self, building):
+        """Delete the address if there aren't any associated building."""
+        to_clean = []
+        building_refs = {bu['localId'] for bu in \
+            building.search("not regexp_match(localId, '_')")}
+        for ad in self.getFeatures():
+            ref = ad['localId'].split('.')[-1]
+            if ref not in building_refs:
+                to_clean.append(ad.id())
+        if to_clean:
+            self.writer.deleteFeatures(to_clean)
+            log.debug(_("Deleted %d addresses without associated building"), len(to_clean))
+            report.orphand_addresses = len(to_clean)
+
     def move_address(self, address):
         """
         Move each address to the nearest point in the footprint of its
@@ -1200,14 +1200,22 @@ class ConsLayer(PolygonLayer):
         * The address specification is Entrance.
 
         * The new position is enough close and is not a corner
+        
+        Delete the address if there aren't any associated building.
         """
         to_change = {}
         to_move = {}
         to_insert = {}
+        to_clean = []
+        mp = 0
+        oa = 0
         (buildings, parts) = self.index_of_building_and_parts()
         for ad in address.getFeatures():
             refcat = ad['localId'].split('.')[-1]
-            building_count = len(buildings[refcat])
+            building_count = 0 if refcat not in buildings else len(buildings[refcat])
+            if building_count == 0:
+                oa += 1
+                to_clean.append(ad.id())
             if building_count == 1:
                 building = buildings[refcat][0]
                 it_parts = parts[refcat]
@@ -1237,11 +1245,17 @@ class ConsLayer(PolygonLayer):
                     else:
                         ad['spec'] = 'remote'
                         to_change[ad.id()] = get_attributes(ad)
+            else:
+                mp += 1
         address.writer.changeAttributeValues(to_change)
         address.writer.changeGeometryValues(to_move)
         self.writer.changeGeometryValues(to_insert)
         log.debug(_("Moved %d addresses to entrance, %d changed to parcel"),
             len(to_move), len(to_change))
+        if len(to_clean) > 0:
+            address.writer.deleteFeatures(to_clean)
+            log.debug(_("Deleted %d addresses without associated building"), len(to_clean))
+            report.orphand_addresses = len(to_clean)
 
     def validate(self, max_level, min_level):
         """Put fixmes to buildings with not valid geometry, too small or big.

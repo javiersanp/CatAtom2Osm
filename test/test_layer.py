@@ -763,8 +763,9 @@ class TestConsLayer(unittest.TestCase):
         address = AddressLayer()
         address_gml = QgsVectorLayer('test/address.gml', 'address', 'ogr')
         address.append(address_gml)
-        self.layer.move_address(address)
         self.assertEquals(address.featureCount(), 14)
+        self.layer.move_address(address)
+        self.assertEquals(address.featureCount(), 7)
         for ad in address.getFeatures():
             if ad['localId'] in refs.keys():
                 self.assertEquals(ad['spec'], refs[ad['localId']])
@@ -772,6 +773,8 @@ class TestConsLayer(unittest.TestCase):
                     refcat = ad['localId'].split('.')[-1]
                     building = self.layer.search("localId = '%s'" % refcat).next()
                     self.assertTrue(ad.geometry().touches(building.geometry()))
+        self.layer.move_address(address)
+        self.assertEquals(address.featureCount(), 7)
 
     def test_validate(self):
         self.layer.merge_building_parts()
@@ -957,16 +960,6 @@ class TestAddressLayer(unittest.TestCase):
         self.assertEquals(self.layer.featureCount(), 10)
         self.layer.conflate(current_address)
         self.assertEquals(self.layer.featureCount(), 10)
-
-    def test_del_address(self):
-        self.layer.append(self.address_gml)
-        building = PolygonLayer('test/cons.shp', 'building', 'ogr')
-        building.keep = True
-        self.assertEquals(self.layer.featureCount(), 14)
-        self.layer.del_address(building)
-        self.assertEquals(self.layer.featureCount(), 7)
-        self.layer.del_address(building)
-        self.assertEquals(self.layer.featureCount(), 7)
 
     def test_get_highway_names(self):
         layer = AddressLayer('test/address.geojson', 'address', 'ogr')

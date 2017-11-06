@@ -95,7 +95,6 @@ class CatAtom2Osm:
             self.get_building()
             self.process_building()
             if self.options.address:
-                self.address.del_address(self.building)
                 self.building.move_address(self.address)
             self.building.reproject()
             if self.options.tasks:
