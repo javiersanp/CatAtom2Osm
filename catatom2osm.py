@@ -429,7 +429,6 @@ class CatAtom2Osm:
                         report.out_address_building += 1
         if mp > 0:
             log.debug(_("Refused %d addresses belonging to multiple buildings"), mp)
-        report.multiple_addresses += mp
 
     def get_translations(self, address, highway):
         """

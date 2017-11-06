@@ -381,7 +381,6 @@ class TestCatAtom2Osm(unittest.TestCase):
 
     @mock.patch('catatom2osm.report')
     def test_merge_address(self, m_report):
-        m_report.multiple_addresses = 10
         m_report.out_address = 10
         m_report.out_addr_str = 10
         m_report.out_addr_plc = 10
@@ -416,7 +415,6 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.merge_address = cat.CatAtom2Osm.merge_address.__func__
         self.m_app.merge_address(self.m_app, building, address)
         self.assertEquals(m_report.out_address, 14)
-        self.assertEquals(m_report.multiple_addresses, 11)
         self.assertEquals(m_report.out_addr_str, 13)
         self.assertEquals(m_report.out_addr_plc, 11)
         self.assertNotIn('addrtags', w0.tags)

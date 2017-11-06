@@ -754,18 +754,19 @@ class TestConsLayer(unittest.TestCase):
         refs = {
             '38.012.10.10.8643403CS5284S': 'Entrance',
             '38.012.10.11.8842304CS5284S': 'Entrance',
-            '38.012.10.13.8842305CS5284S': 'Entrance',
+            #'38.012.10.13.8842305CS5284S': 'Entrance',
             '38.012.10.14.8643404CS5284S': 'corner',
             '38.012.10.14.8643406CS5284S': 'Parcel',
             '38.012.10.2.8642321CS5284S': 'Entrance',
             '38.012.15.73.8544911CS5284S': 'remote'
         }
+        self.layer.explode_multi_parts()
         address = AddressLayer()
         address_gml = QgsVectorLayer('test/address.gml', 'address', 'ogr')
         address.append(address_gml)
         self.assertEquals(address.featureCount(), 14)
         self.layer.move_address(address)
-        self.assertEquals(address.featureCount(), 7)
+        self.assertEquals(address.featureCount(), 6)
         for ad in address.getFeatures():
             if ad['localId'] in refs.keys():
                 self.assertEquals(ad['spec'], refs[ad['localId']])
@@ -774,7 +775,7 @@ class TestConsLayer(unittest.TestCase):
                     building = self.layer.search("localId = '%s'" % refcat).next()
                     self.assertTrue(ad.geometry().touches(building.geometry()))
         self.layer.move_address(address)
-        self.assertEquals(address.featureCount(), 7)
+        self.assertEquals(address.featureCount(), 6)
 
     def test_validate(self):
         self.layer.merge_building_parts()

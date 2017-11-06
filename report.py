@@ -129,7 +129,6 @@ class Report(object):
         self.out_address_building = 0
         
     def init_address_values(self):
-        self.multiple_addresses = 0
         self.out_address = 0
         self.out_addr_str = 0
         self.out_addr_plc = 0

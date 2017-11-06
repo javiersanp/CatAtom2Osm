@@ -1178,20 +1178,6 @@ class ConsLayer(PolygonLayer):
         self.merge_building_parts()
         self.simplify()
 
-    def del_address(self, building):
-        """Delete the address if there aren't any associated building."""
-        to_clean = []
-        building_refs = {bu['localId'] for bu in \
-            building.search("not regexp_match(localId, '_')")}
-        for ad in self.getFeatures():
-            ref = ad['localId'].split('.')[-1]
-            if ref not in building_refs:
-                to_clean.append(ad.id())
-        if to_clean:
-            self.writer.deleteFeatures(to_clean)
-            log.debug(_("Deleted %d addresses without associated building"), len(to_clean))
-            report.orphand_addresses = len(to_clean)
-
     def move_address(self, address):
         """
         Move each address to the nearest point in the footprint of its
@@ -1213,9 +1199,6 @@ class ConsLayer(PolygonLayer):
         for ad in address.getFeatures():
             refcat = ad['localId'].split('.')[-1]
             building_count = 0 if refcat not in buildings else len(buildings[refcat])
-            if building_count == 0:
-                oa += 1
-                to_clean.append(ad.id())
             if building_count == 1:
                 building = buildings[refcat][0]
                 it_parts = parts[refcat]
@@ -1246,7 +1229,11 @@ class ConsLayer(PolygonLayer):
                         ad['spec'] = 'remote'
                         to_change[ad.id()] = get_attributes(ad)
             else:
-                mp += 1
+                to_clean.append(ad.id())
+                if building_count == 0:
+                    oa += 1
+                else:
+                    mp += 1
         address.writer.changeAttributeValues(to_change)
         address.writer.changeGeometryValues(to_move)
         self.writer.changeGeometryValues(to_insert)
@@ -1254,8 +1241,12 @@ class ConsLayer(PolygonLayer):
             len(to_move), len(to_change))
         if len(to_clean) > 0:
             address.writer.deleteFeatures(to_clean)
-            log.debug(_("Deleted %d addresses without associated building"), len(to_clean))
-            report.orphand_addresses = len(to_clean)
+        if oa > 0:
+            log.debug(_("Deleted %d addresses without associated building"), oa)
+            report.orphand_addresses = oa
+        if mp > 0:
+            log.debug(_("Refused %d addresses belonging to multiple buildings"), mp)
+            report.multiple_addresses = mp
 
     def validate(self, max_level, min_level):
         """Put fixmes to buildings with not valid geometry, too small or big.
