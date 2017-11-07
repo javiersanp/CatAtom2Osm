@@ -607,16 +607,13 @@ class PolygonLayer(BaseLayer):
         geometries = {feat.id(): QgsGeometry(feat.geometry()) for feat in self.getFeatures()}
         for fid, geom in geometries.items():
             for i, ring in enumerate(geom.asPolygon()):
-                n = -1
-                while n < 0 or v != QgsPoint(0, 0):
-                    n += 1
+                for n, v in enumerate(ring[0:-1]):
                     g = QgsGeometry().fromPolygon([ring])
-                    f = QgsFeature(QgsFields())
-                    f.setGeometry(QgsGeometry(g))
-                    v = g.vertexAt(n)
                     (__, is_acute, __, __) = Point(v).get_angle_with_context(g,
                         acute_thr=setup.acute_inv)
                     if is_acute:
+                        f = QgsFeature(QgsFields())
+                        f.setGeometry(QgsGeometry(g))
                         g.deleteVertex(n)
                         if not g.isGeosValid() or g.area() < setup.min_area:
                             if i > 0:
