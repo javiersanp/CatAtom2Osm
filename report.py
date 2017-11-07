@@ -54,6 +54,7 @@ class Report(object):
             ('addresses_without_number', _('Addresses without house number deleted: {}')),
             ('orphand_addresses', _('Addresses without associated building deleted: {}')),
             ('multiple_addresses', _('Addresses belonging to multiple buildings deleted: {}')),
+            ('not_unique_addresses', _("'Parcel' addresses not unique for it building deleted: {}")),
             ('subgroup_ad_conflation', _("Conflation")),
             ('osm_addresses', _("OSM addresses : {}")),
             ('osm_addresses_whithout_number', TAB + _("Without house number: {}")),
@@ -209,7 +210,7 @@ class Report(object):
                 "to the input addresses"))
         if self.sum('addresses_without_number', 'orphand_addresses', 
                 'multiple_addresses', 'refused_addresses', 'ignored_addresses', 
-                'out_address') != self.get('inp_address'):
+                'not_unique_addresses', 'out_address') != self.get('inp_address'):
             self.errors.append(_("Sum of output and deleted addresses "
                 "should be equal to the input addresses"))
         if self.sum('out_address_entrance', 'out_address_building') > 0 and \

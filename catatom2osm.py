@@ -85,14 +85,12 @@ class CatAtom2Osm:
         self.building_osm = osm.Osm()
         if self.options.address:
             self.read_address()
-            print 'read', self.address.featureCount()
             if self.is_new:
                 self.options.tasks = False
                 self.options.building = False
             elif not self.options.manual:
                 current_address = self.get_current_ad_osm()
                 self.address.conflate(current_address)
-            print 'conf', self.address.featureCount()
         if self.options.building or self.options.tasks:
             self.get_building()
             self.process_building()
@@ -110,7 +108,6 @@ class CatAtom2Osm:
         if self.options.address:
             self.address.reproject()
             self.address_osm = self.address.to_osm()
-            print 'to_osm', len(self.address_osm.elements)
             report.init_address_values()
         if self.options.tasks:
             self.process_tasks(self.building)
@@ -120,7 +117,6 @@ class CatAtom2Osm:
             self.building_osm = self.building.to_osm()
             if self.options.address:
                 self.merge_address(self.building_osm, self.address_osm)
-            print 'merge', len(self.address_osm.elements)
             self.write_osm(self.building_osm, 'building.osm')
             if not self.options.tasks:
                 report.cons_stats(self.building_osm)
@@ -385,9 +381,8 @@ class CatAtom2Osm:
         the address tags to the building if it isn't a 'entrace' type address or
         else to the entrance if there exist a node with the address coordinates
         in the building.
-
-        If there exists many buildings with the same 'ref' the address is 
-        ignored.
+        
+        Precondition: building.move_address deleted addresses belonging to multiple buildings
 
         Args:
             building_osm (Osm): OSM data set with addresses
@@ -395,17 +390,26 @@ class CatAtom2Osm:
         """
         if 'source:date' in address_osm.tags:
             building_osm.tags['source:date:addr'] = address_osm.tags['source:date']
-        address_index = {}
-        building_index = {}
+        address_index = defaultdict(list)
+        building_index = defaultdict(list)
         for bu in building_osm.elements:
             if 'ref' in bu.tags:
-                building_index[bu.tags['ref']] = bu
+                building_index[bu.tags['ref']].append(bu)
         for ad in address_osm.nodes:
             if ad.tags['ref'] in building_index:
-                address_index[ad.tags['ref']] = ad
-        for (ref, bu) in building_index.items():
-            if ref in address_index:
-                ad = address_index[ref]
+                address_index[ad.tags['ref']].append(ad)
+        md = 0
+        for (ref, group) in building_index.items():
+            address_count = len(address_index[ref])
+            if address_count == 0:
+                continue
+            entrance_count = sum([1 if 'entrance' in ad.tags else 0 for ad in address_index[ref]])
+            parcel_count = address_count - entrance_count
+            if parcel_count > 1 or (parcel_count == 1 and entrance_count > 0):
+                md += address_count
+                continue
+            for ad in address_index[ref]:
+                bu = group[0]
                 report.out_address += 1
                 if 'addr:street' in ad.tags:
                     report.out_addr_str += 1
@@ -425,6 +429,9 @@ class CatAtom2Osm:
                 if not entrance:
                     bu.tags.update(ad.tags)
                     report.out_address_building += 1
+        if md > 0:
+            log.debug(_("Refused %d 'parcel' addresses not unique for it building"), md)
+            report.not_unique_addresses = report.get('not_unique_addresses') + md
 
     def get_translations(self, address, highway):
         """
