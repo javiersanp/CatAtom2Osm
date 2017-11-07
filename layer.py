@@ -4,7 +4,7 @@
 import os
 import math
 import re
-from collections import defaultdict, Counter
+from collections import defaultdict
 import logging
 
 from qgis.core import *
@@ -1187,7 +1187,7 @@ class ConsLayer(PolygonLayer):
 
         * The new position is enough close and is not a corner
         
-        Delete the address if there aren't any associated building.
+        Delete the address if the number of associated buildings is not one.
         """
         to_change = {}
         to_move = {}
@@ -1219,7 +1219,7 @@ class ConsLayer(PolygonLayer):
                         else:
                             dg = QgsGeometry.fromPoint(closest)
                             to_move[ad.id()] = dg
-                            x = bg.insertVertex(closest.x(), closest.y(), vertex)
+                            bg.insertVertex(closest.x(), closest.y(), vertex)
                             to_insert[building.id()] = QgsGeometry(bg)
                             for part in it_parts:
                                 pg = part.geometry()
