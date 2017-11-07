@@ -630,7 +630,7 @@ class PolygonLayer(BaseLayer):
                                 if fid in to_change: del to_change[fid]
                                 if log.getEffectiveLevel() <= logging.DEBUG:
                                     debshp.addFeature(f)
-                                break
+                            break
         if to_change:
             self.writer.changeGeometryValues(to_change)
         if rings:
