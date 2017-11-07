@@ -85,12 +85,14 @@ class CatAtom2Osm:
         self.building_osm = osm.Osm()
         if self.options.address:
             self.read_address()
+            print 'read', self.address.featureCount()
             if self.is_new:
                 self.options.tasks = False
                 self.options.building = False
             elif not self.options.manual:
                 current_address = self.get_current_ad_osm()
                 self.address.conflate(current_address)
+            print 'conf', self.address.featureCount()
         if self.options.building or self.options.tasks:
             self.get_building()
             self.process_building()
@@ -108,6 +110,7 @@ class CatAtom2Osm:
         if self.options.address:
             self.address.reproject()
             self.address_osm = self.address.to_osm()
+            print 'to_osm', len(self.address_osm.elements)
             report.init_address_values()
         if self.options.tasks:
             self.process_tasks(self.building)
@@ -117,6 +120,7 @@ class CatAtom2Osm:
             self.building_osm = self.building.to_osm()
             if self.options.address:
                 self.merge_address(self.building_osm, self.address_osm)
+            print 'merge', len(self.address_osm.elements)
             self.write_osm(self.building_osm, 'building.osm')
             if not self.options.tasks:
                 report.cons_stats(self.building_osm)
@@ -237,8 +241,6 @@ class CatAtom2Osm:
             log.warning(_("Check %d fixme tags"), report.fixme_count)
         if self.options.tasks or self.options.building:
             report.cons_end_stats()
-        if self.options.address:
-            if report.multiple_addresses == 0: del report.values['multiple_addresses']
         if self.options.tasks or self.options.building or self.options.address:
             fn = os.path.join(self.path, 'report.txt')
             report.to_file(fn)
