@@ -4,6 +4,7 @@ import unittest
 import os
 import random
 import time
+from collections import Counter
 from datetime import datetime
 
 os.environ['LANGUAGE'] = 'C'
@@ -28,6 +29,18 @@ class TestReport(unittest.TestCase):
         r.values['mun_name'] = 'foobar'
         self.assertEquals(r.mun_name, 'foobar')
     
+    def test_get(self):
+        r = report.Report()
+        self.assertEquals(r.get('foo', 'bar'), 'bar')
+        self.assertEquals(r.get('bar'), 0)
+
+    def test_inc(self):
+        r = report.Report()
+        r.inc('foo')
+        self.assertEquals(r.foo, 1)
+        r.inc('foo', 2)
+        self.assertEquals(r.foo, 3)
+
     def test_validate1(self):
         r = report.Report()
         r.inp_address_entrance = 6
@@ -158,7 +171,6 @@ class TestReport(unittest.TestCase):
         ad.Node(2,0, {'addr:street': 's2'})
         ad.Node(4,0, {'addr:place': 'p1'})
         r = report.Report()
-        r.init_address_values()
         r.address_stats(ad)
         self.assertEquals(r.out_addr_str, 2)
         self.assertEquals(r.out_addr_plc, 1)
@@ -175,7 +187,7 @@ class TestReport(unittest.TestCase):
 
     def test_cons_stats(self):
         r = report.Report()
-        r.init_building_values()
+        r.building_counter = Counter()
         data = osm.Osm()
         data.Node(0,0, {'leisure': 'swimming_pool'})
         data.Node(0,0, {'building': 'a', 'fixme': 'f1'})

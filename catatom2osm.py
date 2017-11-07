@@ -104,11 +104,10 @@ class CatAtom2Osm:
                 if self.building.conflate(current_bu_osm):
                     self.write_osm(current_bu_osm, 'current_building.osm')
                 del current_bu_osm
-            report.init_building_values()
+            report.building_counter = Counter()
         if self.options.address:
             self.address.reproject()
             self.address_osm = self.address.to_osm()
-            report.init_address_values()
         if self.options.tasks:
             self.process_tasks(self.building)
             del self.rustic_zoning
@@ -410,11 +409,11 @@ class CatAtom2Osm:
                 continue
             for ad in address_index[ref]:
                 bu = group[0]
-                report.out_address += 1
+                report.inc('out_address')
                 if 'addr:street' in ad.tags:
-                    report.out_addr_str += 1
+                    report.inc('out_addr_str')
                 if 'addr:place' in ad.tags:
-                    report.out_addr_plc += 1
+                    report.inc('out_addr_plc')
                 entrance = False
                 if 'entrance' in ad.tags:
                     footprint = [bu] if isinstance(bu, osm.Way) \
@@ -424,14 +423,14 @@ class CatAtom2Osm:
                         if entrance:
                             entrance.tags.update(ad.tags)
                             entrance.tags.pop('ref', None)
-                            report.out_address_entrance += 1
+                            report.inc('out_address_entrance')
                             break
                 if not entrance:
                     bu.tags.update(ad.tags)
-                    report.out_address_building += 1
+                    report.inc('out_address_building')
         if md > 0:
             log.debug(_("Refused %d 'parcel' addresses not unique for it building"), md)
-            report.not_unique_addresses = report.get('not_unique_addresses') + md
+            report.inc('not_unique_addresses', md)
 
     def get_translations(self, address, highway):
         """

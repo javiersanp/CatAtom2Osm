@@ -117,46 +117,29 @@ class Report(object):
     def __getattr__(self, key):
         return self.values[key]
 
-    def init_building_values(self):
-        self.nodes = 0
-        self.ways = 0
-        self.relations = 0
-        self.out_features = 0
-        self.out_pools = 0
-        self.out_buildings = 0
-        self.out_parts = 0
-        self.building_counter = Counter()
-        self.out_address_entrance = 0
-        self.out_address_building = 0
-        
-    def init_address_values(self):
-        self.out_address = 0
-        self.out_addr_str = 0
-        self.out_addr_plc = 0
-
     def address_stats(self, address_osm):
         for el in address_osm.elements:
             if 'addr:street' in el.tags:
-                self.out_addr_str += 1
+                self.inc('out_addr_str')
             if 'addr:place' in el.tags:
-                self.out_addr_plc += 1
+                self.inc('out_addr_plc')
         self.out_address = len(address_osm.elements)
 
     def cons_stats(self, data):
-        self.nodes += len(data.nodes)
-        self.ways += len(data.ways)
-        self.relations += len(data.relations)
+        self.inc('nodes', len(data.nodes))
+        self.inc('ways', len(data.ways))
+        self.inc('relations', len(data.relations))
         for el in data.elements:
             if 'leisure' in el.tags and el.tags['leisure'] == 'swimming_pool':
-                self.out_pools += 1
-                self.out_features += 1
+                self.inc('out_pools')
+                self.inc('out_features')
             if 'building' in el.tags:
-                self.out_buildings += 1
+                self.inc('out_buildings')
                 self.building_counter[el.tags['building']] += 1
-                self.out_features += 1
+                self.inc('out_features')
             if 'building:part' in el.tags:
-                self.out_parts += 1
-                self.out_features += 1
+                self.inc('out_parts')
+                self.inc('out_features')
             if 'fixme' in el.tags:
                 self.fixme_counter[el.tags['fixme']] += 1
 
@@ -183,6 +166,9 @@ class Report(object):
     def get(self, key, default=0):
         return self.values.get(key, default)  
     
+    def inc(self, key, step=1):
+        self.values[key] = self.get(key) + step
+
     def sum(self, *args):
         return sum(self.get(key) for key in args)
 
