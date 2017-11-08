@@ -733,8 +733,9 @@ class PolygonLayer(BaseLayer):
                                 geom = g
                                 to_change[fid] = g
                                 geometries[fid] = geom
-                            debshp2.add_point(va, 'zza %d %d %d %f' % (fid, ndx, ndxa, angle_a))
-                            debshp2.add_point(v, 'zz %d %d %d %s' % (fid, ndx, len(ring), valid))
+                            if log.getEffectiveLevel() <= logging.DEBUG:
+                                debshp2.add_point(va, 'zza %d %d %d %f' % (fid, ndx, ndxa, angle_a))
+                                debshp2.add_point(v, 'zz %d %d %d %s' % (fid, ndx, len(ring), valid))
                         elif is_spike:
                             g = QgsGeometry(geom)
                             to_move[va] = vx #!
@@ -746,9 +747,10 @@ class PolygonLayer(BaseLayer):
                                 geom = g
                                 to_change[fid] = g
                                 geometries[fid] = geom
-                            debshp2.add_point(vx, 'vx %d %d' % (fid, ndx))
-                            debshp2.add_point(va, 'va %d %d %d %f' % (fid, ndx, ndxa, angle_a))
-                            debshp2.add_point(v, 'v %d %d %d %s' % (fid, ndx, len(ring), valid))
+                            if log.getEffectiveLevel() <= logging.DEBUG:
+                                debshp2.add_point(vx, 'vx %d %d' % (fid, ndx))
+                                debshp2.add_point(va, 'va %d %d %d %f' % (fid, ndx, ndxa, angle_a))
+                                debshp2.add_point(v, 'v %d %d %d %s' % (fid, ndx, len(ring), valid))
         if to_move:
             for fid, geom in geometries.items():
                 if fid in to_clean: continue
@@ -758,8 +760,9 @@ class PolygonLayer(BaseLayer):
                     if v in to_move:
                         g = QgsGeometry(geom)
                         vx = to_move[v]
-                        debshp2.add_point(v, 'mv %d %d' % (fid, n))
-                        debshp2.add_point(vx, 'mvx %d %d' % (fid, n))
+                        if log.getEffectiveLevel() <= logging.DEBUG:
+                            debshp2.add_point(v, 'mv %d %d' % (fid, n))
+                            debshp2.add_point(vx, 'mvx %d %d' % (fid, n))
                         g.moveVertex(vx.x(), vx.y(), n)
                         if g.isGeosValid():
                             geom = g

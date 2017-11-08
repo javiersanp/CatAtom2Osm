@@ -771,14 +771,59 @@ class TestConsLayer(unittest.TestCase):
             QgsPoint(358894.000, 3124330.000)
         ]])
         f3.setGeometry(g3)
+        f4 = QgsFeature(self.layer.pendingFields())
+        g4 = QgsGeometry.fromPolygon([[
+            QgsPoint(357400.00, 3124305.00), # spike
+            QgsPoint(357405.00, 3124305.04),
+            QgsPoint(357404.99, 3124307.60),
+            QgsPoint(357405.00, 3124307.40), # zig-zag
+            QgsPoint(357405.00, 3124313.00), # spike
+            QgsPoint(357405.04, 3124310.00),
+            QgsPoint(357407.50, 3124311.00),
+            QgsPoint(357409.96, 3124310.00),
+            QgsPoint(357410.00, 3124313.00), # spike
+            QgsPoint(357410.02, 3124306.00),
+            QgsPoint(357410.00, 3124305.00),
+            QgsPoint(357400.00, 3124305.00),
+        ]])
+        f4.setGeometry(g4)
+        f5 = QgsFeature(self.layer.pendingFields())
+        g5 = QgsGeometry.fromPolygon([[
+            QgsPoint(357400.00, 3124305.00),
+            QgsPoint(357405.00, 3124305.04),
+            QgsPoint(357405.00, 3124310.00),
+            QgsPoint(357400.00, 3124310.00),
+            QgsPoint(357400.00, 3124305.00)
+        ]])
+        f5.setGeometry(g5)
         fc = self.layer.featureCount()
-        self.layer.writer.addFeatures([f1, f2, f3])
+        self.layer.writer.addFeatures([f1, f2, f3, f4, f5])
         self.layer.delete_invalid_geometries()
-        self.assertEquals(fc, self.layer.featureCount() - 1)
-        request = QgsFeatureRequest().setFilterFid(self.layer.featureCount() - 1)
+        self.assertEquals(fc, self.layer.featureCount() - 3)
+        request = QgsFeatureRequest().setFilterFid(self.layer.featureCount() - 3)
         f = self.layer.getFeatures(request).next()
         g = f.geometry()
         self.assertEquals(len(g.asPolygon()), 1)
+        request = QgsFeatureRequest().setFilterFid(self.layer.featureCount() - 2)
+        f = self.layer.getFeatures(request).next()
+        g = f.geometry()
+        r = [(357410.00, 3124305.00), 
+            (357405.00, 3124305.00), 
+            (357405.00, 3124309.98), 
+            (357407.50, 3124311.00), 
+            (357410.01, 3124310.02), 
+            (357410.02, 3124306.00), 
+            (357410.00, 3124305.00)]
+        self.assertEquals(r, [(round(p.x(), 2), round(p.y(), 2)) for p in g.asPolygon()[0]])
+        request = QgsFeatureRequest().setFilterFid(self.layer.featureCount() - 1)
+        f = self.layer.getFeatures(request).next()
+        g = f.geometry()
+        r = [(357400.00, 3124305.00), 
+            (357400.00, 3124310.00), 
+            (357405.00, 3124310.00), 
+            (357405.00, 3124305.00), 
+            (357400.00, 3124305.00)]
+        self.assertEquals(r, [(round(p.x(), 2), round(p.y(), 2)) for p in g.asPolygon()[0]])
 
     def test_simplify1(self):
         refs = [
