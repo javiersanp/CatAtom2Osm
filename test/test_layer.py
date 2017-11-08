@@ -37,7 +37,7 @@ class TestPoint(unittest.TestCase):
         self.assertEquals(round(r.width()*100), round(radius*200))
         self.assertEquals(round(r.height()*100), round(radius*200))
 
-    def test_is_corner_with_context(self):
+    def test_get_corner_context(self):
         square = QgsGeometry.fromPolygon([[
             QgsPoint(0, 0),
             QgsPoint(50, 0.6), # dist > 0.5, angle < 5
@@ -54,22 +54,84 @@ class TestPoint(unittest.TestCase):
         acute_thr = 10
         straight_thr = 5
         cath_thr = 0.5
-        (a, is_acute, is_corner, c) = Point(50, 0.4).get_angle_with_context(square,
+        (a, is_acute, is_corner, c) = Point(50, 0.4).get_corner_context(square,
             acute_thr, straight_thr, cath_thr)
         self.assertFalse(is_acute)
         self.assertFalse(is_corner, "%f %s %s %f" % (a, is_acute, is_corner, c))
-        (a, is_acute, is_corner, c) = Point(105, 51).get_angle_with_context(square,
+        (a, is_acute, is_corner, c) = Point(105, 51).get_corner_context(square,
             acute_thr, straight_thr, cath_thr)
         self.assertTrue(is_corner, "%f %s %s %f" % (a, is_acute, is_corner, c))
-        (a, is_acute, is_corner, c) = Point(5.1, 100).get_angle_with_context(square,
+        (a, is_acute, is_corner, c) = Point(5.1, 100).get_corner_context(square,
             acute_thr, straight_thr, cath_thr)
         self.assertFalse(is_corner, "%f %s %s %f" % (a, is_acute, is_corner, c))
-        (a, is_acute, is_corner, c) = Point(0.4, 50).get_angle_with_context(square,
+        (a, is_acute, is_corner, c) = Point(0.4, 50).get_corner_context(square,
             acute_thr, straight_thr, cath_thr)
         self.assertFalse(is_corner, "%f %s %s %f" % (a, is_acute, is_corner, c))
-        (a, is_acute, is_corner, c) = Point(-51, 0).get_angle_with_context(square,
+        (a, is_acute, is_corner, c) = Point(-51, 0).get_corner_context(square,
             acute_thr, straight_thr, cath_thr)
         self.assertTrue(is_acute)
+
+    def test_get_spike_context(self):
+        square = QgsGeometry.fromPolygon([[
+            QgsPoint(0, 50), # spike angle_v < 5 angle_a > 5 c < 0.5
+            QgsPoint(50, 50.4),
+            QgsPoint(49.9, 76),
+            QgsPoint(50, 74), # zig-zag
+            QgsPoint(50, 130),
+            QgsPoint(50.4, 100),
+            QgsPoint(75, 110), # spike
+            QgsPoint(99, 100),
+            QgsPoint(100, 130), # spike but c > 0.5
+            QgsPoint(100.2, 60),
+            QgsPoint(100, 90), # zig-zag but c > 0.1
+            QgsPoint(99.8, 0), # spike
+            QgsPoint(99.5, 50),
+            QgsPoint(70, 55),
+            QgsPoint(60, 50), # not zig-zag
+            QgsPoint(0, 50)
+        ]])
+        acute_thr = 5
+        straight_thr = 5
+        threshold = 0.5
+        angle_v, angle_a, ndx, ndxa, is_acute, is_zigzag, is_spike, vx = \
+            Point(50, 50.4).get_spike_context(square, acute_thr, straight_thr, threshold)
+        self.assertFalse(is_spike)
+        angle_v, angle_a, ndx, ndxa, is_acute, is_zigzag, is_spike, vx = \
+            Point(0, 50.1).get_spike_context(square, acute_thr, straight_thr, threshold)
+        self.assertTrue(is_spike)
+        self.assertEquals(ndxa, 1)
+        self.assertEquals(round(vx.x(), 4), 50.0016)
+        self.assertEquals(vx.y(), 50.0)
+        angle_v, angle_a, ndx, ndxa, is_acute, is_zigzag, is_spike, vx = \
+            Point(50, 74).get_spike_context(square, acute_thr, straight_thr, threshold)
+        self.assertTrue(is_zigzag)
+        self.assertEquals(ndx, 3)
+        self.assertEquals(ndxa, 2)
+        angle_v, angle_a, ndx, ndxa, is_acute, is_zigzag, is_spike, vx = \
+            Point(50, 130).get_spike_context(square, acute_thr, straight_thr, threshold)
+        self.assertTrue(is_spike)
+        self.assertEquals(ndx, 4)
+        self.assertEquals(ndxa, 5)
+        self.assertEquals(vx.x(), 50)
+        self.assertEquals(round(vx.y(),4), 99.8374)
+        angle_v, angle_a, ndx, ndxa, is_acute, is_zigzag, is_spike, vx = \
+            Point(100, 130).get_spike_context(square, acute_thr, straight_thr, threshold)
+        self.assertTrue(is_acute)
+        self.assertFalse(is_spike)
+        angle_v, angle_a, ndx, ndxa, is_acute, is_zigzag, is_spike, vx = \
+            Point(100, 90).get_spike_context(square, acute_thr, straight_thr, 0.1)
+        self.assertFalse(is_spike)
+        self.assertFalse(is_zigzag)
+        angle_v, angle_a, ndx, ndxa, is_acute, is_zigzag, is_spike, vx = \
+            Point(100, 0).get_spike_context(square, acute_thr, straight_thr, threshold)
+        self.assertTrue(is_spike)
+        self.assertEquals(ndx, 11)
+        self.assertEquals(ndxa, 12)
+        self.assertEquals(round(vx.x(),4), 99.9109)
+        self.assertEquals(round(vx.y(),4), 49.9234)
+        angle_v, angle_a, ndx, ndxa, is_acute, is_zigzag, is_spike, vx = \
+            Point(60, 50).get_spike_context(square, acute_thr, straight_thr, threshold)
+        self.assertFalse(is_zigzag)
 
 
 class TestBaseLayer(unittest.TestCase):
