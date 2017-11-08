@@ -12,6 +12,7 @@ import osm
 import layer
 import catatom2osm as cat
 qgs = cat.QgsSingleton()
+import report
 
 
 class TestQgsSingleton(unittest.TestCase):
@@ -381,6 +382,7 @@ class TestCatAtom2Osm(unittest.TestCase):
         m_report.out_address = 10
         m_report.out_addr_str = 10
         m_report.out_addr_plc = 10
+        m_report.inc = lambda key, x=1: setattr(m_report, key, getattr(m_report, key) + x)
         address = osm.Osm()
         address.Node(0,0, {'ref': '1', 'addr:street': 'address1'})
         address.Node(2,0, {'ref': '2', 'addr:street': 'address2', 'entrance': 'yes'})
