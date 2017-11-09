@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>layer module &#8212; CatAtom2Osm 2017-11-06deb documentation</title>
+    <title>layer module &#8212; CatAtom2Osm 2017-11-09dev documentation</title>
     
     <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -23,7 +23,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '2017-11-06deb',
+        VERSION:     '2017-11-09dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -57,7 +57,7 @@
         <li class="right" >
           <a href="hgwnames.html" title="hgwnames module"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 2017-11-06deb documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 2017-11-09dev documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../api.html" >API reference</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="modules.html" accesskey="U">CatAtom2Osm</a> &#187;</li> 
       </ul>
@@ -154,12 +154,6 @@
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="layer.AddressLayer.del_address">
-<code class="descname">del_address</code><span class="sig-paren">(</span><em>building</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#AddressLayer.del_address"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.AddressLayer.del_address" title="Permalink to this definition">¶</a></dt>
-<dd><p>Delete the address if there aren&#8217;t any associated building.</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="layer.AddressLayer.get_highway_names">
 <code class="descname">get_highway_names</code><span class="sig-paren">(</span><em>highway</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#AddressLayer.get_highway_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.AddressLayer.get_highway_names" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a dictionary with the translation for each street name.</p>
@@ -209,7 +203,7 @@ a boolean deciding if each feature will be included or not</li>
 </tbody>
 </table>
 <p class="rubric">Examples</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">feat</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">:</span> <span class="n">feat</span><span class="p">[</span><span class="s1">&#39;foo&#39;</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;bar&#39;</span>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">feat</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">:</span> <span class="n">feat</span><span class="p">[</span><span class="s1">&#39;foo&#39;</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;bar&#39;</span>
 <span class="go">Will copy only features with a value &#39;bar&#39; in the field &#39;foo&#39;.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">feat</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">:</span> <span class="n">layer</span><span class="o">.</span><span class="n">is_inside</span><span class="p">(</span><span class="n">feat</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;zone&#39;</span><span class="p">])</span>
 <span class="go">Will copy only features inside zone.</span>
@@ -242,7 +236,7 @@ a boolean deciding if each feature will be included or not</li>
 </table>
 <p class="rubric">Examples</p>
 <p>With this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rename</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;spec&#39;</span><span class="p">:</span> <span class="s1">&#39;specification&#39;</span><span class="p">}</span>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">rename</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;spec&#39;</span><span class="p">:</span> <span class="s1">&#39;specification&#39;</span><span class="p">}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">resolve</span> <span class="o">=</span> <span class="p">{</span>
 <span class="gp">... </span>    <span class="s1">&#39;PD_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;component_href&#39;</span><span class="p">,</span> <span class="s1">&#39;[\w\.]+PD[\.0-9]+&#39;</span><span class="p">),</span>
 <span class="gp">... </span>    <span class="s1">&#39;TN_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;component_href&#39;</span><span class="p">,</span> <span class="s1">&#39;[\w\.]+TN[\.0-9]+&#39;</span><span class="p">),</span>
@@ -251,7 +245,7 @@ a boolean deciding if each feature will be included or not</li>
 </pre></div>
 </div>
 <p>You get:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">original_attributes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;localId&#39;</span><span class="p">,</span> <span class="s1">&#39;specification&#39;</span><span class="p">,</span> <span class="s1">&#39;component_href&#39;</span><span class="p">]</span>
+<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">original_attributes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;localId&#39;</span><span class="p">,</span> <span class="s1">&#39;specification&#39;</span><span class="p">,</span> <span class="s1">&#39;component_href&#39;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">original_values</span> <span class="o">=</span> <span class="p">[</span>
 <span class="gp">... </span>    <span class="s1">&#39;38.012.1.12.0295603CS6109N&#39;</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="s1">&#39;Parcel&#39;</span><span class="p">,</span>
@@ -500,15 +494,16 @@ associated building (same cadastral reference), but only if:</p>
 <li>The address specification is Entrance.</li>
 <li>The new position is enough close and is not a corner</li>
 </ul>
+<p>Delete the address if the number of associated buildings is not one.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="layer.ConsLayer.remove_outside_parts">
 <code class="descname">remove_outside_parts</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.remove_outside_parts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.remove_outside_parts" title="Permalink to this definition">¶</a></dt>
-<dd><p>Remove parts without levels above ground
-Create footprint for parts without associated building
-Remove parts outside the footprint of it building
-Precondition: Called before merge_greatest_part</p>
+<dd><p>Remove parts without levels above ground.
+Create footprint for parts without associated building.
+Remove parts outside the footprint of it building.
+Precondition: Called before merge_greatest_part.</p>
 </dd></dl>
 
 <dl class="method">
@@ -536,7 +531,7 @@ Returns distribution of floors</p>
 
 <dl class="class">
 <dt id="layer.DebugWriter">
-<em class="property">class </em><code class="descclassname">layer.</code><code class="descname">DebugWriter</code><span class="sig-paren">(</span><em>filename</em>, <em>crs</em>, <em>driver_name='ESRI Shapefile'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#DebugWriter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.DebugWriter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">layer.</code><code class="descname">DebugWriter</code><span class="sig-paren">(</span><em>filename</em>, <em>layer</em>, <em>driver_name='ESRI Shapefile'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#DebugWriter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.DebugWriter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">qgis._core.QgsVectorFileWriter</span></code></p>
 <p>A QgsVectorFileWriter for debugging purposess.</p>
 <dl class="method">
@@ -579,10 +574,30 @@ Returns distribution of floors</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="layer.Point.get_angle_with_context">
-<code class="descname">get_angle_with_context</code><span class="sig-paren">(</span><em>geom</em>, <em>acute_thr=10</em>, <em>straight_thr=2</em>, <em>cath_thr=0.02</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#Point.get_angle_with_context"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.Point.get_angle_with_context" title="Permalink to this definition">¶</a></dt>
+<dt id="layer.Point.get_angle">
+<code class="descname">get_angle</code><span class="sig-paren">(</span><em>geom</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#Point.get_angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.Point.get_angle" title="Permalink to this definition">¶</a></dt>
 <dd><p>For the vertex in a geometry nearest to this point, give the angle
 between its adjacent vertexs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>geom</strong> (<em>QgsGeometry</em>) &#8211; Geometry to test.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(float) Angle between the vertex and their adjacents,</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="layer.Point.get_corner_context">
+<code class="descname">get_corner_context</code><span class="sig-paren">(</span><em>geom</em>, <em>acute_thr=10</em>, <em>straight_thr=2</em>, <em>cath_thr=0.02</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#Point.get_corner_context"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.Point.get_corner_context" title="Permalink to this definition">¶</a></dt>
+<dd><p>For the vertex in a geometry nearest to this point, give context to
+determine if it is a corner (the angle differs by more than straight_thr</p>
+<blockquote>
+<div>of 180 and if the distance from the vertex to the segment formed by
+their adjacents is greater than cath_thr).</div></blockquote>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -595,12 +610,46 @@ between its adjacent vertexs.</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(float) Angle between the vertex and their adjacents,
-(bool)  True for a corner (the angle differs by more than straight_thr
-of 180 and if the distance from the vertex to the segment formed by
-their adjacents is greater than cath_thr.
-(bool)  True if the angle is too low (&lt; acute_thr)
-(float) Distance from the vertex to the segment formed by their adjacents</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(float) Angle between the vertex and their adjacents.
+(bool)  True if the angle is too low (&lt; acute_thr).
+(bool)  True for a corner
+(float) Distance from the vertex to the segment formed by their adjacents.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="layer.Point.get_spike_context">
+<code class="descname">get_spike_context</code><span class="sig-paren">(</span><em>geom</em>, <em>acute_thr=5</em>, <em>straight_thr=2</em>, <em>threshold=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#Point.get_spike_context"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.Point.get_spike_context" title="Permalink to this definition">¶</a></dt>
+<dd><p>For the vertex in a geometry nearest to this point, give context to
+determine if its a zig-zag or a spike. It&#8217;s a zig-zag if both the angles
+of this vertex and the closest adjacents are acute. It&#8217;s a spike if the
+angle of this vertex is acute and the angle of the closest vertex is
+not straight.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>geom</strong> (<em>QgsGeometry</em>) &#8211; Geometry to test.</li>
+<li><strong>acute_thr</strong> (<em>float</em>) &#8211; Acute angle threshold.</li>
+<li><strong>straight_thr</strong> (<em>float</em>) &#8211; Straight angle threshold.</li>
+<li><strong>threshold</strong> (<em>float</em>) &#8211; # Filter for angles.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(float) angle_v = angle between the vertex and their adjacents.
+(float) angle_a = angle between the closest adjacent and their adjacents.
+(int) ndx = index of the vertex
+(int) ndxa = index of the closest adjacent
+(bool) is_acute = True if the angle is too low (&lt; acute_thr).
+(bool) is_zigzag = True if both angle_v and angle_a are acute and
+the distance from va to the segment v-vb is lower than threshold.
+(bool) is_spike = True if is_acute and angle_a is not straight and
+the distance from va to the segment v-vb is lower than threshold.
+(QgsPoint) vx = projection of va over the segment v-vb.</p>
 </td>
 </tr>
 </tbody>
@@ -623,7 +672,10 @@ their adjacents is greater than cath_thr.
 <dl class="method">
 <dt id="layer.PolygonLayer.delete_invalid_geometries">
 <code class="descname">delete_invalid_geometries</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#PolygonLayer.delete_invalid_geometries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.PolygonLayer.delete_invalid_geometries" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Delete invalid geometries testing if any of it acute angle vertex could
+be deleted.
+Also removes zig-zag and spike vertex (see Point.get_spike_context).</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="layer.PolygonLayer.explode_multi_parts">
@@ -769,7 +821,7 @@ multiparts and merged adjacent zones</p>
         <li class="right" >
           <a href="hgwnames.html" title="hgwnames module"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 2017-11-06deb documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 2017-11-09dev documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../api.html" >API reference</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="modules.html" >CatAtom2Osm</a> &#187;</li> 
       </ul>

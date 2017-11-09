@@ -16,7 +16,7 @@
   <link rel="stylesheet" type="text/css" href="_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>Index &#8212; CatAtom2Osm 2017-11-06deb documentation</title>
+    <title>Index &#8212; CatAtom2Osm 2017-11-09dev documentation</title>
     
     <link rel="stylesheet" href="_static/guzzle.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,7 +24,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017-11-06deb',
+        VERSION:     '2017-11-09dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -50,7 +50,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">CatAtom2Osm 2017-11-06deb documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">CatAtom2Osm 2017-11-09dev documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="container-wrapper">
@@ -291,8 +291,6 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/layer.html#layer.DebugWriter">DebugWriter (class in layer)</a>
 </li>
-      <li><a href="api/layer.html#layer.AddressLayer.del_address">del_address() (layer.AddressLayer method)</a>
-</li>
       <li><a href="api/layer.html#layer.PolygonLayer.delete_invalid_geometries">delete_invalid_geometries() (layer.PolygonLayer method)</a>
 </li>
       <li><a href="api/osmxml.html#osmxml.deserialize">deserialize() (in module osmxml)</a>
@@ -365,7 +363,7 @@
       </ul></li>
       <li><a href="api/layer.html#layer.PolygonLayer.get_adjacents_and_geometries">get_adjacents_and_geometries() (layer.PolygonLayer method)</a>
 </li>
-      <li><a href="api/layer.html#layer.Point.get_angle_with_context">get_angle_with_context() (layer.Point method)</a>
+      <li><a href="api/layer.html#layer.Point.get_angle">get_angle() (layer.Point method)</a>
 </li>
       <li><a href="api/catatom.html#catatom.Reader.get_atom_file">get_atom_file() (catatom.Reader method)</a>
 </li>
@@ -374,6 +372,8 @@
       <li><a href="api/catatom.html#catatom.Reader.get_boundary">get_boundary() (catatom.Reader method)</a>
 </li>
       <li><a href="api/catatom2osm.html#catatom2osm.CatAtom2Osm.get_building">get_building() (catatom2osm.CatAtom2Osm method)</a>
+</li>
+      <li><a href="api/layer.html#layer.Point.get_corner_context">get_corner_context() (layer.Point method)</a>
 </li>
       <li><a href="api/catatom2osm.html#catatom2osm.CatAtom2Osm.get_current_ad_osm">get_current_ad_osm() (catatom2osm.CatAtom2Osm method)</a>
 </li>
@@ -437,6 +437,8 @@
 </li>
       <li><a href="api/download.html#download.get_response">get_response() (in module download)</a>
 </li>
+      <li><a href="api/layer.html#layer.Point.get_spike_context">get_spike_context() (layer.Point method)</a>
+</li>
       <li><a href="api/report.html#report.Report.get_sys_info">get_sys_info() (report.Report method)</a>
 </li>
       <li><a href="api/catatom2osm.html#catatom2osm.CatAtom2Osm.get_tasks">get_tasks() (catatom2osm.CatAtom2Osm method)</a>
@@ -467,22 +469,20 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/report.html#report.Report.inc">inc() (report.Report method)</a>
+</li>
       <li><a href="api/layer.html#layer.ConsLayer.index_of_building_and_parts">index_of_building_and_parts() (layer.ConsLayer method)</a>
 </li>
       <li><a href="api/layer.html#layer.ConsLayer.index_of_parts">index_of_parts() (layer.ConsLayer method)</a>
-</li>
-      <li><a href="api/report.html#report.Report.init_address_values">init_address_values() (report.Report method)</a>
-</li>
-      <li><a href="api/report.html#report.Report.init_building_values">init_building_values() (report.Report method)</a>
 </li>
       <li><a href="api/layer.html#layer.ConsLayer.is_building">is_building() (layer.ConsLayer static method)</a>
 </li>
       <li><a href="api/osm.html#osm.Way.is_closed">is_closed() (osm.Way method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/catatom.html#catatom.Reader.is_empty">is_empty() (catatom.Reader method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/layer.html#layer.is_inside">is_inside() (in module layer)</a>
 </li>
       <li><a href="api/osm.html#osm.Element.is_new">is_new() (osm.Element method)</a>
@@ -941,8 +941,6 @@
 </li>
       <li><a href="api/test.test_main.html#test.test_main.TestMain.test_default">test_default() (test.test_main.TestMain method)</a>
 </li>
-      <li><a href="api/test.test_layer.html#test.test_layer.TestAddressLayer.test_del_address">test_del_address() (test.test_layer.TestAddressLayer method)</a>
-</li>
       <li><a href="api/test.benchmark.html#test.benchmark.TimerAddressLayer.test_delete_addres_without_number1">test_delete_addres_without_number1() (test.benchmark.TimerAddressLayer method)</a>
 </li>
       <li><a href="api/test.benchmark.html#test.benchmark.TimerAddressLayer.test_delete_addres_without_number2">test_delete_addres_without_number2() (test.benchmark.TimerAddressLayer method)</a>
@@ -1000,7 +998,11 @@
 </li>
       </ul></li>
       <li><a href="api/test.test_osm.html#test.test_osm.TestOsm.test_get">test_get() (test.test_osm.TestOsm method)</a>
+
+      <ul>
+        <li><a href="api/test.test_report.html#test.test_report.TestReport.test_get">(test.test_report.TestReport method)</a>
 </li>
+      </ul></li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestZoningLayer.test_get_adjacents_and_geometries">test_get_adjacents_and_geometries() (test.test_layer.TestZoningLayer method)</a>
 </li>
       <li><a href="api/test.test_catatom.html#test.test_catatom.TestCatAtom.test_get_atom_file">test_get_atom_file() (test.test_catatom.TestCatAtom method)</a>
@@ -1010,6 +1012,8 @@
       <li><a href="api/test.test_catatom2osm.html#test.test_catatom2osm.TestCatAtom2Osm.test_get_building1">test_get_building1() (test.test_catatom2osm.TestCatAtom2Osm method)</a>
 </li>
       <li><a href="api/test.test_catatom2osm.html#test.test_catatom2osm.TestCatAtom2Osm.test_get_building2">test_get_building2() (test.test_catatom2osm.TestCatAtom2Osm method)</a>
+</li>
+      <li><a href="api/test.test_layer.html#test.test_layer.TestPoint.test_get_corner_context">test_get_corner_context() (test.test_layer.TestPoint method)</a>
 </li>
       <li><a href="api/test.test_catatom2osm.html#test.test_catatom2osm.TestCatAtom2Osm.test_get_current_ad_osm">test_get_current_ad_osm() (test.test_catatom2osm.TestCatAtom2Osm method)</a>
 </li>
@@ -1055,6 +1059,8 @@
 </li>
       <li><a href="api/test.test_download.html#test.test_download.TestGetResponse.test_get_response_ok">test_get_response_ok() (test.test_download.TestGetResponse method)</a>
 </li>
+      <li><a href="api/test.test_layer.html#test.test_layer.TestPoint.test_get_spike_context">test_get_spike_context() (test.test_layer.TestPoint method)</a>
+</li>
       <li><a href="api/test.test_catatom2osm.html#test.test_catatom2osm.TestCatAtom2Osm.test_get_tasks">test_get_tasks() (test.test_catatom2osm.TestCatAtom2Osm method)</a>
 </li>
       <li><a href="api/test.test_catatom2osm.html#test.test_catatom2osm.TestCatAtom2Osm.test_get_translations">test_get_translations() (test.test_catatom2osm.TestCatAtom2Osm method)</a>
@@ -1078,6 +1084,8 @@
       <li><a href="api/test.test_osm.html#test.test_osm.TestOsmNode.test_getitem">test_getitem() (test.test_osm.TestOsmNode method)</a>
 </li>
       <li><a href="api/test.test_main.html#test.test_main.TestMain.test_ImportError">test_ImportError() (test.test_main.TestMain method)</a>
+</li>
+      <li><a href="api/test.test_report.html#test.test_report.TestReport.test_inc">test_inc() (test.test_report.TestReport method)</a>
 </li>
       <li><a href="api/test.test_osm.html#test.test_osm.TestOsm.test_index">test_index() (test.test_osm.TestOsm method)</a>
 </li>
@@ -1126,8 +1134,6 @@
       <li><a href="api/test.test_main.html#test.test_main.TestMain.test_IOError">test_IOError() (test.test_main.TestMain method)</a>
 </li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestConsLayer.test_is_building">test_is_building() (test.test_layer.TestConsLayer method)</a>
-</li>
-      <li><a href="api/test.test_layer.html#test.test_layer.TestPoint.test_is_corner_with_context">test_is_corner_with_context() (test.test_layer.TestPoint method)</a>
 </li>
       <li><a href="api/test.test_catatom.html#test.test_catatom.TestCatAtom.test_is_empty">test_is_empty() (test.test_catatom.TestCatAtom method)</a>
 </li>
@@ -1518,7 +1524,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">CatAtom2Osm 2017-11-06deb documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">CatAtom2Osm 2017-11-09dev documentation</a> &#187;</li> 
       </ul>
     </div>
 <script type="text/javascript">

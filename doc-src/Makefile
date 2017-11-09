@@ -29,7 +29,7 @@ html: $(foreach lang, $(LANGS), html-$(lang))
 
 # make with correctly nested language folders
 html-%: $(SPHINX_DEPENDENCIES)
-	cd $* && make html LANG=$*
+	export LC_ALL=$(LANG); cd $* && make html LANG=$*
 
 
 clean:
