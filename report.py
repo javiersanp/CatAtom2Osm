@@ -82,6 +82,8 @@ class Report(object):
             ('adjacent_parts', _("Adjacent parts merged: {}")),
             ('geom_rings_building', _('Invalid geometry rings deleted: {}')),
             ('geom_invalid_building', _('Invalid geometries deleted: {}')),
+            ('vertex_zigzag_building', _('Zig-zag vertices deleted: {}')),
+            ('vertex_spike_building', _('Spike vertices deleted: {}')),
             ('vertex_close_building', _('Close vertices merged: {}')),
             ('vertex_topo_building', _('Topological points created: {}')),
             ('vertex_simplify_building', _("Simplified vertices: {}")),

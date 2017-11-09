@@ -686,6 +686,8 @@ class PolygonLayer(BaseLayer):
         to_clean = []
         to_move = {}
         rings = 0
+        zz = 0
+        spikes = 0
         geometries = {f.id(): QgsGeometry(f.geometry()) for f in self.getFeatures()}
         for fid, geom in geometries.items():
             badgeom = False
@@ -731,6 +733,7 @@ class PolygonLayer(BaseLayer):
                             valid = g.isGeosValid()
                             if valid:
                                 geom = g
+                                zz += 1
                                 to_change[fid] = g
                                 geometries[fid] = geom
                             if log.getEffectiveLevel() <= logging.DEBUG:
@@ -743,6 +746,7 @@ class PolygonLayer(BaseLayer):
                             g.deleteVertex(ndx)
                             valid = g.isGeosValid()
                             if valid:
+                                spikes += 1
                                 skip = ndxa > ndx
                                 geom = g
                                 to_change[fid] = g
@@ -780,6 +784,14 @@ class PolygonLayer(BaseLayer):
             log.debug(_("Deleted %d invalid geometries in the '%s' layer"),
                 len(to_clean), self.name().encode('utf-8'))
             report.values['geom_invalid_' + self.name()] = len(to_clean)
+        if zz:
+            log.debug(_("Deleted %d zig-zag vertices in the '%s' layer"), zz,
+                self.name().encode('utf-8'))
+            report.values['vertex_zz_' + self.name()] = zz
+        if spikes:
+            log.debug(_("Deleted %d spike vertices in the '%s' layer"), spikes,
+                self.name().encode('utf-8'))
+            report.values['vertex_spike_' + self.name()] = spikes
 
     def simplify(self):
         """
