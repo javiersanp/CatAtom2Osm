@@ -614,7 +614,7 @@ class PolygonLayer(BaseLayer):
                             vb = g.vertexAt(ndxb)
                             dist_a = va.sqrDist(point)
                             dist_b = vb.sqrDist(point)
-                            if dist_a < dist_b and dist_a < dup_thr**2:
+                            if dist_a < dup_thr**2:
                                 g.deleteVertex(ndxa)
                                 note = "dupe refused by isGeosValid"
                                 if g.isGeosValid():
@@ -623,7 +623,7 @@ class PolygonLayer(BaseLayer):
                                     nodes.add(p)
                                     nodes.add(va)
                                     td += 1
-                            if dist_b < dist_a and dist_b < dup_thr**2:
+                            if dist_b < dup_thr**2:
                                 g.deleteVertex(ndxb)
                                 note = "dupe refused by isGeosValid"
                                 if g.isGeosValid():
@@ -640,7 +640,7 @@ class PolygonLayer(BaseLayer):
                                     (dist_v, p.x(), p.y(), point.x(), point.y())
                                 nodes.add(p)
                                 td += 1
-                        elif dist_s < threshold**2 and dist_v > 0:
+                        elif dist_s < threshold**2 and closest != va and closest != vb:
                             va = g.vertexAt(vertex)
                             vb = g.vertexAt(vertex - 1)
                             angle = abs(point.azimuth(va) - point.azimuth(vb))
@@ -1201,10 +1201,10 @@ class ConsLayer(PolygonLayer):
 
     def remove_outside_parts(self):
         """
-        Remove parts without levels above ground
-        Create footprint for parts without associated building
-        Remove parts outside the footprint of it building
-        Precondition: Called before merge_greatest_part
+        Remove parts without levels above ground.
+        Create footprint for parts without associated building.
+        Remove parts outside the footprint of it building.
+        Precondition: Called before merge_greatest_part.
         """
         to_clean_o = []
         to_clean_b = []
