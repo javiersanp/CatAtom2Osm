@@ -594,7 +594,7 @@ class PolygonLayer(BaseLayer):
         tp = 0
         td = 0
         if log.getEffectiveLevel() <= logging.DEBUG:
-            debshp = DebugWriter("debug_topology.shp", self.crs())
+            debshp = DebugWriter("debug_topology.shp", self)
         geometries = {f.id(): QgsGeometry(f.geometry()) for f in self.getFeatures()}
         index = self.get_index()
         to_change = {}
@@ -679,9 +679,11 @@ class PolygonLayer(BaseLayer):
         Also removes zig-zag and spike vertex (see Point.get_spike_context).
         """
         if log.getEffectiveLevel() <= logging.DEBUG:
-            debshp = QgsVectorFileWriter('debug_notvalid.shp', 'UTF-8', QgsFields(),
+            fpath = os.path.join(os.path.dirname(self.writer.dataSourceUri()), 
+                'debug_notvalid.shp')
+            debshp = QgsVectorFileWriter(fpath, 'UTF-8', QgsFields(),
                 QGis.WKBPolygon, self.crs(), 'ESRI Shapefile')
-            debshp2 = DebugWriter("debug_spikes.shp", self.crs())
+            debshp2 = DebugWriter("debug_spikes.shp", self)
         to_change = {}
         to_clean = []
         to_move = {}
@@ -804,7 +806,7 @@ class PolygonLayer(BaseLayer):
           less than 'cath_thr' meters.
         """
         if log.getEffectiveLevel() <= logging.DEBUG:
-            debshp = DebugWriter("debug_simplify.shp", self.crs())
+            debshp = DebugWriter("debug_simplify.shp", self)
         killed = 0
         to_change = {}
         # Clean non corners
@@ -1509,17 +1511,19 @@ class HighwayLayer(BaseLayer):
 class DebugWriter(QgsVectorFileWriter):
     """A QgsVectorFileWriter for debugging purposess."""
 
-    def __init__(self, filename, crs, driver_name="ESRI Shapefile"):
+    def __init__(self, filename, layer, driver_name="ESRI Shapefile"):
         """
         Args:
             filename (str): File name of the layer
             crs (QgsCoordinateReferenceSystem): Crs of layer.
             driver_name (str): Defaults to ESRI Shapefile.
         """
+        fpath = os.path.join(os.path.dirname( \
+                layer.dataProvider().dataSourceUri()), filename)
         self.fields = QgsFields()
         self.fields.append(QgsField("note", QVariant.String, len=100))
-        QgsVectorFileWriter.__init__(self, filename, "utf-8", self.fields,
-                QGis.WKBPoint, crs, driver_name)
+        QgsVectorFileWriter.__init__(self, fpath, "utf-8", self.fields,
+                QGis.WKBPoint, layer.crs(), driver_name)
 
     def add_point(self, point, note=None):
         """Adds a point to the layer with the attribute note."""

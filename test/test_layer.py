@@ -724,8 +724,6 @@ class TestConsLayer(unittest.TestCase):
         refs = [
             ('8842708CS5284S', QgsPoint(358821.08, 3124205.68), 0),
             ('8842708CS5284S_part1', QgsPoint(358821.08, 3124205.68), 0),
-            ('8942325CS5284S', QgsPoint(358789.2925, 3124247.643), 0),
-            ('8942325CS5284S_part1', QgsPoint(358789.2925, 3124247.643), 0),
             ('8942328CS5284S', QgsPoint(358857.04, 3124248.6705), 1),
             ('8942328CS5284S_part3', QgsPoint(358857.04, 3124248.6705), 0)
         ]
@@ -1111,12 +1109,14 @@ class TestHighwayLayer(unittest.TestCase):
 class TestDebugWriter(unittest.TestCase):
 
     def test_init(self):
-        writer = DebugWriter('test', QgsCoordinateReferenceSystem(4326), 'memory')
+        layer = HighwayLayer()
+        writer = DebugWriter('test', layer, 'memory')
         self.assertEquals(writer.fields[0].name(), 'note')
         self.assertEquals(writer.hasError(), 0)
 
     def test_add_point(self):
-        writer = DebugWriter('test', QgsCoordinateReferenceSystem(4326), 'memory')
+        layer = HighwayLayer()
+        writer = DebugWriter('test', layer, 'memory')
         writer.add_point(QgsPoint(0, 0), 'foobar')
         writer.add_point(QgsPoint(0, 0))
 
