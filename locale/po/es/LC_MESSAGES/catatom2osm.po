@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-11-09 08:21+WET\n"
+"POT-Creation-Date: 2017-11-09 08:48+WET\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -705,11 +705,11 @@ msgstr ""
 
 #: report.py:222
 msgid ""
-"Sum of output and deleted minus created features should be equal to input "
-"features"
+"Sum of output and deleted minus created building features should be equal to "
+"input features"
 msgstr ""
-"La suma de las características de salida y las eliminadas menos las creadas "
-"debe ser igual a las características de entrada"
+"La suma de las características de edificios de salida y las eliminadas menos "
+"las creadas debe ser igual a las características de entrada"
 
 #: report.py:227
 msgid "Sum of building types should be equal to the number of buildings"

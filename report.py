@@ -220,7 +220,7 @@ class Report(object):
                 self.sum('new_footprints', 'exploded_parts_building') != \
                     self.get('inp_features'):
             self.errors.append(_("Sum of output and deleted minus created "
-                "features should be equal to input features"))
+                "building features should be equal to input features"))
         if 'building_counter' in self.values:
             if sum(self.values['building_counter'].values()) != \
                     self.get('out_buildings'):
