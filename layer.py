@@ -1281,6 +1281,16 @@ class ConsLayer(PolygonLayer):
         footprint['lev_below'] = min_level
         to_change[footprint.id()] = get_attributes(footprint)
         for (level, parts) in parts_for_level.items():
+            check_area = False
+            for part in parts:
+                part_area = round(part.geometry().area(), 0)
+                building_area = round(footprint.geometry().area(), 0)
+                if part_area > building_area:
+                    part['fixme'] = _('This part is bigger than its building')
+                    to_change[part.id()] = get_attributes(part)
+                    check_area = True
+            if check_area:
+                continue
             if level == (max_level, min_level):
                 to_clean = [p.id() for p in parts_for_level[max_level, min_level]]
             else:
