@@ -1,6 +1,11 @@
 Registro de cambios
 ===================
 
+**09-11-2017**
+
+* Elimina vértices en zig-zag y en punta.
+* Detecta partes más grandes que el edificio al que pertenecen.
+
 **06-11-2017**
 
 * Genera informe de estadísticas (cuestión #50).

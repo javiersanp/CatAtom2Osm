@@ -1,6 +1,11 @@
 Change log
 ==========
 
+**2017-11-09**
+
+* Delete zig-zag and spike vertices.
+* Test for parts bigger than it building.
+
 **2017-11-06**
 
 * Generate statistics report (issues #50).
