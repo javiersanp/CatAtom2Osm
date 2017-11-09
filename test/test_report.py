@@ -99,7 +99,7 @@ class TestReport(unittest.TestCase):
             "Sum of street and place addresses should be equal to output addresses",
             "Sum of buildings, parts and pools should be equal to the feature count",
             "Sum of building types should be equal to the number of buildings",
-            "Sum of output and deleted minus created features should be equal to input features"
+            "Sum of output and deleted minus created building features should be equal to input features"
         ]
         for msg in msgs:
             self.assertIn(msg, r.errors)

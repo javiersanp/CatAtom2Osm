@@ -68,35 +68,37 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.is_new = False
         u = self.m_app.urban_zoning
         r = self.m_app.rustic_zoning
+        building = self.m_app.building
         self.m_app.run(self.m_app)
         self.m_app.process_zoning.assert_called_once_with()
         self.m_app.process_building.assert_called_with()
         self.m_app.read_address.assert_not_called()
-        self.m_app.building.move_address.assert_not_called()
+        building.move_address.assert_not_called()
         self.m_app.address.to_osm.assert_not_called()
         current_bu_osm = self.m_app.get_current_bu_osm.return_value
-        self.m_app.building.conflate.assert_called_once_with(current_bu_osm)
+        building.conflate.assert_called_once_with(current_bu_osm)
         self.m_app.write_osm.assert_called_once_with(current_bu_osm, 'current_building.osm')
-        self.m_app.building.set_tasks.assert_called_once_with(u, r)
-        self.m_app.process_tasks.assert_called_once_with(self.m_app.building)
+        building.set_tasks.assert_called_once_with(u, r)
+        self.m_app.process_tasks.assert_called_once_with(building)
         self.m_app.process_parcel.assert_not_called()
 
     @mock.patch('catatom2osm.report')
     def test_run2(self, m_report):
         self.m_app.run = cat.CatAtom2Osm.run.__func__
+        building = self.m_app.building
         self.m_app.options = Values({'building': True, 'tasks': False, 
             'parcel': True, 'zoning': False, 'address': True, 'manual': False})
         self.m_app.is_new = False
-        self.m_app.building.conflate.return_value = False
+        building.conflate.return_value = False
         address_osm = self.m_app.address.to_osm.return_value
-        building_osm = self.m_app.building.to_osm.return_value
+        building_osm = building.to_osm.return_value
         self.m_app.run(self.m_app)
         self.m_app.process_tasks.assert_not_called()
         self.m_app.process_building.assert_called_once_with()
         self.m_app.read_address.assert_called_once_with()
         current_address = self.m_app.get_current_ad_osm.return_value
         self.m_app.address.conflate.assert_called_once_with(current_address)
-        self.m_app.building.move_address.assert_called_once_with(self.m_app.address)
+        building.move_address.assert_called_once_with(self.m_app.address)
         self.m_app.address.to_osm.assert_called_once_with()
         self.m_app.write_osm.assert_called_once_with(building_osm, 'building.osm')
         self.m_app.process_zoning.assert_not_called()
@@ -126,9 +128,10 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.options = Values({'building': True, 'tasks': False, 
             'parcel': False, 'zoning': False, 'address': True, 'manual': True})
         self.m_app.is_new = False
+        building = self.m_app.building
         self.m_app.run(self.m_app)
         self.m_app.address.conflate.assert_not_called()
-        self.m_app.building.conflate.assert_not_called()
+        building.conflate.assert_not_called()
 
     @mock.patch('catatom2osm.layer')
     def test_get_building1(self, m_layer):
