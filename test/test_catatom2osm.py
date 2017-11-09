@@ -12,6 +12,7 @@ import osm
 import layer
 import catatom2osm as cat
 qgs = cat.QgsSingleton()
+import report
 
 
 class TestQgsSingleton(unittest.TestCase):
@@ -67,40 +68,39 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.is_new = False
         u = self.m_app.urban_zoning
         r = self.m_app.rustic_zoning
+        building = self.m_app.building
         self.m_app.run(self.m_app)
         self.m_app.process_zoning.assert_called_once_with()
         self.m_app.process_building.assert_called_with()
         self.m_app.read_address.assert_not_called()
-        self.m_app.building.move_address.assert_not_called()
+        building.move_address.assert_not_called()
         self.m_app.address.to_osm.assert_not_called()
         current_bu_osm = self.m_app.get_current_bu_osm.return_value
-        self.m_app.building.conflate.assert_called_once_with(current_bu_osm)
+        building.conflate.assert_called_once_with(current_bu_osm)
         self.m_app.write_osm.assert_called_once_with(current_bu_osm, 'current_building.osm')
-        self.m_app.building.set_tasks.assert_called_once_with(u, r)
-        self.m_app.process_tasks.assert_called_once_with(self.m_app.building)
+        building.set_tasks.assert_called_once_with(u, r)
+        self.m_app.process_tasks.assert_called_once_with(building)
         self.m_app.process_parcel.assert_not_called()
 
     @mock.patch('catatom2osm.report')
     def test_run2(self, m_report):
         self.m_app.run = cat.CatAtom2Osm.run.__func__
+        building = self.m_app.building
         self.m_app.options = Values({'building': True, 'tasks': False, 
             'parcel': True, 'zoning': False, 'address': True, 'manual': False})
         self.m_app.is_new = False
-        self.m_app.building.conflate.return_value = False
+        building.conflate.return_value = False
         address_osm = self.m_app.address.to_osm.return_value
-        building_osm = self.m_app.building.to_osm.return_value
+        building_osm = building.to_osm.return_value
         self.m_app.run(self.m_app)
         self.m_app.process_tasks.assert_not_called()
         self.m_app.process_building.assert_called_once_with()
         self.m_app.read_address.assert_called_once_with()
         current_address = self.m_app.get_current_ad_osm.return_value
         self.m_app.address.conflate.assert_called_once_with(current_address)
-        self.m_app.building.move_address.assert_called_once_with(self.m_app.address)
+        building.move_address.assert_called_once_with(self.m_app.address)
         self.m_app.address.to_osm.assert_called_once_with()
-        self.m_app.write_osm.assert_has_calls([
-            mock.call(building_osm, 'building.osm'),
-            mock.call(address_osm, 'address.osm')
-        ])
+        self.m_app.write_osm.assert_called_once_with(building_osm, 'building.osm')
         self.m_app.process_zoning.assert_not_called()
         self.m_app.process_parcel.assert_called_once_with()
 
@@ -128,9 +128,10 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.options = Values({'building': True, 'tasks': False, 
             'parcel': False, 'zoning': False, 'address': True, 'manual': True})
         self.m_app.is_new = False
+        building = self.m_app.building
         self.m_app.run(self.m_app)
         self.m_app.address.conflate.assert_not_called()
-        self.m_app.building.conflate.assert_not_called()
+        building.conflate.assert_not_called()
 
     @mock.patch('catatom2osm.layer')
     def test_get_building1(self, m_layer):
@@ -381,16 +382,15 @@ class TestCatAtom2Osm(unittest.TestCase):
 
     @mock.patch('catatom2osm.report')
     def test_merge_address(self, m_report):
-        m_report.multiple_addresses = 10
         m_report.out_address = 10
         m_report.out_addr_str = 10
         m_report.out_addr_plc = 10
+        m_report.inc = lambda key, x=1: setattr(m_report, key, getattr(m_report, key) + x)
         address = osm.Osm()
         address.Node(0,0, {'ref': '1', 'addr:street': 'address1'})
         address.Node(2,0, {'ref': '2', 'addr:street': 'address2', 'entrance': 'yes'})
         address.Node(4,0, {'ref': '3', 'addr:street': 'address3', 'entrance': 'yes'})
-        address.Node(2,5, {'ref': '4', 'addr:place': 'address4'})
-        address.Node(6,0, {'ref': '5', 'addr:place': 'address5', 'entrance': 'yes'})
+        address.Node(6,0, {'ref': '4', 'addr:place': 'address5', 'entrance': 'yes'})
         building = osm.Osm()
         w0 = building.Way([], {'ref': '0'}) # building with ref not in address
         # no entrance address, tags to way
@@ -398,33 +398,27 @@ class TestCatAtom2Osm(unittest.TestCase):
         # entrance exists, tags to node
         n2 = building.Node(2,0)
         w2 = building.Way([n2, (3,0), (3,1), (2,0)], {'ref': '2'})
-        # entrance don't exists, no tags
+        # entrance don't exists, tags to way
         w3 = building.Way([(4,1), (5,0), (5,1), (4,1)], {'ref': '3'})
-        # multipart, refused
-        w4 = building.Way([(0,4), (4,4), (4,8), (0,4)], {'ref': '4'})
-        w5 = building.Way([(1,5), (3,5), (3,6), (1,5)], {'ref': '4'})
         # entrance exists, tags to node in relation
         n5 = building.Node(6,0)
         w6 = building.Way([(6,5), (9,5), (9,8), (6,8), (6,5)])
         w7 = building.Way([n5, (9,0), (9,3), (6,3), (6,0)])
         w8 = building.Way([(7,1), (8,1), (8,2), (7,2), (7,1)])
-        r1 = building.Relation(tags = {'ref': '5'})
+        r1 = building.Relation(tags = {'ref': '4'})
         r1.append(w6, 'outer')
         r1.append(w7, 'outer')
         r1.append(w8, 'inner')
-        # building without address
         self.m_app.merge_address = cat.CatAtom2Osm.merge_address.__func__
         self.m_app.merge_address(self.m_app, building, address)
         self.assertEquals(m_report.out_address, 14)
-        self.assertEquals(m_report.multiple_addresses, 11)
         self.assertEquals(m_report.out_addr_str, 13)
         self.assertEquals(m_report.out_addr_plc, 11)
         self.assertNotIn('addrtags', w0.tags)
         self.assertEquals(w1.tags['addr:street'], 'address1')
         self.assertEquals(n2.tags['addr:street'], 'address2')
-        self.assertNotIn('addr:street', w3.tags)
+        self.assertEquals(w3.tags['addr:street'], 'address3')
         self.assertNotIn('addr:street', [k for n in w3.nodes for k in n.tags.keys()])
-        self.assertNotIn('addr:place', w4.tags)
         self.assertEquals(n5.tags['addr:place'], 'address5')
         address.tags['source:date'] = 'foobar'
         self.m_app.merge_address(self.m_app, building, address)

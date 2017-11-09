@@ -37,7 +37,7 @@ class TestPoint(unittest.TestCase):
         self.assertEquals(round(r.width()*100), round(radius*200))
         self.assertEquals(round(r.height()*100), round(radius*200))
 
-    def test_is_corner_with_context(self):
+    def test_get_corner_context(self):
         square = QgsGeometry.fromPolygon([[
             QgsPoint(0, 0),
             QgsPoint(50, 0.6), # dist > 0.5, angle < 5
@@ -54,22 +54,84 @@ class TestPoint(unittest.TestCase):
         acute_thr = 10
         straight_thr = 5
         cath_thr = 0.5
-        (a, is_acute, is_corner, c) = Point(50, 0.4).get_angle_with_context(square,
+        (a, is_acute, is_corner, c) = Point(50, 0.4).get_corner_context(square,
             acute_thr, straight_thr, cath_thr)
         self.assertFalse(is_acute)
         self.assertFalse(is_corner, "%f %s %s %f" % (a, is_acute, is_corner, c))
-        (a, is_acute, is_corner, c) = Point(105, 51).get_angle_with_context(square,
+        (a, is_acute, is_corner, c) = Point(105, 51).get_corner_context(square,
             acute_thr, straight_thr, cath_thr)
         self.assertTrue(is_corner, "%f %s %s %f" % (a, is_acute, is_corner, c))
-        (a, is_acute, is_corner, c) = Point(5.1, 100).get_angle_with_context(square,
+        (a, is_acute, is_corner, c) = Point(5.1, 100).get_corner_context(square,
             acute_thr, straight_thr, cath_thr)
         self.assertFalse(is_corner, "%f %s %s %f" % (a, is_acute, is_corner, c))
-        (a, is_acute, is_corner, c) = Point(0.4, 50).get_angle_with_context(square,
+        (a, is_acute, is_corner, c) = Point(0.4, 50).get_corner_context(square,
             acute_thr, straight_thr, cath_thr)
         self.assertFalse(is_corner, "%f %s %s %f" % (a, is_acute, is_corner, c))
-        (a, is_acute, is_corner, c) = Point(-51, 0).get_angle_with_context(square,
+        (a, is_acute, is_corner, c) = Point(-51, 0).get_corner_context(square,
             acute_thr, straight_thr, cath_thr)
         self.assertTrue(is_acute)
+
+    def test_get_spike_context(self):
+        square = QgsGeometry.fromPolygon([[
+            QgsPoint(0, 50), # spike angle_v < 5 angle_a > 5 c < 0.5
+            QgsPoint(50, 50.4),
+            QgsPoint(49.9, 76),
+            QgsPoint(50, 74), # zig-zag
+            QgsPoint(50, 130),
+            QgsPoint(50.4, 100),
+            QgsPoint(75, 110), # spike
+            QgsPoint(99, 100),
+            QgsPoint(100, 130), # spike but c > 0.5
+            QgsPoint(100.2, 60),
+            QgsPoint(100, 90), # zig-zag but c > 0.1
+            QgsPoint(99.8, 0), # spike
+            QgsPoint(99.5, 50),
+            QgsPoint(70, 55),
+            QgsPoint(60, 50), # not zig-zag
+            QgsPoint(0, 50)
+        ]])
+        acute_thr = 5
+        straight_thr = 5
+        threshold = 0.5
+        angle_v, angle_a, ndx, ndxa, is_acute, is_zigzag, is_spike, vx = \
+            Point(50, 50.4).get_spike_context(square, acute_thr, straight_thr, threshold)
+        self.assertFalse(is_spike)
+        angle_v, angle_a, ndx, ndxa, is_acute, is_zigzag, is_spike, vx = \
+            Point(0, 50.1).get_spike_context(square, acute_thr, straight_thr, threshold)
+        self.assertTrue(is_spike)
+        self.assertEquals(ndxa, 1)
+        self.assertEquals(round(vx.x(), 4), 50.0016)
+        self.assertEquals(vx.y(), 50.0)
+        angle_v, angle_a, ndx, ndxa, is_acute, is_zigzag, is_spike, vx = \
+            Point(50, 74).get_spike_context(square, acute_thr, straight_thr, threshold)
+        self.assertTrue(is_zigzag)
+        self.assertEquals(ndx, 3)
+        self.assertEquals(ndxa, 2)
+        angle_v, angle_a, ndx, ndxa, is_acute, is_zigzag, is_spike, vx = \
+            Point(50, 130).get_spike_context(square, acute_thr, straight_thr, threshold)
+        self.assertTrue(is_spike)
+        self.assertEquals(ndx, 4)
+        self.assertEquals(ndxa, 5)
+        self.assertEquals(vx.x(), 50)
+        self.assertEquals(round(vx.y(),4), 99.8374)
+        angle_v, angle_a, ndx, ndxa, is_acute, is_zigzag, is_spike, vx = \
+            Point(100, 130).get_spike_context(square, acute_thr, straight_thr, threshold)
+        self.assertTrue(is_acute)
+        self.assertFalse(is_spike)
+        angle_v, angle_a, ndx, ndxa, is_acute, is_zigzag, is_spike, vx = \
+            Point(100, 90).get_spike_context(square, acute_thr, straight_thr, 0.1)
+        self.assertFalse(is_spike)
+        self.assertFalse(is_zigzag)
+        angle_v, angle_a, ndx, ndxa, is_acute, is_zigzag, is_spike, vx = \
+            Point(100, 0).get_spike_context(square, acute_thr, straight_thr, threshold)
+        self.assertTrue(is_spike)
+        self.assertEquals(ndx, 11)
+        self.assertEquals(ndxa, 12)
+        self.assertEquals(round(vx.x(),4), 99.9109)
+        self.assertEquals(round(vx.y(),4), 49.9234)
+        angle_v, angle_a, ndx, ndxa, is_acute, is_zigzag, is_spike, vx = \
+            Point(60, 50).get_spike_context(square, acute_thr, straight_thr, threshold)
+        self.assertFalse(is_zigzag)
 
 
 class TestBaseLayer(unittest.TestCase):
@@ -662,8 +724,6 @@ class TestConsLayer(unittest.TestCase):
         refs = [
             ('8842708CS5284S', QgsPoint(358821.08, 3124205.68), 0),
             ('8842708CS5284S_part1', QgsPoint(358821.08, 3124205.68), 0),
-            ('8942325CS5284S', QgsPoint(358789.2925, 3124247.643), 0),
-            ('8942325CS5284S_part1', QgsPoint(358789.2925, 3124247.643), 0),
             ('8942328CS5284S', QgsPoint(358857.04, 3124248.6705), 1),
             ('8942328CS5284S_part3', QgsPoint(358857.04, 3124248.6705), 0)
         ]
@@ -709,14 +769,59 @@ class TestConsLayer(unittest.TestCase):
             QgsPoint(358894.000, 3124330.000)
         ]])
         f3.setGeometry(g3)
+        f4 = QgsFeature(self.layer.pendingFields())
+        g4 = QgsGeometry.fromPolygon([[
+            QgsPoint(357400.00, 3124305.00), # spike
+            QgsPoint(357405.00, 3124305.04),
+            QgsPoint(357404.99, 3124307.60),
+            QgsPoint(357405.00, 3124307.40), # zig-zag
+            QgsPoint(357405.00, 3124313.00), # spike
+            QgsPoint(357405.04, 3124310.00),
+            QgsPoint(357407.50, 3124311.00),
+            QgsPoint(357409.96, 3124310.00),
+            QgsPoint(357410.00, 3124313.00), # spike
+            QgsPoint(357410.02, 3124306.00),
+            QgsPoint(357410.00, 3124305.00),
+            QgsPoint(357400.00, 3124305.00),
+        ]])
+        f4.setGeometry(g4)
+        f5 = QgsFeature(self.layer.pendingFields())
+        g5 = QgsGeometry.fromPolygon([[
+            QgsPoint(357400.00, 3124305.00),
+            QgsPoint(357405.00, 3124305.04),
+            QgsPoint(357405.00, 3124310.00),
+            QgsPoint(357400.00, 3124310.00),
+            QgsPoint(357400.00, 3124305.00)
+        ]])
+        f5.setGeometry(g5)
         fc = self.layer.featureCount()
-        self.layer.writer.addFeatures([f1, f2, f3])
+        self.layer.writer.addFeatures([f1, f2, f3, f4, f5])
         self.layer.delete_invalid_geometries()
-        self.assertEquals(fc, self.layer.featureCount() - 1)
-        request = QgsFeatureRequest().setFilterFid(self.layer.featureCount() - 1)
+        self.assertEquals(fc, self.layer.featureCount() - 3)
+        request = QgsFeatureRequest().setFilterFid(self.layer.featureCount() - 3)
         f = self.layer.getFeatures(request).next()
         g = f.geometry()
         self.assertEquals(len(g.asPolygon()), 1)
+        request = QgsFeatureRequest().setFilterFid(self.layer.featureCount() - 2)
+        f = self.layer.getFeatures(request).next()
+        g = f.geometry()
+        r = [(357410.00, 3124305.00), 
+            (357405.00, 3124305.00), 
+            (357405.00, 3124309.98), 
+            (357407.50, 3124311.00), 
+            (357410.01, 3124310.02), 
+            (357410.02, 3124306.00), 
+            (357410.00, 3124305.00)]
+        self.assertEquals(r, [(round(p.x(), 2), round(p.y(), 2)) for p in g.asPolygon()[0]])
+        request = QgsFeatureRequest().setFilterFid(self.layer.featureCount() - 1)
+        f = self.layer.getFeatures(request).next()
+        g = f.geometry()
+        r = [(357400.00, 3124305.00), 
+            (357400.00, 3124310.00), 
+            (357405.00, 3124310.00), 
+            (357405.00, 3124305.00), 
+            (357400.00, 3124305.00)]
+        self.assertEquals(r, [(round(p.x(), 2), round(p.y(), 2)) for p in g.asPolygon()[0]])
 
     def test_simplify1(self):
         refs = [
@@ -754,17 +859,19 @@ class TestConsLayer(unittest.TestCase):
         refs = {
             '38.012.10.10.8643403CS5284S': 'Entrance',
             '38.012.10.11.8842304CS5284S': 'Entrance',
-            '38.012.10.13.8842305CS5284S': 'Entrance',
+            #'38.012.10.13.8842305CS5284S': 'Entrance',
             '38.012.10.14.8643404CS5284S': 'corner',
             '38.012.10.14.8643406CS5284S': 'Parcel',
             '38.012.10.2.8642321CS5284S': 'Entrance',
             '38.012.15.73.8544911CS5284S': 'remote'
         }
+        self.layer.explode_multi_parts()
         address = AddressLayer()
         address_gml = QgsVectorLayer('test/address.gml', 'address', 'ogr')
         address.append(address_gml)
-        self.layer.move_address(address)
         self.assertEquals(address.featureCount(), 14)
+        self.layer.move_address(address)
+        self.assertEquals(address.featureCount(), 6)
         for ad in address.getFeatures():
             if ad['localId'] in refs.keys():
                 self.assertEquals(ad['spec'], refs[ad['localId']])
@@ -772,6 +879,8 @@ class TestConsLayer(unittest.TestCase):
                     refcat = ad['localId'].split('.')[-1]
                     building = self.layer.search("localId = '%s'" % refcat).next()
                     self.assertTrue(ad.geometry().touches(building.geometry()))
+        self.layer.move_address(address)
+        self.assertEquals(address.featureCount(), 6)
 
     def test_validate(self):
         self.layer.merge_building_parts()
@@ -958,16 +1067,6 @@ class TestAddressLayer(unittest.TestCase):
         self.layer.conflate(current_address)
         self.assertEquals(self.layer.featureCount(), 10)
 
-    def test_del_address(self):
-        self.layer.append(self.address_gml)
-        building = PolygonLayer('test/cons.shp', 'building', 'ogr')
-        building.keep = True
-        self.assertEquals(self.layer.featureCount(), 14)
-        self.layer.del_address(building)
-        self.assertEquals(self.layer.featureCount(), 7)
-        self.layer.del_address(building)
-        self.assertEquals(self.layer.featureCount(), 7)
-
     def test_get_highway_names(self):
         layer = AddressLayer('test/address.geojson', 'address', 'ogr')
         highway = HighwayLayer('test/highway.geojson', 'highway', 'ogr')
@@ -1010,12 +1109,14 @@ class TestHighwayLayer(unittest.TestCase):
 class TestDebugWriter(unittest.TestCase):
 
     def test_init(self):
-        writer = DebugWriter('test', QgsCoordinateReferenceSystem(4326), 'memory')
+        layer = HighwayLayer()
+        writer = DebugWriter('test', layer, 'memory')
         self.assertEquals(writer.fields[0].name(), 'note')
         self.assertEquals(writer.hasError(), 0)
 
     def test_add_point(self):
-        writer = DebugWriter('test', QgsCoordinateReferenceSystem(4326), 'memory')
+        layer = HighwayLayer()
+        writer = DebugWriter('test', layer, 'memory')
         writer.add_point(QgsPoint(0, 0), 'foobar')
         writer.add_point(QgsPoint(0, 0))
 

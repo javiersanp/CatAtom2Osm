@@ -5,7 +5,7 @@ import csv
 import gettext
 
 app_name = 'CatAtom2Osm'
-app_version = '2017-11-06'
+app_version = '2017-11-09'
 app_author = u'Javier Sánchez Portero'
 app_copyright = u'2017, Javier Sánchez Portero'
 app_desc = 'Tool to convert INSPIRE data sets from the Spanish Cadastre ATOM Services to OSM files'
@@ -14,6 +14,7 @@ app_tags = ''
 MIN_QGIS_VERSION_INT = 21001
 MIN_QGIS_VERSION = '2.10.1'
 
+locale.setlocale(locale.LC_ALL, '')
 language, encoding = locale.getdefaultlocale()
 app_path = os.path.dirname(__file__)
 localedir = os.path.join(app_path, 'locale', 'po')
@@ -48,6 +49,7 @@ acute_thr = 10 # Remove vertices with an angle smaller than this value
 min_area = 0.05 # Delete geometries with an area smaller than this value
 addr_thr = 10 # Distance in meters to merge address node with building footprint
 acute_inv = 5 # Remove geometries/rings that result invalid after removing any vertex with an angle smaller than this value
+dist_inv = 0.1 # Threshold in meters to filter angles for zig-zag and spikes
 entrance_thr = 0.4 # Minimum distance in meters from a entrance to the nearest corner
 warning_min_area = 1 # Area in m2 for small area warning
 warning_max_area = 30000 # Area in m2 for big area warning
@@ -177,6 +179,7 @@ highway_types = { # Dictionary for default 'highway_types.csv'
     'SC': u'Sector',
 }
 
+# List of highway types to translate as place addresses
 place_types = [
 	'Agregado', 'Aldea', u'Área', 'Barrio', 'Barranco', u'Cañada', 'Colegio', 
 	'Cigarral', 'Chalet', 'Concejo', 'Campa', 'Campo', u'Caserío', 'Conjunto', 
@@ -187,22 +190,25 @@ place_types = [
 	'Terrenos', u'Urbanización', 'Bulevar', 'Sector'
 ]
 
+# Dictionary of name and Overpass boundary area id for know municipalities
+# wich fails in get_boundary method.
 mun_areas = {
     '07032': [u'Maó', '1809102'],
-    '07040': ['Palma', '341321'],
-    '11042': ['Zahara', '343140'],
-    '16176': ['Pozorrubio', '347331'],
-    '19178': ['Humanes', '341781'],
-    '23043': ['Hornos', '344389'],
-    '23086': ['Torre del Campo', '346324'],
-    '26004': ['Ajamil', '348189'],
-    '26093': ['Mansilla de la Sierra', '345202'],
-    '28063': ['Gargantilla del Lozoya y Pinilla de Buitrago', '345009'],
-    '35010': ['Santa María de Guía de Gran Canaria', '345440'],
-    '37367': ['Villarino de los Aires', '340062'],
-    '38039': ['Santa Úrsula', '340717'],
-    '50030': ['Añón de Moncayo', '342653'],
-    '50049': ['Biel', '348008'],
-    '51021': ['fuente', '341321'],
+    '07040': [u'Palma', '341321'],
+    '11042': [u'Zahara', '343140'],
+    '16176': [u'Pozorrubio', '347331'],
+    '19178': [u'Humanes', '341781'],
+    '23043': [u'Hornos', '344389'],
+    '23086': [u'Torre del Campo', '346324'],
+    '26004': [u'Ajamil', '348189'],
+    '26093': [u'Mansilla de la Sierra', '345202'],
+    '28063': [u'Gargantilla del Lozoya y Pinilla de Buitrago', '345009'],
+    '35010': [u'Santa María de Guía de Gran Canaria', '345440'],
+    '37367': [u'Villarino de los Aires', '340062'],
+    '38039': [u'Santa Úrsula', '340717'],
+    '38023': [u'San Cristóbal de La Laguna', '345393'],
+    '50030': [u'Añón de Moncayo', '342653'],
+    '50049': [u'Biel', '348008'],
+    '51021': [u'Fuente-Álamo', '341797'],
 }
 

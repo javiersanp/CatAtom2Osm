@@ -299,7 +299,7 @@ class TestCatAtom(unittest.TestCase):
         m_hgw.fuzz = False
         self.m_cat.zip_code = '07032'
         self.m_cat.get_boundary(self.m_cat, zoning)
-        self.assertEquals(self.m_cat.cat_mun, u'Maó')
+        self.assertEquals(self.m_cat.boundary_name, u'Maó')
 
     @mock.patch('catatom.download')
     def test_list_municipalities(self, m_download):

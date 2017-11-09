@@ -95,7 +95,6 @@ class CatAtom2Osm:
             self.get_building()
             self.process_building()
             if self.options.address:
-                self.address.del_address(self.building)
                 self.building.move_address(self.address)
             self.building.reproject()
             if self.options.tasks:
@@ -105,27 +104,29 @@ class CatAtom2Osm:
                 if self.building.conflate(current_bu_osm):
                     self.write_osm(current_bu_osm, 'current_building.osm')
                 del current_bu_osm
-            report.init_building_values()
+            report.building_counter = Counter()
         if self.options.address:
             self.address.reproject()
             self.address_osm = self.address.to_osm()
-            report.init_address_values()
         if self.options.tasks:
             self.process_tasks(self.building)
             del self.rustic_zoning
             del self.urban_zoning
         if self.options.building:
             self.building_osm = self.building.to_osm()
-            if not self.options.tasks:
-                report.cons_stats(self.building_osm)
+            del self.building
             if self.options.address:
                 self.merge_address(self.building_osm, self.address_osm)
             self.write_osm(self.building_osm, 'building.osm')
+            if not self.options.tasks:
+                report.cons_stats(self.building_osm)
             del self.building_osm
+        else:
+            del self.building
         if self.options.address:
             if not self.options.building and not self.options.tasks:
                 report.address_stats(self.address_osm)
-            self.write_osm(self.address_osm, 'address.osm')
+                self.write_osm(self.address_osm, 'address.osm')
             del self.address_osm
         if self.options.parcel:
             self.process_parcel()
@@ -238,8 +239,6 @@ class CatAtom2Osm:
             log.warning(_("Check %d fixme tags"), report.fixme_count)
         if self.options.tasks or self.options.building:
             report.cons_end_stats()
-        if self.options.address:
-            if report.multiple_addresses == 0: del report.values['multiple_addresses']
         if self.options.tasks or self.options.building or self.options.address:
             fn = os.path.join(self.path, 'report.txt')
             report.to_file(fn)
@@ -384,9 +383,8 @@ class CatAtom2Osm:
         the address tags to the building if it isn't a 'entrace' type address or
         else to the entrance if there exist a node with the address coordinates
         in the building.
-
-        If there exists many buildings with the same 'ref' the address is 
-        ignored.
+        
+        Precondition: building.move_address deleted addresses belonging to multiple buildings
 
         Args:
             building_osm (Osm): OSM data set with addresses
@@ -394,43 +392,48 @@ class CatAtom2Osm:
         """
         if 'source:date' in address_osm.tags:
             building_osm.tags['source:date:addr'] = address_osm.tags['source:date']
-        address_index = {}
+        address_index = defaultdict(list)
         building_index = defaultdict(list)
         for bu in building_osm.elements:
             if 'ref' in bu.tags:
                 building_index[bu.tags['ref']].append(bu)
         for ad in address_osm.nodes:
             if ad.tags['ref'] in building_index:
-                address_index[ad.tags['ref']] = ad
-        mp = 0
+                address_index[ad.tags['ref']].append(ad)
+        md = 0
         for (ref, group) in building_index.items():
-            if ref in address_index:
-                if len(group) > 1:
-                    mp += 1
-                else:
-                    bu = group[0]
-                    ad = address_index[ref]
-                    report.out_address += 1
-                    if 'addr:street' in ad.tags:
-                        report.out_addr_str += 1
-                    if 'addr:place' in ad.tags:
-                        report.out_addr_plc += 1
-                    if 'entrance' in ad.tags:
-                        footprint = [bu] if isinstance(bu, osm.Way) \
-                            else [m.element for m in bu.members if m.role == 'outer']
-                        for w in footprint:
-                            entrance = w.search_node(ad.x, ad.y)
-                            if entrance:
-                                entrance.tags.update(ad.tags)
-                                entrance.tags.pop('ref', None)
-                                report.out_address_entrance += 1
-                                break
-                    else:
-                        bu.tags.update(ad.tags)
-                        report.out_address_building += 1
-        if mp > 0:
-            log.debug(_("Refused %d addresses belonging to multiple buildings"), mp)
-        report.multiple_addresses += mp
+            address_count = len(address_index[ref])
+            if address_count == 0:
+                continue
+            entrance_count = sum([1 if 'entrance' in ad.tags else 0 for ad in address_index[ref]])
+            parcel_count = address_count - entrance_count
+            if parcel_count > 1 or (parcel_count == 1 and entrance_count > 0):
+                md += address_count
+                continue
+            for ad in address_index[ref]:
+                bu = group[0]
+                report.inc('out_address')
+                if 'addr:street' in ad.tags:
+                    report.inc('out_addr_str')
+                if 'addr:place' in ad.tags:
+                    report.inc('out_addr_plc')
+                entrance = False
+                if 'entrance' in ad.tags:
+                    footprint = [bu] if isinstance(bu, osm.Way) \
+                        else [m.element for m in bu.members if m.role == 'outer']
+                    for w in footprint:
+                        entrance = w.search_node(ad.x, ad.y)
+                        if entrance:
+                            entrance.tags.update(ad.tags)
+                            entrance.tags.pop('ref', None)
+                            report.inc('out_address_entrance')
+                            break
+                if not entrance:
+                    bu.tags.update(ad.tags)
+                    report.inc('out_address_building')
+        if md > 0:
+            log.debug(_("Refused %d 'parcel' addresses not unique for it building"), md)
+            report.inc('not_unique_addresses', md)
 
     def get_translations(self, address, highway):
         """

@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>layer &#8212; documentación de CatAtom2Osm - 2017-11-06deb</title>
+    <title>layer &#8212; documentación de CatAtom2Osm - 2017-11-09dev</title>
     
     <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -23,7 +23,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '2017-11-06deb',
+        VERSION:     '2017-11-09dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -50,7 +50,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Índice de Módulos Python"
              >módulos</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 2017-11-06deb</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 2017-11-09dev</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Código de módulo</a> &#187;</li> 
       </ul>
     </div>
@@ -112,13 +112,13 @@
           <div class="document clearer body">
             
   <h1>Código fuente para layer</h1><div class="highlight"><pre>
-<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="sd">&quot;&quot;&quot;Application layers&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span><span class="p">,</span> <span class="n">Counter</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="kn">from</span> <span class="nn">qgis.core</span> <span class="k">import</span> <span class="o">*</span>
@@ -129,7 +129,7 @@
 <span class="kn">import</span> <span class="nn">setup</span>
 <span class="kn">import</span> <span class="nn">translate</span>
 <span class="kn">from</span> <span class="nn">report</span> <span class="k">import</span> <span class="n">instance</span> <span class="k">as</span> <span class="n">report</span>
-<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">setup</span><span class="o">.</span><span class="n">app_name</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="vm">__name__</span><span class="p">)</span>
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">setup</span><span class="o">.</span><span class="n">app_name</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">__name__</span><span class="p">)</span>
 
 <span class="n">BUFFER_SIZE</span> <span class="o">=</span> <span class="mi">512</span>
 
@@ -145,20 +145,39 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">arg2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="nb">super</span><span class="p">(</span><span class="n">Point</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">arg1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">arg1</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">Point</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">arg1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">arg1</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="nb">super</span><span class="p">(</span><span class="n">Point</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">)</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">Point</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Point.boundingBox"><a class="viewcode-back" href="../api/layer.html#layer.Point.boundingBox">[documentos]</a>    <span class="k">def</span> <span class="nf">boundingBox</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">radius</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a bounding box of 2*radius centered in point.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">QgsRectangle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">()</span> <span class="o">-</span> <span class="n">radius</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">()</span> <span class="o">-</span> <span class="n">radius</span><span class="p">,</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">()</span> <span class="o">+</span> <span class="n">radius</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">()</span> <span class="o">+</span> <span class="n">radius</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Point.get_angle_with_context"><a class="viewcode-back" href="../api/layer.html#layer.Point.get_angle_with_context">[documentos]</a>    <span class="k">def</span> <span class="nf">get_angle_with_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geom</span><span class="p">,</span> <span class="n">acute_thr</span><span class="o">=</span><span class="n">setup</span><span class="o">.</span><span class="n">acute_thr</span><span class="p">,</span>
-            <span class="n">straight_thr</span><span class="o">=</span><span class="n">setup</span><span class="o">.</span><span class="n">straight_thr</span><span class="p">,</span> <span class="n">cath_thr</span><span class="o">=</span><span class="n">setup</span><span class="o">.</span><span class="n">dist_thr</span><span class="p">):</span>
+<div class="viewcode-block" id="Point.get_angle"><a class="viewcode-back" href="../api/layer.html#layer.Point.get_angle">[documentos]</a>    <span class="k">def</span> <span class="nf">get_angle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geom</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        For the vertex in a geometry nearest to this point, give the angle</span>
 <span class="sd">        between its adjacent vertexs.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            geom (QgsGeometry): Geometry to test.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (float) Angle between the vertex and their adjacents,</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">ndx</span><span class="p">,</span> <span class="n">ndxa</span><span class="p">,</span> <span class="n">ndxb</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span> <span class="o">=</span> <span class="n">geom</span><span class="o">.</span><span class="n">closestVertex</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">va</span> <span class="o">=</span> <span class="n">geom</span><span class="o">.</span><span class="n">vertexAt</span><span class="p">(</span><span class="n">ndxa</span><span class="p">)</span> <span class="c1"># previous vertex</span>
+        <span class="n">vb</span> <span class="o">=</span> <span class="n">geom</span><span class="o">.</span><span class="n">vertexAt</span><span class="p">(</span><span class="n">ndxb</span><span class="p">)</span> <span class="c1"># next vertex</span>
+        <span class="n">angle</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">point</span><span class="o">.</span><span class="n">azimuth</span><span class="p">(</span><span class="n">va</span><span class="p">)</span> <span class="o">-</span> <span class="n">point</span><span class="o">.</span><span class="n">azimuth</span><span class="p">(</span><span class="n">vb</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">angle</span></div>
+
+<div class="viewcode-block" id="Point.get_corner_context"><a class="viewcode-back" href="../api/layer.html#layer.Point.get_corner_context">[documentos]</a>    <span class="k">def</span> <span class="nf">get_corner_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geom</span><span class="p">,</span> <span class="n">acute_thr</span><span class="o">=</span><span class="n">setup</span><span class="o">.</span><span class="n">acute_thr</span><span class="p">,</span>
+            <span class="n">straight_thr</span><span class="o">=</span><span class="n">setup</span><span class="o">.</span><span class="n">straight_thr</span><span class="p">,</span> <span class="n">cath_thr</span><span class="o">=</span><span class="n">setup</span><span class="o">.</span><span class="n">dist_thr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        For the vertex in a geometry nearest to this point, give context to</span>
+<span class="sd">        determine if it is a corner (the angle differs by more than straight_thr</span>
+<span class="sd">            of 180 and if the distance from the vertex to the segment formed by</span>
+<span class="sd">            their adjacents is greater than cath_thr).</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            geom (QgsGeometry): Geometry to test.</span>
@@ -167,12 +186,10 @@
 <span class="sd">            cath_thr (float): Cathetus threshold.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            (float) Angle between the vertex and their adjacents,</span>
-<span class="sd">            (bool)  True for a corner (the angle differs by more than straight_thr</span>
-<span class="sd">            of 180 and if the distance from the vertex to the segment formed by</span>
-<span class="sd">            their adjacents is greater than cath_thr.</span>
-<span class="sd">            (bool)  True if the angle is too low (&lt; acute_thr)</span>
-<span class="sd">            (float) Distance from the vertex to the segment formed by their adjacents</span>
+<span class="sd">            (float) Angle between the vertex and their adjacents.</span>
+<span class="sd">            (bool)  True if the angle is too low (&lt; acute_thr).</span>
+<span class="sd">            (bool)  True for a corner</span>
+<span class="sd">            (float) Distance from the vertex to the segment formed by their adjacents.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">ndx</span><span class="p">,</span> <span class="n">ndxa</span><span class="p">,</span> <span class="n">ndxb</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span> <span class="o">=</span> <span class="n">geom</span><span class="o">.</span><span class="n">closestVertex</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="n">va</span> <span class="o">=</span> <span class="n">geom</span><span class="o">.</span><span class="n">vertexAt</span><span class="p">(</span><span class="n">ndxa</span><span class="p">)</span> <span class="c1"># previous vertex</span>
@@ -183,14 +200,72 @@
         <span class="n">c</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">h</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">a</span><span class="p">)))</span>
         <span class="n">is_corner</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="mi">180</span> <span class="o">-</span> <span class="n">angle</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">straight_thr</span> <span class="ow">and</span> <span class="n">c</span> <span class="o">&gt;</span> <span class="n">cath_thr</span>
         <span class="n">is_acute</span> <span class="o">=</span> <span class="n">angle</span> <span class="o">&lt;</span> <span class="n">acute_thr</span> <span class="k">if</span> <span class="n">angle</span> <span class="o">&lt;</span> <span class="mi">180</span> <span class="k">else</span> <span class="mi">360</span> <span class="o">-</span> <span class="n">angle</span> <span class="o">&lt;</span> <span class="n">acute_thr</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">angle</span><span class="p">,</span> <span class="n">is_acute</span><span class="p">,</span> <span class="n">is_corner</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="p">(</span><span class="n">angle</span><span class="p">,</span> <span class="n">is_acute</span><span class="p">,</span> <span class="n">is_corner</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="Point.get_spike_context"><a class="viewcode-back" href="../api/layer.html#layer.Point.get_spike_context">[documentos]</a>    <span class="k">def</span> <span class="nf">get_spike_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geom</span><span class="p">,</span> <span class="n">acute_thr</span><span class="o">=</span><span class="n">setup</span><span class="o">.</span><span class="n">acute_inv</span><span class="p">,</span>
+            <span class="n">straight_thr</span><span class="o">=</span><span class="n">setup</span><span class="o">.</span><span class="n">straight_thr</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="n">setup</span><span class="o">.</span><span class="n">dist_inv</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        For the vertex in a geometry nearest to this point, give context to</span>
+<span class="sd">        determine if its a zig-zag or a spike. It&#39;s a zig-zag if both the angles</span>
+<span class="sd">        of this vertex and the closest adjacents are acute. It&#39;s a spike if the</span>
+<span class="sd">        angle of this vertex is acute and the angle of the closest vertex is</span>
+<span class="sd">        not straight. </span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            geom (QgsGeometry): Geometry to test.</span>
+<span class="sd">            acute_thr (float): Acute angle threshold.</span>
+<span class="sd">            straight_thr (float): Straight angle threshold.</span>
+<span class="sd">            threshold (float): # Filter for angles.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (float) angle_v = angle between the vertex and their adjacents.</span>
+<span class="sd">            (float) angle_a = angle between the closest adjacent and their adjacents.</span>
+<span class="sd">            (int) ndx = index of the vertex</span>
+<span class="sd">            (int) ndxa = index of the closest adjacent</span>
+<span class="sd">            (bool) is_acute = True if the angle is too low (&lt; acute_thr).</span>
+<span class="sd">            (bool) is_zigzag = True if both angle_v and angle_a are acute and </span>
+<span class="sd">            the distance from va to the segment v-vb is lower than threshold.</span>
+<span class="sd">            (bool) is_spike = True if is_acute and angle_a is not straight and </span>
+<span class="sd">            the distance from va to the segment v-vb is lower than threshold.</span>
+<span class="sd">            (QgsPoint) vx = projection of va over the segment v-vb.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">ndx</span><span class="p">,</span> <span class="n">ndxa</span><span class="p">,</span> <span class="n">ndxb</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span> <span class="o">=</span> <span class="n">geom</span><span class="o">.</span><span class="n">closestVertex</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">va</span> <span class="o">=</span> <span class="n">geom</span><span class="o">.</span><span class="n">vertexAt</span><span class="p">(</span><span class="n">ndxa</span><span class="p">)</span> <span class="c1"># previous vertex</span>
+        <span class="n">vb</span> <span class="o">=</span> <span class="n">geom</span><span class="o">.</span><span class="n">vertexAt</span><span class="p">(</span><span class="n">ndxb</span><span class="p">)</span> <span class="c1"># next vertex</span>
+        <span class="n">angle_v</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">azimuth</span><span class="p">(</span><span class="n">va</span><span class="p">)</span> <span class="o">-</span> <span class="n">v</span><span class="o">.</span><span class="n">azimuth</span><span class="p">(</span><span class="n">vb</span><span class="p">))</span>
+        <span class="n">is_acute</span> <span class="o">=</span> <span class="n">angle_v</span> <span class="o">&lt;</span> <span class="n">acute_thr</span> <span class="k">if</span> <span class="n">angle_v</span> <span class="o">&lt;</span> <span class="mi">180</span> <span class="k">else</span> <span class="mi">360</span> <span class="o">-</span> <span class="n">angle_v</span> <span class="o">&lt;</span> <span class="n">acute_thr</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_acute</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">angle_v</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ndx</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">is_acute</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="n">dist_a</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">va</span><span class="o">.</span><span class="n">sqrDist</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+        <span class="n">dist_b</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">vb</span><span class="o">.</span><span class="n">sqrDist</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">dist_a</span> <span class="o">&gt;</span> <span class="n">dist_b</span><span class="p">:</span> <span class="c1"># set va as the closest adjacent</span>
+            <span class="n">vc</span> <span class="o">=</span> <span class="n">va</span>
+            <span class="n">dist_c</span> <span class="o">=</span> <span class="n">dist_a</span>
+            <span class="n">va</span> <span class="o">=</span> <span class="n">vb</span>
+            <span class="n">dist_a</span> <span class="o">=</span> <span class="n">dist_b</span>
+            <span class="n">ndxa</span> <span class="o">=</span> <span class="n">ndxb</span>
+            <span class="n">vb</span> <span class="o">=</span> <span class="n">vc</span>
+            <span class="n">dist_b</span> <span class="o">=</span> <span class="n">dist_c</span>
+        <span class="n">angle_a</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="n">va</span><span class="p">)</span><span class="o">.</span><span class="n">get_angle</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle_v</span><span class="p">)))</span> <span class="o">*</span> <span class="n">dist_a</span>
+        <span class="n">is_zigzag</span> <span class="o">=</span> <span class="n">angle_a</span> <span class="o">&lt;</span> <span class="n">acute_thr</span> <span class="ow">and</span> <span class="n">c</span> <span class="o">&lt;</span> <span class="n">threshold</span>
+        <span class="n">is_spike</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="mi">180</span> <span class="o">-</span> <span class="n">angle_a</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">straight_thr</span> <span class="ow">and</span> <span class="n">c</span> <span class="o">&lt;</span> <span class="n">threshold</span>
+        <span class="k">if</span> <span class="n">is_zigzag</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">angle_v</span><span class="p">,</span> <span class="n">angle_a</span><span class="p">,</span> <span class="n">ndx</span><span class="p">,</span> <span class="n">ndxa</span><span class="p">,</span> <span class="n">is_acute</span><span class="p">,</span> <span class="n">is_zigzag</span><span class="p">,</span> <span class="n">is_spike</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="n">gamma</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="mi">90</span> <span class="o">+</span> <span class="n">angle_v</span> <span class="o">-</span> <span class="n">angle_a</span><span class="p">)</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">dist_a</span> <span class="o">*</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle_v</span><span class="p">))</span> \
+            <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">gamma</span><span class="p">))</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle_v</span><span class="p">))))</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">x</span><span class="p">()</span> <span class="o">+</span> <span class="p">(</span><span class="n">vb</span><span class="o">.</span><span class="n">x</span><span class="p">()</span> <span class="o">-</span> <span class="n">v</span><span class="o">.</span><span class="n">x</span><span class="p">())</span> <span class="o">*</span> <span class="n">dx</span> <span class="o">/</span> <span class="n">dist_b</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">y</span><span class="p">()</span> <span class="o">+</span> <span class="p">(</span><span class="n">vb</span><span class="o">.</span><span class="n">y</span><span class="p">()</span> <span class="o">-</span> <span class="n">v</span><span class="o">.</span><span class="n">y</span><span class="p">())</span> <span class="o">*</span> <span class="n">dx</span> <span class="o">/</span> <span class="n">dist_b</span>
+        <span class="n">vx</span> <span class="o">=</span> <span class="n">QgsPoint</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">angle_v</span><span class="p">,</span> <span class="n">angle_a</span><span class="p">,</span> <span class="n">ndx</span><span class="p">,</span> <span class="n">ndxa</span><span class="p">,</span> <span class="n">is_acute</span><span class="p">,</span> <span class="n">is_zigzag</span><span class="p">,</span> <span class="n">is_spike</span><span class="p">,</span> <span class="n">vx</span></div></div>
 
 
 <div class="viewcode-block" id="BaseLayer"><a class="viewcode-back" href="../api/layer.html#layer.BaseLayer">[documentos]</a><span class="k">class</span> <span class="nc">BaseLayer</span><span class="p">(</span><span class="n">QgsVectorLayer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Base class for application layers&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span> <span class="o">=</span> <span class="s2">&quot;ogr&quot;</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">BaseLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">BaseLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">writer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataProvider</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rename</span><span class="o">=</span><span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">resolve</span><span class="o">=</span><span class="p">{}</span>
@@ -438,7 +513,7 @@
             <span class="n">p1</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">crs_transform</span><span class="p">)</span>
             <span class="n">p2</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">crs_transform</span><span class="p">)</span>
             <span class="n">bbox</span> <span class="o">=</span> <span class="p">[</span><span class="n">p1</span><span class="o">.</span><span class="n">asPoint</span><span class="p">()</span><span class="o">.</span><span class="n">y</span><span class="p">(),</span> <span class="n">p1</span><span class="o">.</span><span class="n">asPoint</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">p2</span><span class="o">.</span><span class="n">asPoint</span><span class="p">()</span><span class="o">.</span><span class="n">y</span><span class="p">(),</span> <span class="n">p2</span><span class="o">.</span><span class="n">asPoint</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="p">()]</span>
-            <span class="n">bbox</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{:.8f}</span><span class="s1">,</span><span class="si">{:.8f}</span><span class="s1">,</span><span class="si">{:.8f}</span><span class="s1">,</span><span class="si">{:.8f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">bbox</span><span class="p">)</span>
+            <span class="n">bbox</span> <span class="o">=</span> <span class="s1">&#39;{:.8f},{:.8f},{:.8f},{:.8f}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">bbox</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">bbox</span></div>
 
 <div class="viewcode-block" id="BaseLayer.export"><a class="viewcode-back" href="../api/layer.html#layer.BaseLayer.export">[documentos]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">driver_name</span><span class="o">=</span><span class="s2">&quot;ESRI Shapefile&quot;</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -525,7 +600,7 @@
     <span class="sd">&quot;&quot;&quot;Base class for polygon layers&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span> <span class="o">=</span> <span class="s2">&quot;ogr&quot;</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">PolygonLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">PolygonLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dup_thr</span> <span class="o">=</span> <span class="n">setup</span><span class="o">.</span><span class="n">dup_thr</span> <span class="c1"># Distance in meters to merge nearest vertex.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cath_thr</span> <span class="o">=</span> <span class="n">setup</span><span class="o">.</span><span class="n">dist_thr</span> <span class="c1"># Threshold in meters for cathetus reduction</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">straight_thr</span> <span class="o">=</span> <span class="n">setup</span><span class="o">.</span><span class="n">straight_thr</span> <span class="c1"># Threshold in degrees from straight angle to delete a vertex</span>
@@ -633,7 +708,7 @@
         <span class="n">tp</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">td</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">if</span> <span class="n">log</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
-            <span class="n">debshp</span> <span class="o">=</span> <span class="n">DebugWriter</span><span class="p">(</span><span class="s2">&quot;debug_topology.shp&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="p">())</span>
+            <span class="n">debshp</span> <span class="o">=</span> <span class="n">DebugWriter</span><span class="p">(</span><span class="s2">&quot;debug_topology.shp&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
         <span class="n">geometries</span> <span class="o">=</span> <span class="p">{</span><span class="n">f</span><span class="o">.</span><span class="n">id</span><span class="p">():</span> <span class="n">QgsGeometry</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">geometry</span><span class="p">())</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">()}</span>
         <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_index</span><span class="p">()</span>
         <span class="n">to_change</span> <span class="o">=</span> <span class="p">{}</span>
@@ -653,7 +728,7 @@
                             <span class="n">vb</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">vertexAt</span><span class="p">(</span><span class="n">ndxb</span><span class="p">)</span>
                             <span class="n">dist_a</span> <span class="o">=</span> <span class="n">va</span><span class="o">.</span><span class="n">sqrDist</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
                             <span class="n">dist_b</span> <span class="o">=</span> <span class="n">vb</span><span class="o">.</span><span class="n">sqrDist</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
-                            <span class="k">if</span> <span class="n">dist_a</span> <span class="o">&lt;</span> <span class="n">dist_b</span> <span class="ow">and</span> <span class="n">dist_a</span> <span class="o">&lt;</span> <span class="n">dup_thr</span><span class="o">**</span><span class="mi">2</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">dist_a</span> <span class="o">&lt;</span> <span class="n">dup_thr</span><span class="o">**</span><span class="mi">2</span><span class="p">:</span>
                                 <span class="n">g</span><span class="o">.</span><span class="n">deleteVertex</span><span class="p">(</span><span class="n">ndxa</span><span class="p">)</span>
                                 <span class="n">note</span> <span class="o">=</span> <span class="s2">&quot;dupe refused by isGeosValid&quot;</span>
                                 <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">isGeosValid</span><span class="p">():</span>
@@ -662,7 +737,7 @@
                                     <span class="n">nodes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
                                     <span class="n">nodes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">va</span><span class="p">)</span>
                                     <span class="n">td</span> <span class="o">+=</span> <span class="mi">1</span>
-                            <span class="k">if</span> <span class="n">dist_b</span> <span class="o">&lt;</span> <span class="n">dist_a</span> <span class="ow">and</span> <span class="n">dist_b</span> <span class="o">&lt;</span> <span class="n">dup_thr</span><span class="o">**</span><span class="mi">2</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">dist_b</span> <span class="o">&lt;</span> <span class="n">dup_thr</span><span class="o">**</span><span class="mi">2</span><span class="p">:</span>
                                 <span class="n">g</span><span class="o">.</span><span class="n">deleteVertex</span><span class="p">(</span><span class="n">ndxb</span><span class="p">)</span>
                                 <span class="n">note</span> <span class="o">=</span> <span class="s2">&quot;dupe refused by isGeosValid&quot;</span>
                                 <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">isGeosValid</span><span class="p">():</span>
@@ -679,7 +754,7 @@
                                     <span class="p">(</span><span class="n">dist_v</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">p</span><span class="o">.</span><span class="n">y</span><span class="p">(),</span> <span class="n">point</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">point</span><span class="o">.</span><span class="n">y</span><span class="p">())</span>
                                 <span class="n">nodes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
                                 <span class="n">td</span> <span class="o">+=</span> <span class="mi">1</span>
-                        <span class="k">elif</span> <span class="n">dist_s</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="o">**</span><span class="mi">2</span> <span class="ow">and</span> <span class="n">dist_v</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="k">elif</span> <span class="n">dist_s</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="o">**</span><span class="mi">2</span> <span class="ow">and</span> <span class="n">closest</span> <span class="o">!=</span> <span class="n">va</span> <span class="ow">and</span> <span class="n">closest</span> <span class="o">!=</span> <span class="n">vb</span><span class="p">:</span>
                             <span class="n">va</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">vertexAt</span><span class="p">(</span><span class="n">vertex</span><span class="p">)</span>
                             <span class="n">vb</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">vertexAt</span><span class="p">(</span><span class="n">vertex</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
                             <span class="n">angle</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">point</span><span class="o">.</span><span class="n">azimuth</span><span class="p">(</span><span class="n">va</span><span class="p">)</span> <span class="o">-</span> <span class="n">point</span><span class="o">.</span><span class="n">azimuth</span><span class="p">(</span><span class="n">vb</span><span class="p">))</span>
@@ -712,39 +787,108 @@
             <span class="n">report</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s1">&#39;vertex_topo_&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()]</span> <span class="o">=</span> <span class="n">tp</span></div>
 
 <div class="viewcode-block" id="PolygonLayer.delete_invalid_geometries"><a class="viewcode-back" href="../api/layer.html#layer.PolygonLayer.delete_invalid_geometries">[documentos]</a>    <span class="k">def</span> <span class="nf">delete_invalid_geometries</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete invalid geometries testing if any of it acute angle vertex could</span>
+<span class="sd">        be deleted. </span>
+<span class="sd">        Also removes zig-zag and spike vertex (see Point.get_spike_context).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">log</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
-            <span class="n">debshp</span> <span class="o">=</span> <span class="n">QgsVectorFileWriter</span><span class="p">(</span><span class="s1">&#39;debug_notvalid.shp&#39;</span><span class="p">,</span> <span class="s1">&#39;UTF-8&#39;</span><span class="p">,</span> <span class="n">QgsFields</span><span class="p">(),</span>
+            <span class="n">fpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">dataSourceUri</span><span class="p">()),</span> 
+                <span class="s1">&#39;debug_notvalid.shp&#39;</span><span class="p">)</span>
+            <span class="n">debshp</span> <span class="o">=</span> <span class="n">QgsVectorFileWriter</span><span class="p">(</span><span class="n">fpath</span><span class="p">,</span> <span class="s1">&#39;UTF-8&#39;</span><span class="p">,</span> <span class="n">QgsFields</span><span class="p">(),</span>
                 <span class="n">QGis</span><span class="o">.</span><span class="n">WKBPolygon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="p">(),</span> <span class="s1">&#39;ESRI Shapefile&#39;</span><span class="p">)</span>
+            <span class="n">debshp2</span> <span class="o">=</span> <span class="n">DebugWriter</span><span class="p">(</span><span class="s2">&quot;debug_spikes.shp&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
         <span class="n">to_change</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">to_clean</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">to_move</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">rings</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">geometries</span> <span class="o">=</span> <span class="p">{</span><span class="n">feat</span><span class="o">.</span><span class="n">id</span><span class="p">():</span> <span class="n">QgsGeometry</span><span class="p">(</span><span class="n">feat</span><span class="o">.</span><span class="n">geometry</span><span class="p">())</span> <span class="k">for</span> <span class="n">feat</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">()}</span>
+        <span class="n">zz</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">spikes</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">geometries</span> <span class="o">=</span> <span class="p">{</span><span class="n">f</span><span class="o">.</span><span class="n">id</span><span class="p">():</span> <span class="n">QgsGeometry</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">geometry</span><span class="p">())</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">()}</span>
         <span class="k">for</span> <span class="n">fid</span><span class="p">,</span> <span class="n">geom</span> <span class="ow">in</span> <span class="n">geometries</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">badgeom</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ring</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">geom</span><span class="o">.</span><span class="n">asPolygon</span><span class="p">()):</span>
-                <span class="n">n</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-                <span class="k">while</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">v</span> <span class="o">!=</span> <span class="n">QgsPoint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
-                    <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">badgeom</span><span class="p">:</span> <span class="k">break</span>
+                <span class="n">skip</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ring</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+                    <span class="n">angle_v</span><span class="p">,</span> <span class="n">angle_a</span><span class="p">,</span> <span class="n">ndx</span><span class="p">,</span> <span class="n">ndxa</span><span class="p">,</span> <span class="n">is_acute</span><span class="p">,</span> <span class="n">is_zigzag</span><span class="p">,</span> <span class="n">is_spike</span><span class="p">,</span> <span class="n">vx</span> <span class="o">=</span> \
+                        <span class="n">Point</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">get_spike_context</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">skip</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">is_acute</span><span class="p">:</span>
+                        <span class="n">skip</span> <span class="o">=</span> <span class="kc">False</span>
+                        <span class="k">continue</span>
                     <span class="n">g</span> <span class="o">=</span> <span class="n">QgsGeometry</span><span class="p">()</span><span class="o">.</span><span class="n">fromPolygon</span><span class="p">([</span><span class="n">ring</span><span class="p">])</span>
                     <span class="n">f</span> <span class="o">=</span> <span class="n">QgsFeature</span><span class="p">(</span><span class="n">QgsFields</span><span class="p">())</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">setGeometry</span><span class="p">(</span><span class="n">QgsGeometry</span><span class="p">(</span><span class="n">g</span><span class="p">))</span>
-                    <span class="n">v</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">vertexAt</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-                    <span class="p">(</span><span class="n">__</span><span class="p">,</span> <span class="n">is_acute</span><span class="p">,</span> <span class="n">__</span><span class="p">,</span> <span class="n">__</span><span class="p">)</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">get_angle_with_context</span><span class="p">(</span><span class="n">g</span><span class="p">,</span>
-                        <span class="n">acute_thr</span><span class="o">=</span><span class="n">setup</span><span class="o">.</span><span class="n">acute_inv</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">is_acute</span><span class="p">:</span>
-                        <span class="n">g</span><span class="o">.</span><span class="n">deleteVertex</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-                        <span class="k">if</span> <span class="ow">not</span> <span class="n">g</span><span class="o">.</span><span class="n">isGeosValid</span><span class="p">()</span> <span class="ow">or</span> <span class="n">g</span><span class="o">.</span><span class="n">area</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">setup</span><span class="o">.</span><span class="n">min_area</span><span class="p">:</span>
-                            <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                                <span class="n">rings</span> <span class="o">+=</span> <span class="mi">1</span>
-                                <span class="n">geom</span><span class="o">.</span><span class="n">deleteRing</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-                                <span class="n">to_change</span><span class="p">[</span><span class="n">fid</span><span class="p">]</span> <span class="o">=</span> <span class="n">geom</span>
-                                <span class="k">if</span> <span class="n">log</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
-                                    <span class="n">debshp</span><span class="o">.</span><span class="n">addFeature</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                    <span class="n">g</span><span class="o">.</span><span class="n">deleteVertex</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">g</span><span class="o">.</span><span class="n">isGeosValid</span><span class="p">()</span> <span class="ow">or</span> <span class="n">g</span><span class="o">.</span><span class="n">area</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">setup</span><span class="o">.</span><span class="n">min_area</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="n">rings</span> <span class="o">+=</span> <span class="mi">1</span>
+                            <span class="n">geom</span><span class="o">.</span><span class="n">deleteRing</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                            <span class="n">to_change</span><span class="p">[</span><span class="n">fid</span><span class="p">]</span> <span class="o">=</span> <span class="n">geom</span>
+                            <span class="n">geometries</span><span class="p">[</span><span class="n">fid</span><span class="p">]</span> <span class="o">=</span> <span class="n">geom</span>
+                            <span class="k">if</span> <span class="n">log</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
+                                <span class="n">debshp</span><span class="o">.</span><span class="n">addFeature</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">badgeom</span> <span class="o">=</span> <span class="kc">True</span>
+                            <span class="n">to_clean</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fid</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">fid</span> <span class="ow">in</span> <span class="n">to_change</span><span class="p">:</span> <span class="k">del</span> <span class="n">to_change</span><span class="p">[</span><span class="n">fid</span><span class="p">]</span>
+                            <span class="k">if</span> <span class="n">log</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
+                                <span class="n">debshp</span><span class="o">.</span><span class="n">addFeature</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                        <span class="k">break</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ring</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span> <span class="c1"># (can delete vertexs)</span>
+                        <span class="n">va</span> <span class="o">=</span> <span class="n">geom</span><span class="o">.</span><span class="n">vertexAt</span><span class="p">(</span><span class="n">ndxa</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">is_zigzag</span><span class="p">:</span>
+                            <span class="n">g</span> <span class="o">=</span> <span class="n">QgsGeometry</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">ndxa</span> <span class="o">&gt;</span> <span class="n">ndx</span><span class="p">:</span>
+                                <span class="n">g</span><span class="o">.</span><span class="n">deleteVertex</span><span class="p">(</span><span class="n">ndxa</span><span class="p">)</span>
+                                <span class="n">g</span><span class="o">.</span><span class="n">deleteVertex</span><span class="p">(</span><span class="n">ndx</span><span class="p">)</span>
+                                <span class="n">skip</span> <span class="o">=</span> <span class="kc">True</span>
                             <span class="k">else</span><span class="p">:</span>
-                                <span class="n">to_clean</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fid</span><span class="p">)</span>
-                                <span class="k">if</span> <span class="n">fid</span> <span class="ow">in</span> <span class="n">to_change</span><span class="p">:</span> <span class="k">del</span> <span class="n">to_change</span><span class="p">[</span><span class="n">fid</span><span class="p">]</span>
-                                <span class="k">if</span> <span class="n">log</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
-                                    <span class="n">debshp</span><span class="o">.</span><span class="n">addFeature</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-                                <span class="k">break</span>
+                                <span class="n">g</span><span class="o">.</span><span class="n">deleteVertex</span><span class="p">(</span><span class="n">ndx</span><span class="p">)</span>
+                                <span class="n">g</span><span class="o">.</span><span class="n">deleteVertex</span><span class="p">(</span><span class="n">ndxa</span><span class="p">)</span>
+                            <span class="n">valid</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">isGeosValid</span><span class="p">()</span>
+                            <span class="k">if</span> <span class="n">valid</span><span class="p">:</span>
+                                <span class="n">geom</span> <span class="o">=</span> <span class="n">g</span>
+                                <span class="n">zz</span> <span class="o">+=</span> <span class="mi">1</span>
+                                <span class="n">to_change</span><span class="p">[</span><span class="n">fid</span><span class="p">]</span> <span class="o">=</span> <span class="n">g</span>
+                                <span class="n">geometries</span><span class="p">[</span><span class="n">fid</span><span class="p">]</span> <span class="o">=</span> <span class="n">geom</span>
+                            <span class="k">if</span> <span class="n">log</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
+                                <span class="n">debshp2</span><span class="o">.</span><span class="n">add_point</span><span class="p">(</span><span class="n">va</span><span class="p">,</span> <span class="s1">&#39;zza </span><span class="si">%d</span><span class="s1"> </span><span class="si">%d</span><span class="s1"> </span><span class="si">%d</span><span class="s1"> </span><span class="si">%f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fid</span><span class="p">,</span> <span class="n">ndx</span><span class="p">,</span> <span class="n">ndxa</span><span class="p">,</span> <span class="n">angle_a</span><span class="p">))</span>
+                                <span class="n">debshp2</span><span class="o">.</span><span class="n">add_point</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="s1">&#39;zz </span><span class="si">%d</span><span class="s1"> </span><span class="si">%d</span><span class="s1"> </span><span class="si">%d</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fid</span><span class="p">,</span> <span class="n">ndx</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">ring</span><span class="p">),</span> <span class="n">valid</span><span class="p">))</span>
+                        <span class="k">elif</span> <span class="n">is_spike</span><span class="p">:</span>
+                            <span class="n">g</span> <span class="o">=</span> <span class="n">QgsGeometry</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
+                            <span class="n">to_move</span><span class="p">[</span><span class="n">va</span><span class="p">]</span> <span class="o">=</span> <span class="n">vx</span> <span class="c1">#!</span>
+                            <span class="n">g</span><span class="o">.</span><span class="n">moveVertex</span><span class="p">(</span><span class="n">vx</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">vx</span><span class="o">.</span><span class="n">y</span><span class="p">(),</span> <span class="n">ndxa</span><span class="p">)</span>
+                            <span class="n">g</span><span class="o">.</span><span class="n">deleteVertex</span><span class="p">(</span><span class="n">ndx</span><span class="p">)</span>
+                            <span class="n">valid</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">isGeosValid</span><span class="p">()</span>
+                            <span class="k">if</span> <span class="n">valid</span><span class="p">:</span>
+                                <span class="n">spikes</span> <span class="o">+=</span> <span class="mi">1</span>
+                                <span class="n">skip</span> <span class="o">=</span> <span class="n">ndxa</span> <span class="o">&gt;</span> <span class="n">ndx</span>
+                                <span class="n">geom</span> <span class="o">=</span> <span class="n">g</span>
+                                <span class="n">to_change</span><span class="p">[</span><span class="n">fid</span><span class="p">]</span> <span class="o">=</span> <span class="n">g</span>
+                                <span class="n">geometries</span><span class="p">[</span><span class="n">fid</span><span class="p">]</span> <span class="o">=</span> <span class="n">geom</span>
+                            <span class="k">if</span> <span class="n">log</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
+                                <span class="n">debshp2</span><span class="o">.</span><span class="n">add_point</span><span class="p">(</span><span class="n">vx</span><span class="p">,</span> <span class="s1">&#39;vx </span><span class="si">%d</span><span class="s1"> </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fid</span><span class="p">,</span> <span class="n">ndx</span><span class="p">))</span>
+                                <span class="n">debshp2</span><span class="o">.</span><span class="n">add_point</span><span class="p">(</span><span class="n">va</span><span class="p">,</span> <span class="s1">&#39;va </span><span class="si">%d</span><span class="s1"> </span><span class="si">%d</span><span class="s1"> </span><span class="si">%d</span><span class="s1"> </span><span class="si">%f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fid</span><span class="p">,</span> <span class="n">ndx</span><span class="p">,</span> <span class="n">ndxa</span><span class="p">,</span> <span class="n">angle_a</span><span class="p">))</span>
+                                <span class="n">debshp2</span><span class="o">.</span><span class="n">add_point</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="s1">&#39;v </span><span class="si">%d</span><span class="s1"> </span><span class="si">%d</span><span class="s1"> </span><span class="si">%d</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fid</span><span class="p">,</span> <span class="n">ndx</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">ring</span><span class="p">),</span> <span class="n">valid</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">to_move</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">fid</span><span class="p">,</span> <span class="n">geom</span> <span class="ow">in</span> <span class="n">geometries</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">fid</span> <span class="ow">in</span> <span class="n">to_clean</span><span class="p">:</span> <span class="k">continue</span>
+                <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">v</span> <span class="o">=</span> <span class="n">geom</span><span class="o">.</span><span class="n">vertexAt</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+                <span class="k">while</span> <span class="n">v</span> <span class="o">!=</span> <span class="n">QgsPoint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">to_move</span><span class="p">:</span>
+                        <span class="n">g</span> <span class="o">=</span> <span class="n">QgsGeometry</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
+                        <span class="n">vx</span> <span class="o">=</span> <span class="n">to_move</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="n">log</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
+                            <span class="n">debshp2</span><span class="o">.</span><span class="n">add_point</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="s1">&#39;mv </span><span class="si">%d</span><span class="s1"> </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fid</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+                            <span class="n">debshp2</span><span class="o">.</span><span class="n">add_point</span><span class="p">(</span><span class="n">vx</span><span class="p">,</span> <span class="s1">&#39;mvx </span><span class="si">%d</span><span class="s1"> </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fid</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+                        <span class="n">g</span><span class="o">.</span><span class="n">moveVertex</span><span class="p">(</span><span class="n">vx</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">vx</span><span class="o">.</span><span class="n">y</span><span class="p">(),</span> <span class="n">n</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">isGeosValid</span><span class="p">():</span>
+                            <span class="n">geom</span> <span class="o">=</span> <span class="n">g</span>
+                            <span class="n">to_change</span><span class="p">[</span><span class="n">fid</span><span class="p">]</span> <span class="o">=</span> <span class="n">g</span>
+                    <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">v</span> <span class="o">=</span> <span class="n">geom</span><span class="o">.</span><span class="n">vertexAt</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">to_change</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">changeGeometryValues</span><span class="p">(</span><span class="n">to_change</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">rings</span><span class="p">:</span>
@@ -755,7 +899,15 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">deleteFeatures</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span>
             <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Deleted </span><span class="si">%d</span><span class="s2"> invalid geometries in the &#39;</span><span class="si">%s</span><span class="s2">&#39; layer&quot;</span><span class="p">),</span>
                 <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
-            <span class="n">report</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s1">&#39;geom_invalid_&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span></div>
+            <span class="n">report</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s1">&#39;geom_invalid_&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">zz</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Deleted </span><span class="si">%d</span><span class="s2"> zig-zag vertices in the &#39;</span><span class="si">%s</span><span class="s2">&#39; layer&quot;</span><span class="p">),</span> <span class="n">zz</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s1">&#39;vertex_zz_&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()]</span> <span class="o">=</span> <span class="n">zz</span>
+        <span class="k">if</span> <span class="n">spikes</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Deleted </span><span class="si">%d</span><span class="s2"> spike vertices in the &#39;</span><span class="si">%s</span><span class="s2">&#39; layer&quot;</span><span class="p">),</span> <span class="n">spikes</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s1">&#39;vertex_spike_&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()]</span> <span class="o">=</span> <span class="n">spikes</span></div>
 
 <div class="viewcode-block" id="PolygonLayer.simplify"><a class="viewcode-back" href="../api/layer.html#layer.PolygonLayer.simplify">[documentos]</a>    <span class="k">def</span> <span class="nf">simplify</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -768,7 +920,7 @@
 <span class="sd">          less than &#39;cath_thr&#39; meters.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">log</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
-            <span class="n">debshp</span> <span class="o">=</span> <span class="n">DebugWriter</span><span class="p">(</span><span class="s2">&quot;debug_simplify.shp&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="p">())</span>
+            <span class="n">debshp</span> <span class="o">=</span> <span class="n">DebugWriter</span><span class="p">(</span><span class="s2">&quot;debug_simplify.shp&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
         <span class="n">killed</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">to_change</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="c1"># Clean non corners</span>
@@ -778,7 +930,7 @@
             <span class="c1"># Test if this vertex is a &#39;corner&#39; in any of its parent polygons</span>
             <span class="k">for</span> <span class="n">fid</span> <span class="ow">in</span> <span class="n">parents</span><span class="p">:</span>
                 <span class="n">geom</span> <span class="o">=</span> <span class="n">geometries</span><span class="p">[</span><span class="n">fid</span><span class="p">]</span>
-                <span class="p">(</span><span class="n">angle</span><span class="p">,</span> <span class="n">is_acute</span><span class="p">,</span> <span class="n">is_corner</span><span class="p">,</span> <span class="n">cath</span><span class="p">)</span> <span class="o">=</span> <span class="n">point</span><span class="o">.</span><span class="n">get_angle_with_context</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
+                <span class="p">(</span><span class="n">angle</span><span class="p">,</span> <span class="n">is_acute</span><span class="p">,</span> <span class="n">is_corner</span><span class="p">,</span> <span class="n">cath</span><span class="p">)</span> <span class="o">=</span> <span class="n">point</span><span class="o">.</span><span class="n">get_corner_context</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
                 <span class="n">debmsg</span> <span class="o">=</span> <span class="s2">&quot;angle=</span><span class="si">%.1f</span><span class="s2">, is_acute=</span><span class="si">%s</span><span class="s2">, is_corner=</span><span class="si">%s</span><span class="s2">, cath=</span><span class="si">%.4f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">angle</span><span class="p">,</span>
                     <span class="n">is_acute</span><span class="p">,</span> <span class="n">is_corner</span><span class="p">,</span> <span class="n">cath</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">is_corner</span><span class="p">:</span> <span class="k">break</span>
@@ -849,7 +1001,7 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">&quot;Polygon&quot;</span><span class="p">,</span> <span class="n">baseName</span><span class="o">=</span><span class="s2">&quot;cadastralparcel&quot;</span><span class="p">,</span>
             <span class="n">providerLib</span><span class="o">=</span><span class="s2">&quot;memory&quot;</span><span class="p">,</span> <span class="n">source_date</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">ParcelLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ParcelLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pendingFields</span><span class="p">()</span><span class="o">.</span><span class="n">isEmpty</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">addAttributes</span><span class="p">([</span>
                 <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;localId&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">254</span><span class="p">),</span>
@@ -863,9 +1015,9 @@
 <div class="viewcode-block" id="ZoningLayer"><a class="viewcode-back" href="../api/layer.html#layer.ZoningLayer">[documentos]</a><span class="k">class</span> <span class="nc">ZoningLayer</span><span class="p">(</span><span class="n">PolygonLayer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Class for cadastral zoning&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">&quot;Polygon&quot;</span><span class="p">,</span> <span class="n">baseName</span><span class="o">=</span><span class="s2">&quot;cadastralzoning&quot;</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="s1">&#39;{}&#39;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">&quot;Polygon&quot;</span><span class="p">,</span> <span class="n">baseName</span><span class="o">=</span><span class="s2">&quot;cadastralzoning&quot;</span><span class="p">,</span>
             <span class="n">providerLib</span><span class="o">=</span><span class="s2">&quot;memory&quot;</span><span class="p">,</span> <span class="n">source_date</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">ZoningLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ZoningLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pendingFields</span><span class="p">()</span><span class="o">.</span><span class="n">isEmpty</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">addAttributes</span><span class="p">([</span>
                 <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;localId&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">254</span><span class="p">),</span>
@@ -927,7 +1079,7 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">&quot;Point&quot;</span><span class="p">,</span> <span class="n">baseName</span><span class="o">=</span><span class="s2">&quot;address&quot;</span><span class="p">,</span> <span class="n">providerLib</span><span class="o">=</span><span class="s2">&quot;memory&quot;</span><span class="p">,</span>
             <span class="n">source_date</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">AddressLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">AddressLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pendingFields</span><span class="p">()</span><span class="o">.</span><span class="n">isEmpty</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">addAttributes</span><span class="p">([</span>
                 <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;localId&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">254</span><span class="p">),</span>
@@ -974,20 +1126,6 @@
             <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Deleted </span><span class="si">%d</span><span class="s2"> addresses without house number&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">))</span>
             <span class="n">report</span><span class="o">.</span><span class="n">addresses_without_number</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="AddressLayer.del_address"><a class="viewcode-back" href="../api/layer.html#layer.AddressLayer.del_address">[documentos]</a>    <span class="k">def</span> <span class="nf">del_address</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">building</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Delete the address if there aren&#39;t any associated building.&quot;&quot;&quot;</span>
-        <span class="n">to_clean</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">building_refs</span> <span class="o">=</span> <span class="p">{</span><span class="n">bu</span><span class="p">[</span><span class="s1">&#39;localId&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">bu</span> <span class="ow">in</span> \
-            <span class="n">building</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;not regexp_match(localId, &#39;_&#39;)&quot;</span><span class="p">)}</span>
-        <span class="k">for</span> <span class="n">ad</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">():</span>
-            <span class="n">ref</span> <span class="o">=</span> <span class="n">ad</span><span class="p">[</span><span class="s1">&#39;localId&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">ref</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">building_refs</span><span class="p">:</span>
-                <span class="n">to_clean</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ad</span><span class="o">.</span><span class="n">id</span><span class="p">())</span>
-        <span class="k">if</span> <span class="n">to_clean</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">deleteFeatures</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Deleted </span><span class="si">%d</span><span class="s2"> addresses without associated building&quot;</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">))</span>
-            <span class="n">report</span><span class="o">.</span><span class="n">orphand_addresses</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span></div>
-
 <div class="viewcode-block" id="AddressLayer.get_highway_names"><a class="viewcode-back" href="../api/layer.html#layer.AddressLayer.get_highway_names">[documentos]</a>    <span class="k">def</span> <span class="nf">get_highway_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">highway</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a dictionary with the translation for each street name.</span>
@@ -1015,7 +1153,7 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">&quot;Polygon&quot;</span><span class="p">,</span> <span class="n">baseName</span><span class="o">=</span><span class="s2">&quot;building&quot;</span><span class="p">,</span>
             <span class="n">providerLib</span> <span class="o">=</span> <span class="s2">&quot;memory&quot;</span><span class="p">,</span> <span class="n">source_date</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">ConsLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ConsLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pendingFields</span><span class="p">()</span><span class="o">.</span><span class="n">isEmpty</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">addAttributes</span><span class="p">([</span>
                 <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;localId&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">254</span><span class="p">),</span>
@@ -1179,10 +1317,10 @@
 
 <div class="viewcode-block" id="ConsLayer.remove_outside_parts"><a class="viewcode-back" href="../api/layer.html#layer.ConsLayer.remove_outside_parts">[documentos]</a>    <span class="k">def</span> <span class="nf">remove_outside_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Remove parts without levels above ground</span>
-<span class="sd">        Create footprint for parts without associated building</span>
-<span class="sd">        Remove parts outside the footprint of it building</span>
-<span class="sd">        Precondition: Called before merge_greatest_part</span>
+<span class="sd">        Remove parts without levels above ground.</span>
+<span class="sd">        Create footprint for parts without associated building.</span>
+<span class="sd">        Remove parts outside the footprint of it building.</span>
+<span class="sd">        Precondition: Called before merge_greatest_part.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">to_clean_o</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">to_clean_b</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1257,6 +1395,16 @@
         <span class="n">footprint</span><span class="p">[</span><span class="s1">&#39;lev_below&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">min_level</span>
         <span class="n">to_change</span><span class="p">[</span><span class="n">footprint</span><span class="o">.</span><span class="n">id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">get_attributes</span><span class="p">(</span><span class="n">footprint</span><span class="p">)</span>
         <span class="k">for</span> <span class="p">(</span><span class="n">level</span><span class="p">,</span> <span class="n">parts</span><span class="p">)</span> <span class="ow">in</span> <span class="n">parts_for_level</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">check_area</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">:</span>
+                <span class="n">part_area</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">part</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span><span class="o">.</span><span class="n">area</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">building_area</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">footprint</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span><span class="o">.</span><span class="n">area</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">part_area</span> <span class="o">&gt;</span> <span class="n">building_area</span><span class="p">:</span>
+                    <span class="n">part</span><span class="p">[</span><span class="s1">&#39;fixme&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s1">&#39;This part is bigger than its building&#39;</span><span class="p">)</span>
+                    <span class="n">to_change</span><span class="p">[</span><span class="n">part</span><span class="o">.</span><span class="n">id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">get_attributes</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
+                    <span class="n">check_area</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">check_area</span><span class="p">:</span>
+                <span class="k">continue</span>
             <span class="k">if</span> <span class="n">level</span> <span class="o">==</span> <span class="p">(</span><span class="n">max_level</span><span class="p">,</span> <span class="n">min_level</span><span class="p">):</span>
                 <span class="n">to_clean</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">id</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parts_for_level</span><span class="p">[</span><span class="n">max_level</span><span class="p">,</span> <span class="n">min_level</span><span class="p">]]</span>
             <span class="k">else</span><span class="p">:</span>
@@ -1314,14 +1462,19 @@
 <span class="sd">        * The address specification is Entrance.</span>
 
 <span class="sd">        * The new position is enough close and is not a corner</span>
+<span class="sd">        </span>
+<span class="sd">        Delete the address if the number of associated buildings is not one.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">to_change</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">to_move</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">to_insert</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">to_clean</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">mp</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">oa</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="p">(</span><span class="n">buildings</span><span class="p">,</span> <span class="n">parts</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_of_building_and_parts</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">ad</span> <span class="ow">in</span> <span class="n">address</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">():</span>
             <span class="n">refcat</span> <span class="o">=</span> <span class="n">ad</span><span class="p">[</span><span class="s1">&#39;localId&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">building_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">buildings</span><span class="p">[</span><span class="n">refcat</span><span class="p">])</span>
+            <span class="n">building_count</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">refcat</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">buildings</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">buildings</span><span class="p">[</span><span class="n">refcat</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">building_count</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">building</span> <span class="o">=</span> <span class="n">buildings</span><span class="p">[</span><span class="n">refcat</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
                 <span class="n">it_parts</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="n">refcat</span><span class="p">]</span>
@@ -1332,7 +1485,10 @@
                     <span class="n">va</span> <span class="o">=</span> <span class="n">bg</span><span class="o">.</span><span class="n">vertexAt</span><span class="p">(</span><span class="n">vertex</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
                     <span class="n">vb</span> <span class="o">=</span> <span class="n">bg</span><span class="o">.</span><span class="n">vertexAt</span><span class="p">(</span><span class="n">vertex</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">distance</span> <span class="o">&lt;</span> <span class="n">setup</span><span class="o">.</span><span class="n">addr_thr</span><span class="o">**</span><span class="mi">2</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">closest</span><span class="o">.</span><span class="n">sqrDist</span><span class="p">(</span><span class="n">va</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">setup</span><span class="o">.</span><span class="n">entrance_thr</span><span class="o">**</span><span class="mi">2</span> \
+                        <span class="k">if</span> <span class="n">vertex</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">bg</span><span class="o">.</span><span class="n">asPolygon</span><span class="p">()[</span><span class="mi">0</span><span class="p">]):</span>
+                            <span class="n">ad</span><span class="p">[</span><span class="s1">&#39;spec&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;inner&#39;</span>
+                            <span class="n">to_change</span><span class="p">[</span><span class="n">ad</span><span class="o">.</span><span class="n">id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">get_attributes</span><span class="p">(</span><span class="n">ad</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">closest</span><span class="o">.</span><span class="n">sqrDist</span><span class="p">(</span><span class="n">va</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">setup</span><span class="o">.</span><span class="n">entrance_thr</span><span class="o">**</span><span class="mi">2</span> \
                                 <span class="ow">or</span> <span class="n">closest</span><span class="o">.</span><span class="n">sqrDist</span><span class="p">(</span><span class="n">vb</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">setup</span><span class="o">.</span><span class="n">entrance_thr</span><span class="o">**</span><span class="mi">2</span><span class="p">:</span>
                             <span class="n">ad</span><span class="p">[</span><span class="s1">&#39;spec&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;corner&#39;</span>
                             <span class="n">to_change</span><span class="p">[</span><span class="n">ad</span><span class="o">.</span><span class="n">id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">get_attributes</span><span class="p">(</span><span class="n">ad</span><span class="p">)</span>
@@ -1351,11 +1507,25 @@
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">ad</span><span class="p">[</span><span class="s1">&#39;spec&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;remote&#39;</span>
                         <span class="n">to_change</span><span class="p">[</span><span class="n">ad</span><span class="o">.</span><span class="n">id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">get_attributes</span><span class="p">(</span><span class="n">ad</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">to_clean</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ad</span><span class="o">.</span><span class="n">id</span><span class="p">())</span>
+                <span class="k">if</span> <span class="n">building_count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">oa</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">mp</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="n">address</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">changeAttributeValues</span><span class="p">(</span><span class="n">to_change</span><span class="p">)</span>
         <span class="n">address</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">changeGeometryValues</span><span class="p">(</span><span class="n">to_move</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">changeGeometryValues</span><span class="p">(</span><span class="n">to_insert</span><span class="p">)</span>
         <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Moved </span><span class="si">%d</span><span class="s2"> addresses to entrance, </span><span class="si">%d</span><span class="s2"> changed to parcel&quot;</span><span class="p">),</span>
-            <span class="nb">len</span><span class="p">(</span><span class="n">to_move</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_change</span><span class="p">))</span></div>
+            <span class="nb">len</span><span class="p">(</span><span class="n">to_move</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_change</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">address</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">deleteFeatures</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">oa</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Deleted </span><span class="si">%d</span><span class="s2"> addresses without associated building&quot;</span><span class="p">),</span> <span class="n">oa</span><span class="p">)</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">orphand_addresses</span> <span class="o">=</span> <span class="n">oa</span>
+        <span class="k">if</span> <span class="n">mp</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Refused </span><span class="si">%d</span><span class="s2"> addresses belonging to multiple buildings&quot;</span><span class="p">),</span> <span class="n">mp</span><span class="p">)</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">multiple_addresses</span> <span class="o">=</span> <span class="n">mp</span></div>
 
 <div class="viewcode-block" id="ConsLayer.validate"><a class="viewcode-back" href="../api/layer.html#layer.ConsLayer.validate">[documentos]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_level</span><span class="p">,</span> <span class="n">min_level</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Put fixmes to buildings with not valid geometry, too small or big.</span>
@@ -1436,7 +1606,7 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">&quot;LineString&quot;</span><span class="p">,</span> <span class="n">baseName</span><span class="o">=</span><span class="s2">&quot;highway&quot;</span><span class="p">,</span>
             <span class="n">providerLib</span><span class="o">=</span><span class="s2">&quot;memory&quot;</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">HighwayLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">HighwayLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pendingFields</span><span class="p">()</span><span class="o">.</span><span class="n">isEmpty</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">addAttributes</span><span class="p">([</span>
                 <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">254</span><span class="p">),</span>
@@ -1465,17 +1635,19 @@
 <div class="viewcode-block" id="DebugWriter"><a class="viewcode-back" href="../api/layer.html#layer.DebugWriter">[documentos]</a><span class="k">class</span> <span class="nc">DebugWriter</span><span class="p">(</span><span class="n">QgsVectorFileWriter</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;A QgsVectorFileWriter for debugging purposess.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">crs</span><span class="p">,</span> <span class="n">driver_name</span><span class="o">=</span><span class="s2">&quot;ESRI Shapefile&quot;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">driver_name</span><span class="o">=</span><span class="s2">&quot;ESRI Shapefile&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            filename (str): File name of the layer</span>
 <span class="sd">            crs (QgsCoordinateReferenceSystem): Crs of layer.</span>
 <span class="sd">            driver_name (str): Defaults to ESRI Shapefile.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span> \
+                <span class="n">layer</span><span class="o">.</span><span class="n">dataProvider</span><span class="p">()</span><span class="o">.</span><span class="n">dataSourceUri</span><span class="p">()),</span> <span class="n">filename</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">=</span> <span class="n">QgsFields</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">QgsField</span><span class="p">(</span><span class="s2">&quot;note&quot;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">100</span><span class="p">))</span>
-        <span class="n">QgsVectorFileWriter</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">,</span>
-                <span class="n">QGis</span><span class="o">.</span><span class="n">WKBPoint</span><span class="p">,</span> <span class="n">crs</span><span class="p">,</span> <span class="n">driver_name</span><span class="p">)</span>
+        <span class="n">QgsVectorFileWriter</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fpath</span><span class="p">,</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">,</span>
+                <span class="n">QGis</span><span class="o">.</span><span class="n">WKBPoint</span><span class="p">,</span> <span class="n">layer</span><span class="o">.</span><span class="n">crs</span><span class="p">(),</span> <span class="n">driver_name</span><span class="p">)</span>
 
 <div class="viewcode-block" id="DebugWriter.add_point"><a class="viewcode-back" href="../api/layer.html#layer.DebugWriter.add_point">[documentos]</a>    <span class="k">def</span> <span class="nf">add_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="p">,</span> <span class="n">note</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Adds a point to the layer with the attribute note.&quot;&quot;&quot;</span>
@@ -1502,7 +1674,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Índice de Módulos Python"
              >módulos</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 2017-11-06deb</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 2017-11-09dev</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" >Código de módulo</a> &#187;</li> 
       </ul>
     </div>

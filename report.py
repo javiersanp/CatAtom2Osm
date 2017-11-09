@@ -54,6 +54,7 @@ class Report(object):
             ('addresses_without_number', _('Addresses without house number deleted: {}')),
             ('orphand_addresses', _('Addresses without associated building deleted: {}')),
             ('multiple_addresses', _('Addresses belonging to multiple buildings deleted: {}')),
+            ('not_unique_addresses', _("'Parcel' addresses not unique for it building deleted: {}")),
             ('subgroup_ad_conflation', _("Conflation")),
             ('osm_addresses', _("OSM addresses : {}")),
             ('osm_addresses_whithout_number', TAB + _("Without house number: {}")),
@@ -81,6 +82,8 @@ class Report(object):
             ('adjacent_parts', _("Adjacent parts merged: {}")),
             ('geom_rings_building', _('Invalid geometry rings deleted: {}')),
             ('geom_invalid_building', _('Invalid geometries deleted: {}')),
+            ('vertex_zigzag_building', _('Zig-zag vertices deleted: {}')),
+            ('vertex_spike_building', _('Spike vertices deleted: {}')),
             ('vertex_close_building', _('Close vertices merged: {}')),
             ('vertex_topo_building', _('Topological points created: {}')),
             ('vertex_simplify_building', _("Simplified vertices: {}")),
@@ -116,47 +119,29 @@ class Report(object):
     def __getattr__(self, key):
         return self.values[key]
 
-    def init_building_values(self):
-        self.nodes = 0
-        self.ways = 0
-        self.relations = 0
-        self.out_features = 0
-        self.out_pools = 0
-        self.out_buildings = 0
-        self.out_parts = 0
-        self.building_counter = Counter()
-        self.out_address_entrance = 0
-        self.out_address_building = 0
-        
-    def init_address_values(self):
-        self.multiple_addresses = 0
-        self.out_address = 0
-        self.out_addr_str = 0
-        self.out_addr_plc = 0
-
     def address_stats(self, address_osm):
         for el in address_osm.elements:
             if 'addr:street' in el.tags:
-                self.out_addr_str += 1
+                self.inc('out_addr_str')
             if 'addr:place' in el.tags:
-                self.out_addr_plc += 1
+                self.inc('out_addr_plc')
         self.out_address = len(address_osm.elements)
 
     def cons_stats(self, data):
-        self.nodes += len(data.nodes)
-        self.ways += len(data.ways)
-        self.relations += len(data.relations)
+        self.inc('nodes', len(data.nodes))
+        self.inc('ways', len(data.ways))
+        self.inc('relations', len(data.relations))
         for el in data.elements:
             if 'leisure' in el.tags and el.tags['leisure'] == 'swimming_pool':
-                self.out_pools += 1
-                self.out_features += 1
+                self.inc('out_pools')
+                self.inc('out_features')
             if 'building' in el.tags:
-                self.out_buildings += 1
+                self.inc('out_buildings')
                 self.building_counter[el.tags['building']] += 1
-                self.out_features += 1
+                self.inc('out_features')
             if 'building:part' in el.tags:
-                self.out_parts += 1
-                self.out_features += 1
+                self.inc('out_parts')
+                self.inc('out_features')
             if 'fixme' in el.tags:
                 self.fixme_counter[el.tags['fixme']] += 1
 
@@ -183,6 +168,9 @@ class Report(object):
     def get(self, key, default=0):
         return self.values.get(key, default)  
     
+    def inc(self, key, step=1):
+        self.values[key] = self.get(key) + step
+
     def sum(self, *args):
         return sum(self.get(key) for key in args)
 
@@ -210,7 +198,7 @@ class Report(object):
                 "to the input addresses"))
         if self.sum('addresses_without_number', 'orphand_addresses', 
                 'multiple_addresses', 'refused_addresses', 'ignored_addresses', 
-                'out_address') != self.get('inp_address'):
+                'not_unique_addresses', 'out_address') != self.get('inp_address'):
             self.errors.append(_("Sum of output and deleted addresses "
                 "should be equal to the input addresses"))
         if self.sum('out_address_entrance', 'out_address_building') > 0 and \
@@ -232,7 +220,7 @@ class Report(object):
                 self.sum('new_footprints', 'exploded_parts_building') != \
                     self.get('inp_features'):
             self.errors.append(_("Sum of output and deleted minus created "
-                "features should be equal to input features"))
+                "building features should be equal to input features"))
         if 'building_counter' in self.values:
             if sum(self.values['building_counter'].values()) != \
                     self.get('out_buildings'):

@@ -4,7 +4,7 @@
 import os
 import math
 import re
-from collections import defaultdict, Counter
+from collections import defaultdict
 import logging
 
 from qgis.core import *
@@ -40,11 +40,30 @@ class Point(QgsPoint):
         return QgsRectangle(self.x() - radius, self.y() - radius,
                         self.x() + radius, self.y() + radius)
 
-    def get_angle_with_context(self, geom, acute_thr=setup.acute_thr,
-            straight_thr=setup.straight_thr, cath_thr=setup.dist_thr):
+    def get_angle(self, geom):
         """
         For the vertex in a geometry nearest to this point, give the angle
         between its adjacent vertexs.
+
+        Args:
+            geom (QgsGeometry): Geometry to test.
+
+        Returns:
+            (float) Angle between the vertex and their adjacents,
+        """
+        (point, ndx, ndxa, ndxb, dist) = geom.closestVertex(self)
+        va = geom.vertexAt(ndxa) # previous vertex
+        vb = geom.vertexAt(ndxb) # next vertex
+        angle = abs(point.azimuth(va) - point.azimuth(vb))
+        return angle
+
+    def get_corner_context(self, geom, acute_thr=setup.acute_thr,
+            straight_thr=setup.straight_thr, cath_thr=setup.dist_thr):
+        """
+        For the vertex in a geometry nearest to this point, give context to
+        determine if it is a corner (the angle differs by more than straight_thr
+            of 180 and if the distance from the vertex to the segment formed by
+            their adjacents is greater than cath_thr).
 
         Args:
             geom (QgsGeometry): Geometry to test.
@@ -53,12 +72,10 @@ class Point(QgsPoint):
             cath_thr (float): Cathetus threshold.
 
         Returns:
-            (float) Angle between the vertex and their adjacents,
-            (bool)  True for a corner (the angle differs by more than straight_thr
-            of 180 and if the distance from the vertex to the segment formed by
-            their adjacents is greater than cath_thr.
-            (bool)  True if the angle is too low (< acute_thr)
-            (float) Distance from the vertex to the segment formed by their adjacents
+            (float) Angle between the vertex and their adjacents.
+            (bool)  True if the angle is too low (< acute_thr).
+            (bool)  True for a corner
+            (float) Distance from the vertex to the segment formed by their adjacents.
         """
         (point, ndx, ndxa, ndxb, dist) = geom.closestVertex(self)
         va = geom.vertexAt(ndxa) # previous vertex
@@ -70,6 +87,64 @@ class Point(QgsPoint):
         is_corner = abs(180 - angle) > straight_thr and c > cath_thr
         is_acute = angle < acute_thr if angle < 180 else 360 - angle < acute_thr
         return (angle, is_acute, is_corner, c)
+    
+    def get_spike_context(self, geom, acute_thr=setup.acute_inv,
+            straight_thr=setup.straight_thr, threshold=setup.dist_inv):
+        """
+        For the vertex in a geometry nearest to this point, give context to
+        determine if its a zig-zag or a spike. It's a zig-zag if both the angles
+        of this vertex and the closest adjacents are acute. It's a spike if the
+        angle of this vertex is acute and the angle of the closest vertex is
+        not straight. 
+
+        Args:
+            geom (QgsGeometry): Geometry to test.
+            acute_thr (float): Acute angle threshold.
+            straight_thr (float): Straight angle threshold.
+            threshold (float): # Filter for angles.
+
+        Returns:
+            (float) angle_v = angle between the vertex and their adjacents.
+            (float) angle_a = angle between the closest adjacent and their adjacents.
+            (int) ndx = index of the vertex
+            (int) ndxa = index of the closest adjacent
+            (bool) is_acute = True if the angle is too low (< acute_thr).
+            (bool) is_zigzag = True if both angle_v and angle_a are acute and 
+            the distance from va to the segment v-vb is lower than threshold.
+            (bool) is_spike = True if is_acute and angle_a is not straight and 
+            the distance from va to the segment v-vb is lower than threshold.
+            (QgsPoint) vx = projection of va over the segment v-vb.
+        """
+        (v, ndx, ndxa, ndxb, dist) = geom.closestVertex(self)
+        va = geom.vertexAt(ndxa) # previous vertex
+        vb = geom.vertexAt(ndxb) # next vertex
+        angle_v = abs(v.azimuth(va) - v.azimuth(vb))
+        is_acute = angle_v < acute_thr if angle_v < 180 else 360 - angle_v < acute_thr
+        if not is_acute:
+            return angle_v, None, ndx, None, is_acute, False, False, None
+        dist_a = math.sqrt(va.sqrDist(v))
+        dist_b = math.sqrt(vb.sqrDist(v))
+        if dist_a > dist_b: # set va as the closest adjacent
+            vc = va
+            dist_c = dist_a
+            va = vb
+            dist_a = dist_b
+            ndxa = ndxb
+            vb = vc
+            dist_b = dist_c
+        angle_a = Point(va).get_angle(geom)
+        c = abs(math.sin(math.radians(angle_v))) * dist_a
+        is_zigzag = angle_a < acute_thr and c < threshold
+        is_spike = abs(180 - angle_a) > straight_thr and c < threshold
+        if is_zigzag:
+            return angle_v, angle_a, ndx, ndxa, is_acute, is_zigzag, is_spike, None
+        gamma = abs(90 + angle_v - angle_a)
+        dx = abs(dist_a * (math.cos(math.radians(angle_v)) \
+            + math.tan(math.radians(gamma)) * math.sin(math.radians(angle_v))))
+        x = v.x() + (vb.x() - v.x()) * dx / dist_b
+        y = v.y() + (vb.y() - v.y()) * dx / dist_b
+        vx = QgsPoint(x, y)
+        return angle_v, angle_a, ndx, ndxa, is_acute, is_zigzag, is_spike, vx
 
 
 class BaseLayer(QgsVectorLayer):
@@ -519,7 +594,7 @@ class PolygonLayer(BaseLayer):
         tp = 0
         td = 0
         if log.getEffectiveLevel() <= logging.DEBUG:
-            debshp = DebugWriter("debug_topology.shp", self.crs())
+            debshp = DebugWriter("debug_topology.shp", self)
         geometries = {f.id(): QgsGeometry(f.geometry()) for f in self.getFeatures()}
         index = self.get_index()
         to_change = {}
@@ -539,7 +614,7 @@ class PolygonLayer(BaseLayer):
                             vb = g.vertexAt(ndxb)
                             dist_a = va.sqrDist(point)
                             dist_b = vb.sqrDist(point)
-                            if dist_a < dist_b and dist_a < dup_thr**2:
+                            if dist_a < dup_thr**2:
                                 g.deleteVertex(ndxa)
                                 note = "dupe refused by isGeosValid"
                                 if g.isGeosValid():
@@ -548,7 +623,7 @@ class PolygonLayer(BaseLayer):
                                     nodes.add(p)
                                     nodes.add(va)
                                     td += 1
-                            if dist_b < dist_a and dist_b < dup_thr**2:
+                            if dist_b < dup_thr**2:
                                 g.deleteVertex(ndxb)
                                 note = "dupe refused by isGeosValid"
                                 if g.isGeosValid():
@@ -565,7 +640,7 @@ class PolygonLayer(BaseLayer):
                                     (dist_v, p.x(), p.y(), point.x(), point.y())
                                 nodes.add(p)
                                 td += 1
-                        elif dist_s < threshold**2 and dist_v > 0:
+                        elif dist_s < threshold**2 and closest != va and closest != vb:
                             va = g.vertexAt(vertex)
                             vb = g.vertexAt(vertex - 1)
                             angle = abs(point.azimuth(va) - point.azimuth(vb))
@@ -598,39 +673,108 @@ class PolygonLayer(BaseLayer):
             report.values['vertex_topo_' + self.name()] = tp
 
     def delete_invalid_geometries(self):
+        """
+        Delete invalid geometries testing if any of it acute angle vertex could
+        be deleted. 
+        Also removes zig-zag and spike vertex (see Point.get_spike_context).
+        """
         if log.getEffectiveLevel() <= logging.DEBUG:
-            debshp = QgsVectorFileWriter('debug_notvalid.shp', 'UTF-8', QgsFields(),
+            fpath = os.path.join(os.path.dirname(self.writer.dataSourceUri()), 
+                'debug_notvalid.shp')
+            debshp = QgsVectorFileWriter(fpath, 'UTF-8', QgsFields(),
                 QGis.WKBPolygon, self.crs(), 'ESRI Shapefile')
+            debshp2 = DebugWriter("debug_spikes.shp", self)
         to_change = {}
         to_clean = []
+        to_move = {}
         rings = 0
-        geometries = {feat.id(): QgsGeometry(feat.geometry()) for feat in self.getFeatures()}
+        zz = 0
+        spikes = 0
+        geometries = {f.id(): QgsGeometry(f.geometry()) for f in self.getFeatures()}
         for fid, geom in geometries.items():
+            badgeom = False
             for i, ring in enumerate(geom.asPolygon()):
-                n = -1
-                while n < 0 or v != QgsPoint(0, 0):
-                    n += 1
+                if badgeom: break
+                skip = False
+                for n, v in enumerate(ring[0:-1]):
+                    angle_v, angle_a, ndx, ndxa, is_acute, is_zigzag, is_spike, vx = \
+                        Point(v).get_spike_context(geom)
+                    if skip or not is_acute:
+                        skip = False
+                        continue
                     g = QgsGeometry().fromPolygon([ring])
                     f = QgsFeature(QgsFields())
                     f.setGeometry(QgsGeometry(g))
-                    v = g.vertexAt(n)
-                    (__, is_acute, __, __) = Point(v).get_angle_with_context(g,
-                        acute_thr=setup.acute_inv)
-                    if is_acute:
-                        g.deleteVertex(n)
-                        if not g.isGeosValid() or g.area() < setup.min_area:
-                            if i > 0:
-                                rings += 1
-                                geom.deleteRing(i)
-                                to_change[fid] = geom
-                                if log.getEffectiveLevel() <= logging.DEBUG:
-                                    debshp.addFeature(f)
+                    g.deleteVertex(n)
+                    if not g.isGeosValid() or g.area() < setup.min_area:
+                        if i > 0:
+                            rings += 1
+                            geom.deleteRing(i)
+                            to_change[fid] = geom
+                            geometries[fid] = geom
+                            if log.getEffectiveLevel() <= logging.DEBUG:
+                                debshp.addFeature(f)
+                        else:
+                            badgeom = True
+                            to_clean.append(fid)
+                            if fid in to_change: del to_change[fid]
+                            if log.getEffectiveLevel() <= logging.DEBUG:
+                                debshp.addFeature(f)
+                        break
+                    if len(ring) > 4: # (can delete vertexs)
+                        va = geom.vertexAt(ndxa)
+                        if is_zigzag:
+                            g = QgsGeometry(geom)
+                            if ndxa > ndx:
+                                g.deleteVertex(ndxa)
+                                g.deleteVertex(ndx)
+                                skip = True
                             else:
-                                to_clean.append(fid)
-                                if fid in to_change: del to_change[fid]
-                                if log.getEffectiveLevel() <= logging.DEBUG:
-                                    debshp.addFeature(f)
-                                break
+                                g.deleteVertex(ndx)
+                                g.deleteVertex(ndxa)
+                            valid = g.isGeosValid()
+                            if valid:
+                                geom = g
+                                zz += 1
+                                to_change[fid] = g
+                                geometries[fid] = geom
+                            if log.getEffectiveLevel() <= logging.DEBUG:
+                                debshp2.add_point(va, 'zza %d %d %d %f' % (fid, ndx, ndxa, angle_a))
+                                debshp2.add_point(v, 'zz %d %d %d %s' % (fid, ndx, len(ring), valid))
+                        elif is_spike:
+                            g = QgsGeometry(geom)
+                            to_move[va] = vx #!
+                            g.moveVertex(vx.x(), vx.y(), ndxa)
+                            g.deleteVertex(ndx)
+                            valid = g.isGeosValid()
+                            if valid:
+                                spikes += 1
+                                skip = ndxa > ndx
+                                geom = g
+                                to_change[fid] = g
+                                geometries[fid] = geom
+                            if log.getEffectiveLevel() <= logging.DEBUG:
+                                debshp2.add_point(vx, 'vx %d %d' % (fid, ndx))
+                                debshp2.add_point(va, 'va %d %d %d %f' % (fid, ndx, ndxa, angle_a))
+                                debshp2.add_point(v, 'v %d %d %d %s' % (fid, ndx, len(ring), valid))
+        if to_move:
+            for fid, geom in geometries.items():
+                if fid in to_clean: continue
+                n = 0
+                v = geom.vertexAt(n)
+                while v != QgsPoint(0, 0):
+                    if v in to_move:
+                        g = QgsGeometry(geom)
+                        vx = to_move[v]
+                        if log.getEffectiveLevel() <= logging.DEBUG:
+                            debshp2.add_point(v, 'mv %d %d' % (fid, n))
+                            debshp2.add_point(vx, 'mvx %d %d' % (fid, n))
+                        g.moveVertex(vx.x(), vx.y(), n)
+                        if g.isGeosValid():
+                            geom = g
+                            to_change[fid] = g
+                    n += 1
+                    v = geom.vertexAt(n)
         if to_change:
             self.writer.changeGeometryValues(to_change)
         if rings:
@@ -642,6 +786,14 @@ class PolygonLayer(BaseLayer):
             log.debug(_("Deleted %d invalid geometries in the '%s' layer"),
                 len(to_clean), self.name().encode('utf-8'))
             report.values['geom_invalid_' + self.name()] = len(to_clean)
+        if zz:
+            log.debug(_("Deleted %d zig-zag vertices in the '%s' layer"), zz,
+                self.name().encode('utf-8'))
+            report.values['vertex_zz_' + self.name()] = zz
+        if spikes:
+            log.debug(_("Deleted %d spike vertices in the '%s' layer"), spikes,
+                self.name().encode('utf-8'))
+            report.values['vertex_spike_' + self.name()] = spikes
 
     def simplify(self):
         """
@@ -654,7 +806,7 @@ class PolygonLayer(BaseLayer):
           less than 'cath_thr' meters.
         """
         if log.getEffectiveLevel() <= logging.DEBUG:
-            debshp = DebugWriter("debug_simplify.shp", self.crs())
+            debshp = DebugWriter("debug_simplify.shp", self)
         killed = 0
         to_change = {}
         # Clean non corners
@@ -664,7 +816,7 @@ class PolygonLayer(BaseLayer):
             # Test if this vertex is a 'corner' in any of its parent polygons
             for fid in parents:
                 geom = geometries[fid]
-                (angle, is_acute, is_corner, cath) = point.get_angle_with_context(geom)
+                (angle, is_acute, is_corner, cath) = point.get_corner_context(geom)
                 debmsg = "angle=%.1f, is_acute=%s, is_corner=%s, cath=%.4f" % (angle,
                     is_acute, is_corner, cath)
                 if is_corner: break
@@ -860,20 +1012,6 @@ class AddressLayer(BaseLayer):
             log.debug(_("Deleted %d addresses without house number") % len(to_clean))
             report.addresses_without_number = len(to_clean)
 
-    def del_address(self, building):
-        """Delete the address if there aren't any associated building."""
-        to_clean = []
-        building_refs = {bu['localId'] for bu in \
-            building.search("not regexp_match(localId, '_')")}
-        for ad in self.getFeatures():
-            ref = ad['localId'].split('.')[-1]
-            if ref not in building_refs:
-                to_clean.append(ad.id())
-        if to_clean:
-            self.writer.deleteFeatures(to_clean)
-            log.debug(_("Deleted %d addresses without associated building"), len(to_clean))
-            report.orphand_addresses = len(to_clean)
-
     def get_highway_names(self, highway):
         """
         Returns a dictionary with the translation for each street name.
@@ -1065,10 +1203,10 @@ class ConsLayer(PolygonLayer):
 
     def remove_outside_parts(self):
         """
-        Remove parts without levels above ground
-        Create footprint for parts without associated building
-        Remove parts outside the footprint of it building
-        Precondition: Called before merge_greatest_part
+        Remove parts without levels above ground.
+        Create footprint for parts without associated building.
+        Remove parts outside the footprint of it building.
+        Precondition: Called before merge_greatest_part.
         """
         to_clean_o = []
         to_clean_b = []
@@ -1143,6 +1281,16 @@ class ConsLayer(PolygonLayer):
         footprint['lev_below'] = min_level
         to_change[footprint.id()] = get_attributes(footprint)
         for (level, parts) in parts_for_level.items():
+            check_area = False
+            for part in parts:
+                part_area = round(part.geometry().area(), 0)
+                building_area = round(footprint.geometry().area(), 0)
+                if part_area > building_area:
+                    part['fixme'] = _('This part is bigger than its building')
+                    to_change[part.id()] = get_attributes(part)
+                    check_area = True
+            if check_area:
+                continue
             if level == (max_level, min_level):
                 to_clean = [p.id() for p in parts_for_level[max_level, min_level]]
             else:
@@ -1200,14 +1348,19 @@ class ConsLayer(PolygonLayer):
         * The address specification is Entrance.
 
         * The new position is enough close and is not a corner
+        
+        Delete the address if the number of associated buildings is not one.
         """
         to_change = {}
         to_move = {}
         to_insert = {}
+        to_clean = []
+        mp = 0
+        oa = 0
         (buildings, parts) = self.index_of_building_and_parts()
         for ad in address.getFeatures():
             refcat = ad['localId'].split('.')[-1]
-            building_count = len(buildings[refcat])
+            building_count = 0 if refcat not in buildings else len(buildings[refcat])
             if building_count == 1:
                 building = buildings[refcat][0]
                 it_parts = parts[refcat]
@@ -1218,7 +1371,10 @@ class ConsLayer(PolygonLayer):
                     va = bg.vertexAt(vertex - 1)
                     vb = bg.vertexAt(vertex)
                     if distance < setup.addr_thr**2:
-                        if closest.sqrDist(va) < setup.entrance_thr**2 \
+                        if vertex > len(bg.asPolygon()[0]):
+                            ad['spec'] = 'inner'
+                            to_change[ad.id()] = get_attributes(ad)
+                        elif closest.sqrDist(va) < setup.entrance_thr**2 \
                                 or closest.sqrDist(vb) < setup.entrance_thr**2:
                             ad['spec'] = 'corner'
                             to_change[ad.id()] = get_attributes(ad)
@@ -1237,11 +1393,25 @@ class ConsLayer(PolygonLayer):
                     else:
                         ad['spec'] = 'remote'
                         to_change[ad.id()] = get_attributes(ad)
+            else:
+                to_clean.append(ad.id())
+                if building_count == 0:
+                    oa += 1
+                else:
+                    mp += 1
         address.writer.changeAttributeValues(to_change)
         address.writer.changeGeometryValues(to_move)
         self.writer.changeGeometryValues(to_insert)
         log.debug(_("Moved %d addresses to entrance, %d changed to parcel"),
             len(to_move), len(to_change))
+        if len(to_clean) > 0:
+            address.writer.deleteFeatures(to_clean)
+        if oa > 0:
+            log.debug(_("Deleted %d addresses without associated building"), oa)
+            report.orphand_addresses = oa
+        if mp > 0:
+            log.debug(_("Refused %d addresses belonging to multiple buildings"), mp)
+            report.multiple_addresses = mp
 
     def validate(self, max_level, min_level):
         """Put fixmes to buildings with not valid geometry, too small or big.
@@ -1351,17 +1521,19 @@ class HighwayLayer(BaseLayer):
 class DebugWriter(QgsVectorFileWriter):
     """A QgsVectorFileWriter for debugging purposess."""
 
-    def __init__(self, filename, crs, driver_name="ESRI Shapefile"):
+    def __init__(self, filename, layer, driver_name="ESRI Shapefile"):
         """
         Args:
             filename (str): File name of the layer
             crs (QgsCoordinateReferenceSystem): Crs of layer.
             driver_name (str): Defaults to ESRI Shapefile.
         """
+        fpath = os.path.join(os.path.dirname( \
+                layer.dataProvider().dataSourceUri()), filename)
         self.fields = QgsFields()
         self.fields.append(QgsField("note", QVariant.String, len=100))
-        QgsVectorFileWriter.__init__(self, filename, "utf-8", self.fields,
-                QGis.WKBPoint, crs, driver_name)
+        QgsVectorFileWriter.__init__(self, fpath, "utf-8", self.fields,
+                QGis.WKBPoint, layer.crs(), driver_name)
 
     def add_point(self, point, note=None):
         """Adds a point to the layer with the attribute note."""
