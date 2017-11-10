@@ -608,10 +608,10 @@ class PolygonLayer(BaseLayer):
                         g = QgsGeometry(geometries[fid])
                         (p, ndx, ndxa, ndxb, dist_v) = g.closestVertex(point)
                         (dist_s, closest, vertex) = g.closestSegmentWithContext(point)
+                        va = g.vertexAt(ndxa)
+                        vb = g.vertexAt(ndxb)
                         note = ""
                         if dist_v == 0:
-                            va = g.vertexAt(ndxa)
-                            vb = g.vertexAt(ndxb)
                             dist_a = va.sqrDist(point)
                             dist_b = vb.sqrDist(point)
                             if dist_a < dup_thr**2:
