@@ -334,14 +334,15 @@ class CatAtom2Osm:
         report.cat_mun = self.cat.cat_mun
         report.mun_name = getattr(self.cat, 'boundary_name', None)
         report.get_mun_area(self.rustic_zoning)
-        if 'wikipedia' in self.cat.boundary_data:
-            report.mun_wikipedia = self.cat.boundary_data['wikipedia']
-        if 'wikidata' in self.cat.boundary_data:
-            report.mun_wikidata = self.cat.boundary_data['wikidata']
-        if 'population' in self.cat.boundary_data:
-            report.mun_population = '{} hab. ({})'.format(
-                self.cat.boundary_data['population'], 
-                self.cat.boundary_data.get('population:date', '?'))
+        if hasattr(self.cat, 'boundary_data'):
+            if 'wikipedia' in self.cat.boundary_data:
+                report.mun_wikipedia = self.cat.boundary_data['wikipedia']
+            if 'wikidata' in self.cat.boundary_data:
+                report.mun_wikidata = self.cat.boundary_data['wikidata']
+            if 'population' in self.cat.boundary_data:
+                report.mun_population = '{} hab. ({})'.format(
+                    self.cat.boundary_data['population'], 
+                    self.cat.boundary_data.get('population:date', '?'))
         if self.options.tasks or self.options.zoning:
             fn = os.path.join(self.path, 'urban_zoning.shp')
             layer.ZoningLayer.create_shp(fn, zoning_gml.crs())
