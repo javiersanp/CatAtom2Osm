@@ -178,14 +178,15 @@ class Reader(object):
         Gets the id of the OSM administrative boundary from Overpass.
         Precondition: called after read any gml (metadata adquired)
         """
+        self.boundary_bbox = zoning.bounding_box()
         if self.zip_code in setup.mun_fails:
             self.boundary_name = setup.mun_fails[self.zip_code][0]
             self.boundary_search_area = setup.mun_fails[self.zip_code][1]
-            log.info(_("Municipality: '%s'"), self.boundary_name)
-            return
-        self.boundary_bbox = zoning.bounding_box()
-        query = overpass.Query(self.boundary_bbox, 'json', False, False)
-        query.add('rel["admin_level"="8"]')
+            query = overpass.Query(self.boundary_bbox, 'json', False, False)
+            query.add('rel({})'.format(self.boundary_search_area))
+        else:
+            query = overpass.Query(self.boundary_bbox, 'json', False, False)
+            query.add('rel["admin_level"="8"]')
         matching = False
         try:
             data = json.loads(query.read())
