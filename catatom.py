@@ -146,7 +146,7 @@ class Reader(object):
             QgsVectorLayer: Vector layer.
         """
         (md_path, gml_path, zip_path, vsizip_path, group) = self.get_layer_paths(layername)
-        url = setup.prov_url[group] % (self.prov_code, self.prov_code)
+        url = setup.prov_url[group].format(code=self.prov_code)
         if not os.path.exists(zip_path) and (not os.path.exists(gml_path) or force_zip):
             self.get_atom_file(url)
         self.get_metadata(md_path, zip_path)
@@ -209,7 +209,7 @@ def list_municipalities(prov_code):
     if prov_code not in setup.valid_provinces:
         msg = _("Province code '%s' don't exists") % prov_code
         raise ValueError(msg.encode(setup.encoding))
-    url = setup.prov_url['BU'] % (prov_code, prov_code)
+    url = setup.prov_url['BU'].format(code=prov_code)
     response = download.get_response(url)
     root = etree.fromstring(response.content)
     ns = {'atom': 'http://www.w3.org/2005/Atom'}
