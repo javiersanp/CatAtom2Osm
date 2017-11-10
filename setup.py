@@ -74,9 +74,9 @@ serv_url = {
 }
 
 prov_url = {
-    "BU": base_url['BU'] + "%s/ES.SDGC.bu.atom_%s.xml",
-    "AD": base_url['AD'] + "%s/ES.SDGC.ad.atom_%s.xml",
-    "CP": base_url['CP'] + "%s/ES.SDGC.CP.atom_%s.xml"
+    "BU": base_url['BU'] + "{code}/ES.SDGC.bu.atom_{code}.xml",
+    "AD": base_url['AD'] + "{code}/ES.SDGC.ad.atom_{code}.xml",
+    "CP": base_url['CP'] + "{code}/ES.SDGC.CP.atom_{code}.xml"
 }
 
 valid_provinces = ["%02d" % i for i in range(2,57) if i not in (20, 31, 48)]

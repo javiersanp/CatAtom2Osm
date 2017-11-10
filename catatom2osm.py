@@ -121,7 +121,7 @@ class CatAtom2Osm:
             if not self.options.tasks:
                 report.cons_stats(self.building_osm)
             del self.building_osm
-        else:
+        elif self.options.tasks:
             del self.building
         if self.options.address:
             if not self.options.building and not self.options.tasks:
