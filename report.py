@@ -4,7 +4,7 @@
 from collections import OrderedDict, Counter
 from datetime import datetime
 import codecs
-import os
+import platform
 import time
 
 import setup
@@ -178,7 +178,7 @@ class Report(object):
         try:
             import psutil
             p = psutil.Process()
-            v = list(os.uname())
+            v = list(platform.uname())
             v.pop(1)
             self.platform = ' '.join(v)
             self.app_version = setup.app_name + ' ' + setup.app_version
