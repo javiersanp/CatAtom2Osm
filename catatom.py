@@ -196,6 +196,7 @@ class Reader(object):
         if matching:
             self.boundary_search_area = str(matching['id'])
             self.boundary_name = matching['tags']['name']
+            self.boundary_data = matching['tags']
             log.info(_("Municipality: '%s'"), self.boundary_name)
         else:
             self.boundary_search_area = self.boundary_bbox

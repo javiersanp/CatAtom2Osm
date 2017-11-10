@@ -28,8 +28,12 @@ class Report(object):
             self.values[k] = v
         self.titles = OrderedDict([
             ('mun_name', _('Municipality: {}')),
+            ('cat_mun', _('Cadastre name: {}')),
             ('mun_code', _('Code: {}')),
             ('mun_area', _(u'Area: {} km²')),
+            ('mun_population', _('Population: {}')),
+            ('mun_wikipedia', _('Wikipedia: https://www.wikipedia.org/wiki/{}')),
+            ('mun_wikidata', _('Wikidata: https://www.wikidata.org/wiki/{}')),
             ('date', _('Date: {}')),
             ('group_system_info', _('=System info=')),
             ('app_version', _('Application version: {}')),
