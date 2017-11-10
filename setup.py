@@ -190,9 +190,9 @@ place_types = [
 	'Terrenos', u'Urbanización', 'Bulevar', 'Sector'
 ]
 
-# Dictionary of name and Overpass boundary area id for know municipalities
+# Dictionary of name and OSM boundary relation id for know municipalities
 # wich fails in get_boundary method.
-mun_areas = {
+mun_fails = {
     '07032': [u'Maó', '1809102'],
     '07040': [u'Palma', '341321'],
     '11042': [u'Zahara', '343140'],
@@ -210,5 +210,6 @@ mun_areas = {
     '50030': [u'Añón de Moncayo', '342653'],
     '50049': [u'Biel', '348008'],
     '51021': [u'Fuente-Álamo', '341797'],
+    '52024': [u'Gijón/Xixón', '345576'],
 }
 
