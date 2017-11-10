@@ -22,7 +22,7 @@ ns = {
     'gco': 'http://www.isotc211.org/2005/gco', 
     'gmd': 'http://www.isotc211.org/2005/gmd'
 }
-trans = dict(zip([ord(c) for c in u"ÁÉÍÓÚÑÀÈÌÒÙ-/'·.Ç"], u'AEIOUNAEIOU      '))
+trans = dict(zip([ord(c) for c in u"ÁÉÍÓÚÑÀÈÌÒÙÄËÏÖÜ-/'·.,Ç"], u'AEIOUNAEIOUAEIOU       '))
 for prov_code in setup.valid_provinces:
     url = setup.prov_url['BU'].format(code=prov_code)
     response = download.get_response(url)
