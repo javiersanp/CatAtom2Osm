@@ -333,7 +333,7 @@ class CatAtom2Osm:
         self.cat.get_boundary(self.rustic_zoning)
         report.cat_mun = self.cat.cat_mun
         report.mun_name = getattr(self.cat, 'boundary_name', None)
-        report.get_mun_area(self.rustic_zoning)
+        report.mun_area = round(self.rustic_zoning.get_area() / 1E6, 1)
         if hasattr(self.cat, 'boundary_data'):
             if 'wikipedia' in self.cat.boundary_data:
                 report.mun_wikipedia = self.cat.boundary_data['wikipedia']

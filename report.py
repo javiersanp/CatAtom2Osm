@@ -165,10 +165,6 @@ class Report(object):
                 for (f, c) in self.fixme_counter.items()]
         return fixme_count
     
-    def get_mun_area(self, rustic):
-        self.mun_area = round(sum([f.geometry().area() \
-            for f in rustic.getFeatures()]) / 1E6, 1)
-            
     def get(self, key, default=0):
         return self.values.get(key, default)  
     

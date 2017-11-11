@@ -515,6 +515,10 @@ class PolygonLayer(BaseLayer):
         return [point for part in PolygonLayer.get_multipolygon(feature) \
             for point in part[0][0:-1]]
 
+    def get_area(self):
+        """Returns total area"""
+        return sum([f.geometry().area() for f in self.getFeatures()])
+            
     def explode_multi_parts(self, request=QgsFeatureRequest()):
         """
         Creates a new WKBPolygon feature for each part of any WKBMultiPolygon

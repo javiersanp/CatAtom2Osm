@@ -156,15 +156,6 @@ class TestReport(unittest.TestCase):
         if os.path.exists(fn):
             os.remove(fn)
 
-    def test_get_mun_area(self):
-        r = report.Report()
-        rz = mock.MagicMock()
-        f = mock.MagicMock()
-        f.geometry.return_value.area.return_value = random.randint(5,9) * 1E6
-        rz.getFeatures.return_value = [f, f, f]
-        r.get_mun_area(rz)
-        self.assertEquals(r.mun_area, f.geometry().area() * 3 / 1E6)
-
     def test_address_stats(self):
         ad = osm.Osm()
         ad.Node(0,0, {'addr:street': 's1'})
