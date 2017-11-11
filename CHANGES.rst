@@ -1,6 +1,8 @@
 Change log
 ==========
 
+* -m option also dissables highway names conflation.
+
 **2017-11-09**
 
 * Delete zig-zag and spike vertices.

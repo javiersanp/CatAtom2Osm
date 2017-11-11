@@ -47,7 +47,7 @@ INSPIRE del Catastro Español.
 * \-d, --address         Procesa el conjunto de datos de direcciones
 * \-p, --parcel          Procesa el conjunto de datos de parcelas catastrales
 * \-a, --all             Procesa todos los conjuntos de datos (equivalente a -bdptz)
-* \-m, --manual          Desactiva la combinación de edificios y de direcciones
+* \-m, --manual          Desactiva la combinación con datos OSM
 * \--log=log_level       Selecciona el nivel de registro entre DEBUG, INFO, WARNING, ERROR o CRITICAL.
 
 

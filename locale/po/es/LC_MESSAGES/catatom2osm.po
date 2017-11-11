@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-11-10 13:24+WET\n"
+"POT-Creation-Date: 2017-11-11 10:06+WET\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -21,7 +21,7 @@ msgstr ""
 msgid "Last directory name must be a 5 digits ZIP code"
 msgstr "El nombre del último directorio debe ser un Código Postal de 5 dígitos"
 
-#: catatom.py:35 catatom.py:211
+#: catatom.py:35 catatom.py:212
 msgid "Province code '%s' don't exists"
 msgstr "El Código Provincial '%s' no existe"
 
@@ -65,16 +65,16 @@ msgstr "No se puede determinar el CRS de '%s'"
 msgid "Read %d features in '%s'"
 msgstr "Leídos %d características en '%s'"
 
-#: catatom.py:184 catatom.py:200
+#: catatom.py:201
 msgid "Municipality: '%s'"
 msgstr "Municipio: '%s'"
 
-#: catatom.py:203
+#: catatom.py:204
 msgid "Failed to find administrative boundary, falling back to bounding box"
 msgstr ""
 "No se pudo obtener el límite administrativo, se usará el recuadro delimitador"
 
-#: catatom.py:218
+#: catatom.py:219
 msgid "Territorial office %s"
 msgstr "Oficina territorial %s"
 
@@ -138,7 +138,7 @@ msgstr "Leído '%s': %d nodos, %d vías, %d relaciones"
 msgid "Generated '%s': %d nodes, %d ways, %d relations"
 msgstr "Generado '%s': %d nodos, %d vías, %d relaciones"
 
-#: catatom2osm.py:363
+#: catatom2osm.py:364
 msgid "Could not resolve joined tables for the '%s' layer"
 msgstr "No se pudieron resolver las tablas combinadas para la capa '%s'"
 
@@ -150,7 +150,7 @@ msgstr "Eliminadas %d direcciones rechazadas por nombre de vial"
 msgid "Refused %d 'parcel' addresses not unique for it building"
 msgstr "Rechazadas %d direcciones tipo parcela no únicas para su edificio"
 
-#: catatom2osm.py:512
+#: catatom2osm.py:516
 msgid "There are %d address without house number in the OSM data"
 msgstr "Existen %d direcciones sin número de portal en OSM"
 
@@ -186,7 +186,7 @@ msgstr "Progreso: %.1fK"
 msgid "Error when creating shapefile: '%s'"
 msgstr "Error al crear el fichero shapefile: '%s'"
 
-#: layer.py:270 layer.py:957 layer.py:1130
+#: layer.py:270 layer.py:957 layer.py:1134
 msgid "Loaded %d features in '%s' from '%s'"
 msgstr "Cargados %d características en '%s' desde '%s'"
 
@@ -250,63 +250,63 @@ msgstr "Rechazadas %d direcciones por existir en OSM"
 msgid "Deleted %d addresses without house number"
 msgstr "Eliminadas %d direcciones sin número de portal"
 
-#: layer.py:1167
+#: layer.py:1171
 msgid "Missing building footprint for part '%s'"
 msgstr "Falta el contorno del edificio para la parte '%s'"
 
-#: layer.py:1236
+#: layer.py:1240
 msgid "Removed %d building parts outside the footprint"
 msgstr "Eliminadas %d partes de edificio fuera del contorno"
 
-#: layer.py:1240
+#: layer.py:1244
 msgid "Deleted %d building parts with no floors above ground"
 msgstr "Eliminadas %d partes de edificio sin plantas sobre el nivel del suelo"
 
-#: layer.py:1245
+#: layer.py:1249
 msgid "Generated %d building footprints"
 msgstr "Generados %d contornos de edificios"
 
-#: layer.py:1289
+#: layer.py:1293
 msgid "This part is bigger than its building"
 msgstr "Esta parte es mayor que su edificio"
 
-#: layer.py:1324
+#: layer.py:1328
 msgid "Translated %d level values to the footprint"
 msgstr "Trasladados %d valores de niveles al contorno"
 
-#: layer.py:1327
+#: layer.py:1331
 msgid "Merged %d building parts to the footprint"
 msgstr "Fusionados %d partes de edificios al contorno"
 
-#: layer.py:1330
+#: layer.py:1334
 msgid "Merged %d adjacent parts"
 msgstr "Fusionadas %d partes adyacentes"
 
-#: layer.py:1405
+#: layer.py:1409
 msgid "Moved %d addresses to entrance, %d changed to parcel"
 msgstr "Desplazadas %d direcciones a entrada, %d cambiadas a parcela"
 
-#: layer.py:1410
+#: layer.py:1414
 msgid "Deleted %d addresses without associated building"
 msgstr "Eliminadas %d direcciones sin edificio asociado"
 
-#: layer.py:1413
+#: layer.py:1417
 msgid "Refused %d addresses belonging to multiple buildings"
 msgstr "Eliminadas %d direcciones pertenecientes a edificios múltiples"
 
-#: layer.py:1435
+#: layer.py:1439
 msgid "Check, area too small"
 msgstr "Comprobar, área demasiado pequeña"
 
-#: layer.py:1438
+#: layer.py:1442
 msgid "Check, area too big"
 msgstr "Comprobar, área demasiado grande"
 
-#: layer.py:1465
+#: layer.py:1469
 msgid "OSM building with id %s is not valid"
 msgstr "El edificio de OSM con id %s no es váido"
 
-#: layer.py:1483
+#: layer.py:1487
 msgid "Detected %d conflicts in %d buildings/pools from OSM"
 msgstr "Detectados %d edificios/piscinas con conflicto de %d en OSM"
 
@@ -368,8 +368,8 @@ msgid "Process all datasets (equivalent to -bdptz)"
 msgstr "Procesa todos los conjuntos de datos (equivalente a -bdptz)"
 
 #: main.py:62
-msgid "Dissable conflation of buildings and addresses"
-msgstr "Desactiva la combinación de edificios y de direcciones"
+msgid "Dissable conflation with OSM data"
+msgstr "Desactiva la combinación con datos OSM"
 
 #: main.py:64
 msgid "Select the log level between DEBUG, INFO, WARNING, ERROR or CRITICAL."
@@ -418,7 +418,7 @@ msgstr "Wikipedia: https://www.wikipedia.org/wiki/{}"
 
 #: report.py:36
 msgid "Wikidata: https://www.wikidata.org/wiki/{}"
-msgstr "Wikipedia: https://www.wikipedia.org/wiki/{}"
+msgstr "Wikidata: https://www.wikidata.org/wiki/{}"
 
 #: report.py:37
 msgid "Date: {}"

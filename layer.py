@@ -1012,25 +1012,29 @@ class AddressLayer(BaseLayer):
             log.debug(_("Deleted %d addresses without house number") % len(to_clean))
             report.addresses_without_number = len(to_clean)
 
-    def get_highway_names(self, highway):
+    def get_highway_names(self, highway=None):
         """
         Returns a dictionary with the translation for each street name.
 
         Args:
-            highway (HighwayLayer): Current OSM highway data
-
+            highway (HighwayLayer): Current OSM highway data for conflation.
+            If highway is None, only parse names.
         Returns:
             (dict) highway names translations
         """
-        index = highway.get_index()
-        features = {feat.id(): feat for feat in highway.getFeatures()}
-        highway_names = defaultdict(list)
-        for f in self.getFeatures():
-            highway_names[f['TN_text']].append(f.geometry().asPoint())
-        for name, points in highway_names.items():
-            bbox = QgsGeometry().fromMultiPoint(points).boundingBox()
-            choices = [features[fid]['name'] for fid in index.intersects(bbox)]
-            highway_names[name] = hgwnames.match(name, choices)
+        if highway is None or highway.featureCount() == 0:
+            highway_names = {f['TN_text']: hgwnames.parse(f['TN_text']) \
+                for f in self.getFeatures()}
+        else:
+            highway_names = defaultdict(list)
+            index = highway.get_index()
+            features = {feat.id(): feat for feat in highway.getFeatures()}
+            for f in self.getFeatures():
+                highway_names[f['TN_text']].append(f.geometry().asPoint())
+            for name, points in highway_names.items():
+                bbox = QgsGeometry().fromMultiPoint(points).boundingBox()
+                choices = [features[fid]['name'] for fid in index.intersects(bbox)]
+                highway_names[name] = hgwnames.match(name, choices)
         return highway_names
 
 

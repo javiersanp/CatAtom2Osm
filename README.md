@@ -45,7 +45,7 @@ Cadastre.
 * \-d, --address         Process the address dataset
 * \-p, --parcel          Process the cadastral parcel dataset
 * \-a, --all             Process all datasets (equivalent to -bdptz)
-* \-m, --manual          Dissable conflation of buildings and addresses
+* \-m, --manual          Dissable conflation with OSM data
 * \--log=log_level       Select the log level between DEBUG, INFO, WARNING, ERROR or CRITICAL
 
 Documentation

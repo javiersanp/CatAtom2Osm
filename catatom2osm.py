@@ -378,8 +378,7 @@ class CatAtom2Osm:
         self.address.append(address_gml)
         self.address.join_field(postaldescriptor, 'PD_id', 'gml_id', ['postCode'])
         self.address.join_field(thoroughfarename, 'TN_id', 'gml_id', ['text'], 'TN_')
-        highway = self.get_highway()
-        (highway_names, self.is_new) = self.get_translations(self.address, highway)
+        (highway_names, self.is_new) = self.get_translations(self.address)
         ia = self.address.translate_field('TN_text', highway_names)
         if ia > 0:
             log.debug(_("Deleted %d addresses refused by street name"), ia)
@@ -445,15 +444,15 @@ class CatAtom2Osm:
             log.debug(_("Refused %d 'parcel' addresses not unique for it building"), md)
             report.inc('not_unique_addresses', md)
 
-    def get_translations(self, address, highway):
+    def get_translations(self, address):
         """
         If there exists the configuration file 'highway_types.csv', read it,
         else write one with default values. If don't exists the translations file
-        'highway_names.csv', creates one parsing names_layer, else reads and returns
-        it as a dictionary.
+        'highway_names.csv', creates one parsing current OSM highways data, else
+        reads and returns it as a dictionary.
 
         * 'highway_types.csv' List of osm elements in json format located in the
-          application path and contains translations from abreviaturs to full
+          application path that contains translations from abbreviations to full
           types of highways.
 
         * 'highway_names.csv' is located in the outputh folder and contains
@@ -466,7 +465,11 @@ class CatAtom2Osm:
             csvtools.csv2dict(highway_types_path, setup.highway_types)
         highway_names_path = os.path.join(self.path, 'highway_names.csv')
         if not os.path.exists(highway_names_path):
-            highway.reproject(address.crs())
+            if self.options.manual:
+                highway = None
+            else:
+                highway = self.get_highway()
+                highway.reproject(address.crs())
             highway_names = address.get_highway_names(highway)
             csvtools.dict2csv(highway_names_path, highway_names)
             is_new = True
