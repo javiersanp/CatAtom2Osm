@@ -214,6 +214,9 @@ class CatAtom2Osm:
         self.rustic_zoning.reproject()
         self.export_layer(self.urban_zoning, 'urban_zoning.geojson', 'GeoJSON')
         self.export_layer(self.rustic_zoning, 'rustic_zoning.geojson', 'GeoJSON')
+        out_path = os.path.join(self.path, 'boundary.poly')
+        self.rustic_zoning.export_poly(out_path)
+        log.info(_("Generated '%s'"), out_path)
 
     def process_building(self):
         """Process all buildings dataset"""

@@ -515,6 +515,14 @@ class PolygonLayer(BaseLayer):
         return [point for part in PolygonLayer.get_multipolygon(feature) \
             for point in part[0][0:-1]]
 
+    @staticmethod
+    def merge_adjacent_features(group):
+        """Combine all geometries in group of features"""
+        geom = group[0].geometry()
+        for p in group[1:]:
+            geom = geom.combine(p.geometry())
+        return geom
+
     def get_area(self):
         """Returns total area"""
         return sum([f.geometry().area() for f in self.getFeatures()])
@@ -964,6 +972,25 @@ class ZoningLayer(PolygonLayer):
             log.debug(_("%d multi-polygons splited into %d polygons in "
                 "the '%s' layer"), multi, final, self.name().encode('utf-8'))
 
+    def export_poly(self, filename):
+        """Export as polygon file for Osmosis"""
+        mun = self.merge_adjacent_features([f for f in self.getFeatures()])
+        print mun.isMultipart()
+        mun = self.get_multipolygon(mun)
+        with open(filename, 'w') as fo:
+            fo.write('admin_boundary\n')
+            i = 0
+            for part in mun:
+                for j, ring in enumerate(part):
+                    i += 1
+                    prefix = '!' if j > 0 else ''
+                    fo.write(prefix + str(i) + '\n')
+                    for p in ring:
+                        fo.write('%f %f\n' % (p.x(), p.y()))
+                    fo.write('END\n')
+            fo.write('END\n')
+        return
+
 class AddressLayer(BaseLayer):
     """Class for address"""
 
@@ -1088,14 +1115,6 @@ class ConsLayer(PolygonLayer):
     def is_pool(feature):
         """Pool features have '_PI.' in its localId field"""
         return '_PI.' in feature['localId']
-
-    @staticmethod
-    def merge_adjacent_features(group):
-        """Combine all geometries in group of features"""
-        geom = group[0].geometry()
-        for p in group[1:]:
-            geom = geom.combine(p.geometry())
-        return geom
 
     def explode_multi_parts(self, address=False):
         request = QgsFeatureRequest()
