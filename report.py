@@ -257,10 +257,15 @@ class Report(object):
                     if len(self.values[key]) > 0:
                         if title:
                             output += title + ' ' + str(len(self.values[key])) + setup.eol
-                        for item in self.values[key]:
-                            output += TAB + item + setup.eol
+                        for value in self.values[key]:
+                            if isinstance(value, unicode):
+                                value = value.encode(setup.encoding)
+                            output += TAB + value + setup.eol
                 else:
-                    output += title.format(self.values[key])
+                    value = self.values[key]
+                    if isinstance(value, unicode):
+                        value = value.encode(setup.encoding)
+                    output += title.format(value)
                     output += setup.eol
         return output
 

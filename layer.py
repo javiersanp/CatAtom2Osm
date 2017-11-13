@@ -975,7 +975,6 @@ class ZoningLayer(PolygonLayer):
     def export_poly(self, filename):
         """Export as polygon file for Osmosis"""
         mun = self.merge_adjacent_features([f for f in self.getFeatures()])
-        print mun.isMultipart()
         mun = self.get_multipolygon(mun)
         with open(filename, 'w') as fo:
             fo.write('admin_boundary\n')
