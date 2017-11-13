@@ -146,10 +146,10 @@ class TestReport(unittest.TestCase):
 
     def test_to_file(self):
         r = report.Report()
-        r.mun_name = u"áéíóúñ"
-        output = r.to_string()
+        r.mun_name = u"áéíóúñ".encode('iso-8859-15')
+        output = r.to_string().decode('iso-8859-15')
         fn = 'test_report.txt'
-        r.to_file(fn, 'iso-8859-15')
+        r.to_file(fn)
         with open(fn, 'r') as fo:
             text = fo.read().decode('iso-8859-15')
         self.assertEquals(output, text)

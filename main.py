@@ -19,15 +19,13 @@ import sys
 import os
 from zipfile import BadZipfile
 
-def __(msg):
-    return _(msg).decode(sys.stdout.encoding)
     
-usage = __("""catatom2osm [OPTION]... [PATH]
+usage = _("""catatom2osm [OPTION]... [PATH]
 The argument path states the directory for input and output files. 
 The directory name shall start with 5 digits (GGMMM) matching the Cadastral 
 Provincial Office and Municipality Code. If the program don't find the input 
 files it will download them for you from the INSPIRE Services of the Spanish 
-Cadastre.""")
+Cadastre.""").decode(sys.stdout.encoding)
 
 def process(args, options):
     if options.list:
@@ -42,30 +40,35 @@ def process(args, options):
 def run():
     parser = OptionParser(usage=usage)
     parser.add_option("-v", "--version", dest="version", default=False,
-        action="store_true", help=__("Print CatAtom2Osm version and exit"))
+        action="store_true", help=_("Print CatAtom2Osm version and exit") \
+        .decode(sys.stdout.encoding))
     parser.add_option("-l", "--list", dest="list", metavar="prov",
-        default=False, help=__("List available municipalities given the two "
-        "digits province code"))
+        default=False, help=_("List available municipalities given the two "
+        "digits province code").decode(sys.stdout.encoding))
     parser.add_option("-t", "--tasks", dest="tasks", default=False,
-        action="store_true", help=__("Splits constructions into tasks files " \
-        "(default, implies -z)"))
+        action="store_true", help=_("Splits constructions into tasks files " \
+        "(default, implies -z)").decode(sys.stdout.encoding))
     parser.add_option("-z", "--zoning", dest="zoning", default=False,
-        action="store_true", help=__("Process the cadastral zoning dataset"))
+        action="store_true", help=_("Process the cadastral zoning dataset") \
+        .decode(sys.stdout.encoding))
     parser.add_option("-b", "--building", dest="building", default=False,
-        action="store_true", help=__("Process buildings to a single file " \
-        "instead of tasks"))
+        action="store_true", help=_("Process buildings to a single file " \
+        "instead of tasks").decode(sys.stdout.encoding))
     parser.add_option("-d", "--address", dest="address", default=False,
-        action="store_true", help=__("Process the address dataset (default)"))
+        action="store_true", help=_("Process the address dataset (default)") \
+        .decode(sys.stdout.encoding))
     parser.add_option("-p", "--parcel", dest="parcel", default=False,
-        action="store_true", help=__("Process the cadastral parcel dataset"))
+        action="store_true", help=_("Process the cadastral parcel dataset") \
+        .decode(sys.stdout.encoding))
     parser.add_option("-a", "--all", dest="all", default=False,
-        action="store_true", help=__("Process all datasets (equivalent " \
-        "to -bdptz)"))
+        action="store_true", help=_("Process all datasets (equivalent " \
+        "to -bdptz)").decode(sys.stdout.encoding))
     parser.add_option("-m", "--manual", dest="manual", default=False,
-        action="store_true", help=__("Dissable conflation with OSM data"))
+        action="store_true", help=_("Dissable conflation with OSM data") \
+        .decode(sys.stdout.encoding))
     parser.add_option("", "--log", dest="log_level", metavar="log_level",
-        default=setup.log_level, help=__("Select the log level between " \
-        "DEBUG, INFO, WARNING, ERROR or CRITICAL."))
+        default=setup.log_level, help=_("Select the log level between " \
+        "DEBUG, INFO, WARNING, ERROR or CRITICAL.").decode(sys.stdout.encoding))
     (options, args) = parser.parse_args()
     if options.all:
         options.building = True
