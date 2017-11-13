@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-11-10 13:24+WET\n"
+"POT-Creation-Date: 2017-11-13 08:15+WET\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -21,7 +21,7 @@ msgstr ""
 msgid "Last directory name must be a 5 digits ZIP code"
 msgstr "El nombre del último directorio debe ser un Código Postal de 5 dígitos"
 
-#: catatom.py:35 catatom.py:211
+#: catatom.py:35 catatom.py:212
 msgid "Province code '%s' don't exists"
 msgstr "El Código Provincial '%s' no existe"
 
@@ -65,16 +65,16 @@ msgstr "No se puede determinar el CRS de '%s'"
 msgid "Read %d features in '%s'"
 msgstr "Leídos %d características en '%s'"
 
-#: catatom.py:184 catatom.py:200
+#: catatom.py:201
 msgid "Municipality: '%s'"
 msgstr "Municipio: '%s'"
 
-#: catatom.py:203
+#: catatom.py:204
 msgid "Failed to find administrative boundary, falling back to bounding box"
 msgstr ""
 "No se pudo obtener el límite administrativo, se usará el recuadro delimitador"
 
-#: catatom.py:218
+#: catatom.py:219
 msgid "Territorial office %s"
 msgstr "Oficina territorial %s"
 
@@ -138,19 +138,19 @@ msgstr "Leído '%s': %d nodos, %d vías, %d relaciones"
 msgid "Generated '%s': %d nodes, %d ways, %d relations"
 msgstr "Generado '%s': %d nodos, %d vías, %d relaciones"
 
-#: catatom2osm.py:363
+#: catatom2osm.py:364
 msgid "Could not resolve joined tables for the '%s' layer"
 msgstr "No se pudieron resolver las tablas combinadas para la capa '%s'"
 
-#: catatom2osm.py:384
+#: catatom2osm.py:385
 msgid "Deleted %d addresses refused by street name"
 msgstr "Eliminadas %d direcciones rechazadas por nombre de vial"
 
-#: catatom2osm.py:444
+#: catatom2osm.py:445
 msgid "Refused %d 'parcel' addresses not unique for it building"
 msgstr "Rechazadas %d direcciones tipo parcela no únicas para su edificio"
 
-#: catatom2osm.py:512
+#: catatom2osm.py:513
 msgid "There are %d address without house number in the OSM data"
 msgstr "Existen %d direcciones sin número de portal en OSM"
 
@@ -368,8 +368,8 @@ msgid "Process all datasets (equivalent to -bdptz)"
 msgstr "Procesa todos los conjuntos de datos (equivalente a -bdptz)"
 
 #: main.py:62
-msgid "Dissable conflation of buildings and addresses"
-msgstr "Desactiva la combinación de edificios y de direcciones"
+msgid "Dissable conflation with OSM data"
+msgstr "Desactiva la combinación con datos de OSM"
 
 #: main.py:64
 msgid "Select the log level between DEBUG, INFO, WARNING, ERROR or CRITICAL."
