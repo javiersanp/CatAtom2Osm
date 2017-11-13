@@ -1,6 +1,8 @@
 Registro de cambios
 ===================
 
+* La opción -m deshabilita también la combinación de nombres de viales.
+
 **09-11-2017**
 
 * Elimina vértices en zig-zag y en punta.
