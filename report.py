@@ -3,7 +3,6 @@
 
 from collections import OrderedDict, Counter
 from datetime import datetime
-import codecs
 import platform
 import time
 
@@ -165,10 +164,6 @@ class Report(object):
                 for (f, c) in self.fixme_counter.items()]
         return fixme_count
     
-    def get_mun_area(self, rustic):
-        self.mun_area = round(sum([f.geometry().area() \
-            for f in rustic.getFeatures()]) / 1E6, 1)
-            
     def get(self, key, default=0):
         return self.values.get(key, default)  
     
@@ -269,8 +264,8 @@ class Report(object):
                     output += setup.eol
         return output
 
-    def to_file(self, fn, encoding=setup.encoding):
-        with codecs.open(fn, "w", encoding) as fo:
+    def to_file(self, fn):
+        with open(fn, "w") as fo:
             fo.write(self.to_string())
         
 

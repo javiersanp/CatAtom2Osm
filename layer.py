@@ -163,7 +163,7 @@ class BaseLayer(QgsVectorLayer):
         writer = QgsVectorFileWriter(name, 'UTF-8', fields, geom_type, crs, 'ESRI Shapefile')
         if writer.hasError() != QgsVectorFileWriter.NoError:
             msg = _("Error when creating shapefile: '%s'") % writer.errorMessage()
-            raise IOError(msg.encode(setup.encoding))
+            raise IOError(msg)
         return writer
 
     def __del__(self):
@@ -515,6 +515,18 @@ class PolygonLayer(BaseLayer):
         return [point for part in PolygonLayer.get_multipolygon(feature) \
             for point in part[0][0:-1]]
 
+    @staticmethod
+    def merge_adjacent_features(group):
+        """Combine all geometries in group of features"""
+        geom = group[0].geometry()
+        for p in group[1:]:
+            geom = geom.combine(p.geometry())
+        return geom
+
+    def get_area(self):
+        """Returns total area"""
+        return sum([f.geometry().area() for f in self.getFeatures()])
+            
     def explode_multi_parts(self, request=QgsFeatureRequest()):
         """
         Creates a new WKBPolygon feature for each part of any WKBMultiPolygon
@@ -960,6 +972,25 @@ class ZoningLayer(PolygonLayer):
             log.debug(_("%d multi-polygons splited into %d polygons in "
                 "the '%s' layer"), multi, final, self.name().encode('utf-8'))
 
+    def export_poly(self, filename):
+        """Export as polygon file for Osmosis"""
+        mun = self.merge_adjacent_features([f for f in self.getFeatures()])
+        print mun.isMultipart()
+        mun = self.get_multipolygon(mun)
+        with open(filename, 'w') as fo:
+            fo.write('admin_boundary\n')
+            i = 0
+            for part in mun:
+                for j, ring in enumerate(part):
+                    i += 1
+                    prefix = '!' if j > 0 else ''
+                    fo.write(prefix + str(i) + '\n')
+                    for p in ring:
+                        fo.write('%f %f\n' % (p.x(), p.y()))
+                    fo.write('END\n')
+            fo.write('END\n')
+        return
+
 class AddressLayer(BaseLayer):
     """Class for address"""
 
@@ -1012,25 +1043,29 @@ class AddressLayer(BaseLayer):
             log.debug(_("Deleted %d addresses without house number") % len(to_clean))
             report.addresses_without_number = len(to_clean)
 
-    def get_highway_names(self, highway):
+    def get_highway_names(self, highway=None):
         """
         Returns a dictionary with the translation for each street name.
 
         Args:
-            highway (HighwayLayer): Current OSM highway data
-
+            highway (HighwayLayer): Current OSM highway data for conflation.
+            If highway is None, only parse names.
         Returns:
             (dict) highway names translations
         """
-        index = highway.get_index()
-        features = {feat.id(): feat for feat in highway.getFeatures()}
-        highway_names = defaultdict(list)
-        for f in self.getFeatures():
-            highway_names[f['TN_text']].append(f.geometry().asPoint())
-        for name, points in highway_names.items():
-            bbox = QgsGeometry().fromMultiPoint(points).boundingBox()
-            choices = [features[fid]['name'] for fid in index.intersects(bbox)]
-            highway_names[name] = hgwnames.match(name, choices)
+        if highway is None or highway.featureCount() == 0:
+            highway_names = {f['TN_text']: hgwnames.parse(f['TN_text']) \
+                for f in self.getFeatures()}
+        else:
+            highway_names = defaultdict(list)
+            index = highway.get_index()
+            features = {feat.id(): feat for feat in highway.getFeatures()}
+            for f in self.getFeatures():
+                highway_names[f['TN_text']].append(f.geometry().asPoint())
+            for name, points in highway_names.items():
+                bbox = QgsGeometry().fromMultiPoint(points).boundingBox()
+                choices = [features[fid]['name'] for fid in index.intersects(bbox)]
+                highway_names[name] = hgwnames.match(name, choices)
         return highway_names
 
 
@@ -1080,14 +1115,6 @@ class ConsLayer(PolygonLayer):
     def is_pool(feature):
         """Pool features have '_PI.' in its localId field"""
         return '_PI.' in feature['localId']
-
-    @staticmethod
-    def merge_adjacent_features(group):
-        """Combine all geometries in group of features"""
-        geom = group[0].geometry()
-        for p in group[1:]:
-            geom = geom.combine(p.geometry())
-        return geom
 
     def explode_multi_parts(self, address=False):
         request = QgsFeatureRequest()

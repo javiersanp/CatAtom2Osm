@@ -25,12 +25,11 @@ def winenv():
     global eol, encoding
     if platform.startswith('win'):
         eol = '\r\n'
-        encoding = sys.stdout.encoding
         if os.getenv('LANG') is None:
             os.environ['LANG'] = language
 winenv()
 
-gettext.install(app_name.lower(), localedir=localedir, unicode=1)
+gettext.install(app_name.lower(), localedir=localedir, codeset=encoding)
 
 
 log_level = 'INFO' # Default log level

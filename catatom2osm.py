@@ -70,7 +70,7 @@ class CatAtom2Osm:
             log.debug(_("Using GDAL %s"), report.gdal_version)
         if qgis.utils.QGis.QGIS_VERSION_INT < setup.MIN_QGIS_VERSION_INT:
             msg = _("Required QGIS version %s or greater") % setup.MIN_QGIS_VERSION
-            raise ValueError(msg.encode(setup.encoding))
+            raise ValueError(msg)
         self.is_new = False
 
     def run(self):
@@ -214,6 +214,9 @@ class CatAtom2Osm:
         self.rustic_zoning.reproject()
         self.export_layer(self.urban_zoning, 'urban_zoning.geojson', 'GeoJSON')
         self.export_layer(self.rustic_zoning, 'rustic_zoning.geojson', 'GeoJSON')
+        out_path = os.path.join(self.path, 'boundary.poly')
+        self.rustic_zoning.export_poly(out_path)
+        log.info(_("Generated '%s'"), out_path)
 
     def process_building(self):
         """Process all buildings dataset"""
@@ -271,8 +274,7 @@ class CatAtom2Osm:
         if layer.export(out_path, driver_name):
             log.info(_("Generated '%s'"), filename)
         else:
-            msg = _("Failed to write layer: '%s'") % filename
-            raise IOError(msg.encode(setup.encoding))
+            raise IOError(_("Failed to write layer: '%s'") % filename.encode('utf-8'))
 
     def read_osm(self, ql, filename):
         """
@@ -294,12 +296,13 @@ class CatAtom2Osm:
         fo = open(osm_path, 'r')
         data = osmxml.deserialize(fo)
         if len(data.elements) == 0:
-            msg = _("No OSM data were obtained from '%s'") % filename
+            msg = _("No OSM data were obtained from '%s'") % filename.encode('utf-8')
             log.warning(msg)
             report.warnings.append(msg)
         else:
             log.info(_("Read '%s': %d nodes, %d ways, %d relations"),
-                filename, len(data.nodes), len(data.ways), len(data.relations))
+                filename.encode('utf-8'), len(data.nodes), len(data.ways),
+                len(data.relations))
         return data
 
     def write_osm(self, data, filename):
@@ -318,7 +321,8 @@ class CatAtom2Osm:
         with codecs.open(osm_path, "w", "utf-8") as file_obj:
             osmxml.serialize(file_obj, data)
         log.info(_("Generated '%s': %d nodes, %d ways, %d relations"),
-            filename, len(data.nodes), len(data.ways), len(data.relations))
+            filename.encode('utf-8'), len(data.nodes), len(data.ways), 
+            len(data.relations))
 
     def get_zoning(self):
         """
@@ -333,7 +337,7 @@ class CatAtom2Osm:
         self.cat.get_boundary(self.rustic_zoning)
         report.cat_mun = self.cat.cat_mun
         report.mun_name = getattr(self.cat, 'boundary_name', None)
-        report.get_mun_area(self.rustic_zoning)
+        report.mun_area = round(self.rustic_zoning.get_area() / 1E6, 1)
         if hasattr(self.cat, 'boundary_data'):
             if 'wikipedia' in self.cat.boundary_data:
                 report.mun_wikipedia = self.cat.boundary_data['wikipedia']
@@ -362,8 +366,8 @@ class CatAtom2Osm:
             address_gml = self.cat.read("address", force_zip=True)
             if address_gml.fieldNameIndex('component_href') == -1:
                 msg = _("Could not resolve joined tables for the "
-                    "'%s' layer") % address_gml.name()
-                raise IOError(msg.encode(setup.encoding))
+                    "'%s' layer") % address_gml.name().encode('utf-8')
+                raise IOError(msg)
         postaldescriptor = self.cat.read("postaldescriptor")
         thoroughfarename = self.cat.read("thoroughfarename")
         report.inp_address = address_gml.featureCount()
@@ -378,8 +382,7 @@ class CatAtom2Osm:
         self.address.append(address_gml)
         self.address.join_field(postaldescriptor, 'PD_id', 'gml_id', ['postCode'])
         self.address.join_field(thoroughfarename, 'TN_id', 'gml_id', ['text'], 'TN_')
-        highway = self.get_highway()
-        (highway_names, self.is_new) = self.get_translations(self.address, highway)
+        (highway_names, self.is_new) = self.get_translations(self.address)
         ia = self.address.translate_field('TN_text', highway_names)
         if ia > 0:
             log.debug(_("Deleted %d addresses refused by street name"), ia)
@@ -445,15 +448,15 @@ class CatAtom2Osm:
             log.debug(_("Refused %d 'parcel' addresses not unique for it building"), md)
             report.inc('not_unique_addresses', md)
 
-    def get_translations(self, address, highway):
+    def get_translations(self, address):
         """
         If there exists the configuration file 'highway_types.csv', read it,
         else write one with default values. If don't exists the translations file
-        'highway_names.csv', creates one parsing names_layer, else reads and returns
-        it as a dictionary.
+        'highway_names.csv', creates one parsing current OSM highways data, else
+        reads and returns it as a dictionary.
 
         * 'highway_types.csv' List of osm elements in json format located in the
-          application path and contains translations from abreviaturs to full
+          application path that contains translations from abbreviations to full
           types of highways.
 
         * 'highway_names.csv' is located in the outputh folder and contains
@@ -466,7 +469,11 @@ class CatAtom2Osm:
             csvtools.csv2dict(highway_types_path, setup.highway_types)
         highway_names_path = os.path.join(self.path, 'highway_names.csv')
         if not os.path.exists(highway_names_path):
-            highway.reproject(address.crs())
+            if self.options.manual:
+                highway = None
+            else:
+                highway = self.get_highway()
+                highway.reproject(address.crs())
             highway_names = address.get_highway_names(highway)
             csvtools.dict2csv(highway_names_path, highway_names)
             is_new = True
