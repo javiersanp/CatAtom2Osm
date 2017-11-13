@@ -1,6 +1,11 @@
 Registro de cambios
 ===================
 
+**13-11-2017**
+
+* Método alternativo para descargar los ficheros OSM para combinación de datos en municipios grandes.
+* La opción -m deshabilita también la combinación de nombres de viales.
+
 **09-11-2017**
 
 * Elimina vértices en zig-zag y en punta.

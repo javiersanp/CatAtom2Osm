@@ -16,7 +16,7 @@
   <link rel="stylesheet" type="text/css" href="_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>Index &#8212; CatAtom2Osm 2017-11-09dev documentation</title>
+    <title>Index &#8212; CatAtom2Osm 2017-11-13dev documentation</title>
     
     <link rel="stylesheet" href="_static/guzzle.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,7 +24,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017-11-09dev',
+        VERSION:     '2017-11-13dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -50,7 +50,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">CatAtom2Osm 2017-11-09dev documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">CatAtom2Osm 2017-11-13dev documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="container-wrapper">
@@ -317,17 +317,19 @@
 </li>
       <li><a href="api/catatom2osm.html#catatom2osm.CatAtom2Osm.exit">exit() (catatom2osm.CatAtom2Osm method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/layer.html#layer.ConsLayer.explode_multi_parts">explode_multi_parts() (layer.ConsLayer method)</a>
 
       <ul>
         <li><a href="api/layer.html#layer.PolygonLayer.explode_multi_parts">(layer.PolygonLayer method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/layer.html#layer.BaseLayer.export">export() (layer.BaseLayer method)</a>
 </li>
       <li><a href="api/catatom2osm.html#catatom2osm.CatAtom2Osm.export_layer">export_layer() (catatom2osm.CatAtom2Osm method)</a>
+</li>
+      <li><a href="api/layer.html#layer.ZoningLayer.export_poly">export_poly() (layer.ZoningLayer method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -365,6 +367,8 @@
 </li>
       <li><a href="api/layer.html#layer.Point.get_angle">get_angle() (layer.Point method)</a>
 </li>
+      <li><a href="api/layer.html#layer.PolygonLayer.get_area">get_area() (layer.PolygonLayer method)</a>
+</li>
       <li><a href="api/catatom.html#catatom.Reader.get_atom_file">get_atom_file() (catatom.Reader method)</a>
 </li>
       <li><a href="api/layer.html#layer.get_attributes">get_attributes() (in module layer)</a>
@@ -397,10 +401,10 @@
 </li>
       <li><a href="api/test.benchmark.html#test.benchmark.TimerConsLayer.get_fids_by_loop">get_fids_by_loop() (test.benchmark.TimerConsLayer method)</a>
 </li>
-      <li><a href="api/test.benchmark.html#test.benchmark.TimerConsLayer.get_fids_by_loop2">get_fids_by_loop2() (test.benchmark.TimerConsLayer method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/test.benchmark.html#test.benchmark.TimerConsLayer.get_fids_by_loop2">get_fids_by_loop2() (test.benchmark.TimerConsLayer method)</a>
+</li>
       <li><a href="api/test.benchmark.html#test.benchmark.TimerConsLayer.get_fids_by_loop_mem">get_fids_by_loop_mem() (test.benchmark.TimerConsLayer method)</a>
 </li>
       <li><a href="api/test.benchmark.html#test.benchmark.TimerConsLayer.get_fids_by_loop_mem2">get_fids_by_loop_mem2() (test.benchmark.TimerConsLayer method)</a>
@@ -426,8 +430,6 @@
       <li><a href="api/catatom.html#catatom.Reader.get_metadata">get_metadata() (catatom.Reader method)</a>
 </li>
       <li><a href="api/layer.html#layer.PolygonLayer.get_multipolygon">get_multipolygon() (layer.PolygonLayer static method)</a>
-</li>
-      <li><a href="api/report.html#report.Report.get_mun_area">get_mun_area() (report.Report method)</a>
 </li>
       <li><a href="api/layer.html#layer.PolygonLayer.get_outer_vertices">get_outer_vertices() (layer.PolygonLayer static method)</a>
 </li>
@@ -539,7 +541,7 @@
 </li>
       <li><a href="api/catatom2osm.html#catatom2osm.CatAtom2Osm.merge_address">merge_address() (catatom2osm.CatAtom2Osm method)</a>
 </li>
-      <li><a href="api/layer.html#layer.ConsLayer.merge_adjacent_features">merge_adjacent_features() (layer.ConsLayer static method)</a>
+      <li><a href="api/layer.html#layer.PolygonLayer.merge_adjacent_features">merge_adjacent_features() (layer.PolygonLayer static method)</a>
 </li>
       <li><a href="api/layer.html#layer.ConsLayer.merge_adjacent_parts">merge_adjacent_parts() (layer.ConsLayer method)</a>
 </li>
@@ -698,6 +700,8 @@
       <ul>
         <li><a href="api/main.html#main.run">(in module main)</a>
 </li>
+        <li><a href="api/test.check_mun_names.html#test.check_mun_names.run">(in module test.check_mun_names)</a>
+</li>
         <li><a href="api/test.benchmark.html#test.benchmark.BaseTimer.run">(test.benchmark.BaseTimer method)</a>
 </li>
       </ul></li>
@@ -780,6 +784,8 @@
       <li><a href="api/test.benchmark.html#test.benchmark.BaseTimer.test">test() (test.benchmark.BaseTimer method)</a>
 </li>
       <li><a href="api/test.benchmark.html#module-test.benchmark">test.benchmark (module)</a>
+</li>
+      <li><a href="api/test.check_mun_names.html#module-test.check_mun_names">test.check_mun_names (module)</a>
 </li>
       <li><a href="api/test.test_catatom.html#module-test.test_catatom">test.test_catatom (module)</a>
 </li>
@@ -1005,6 +1011,8 @@
       </ul></li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestZoningLayer.test_get_adjacents_and_geometries">test_get_adjacents_and_geometries() (test.test_layer.TestZoningLayer method)</a>
 </li>
+      <li><a href="api/test.test_layer.html#test.test_layer.TestPolygonLayer.test_get_area">test_get_area() (test.test_layer.TestPolygonLayer method)</a>
+</li>
       <li><a href="api/test.test_catatom.html#test.test_catatom.TestCatAtom.test_get_atom_file">test_get_atom_file() (test.test_catatom.TestCatAtom method)</a>
 </li>
       <li><a href="api/test.test_catatom.html#test.test_catatom.TestCatAtom.test_get_boundary">test_get_boundary() (test.test_catatom.TestCatAtom method)</a>
@@ -1046,8 +1054,6 @@
       <li><a href="api/test.test_catatom.html#test.test_catatom.TestCatAtom.test_get_metadata_from_zip">test_get_metadata_from_zip() (test.test_catatom.TestCatAtom method)</a>
 </li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestPolygonLayer.test_get_multipolygon">test_get_multipolygon() (test.test_layer.TestPolygonLayer method)</a>
-</li>
-      <li><a href="api/test.test_report.html#test.test_report.TestReport.test_get_mun_area">test_get_mun_area() (test.test_report.TestReport method)</a>
 </li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestPolygonLayer.test_get_outer_vertices">test_get_outer_vertices() (test.test_layer.TestPolygonLayer method)</a>
 </li>
@@ -1524,7 +1530,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">CatAtom2Osm 2017-11-09dev documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">CatAtom2Osm 2017-11-13dev documentation</a> &#187;</li> 
       </ul>
     </div>
 <script type="text/javascript">

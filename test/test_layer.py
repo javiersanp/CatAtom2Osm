@@ -356,6 +356,10 @@ class TestPolygonLayer(unittest.TestCase):
         v = p1[:-1] + p3[:-1]
         self.assertEquals(PolygonLayer.get_outer_vertices(f), v)
 
+    def test_get_area(self):
+        area = self.layer.get_area()
+        self.assertEquals(round(area, 1), 1140234.8)
+
     def test_explode_multi_parts(self):
         mp = [f for f in self.layer.getFeatures()
             if f.geometry().isMultipart()]

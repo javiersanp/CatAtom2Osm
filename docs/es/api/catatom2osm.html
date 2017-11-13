@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>catatom2osm module &#8212; documentación de CatAtom2Osm - 2017-11-09dev</title>
+    <title>catatom2osm module &#8212; documentación de CatAtom2Osm - 2017-11-13dev</title>
     
     <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -23,7 +23,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '2017-11-09dev',
+        VERSION:     '2017-11-13dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -58,7 +58,7 @@
         <li class="right" >
           <a href="catatom.html" title="catatom module"
              accesskey="P">anterior</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 2017-11-09dev</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 2017-11-13dev</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../api.html" >Referencia API</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="modules.html" accesskey="U">CatAtom2Osm</a> &#187;</li> 
       </ul>
@@ -196,14 +196,14 @@ Spanish Cadastre ATOM Services to OSM files.</p>
 
 <dl class="method">
 <dt id="catatom2osm.CatAtom2Osm.get_translations">
-<code class="descname">get_translations</code><span class="sig-paren">(</span><em>address</em>, <em>highway</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.get_translations"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.get_translations" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<code class="descname">get_translations</code><span class="sig-paren">(</span><em>address</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/catatom2osm.html#CatAtom2Osm.get_translations"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#catatom2osm.CatAtom2Osm.get_translations" title="Enlazar permanentemente con esta definición">¶</a></dt>
 <dd><p>If there exists the configuration file &#8216;highway_types.csv&#8217;, read it,
 else write one with default values. If don&#8217;t exists the translations file
-&#8216;highway_names.csv&#8217;, creates one parsing names_layer, else reads and returns
-it as a dictionary.</p>
+&#8216;highway_names.csv&#8217;, creates one parsing current OSM highways data, else
+reads and returns it as a dictionary.</p>
 <ul class="simple">
 <li>&#8216;highway_types.csv&#8217; List of osm elements in json format located in the
-application path and contains translations from abreviaturs to full
+application path that contains translations from abbreviations to full
 types of highways.</li>
 <li>&#8216;highway_names.csv&#8217; is located in the outputh folder and contains
 corrections for original highway names.</li>
@@ -358,7 +358,7 @@ downloads data from overpass using ql query</p>
         <li class="right" >
           <a href="catatom.html" title="catatom module"
              >anterior</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 2017-11-09dev</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 2017-11-13dev</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../api.html" >Referencia API</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="modules.html" >CatAtom2Osm</a> &#187;</li> 
       </ul>

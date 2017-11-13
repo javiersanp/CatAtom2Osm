@@ -434,7 +434,7 @@ class TestCatAtom2Osm(unittest.TestCase):
         address = mock.MagicMock()
         address.get_highway_names = mock.MagicMock(return_value = 'taz')
         m_os.path.exists.return_value = True
-        (names, is_new) = self.m_app.get_translations(self.m_app, address, None)
+        (names, is_new) = self.m_app.get_translations(self.m_app, address)
         m_csv.dict2csv.assert_not_called()
         m_csv.csv2dict.assert_has_calls([
             mock.call('bar/highway_types.csv', setup.highway_types),
@@ -444,9 +444,8 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.assertFalse(is_new)
         m_csv.csv2dict.reset_mock()
         m_os.path.exists.return_value = False
-        highway = mock.MagicMock()
-        (names, is_new) = self.m_app.get_translations(self.m_app, address, highway)
-        highway.reproject.assert_called_once_with(address.crs.return_value)
+        (names, is_new) = self.m_app.get_translations(self.m_app, address)
+        address.get_highway_names.assert_called_once_with(self.m_app.get_highway.return_value)
         m_csv.csv2dict.assert_not_called()
         m_csv.dict2csv.assert_has_calls([
             mock.call('bar/highway_types.csv', setup.highway_types),
@@ -454,6 +453,9 @@ class TestCatAtom2Osm(unittest.TestCase):
         ])
         self.assertEquals(names, 'taz')
         self.assertTrue(is_new)
+        self.m_app.options.manual = True
+        (names, is_new) = self.m_app.get_translations(self.m_app, address)
+        address.get_highway_names.assert_called_with(None)
 
     @mock.patch('catatom2osm.layer')
     def test_get_highway(self, m_layer):

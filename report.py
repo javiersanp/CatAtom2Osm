@@ -3,8 +3,7 @@
 
 from collections import OrderedDict, Counter
 from datetime import datetime
-import codecs
-import os
+import platform
 import time
 
 import setup
@@ -28,8 +27,12 @@ class Report(object):
             self.values[k] = v
         self.titles = OrderedDict([
             ('mun_name', _('Municipality: {}')),
+            ('cat_mun', _('Cadastre name: {}')),
             ('mun_code', _('Code: {}')),
             ('mun_area', _(u'Area: {} km²')),
+            ('mun_population', _('Population: {}')),
+            ('mun_wikipedia', _('Wikipedia: https://www.wikipedia.org/wiki/{}')),
+            ('mun_wikidata', _('Wikidata: https://www.wikidata.org/wiki/{}')),
             ('date', _('Date: {}')),
             ('group_system_info', _('=System info=')),
             ('app_version', _('Application version: {}')),
@@ -161,10 +164,6 @@ class Report(object):
                 for (f, c) in self.fixme_counter.items()]
         return fixme_count
     
-    def get_mun_area(self, rustic):
-        self.mun_area = round(sum([f.geometry().area() \
-            for f in rustic.getFeatures()]) / 1E6, 1)
-            
     def get(self, key, default=0):
         return self.values.get(key, default)  
     
@@ -178,7 +177,7 @@ class Report(object):
         try:
             import psutil
             p = psutil.Process()
-            v = list(os.uname())
+            v = list(platform.uname())
             v.pop(1)
             self.platform = ' '.join(v)
             self.app_version = setup.app_name + ' ' + setup.app_version
@@ -265,8 +264,8 @@ class Report(object):
                     output += setup.eol
         return output
 
-    def to_file(self, fn, encoding=setup.encoding):
-        with codecs.open(fn, "w", encoding) as fo:
+    def to_file(self, fn):
+        with open(fn, "w") as fo:
             fo.write(self.to_string())
         
 

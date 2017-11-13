@@ -155,7 +155,7 @@ class TestCatAtom(unittest.TestCase):
     def test_get_atom_file(self, m_download, m_os):
         self.m_cat.get_atom_file = catatom.Reader.get_atom_file.__func__
         m_os.path.join = lambda *args: '/'.join(args)
-        url = setup.prov_url['BU'] % ('38', '38')
+        url = setup.prov_url['BU'].format(code='38')
         m_download.get_response.return_value.text = "xxxxhttpfobar/38001bartazzipxxx"
         self.m_cat.path = 'lorem'
         self.m_cat.zip_code = '38001'
@@ -218,7 +218,7 @@ class TestCatAtom(unittest.TestCase):
         gml.setCrs.assert_called_once_with(m_crs)
         self.assertEquals(gml.source_date, 'bar')
 
-        url = setup.prov_url[g] % ('99', '99')
+        url = setup.prov_url[g].format(code='99')
         m_os.path.exists.return_value = False
         self.m_cat.is_empty.return_value = True
         gml = self.m_cat.read(self.m_cat, 'foobar', allow_empty=True)
@@ -305,7 +305,7 @@ class TestCatAtom(unittest.TestCase):
     def test_list_municipalities(self, m_download):
         with self.assertRaises(ValueError):
             catatom.list_municipalities('01')
-        url = setup.prov_url['BU'] % ('09', '09')
+        url = setup.prov_url['BU'].format(code='09')
         m_download.get_response.return_value.content = prov_atom
         with capture(catatom.list_municipalities, '09') as output:
             m_download.get_response.assert_called_once_with(url)

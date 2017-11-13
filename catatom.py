@@ -27,18 +27,16 @@ class Reader(object):
         self.path = a_path
         m = re.match("^\d{5}$", os.path.split(a_path)[-1])
         if not m:
-            msg = _("Last directory name must be a 5 digits ZIP code")
-            raise ValueError(msg.encode(setup.encoding))
+            raise ValueError(_("Last directory name must be a 5 digits ZIP code"))
         self.zip_code = m.group()
         self.prov_code = self.zip_code[0:2]
         if self.prov_code not in setup.valid_provinces:
             msg = _("Province code '%s' don't exists") % self.prov_code
-            raise ValueError(msg.encode(setup.encoding))
+            raise ValueError(msg)
         if not os.path.exists(a_path):
             os.makedirs(a_path)
         if not os.path.isdir(a_path):
-            msg = _("Not a directory: '%s'") % a_path
-            raise IOError(msg.encode(setup.encoding))
+            raise IOError(_("Not a directory: '%s'") % a_path)
 
     def get_metadata(self, md_path, zip_path=""):
         """Get the metadata of the source file"""
@@ -57,8 +55,7 @@ class Reader(object):
             namespace = root.nsmap
         gml_date = root.find('gmd:dateStamp/gco:Date', namespace)
         if is_empty or gml_date == None:
-            msg = _("Could not read metadata from '%s'") % md_path
-            raise IOError(msg.encode(setup.encoding))
+            raise IOError(_("Could not read metadata from '%s'") % md_path)
         self.gml_date = gml_date.text
         gml_title = root.find('.//gmd:title/gco:CharacterString', namespace)
         self.cat_mun = gml_title.text.split('-')[-1].split('(')[0].strip()
@@ -76,8 +73,7 @@ class Reader(object):
         response = download.get_response(url)
         s = re.search('http.+/%s.+zip' % self.zip_code, response.text)
         if not s:
-            msg = _("Zip code '%s' don't exists") % self.zip_code
-            raise ValueError(msg.encode(setup.encoding))
+            raise ValueError(_("Zip code '%s' don't exists") % self.zip_code)
         url = s.group(0)
         filename = url.split('/')[-1]
         out_path = os.path.join(self.path, filename)
@@ -93,8 +89,7 @@ class Reader(object):
                 'adminunitname']:
             group = 'AD' 
         else:
-            msg = _("Unknow layer name '%s'") % layername
-            raise ValueError(msg.encode(setup.encoding))
+            raise ValueError(_("Unknow layer name '%s'") % layername)
         gml_fn = ".".join((setup.fn_prefix, group, self.zip_code, layername, "gml"))
         if group == 'AD':    
             gml_fn = ".".join((setup.fn_prefix, group, self.zip_code, 
@@ -152,8 +147,7 @@ class Reader(object):
         self.get_metadata(md_path, zip_path)
         if self.is_empty(gml_path, zip_path):
             if not allow_empty:
-                msg = _("The layer '%s' is empty") % gml_path
-                raise IOError(msg.encode(setup.encoding))
+                raise IOError(_("The layer '%s' is empty") % gml_path)
             else:
                 log.info(_("The layer '%s' is empty"), gml_path.encode('utf-8'))
                 return None
@@ -161,12 +155,10 @@ class Reader(object):
         if not gml.isValid():
             gml = layer.BaseLayer(gml_path, layername+'.gml', 'ogr')
             if not gml.isValid():
-                msg = _("Failed to load layer '%s'") % gml_path
-                raise IOError(msg.encode(setup.encoding))
+                raise IOError(_("Failed to load layer '%s'") % gml_path)
         crs = QgsCoordinateReferenceSystem(self.crs_ref)
         if not crs.isValid():
-            msg = _("Could not determine the CRS of '%s'") % gml_path
-            raise IOError(msg.encode(setup.encoding))
+            raise IOError(_("Could not determine the CRS of '%s'") % gml_path)
         gml.setCrs(crs)
         log.info(_("Read %d features in '%s'"), gml.featureCount(), 
             gml_path.encode('utf-8'))
@@ -178,14 +170,15 @@ class Reader(object):
         Gets the id of the OSM administrative boundary from Overpass.
         Precondition: called after read any gml (metadata adquired)
         """
-        if self.zip_code in setup.mun_areas:
-            self.boundary_name = setup.mun_areas[self.zip_code][0]
-            self.boundary_search_area = setup.mun_areas[self.zip_code][1]
-            log.info(_("Municipality: '%s'"), self.boundary_name)
-            return
         self.boundary_bbox = zoning.bounding_box()
-        query = overpass.Query(self.boundary_bbox, 'json', False, False)
-        query.add('rel["admin_level"="8"]')
+        if self.zip_code in setup.mun_fails:
+            self.boundary_name = setup.mun_fails[self.zip_code][0]
+            self.boundary_search_area = setup.mun_fails[self.zip_code][1]
+            query = overpass.Query(self.boundary_bbox, 'json', False, False)
+            query.add('rel({})'.format(self.boundary_search_area))
+        else:
+            query = overpass.Query(self.boundary_bbox, 'json', False, False)
+            query.add('rel["admin_level"="8"]')
         matching = False
         try:
             data = json.loads(query.read())
@@ -196,6 +189,7 @@ class Reader(object):
         if matching:
             self.boundary_search_area = str(matching['id'])
             self.boundary_name = matching['tags']['name']
+            self.boundary_data = matching['tags']
             log.info(_("Municipality: '%s'"), self.boundary_name)
         else:
             self.boundary_search_area = self.boundary_bbox
@@ -207,15 +201,14 @@ class Reader(object):
 def list_municipalities(prov_code):
     """Get from the ATOM services a list of municipalities for a given province"""
     if prov_code not in setup.valid_provinces:
-        msg = _("Province code '%s' don't exists") % prov_code
-        raise ValueError(msg.encode(setup.encoding))
+        raise ValueError(_("Province code '%s' don't exists") % prov_code)
     url = setup.prov_url['BU'].format(code=prov_code)
     response = download.get_response(url)
     root = etree.fromstring(response.content)
     ns = {'atom': 'http://www.w3.org/2005/Atom'}
     office = root.find('atom:title', ns).text.split('Office ')[1]
     title = _("Territorial office %s") % office
-    print title.encode(setup.encoding)
+    print title
     print "=" * len(title)
     for entry in root.findall('atom:entry', namespaces=ns):
         row = entry.find('atom:title', ns).text.replace('buildings', '')

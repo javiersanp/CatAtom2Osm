@@ -1,6 +1,11 @@
 Change log
 ==========
 
+**2017-11-13**
+
+* Alternative method to get OSM files for data conflation in big municipalities.
+* -m option also dissables highway names conflation.
+
 **2017-11-09**
 
 * Delete zig-zag and spike vertices.

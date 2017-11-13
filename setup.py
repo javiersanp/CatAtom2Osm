@@ -5,7 +5,7 @@ import csv
 import gettext
 
 app_name = 'CatAtom2Osm'
-app_version = '2017-11-09'
+app_version = '2017-11-13'
 app_author = u'Javier Sánchez Portero'
 app_copyright = u'2017, Javier Sánchez Portero'
 app_desc = 'Tool to convert INSPIRE data sets from the Spanish Cadastre ATOM Services to OSM files'
@@ -25,12 +25,11 @@ def winenv():
     global eol, encoding
     if platform.startswith('win'):
         eol = '\r\n'
-        encoding = sys.stdout.encoding
         if os.getenv('LANG') is None:
             os.environ['LANG'] = language
 winenv()
 
-gettext.install(app_name.lower(), localedir=localedir, unicode=1)
+gettext.install(app_name.lower(), localedir=localedir, codeset=encoding)
 
 
 log_level = 'INFO' # Default log level
@@ -190,9 +189,9 @@ place_types = [
 	'Terrenos', u'Urbanización', 'Bulevar', 'Sector'
 ]
 
-# Dictionary of name and Overpass boundary area id for know municipalities
+# Dictionary of name and OSM boundary relation id for know municipalities
 # wich fails in get_boundary method.
-mun_areas = {
+mun_fails = {
     '07032': [u'Maó', '1809102'],
     '07040': [u'Palma', '341321'],
     '11042': [u'Zahara', '343140'],
@@ -203,12 +202,19 @@ mun_areas = {
     '26004': [u'Ajamil', '348189'],
     '26093': [u'Mansilla de la Sierra', '345202'],
     '28063': [u'Gargantilla del Lozoya y Pinilla de Buitrago', '345009'],
+    '29101': [u'Montecorto', '7541639'],
     '35010': [u'Santa María de Guía de Gran Canaria', '345440'],
+    '37252': [u'Pereña de la Ribera', '343095'],
     '37367': [u'Villarino de los Aires', '340062'],
-    '38039': [u'Santa Úrsula', '340717'],
     '38023': [u'San Cristóbal de La Laguna', '345393'],
+    '38039': [u'Santa Úrsula', '340717'],
+    '44007': [u'Alba', '345065'],
+    '47047': [u'Castroponce', '340763'],
+    '47101': [u'Muriel', '346973'],
+    '47207': [u'Villafuerte', '341197'],
     '50030': [u'Añón de Moncayo', '342653'],
     '50049': [u'Biel', '348008'],
     '51021': [u'Fuente-Álamo', '341797'],
+    '52024': [u'Gijón/Xixón', '345576'],
 }
 

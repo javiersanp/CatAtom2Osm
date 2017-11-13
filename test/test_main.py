@@ -15,6 +15,7 @@ import main
 def capture(command, *args, **kwargs):
     out = sys.stdout
     sys.stdout = codecs.getwriter('utf-8')(StringIO())
+    sys.stdout.encoding = 'utf-8'
     try:
         command(*args, **kwargs)
         sys.stdout.seek(0)

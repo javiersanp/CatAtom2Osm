@@ -7,6 +7,7 @@ Submodules
 .. toctree::
 
    test.benchmark
+   test.check_mun_names
    test.test_catatom
    test.test_catatom2osm
    test.test_csvtools
