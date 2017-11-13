@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-11-13 10:46+WET\n"
+"POT-Creation-Date: 2017-11-13 13:36+WET\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -142,15 +142,15 @@ msgstr "Generado '%s': %d nodos, %d vías, %d relaciones"
 msgid "Could not resolve joined tables for the '%s' layer"
 msgstr "No se pudieron resolver las tablas combinadas para la capa '%s'"
 
-#: catatom2osm.py:387
+#: catatom2osm.py:388
 msgid "Deleted %d addresses refused by street name"
 msgstr "Eliminadas %d direcciones rechazadas por nombre de vial"
 
-#: catatom2osm.py:447
+#: catatom2osm.py:448
 msgid "Refused %d 'parcel' addresses not unique for it building"
 msgstr "Rechazadas %d direcciones tipo parcela no únicas para su edificio"
 
-#: catatom2osm.py:519
+#: catatom2osm.py:520
 msgid "There are %d address without house number in the OSM data"
 msgstr "Existen %d direcciones sin número de portal en OSM"
 
@@ -310,7 +310,7 @@ msgstr "El edificio de OSM con id %s no es váido"
 msgid "Detected %d conflicts in %d buildings/pools from OSM"
 msgstr "Detectados %d edificios/piscinas con conflicto de %d en OSM"
 
-#: main.py:25
+#: main.py:23
 msgid ""
 "catatom2osm [OPTION]... [PATH]\n"
 "The argument path states the directory for input and output files. \n"
@@ -333,21 +333,21 @@ msgstr ""
 "del \n"
 "Catastro Español."
 
-#: main.py:45
+#: main.py:43
 msgid "Print CatAtom2Osm version and exit"
 msgstr "Imprime la versión de CatAtom2Osm y termina"
 
-#: main.py:47
+#: main.py:46
 msgid "List available municipalities given the two digits province code"
 msgstr ""
 "Lista los municipios disponibles para el código provincial de dos dígitos"
 
-#: main.py:50
+#: main.py:49
 msgid "Splits constructions into tasks files (default, implies -z)"
 msgstr ""
 "Reparte las construcciones en archivos de tareas (predeterminada, implica -z)"
 
-#: main.py:53
+#: main.py:52
 msgid "Process the cadastral zoning dataset"
 msgstr "Procesa el conjunto de datos de zonificación catastral"
 
@@ -359,36 +359,36 @@ msgstr "Procesa los edificios a un archivo individual en lugar de tareas"
 msgid "Process the address dataset (default)"
 msgstr "Procesa el conjunto de datos de direcciones (predeterminada)"
 
-#: main.py:60
+#: main.py:61
 msgid "Process the cadastral parcel dataset"
 msgstr "Procesa el conjunto de datos de parcelas catastrales"
 
-#: main.py:62
+#: main.py:64
 msgid "Process all datasets (equivalent to -bdptz)"
 msgstr "Procesa todos los conjuntos de datos (equivalente a -bdptz)"
 
-#: main.py:65
+#: main.py:67
 msgid "Dissable conflation with OSM data"
 msgstr "Desactiva la combinación con datos de OSM"
 
-#: main.py:67
+#: main.py:70
 msgid "Select the log level between DEBUG, INFO, WARNING, ERROR or CRITICAL."
 msgstr ""
 "Selecciona el nivel de registro entre DEBUG, INFO, WARNING, ERROR o CRITICAL."
 
-#: main.py:83
+#: main.py:86
 msgid "Invalid log level: %s"
 msgstr "Nivel de registro no válido: %s"
 
-#: main.py:88
+#: main.py:91
 msgid "%s version %s"
 msgstr "%s versión %s"
 
-#: main.py:90
+#: main.py:93
 msgid "Too many arguments, supply only a directory path."
 msgstr "Demasiados argumentos, proporcione sólo la ruta de un directorio."
 
-#: main.py:101
+#: main.py:104
 msgid "Please, install QGIS"
 msgstr "Por favor, instala QGIS"
 

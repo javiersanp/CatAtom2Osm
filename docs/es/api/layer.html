@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>layer module &#8212; documentación de CatAtom2Osm - 2017-11-09dev</title>
+    <title>layer module &#8212; documentación de CatAtom2Osm - 2017-11-13dev</title>
     
     <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -23,7 +23,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '2017-11-09dev',
+        VERSION:     '2017-11-13dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -58,7 +58,7 @@
         <li class="right" >
           <a href="hgwnames.html" title="hgwnames module"
              accesskey="P">anterior</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 2017-11-09dev</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 2017-11-13dev</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../api.html" >Referencia API</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="modules.html" accesskey="U">CatAtom2Osm</a> &#187;</li> 
       </ul>
@@ -156,15 +156,20 @@
 
 <dl class="method">
 <dt id="layer.AddressLayer.get_highway_names">
-<code class="descname">get_highway_names</code><span class="sig-paren">(</span><em>highway</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#AddressLayer.get_highway_names"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#layer.AddressLayer.get_highway_names" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<code class="descname">get_highway_names</code><span class="sig-paren">(</span><em>highway=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#AddressLayer.get_highway_names"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#layer.AddressLayer.get_highway_names" title="Enlazar permanentemente con esta definición">¶</a></dt>
 <dd><p>Returns a dictionary with the translation for each street name.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parámetros:</th><td class="field-body"><strong>highway</strong> (<a class="reference internal" href="#layer.HighwayLayer" title="layer.HighwayLayer"><em>HighwayLayer</em></a>) &#8211; Current OSM highway data</td>
+<tr class="field-odd field"><th class="field-name">Parámetros:</th><td class="field-body"><ul class="first simple">
+<li><strong>highway</strong> (<a class="reference internal" href="#layer.HighwayLayer" title="layer.HighwayLayer"><em>HighwayLayer</em></a>) &#8211; Current OSM highway data for conflation.</li>
+<li><strong>highway is None</strong><strong>, </strong><strong>only parse names.</strong> (<em>If</em>) &#8211; </li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Devuelve:</th><td class="field-body">(dict) highway names translations</td>
+<tr class="field-even field"><th class="field-name">Devuelve:</th><td class="field-body"><p class="first last">(dict) highway names translations</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -204,7 +209,7 @@ a boolean deciding if each feature will be included or not</li>
 </tbody>
 </table>
 <p class="rubric">Examples</p>
-<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">feat</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">:</span> <span class="n">feat</span><span class="p">[</span><span class="s1">&#39;foo&#39;</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;bar&#39;</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">feat</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">:</span> <span class="n">feat</span><span class="p">[</span><span class="s1">&#39;foo&#39;</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;bar&#39;</span>
 <span class="go">Will copy only features with a value &#39;bar&#39; in the field &#39;foo&#39;.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">feat</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">:</span> <span class="n">layer</span><span class="o">.</span><span class="n">is_inside</span><span class="p">(</span><span class="n">feat</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;zone&#39;</span><span class="p">])</span>
 <span class="go">Will copy only features inside zone.</span>
@@ -237,7 +242,7 @@ a boolean deciding if each feature will be included or not</li>
 </table>
 <p class="rubric">Examples</p>
 <p>With this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">rename</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;spec&#39;</span><span class="p">:</span> <span class="s1">&#39;specification&#39;</span><span class="p">}</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rename</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;spec&#39;</span><span class="p">:</span> <span class="s1">&#39;specification&#39;</span><span class="p">}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">resolve</span> <span class="o">=</span> <span class="p">{</span>
 <span class="gp">... </span>    <span class="s1">&#39;PD_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;component_href&#39;</span><span class="p">,</span> <span class="s1">&#39;[\w\.]+PD[\.0-9]+&#39;</span><span class="p">),</span>
 <span class="gp">... </span>    <span class="s1">&#39;TN_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;component_href&#39;</span><span class="p">,</span> <span class="s1">&#39;[\w\.]+TN[\.0-9]+&#39;</span><span class="p">),</span>
@@ -246,7 +251,7 @@ a boolean deciding if each feature will be included or not</li>
 </pre></div>
 </div>
 <p>You get:</p>
-<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">original_attributes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;localId&#39;</span><span class="p">,</span> <span class="s1">&#39;specification&#39;</span><span class="p">,</span> <span class="s1">&#39;component_href&#39;</span><span class="p">]</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">original_attributes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;localId&#39;</span><span class="p">,</span> <span class="s1">&#39;specification&#39;</span><span class="p">,</span> <span class="s1">&#39;component_href&#39;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">original_values</span> <span class="o">=</span> <span class="p">[</span>
 <span class="gp">... </span>    <span class="s1">&#39;38.012.1.12.0295603CS6109N&#39;</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="s1">&#39;Parcel&#39;</span><span class="p">,</span>
@@ -461,12 +466,6 @@ parts index parts of building by building localid.</p>
 <dd><p>Pool features have &#8216;_PI.&#8217; in its localId field</p>
 </dd></dl>
 
-<dl class="staticmethod">
-<dt id="layer.ConsLayer.merge_adjacent_features">
-<em class="property">static </em><code class="descname">merge_adjacent_features</code><span class="sig-paren">(</span><em>group</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.merge_adjacent_features"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#layer.ConsLayer.merge_adjacent_features" title="Enlazar permanentemente con esta definición">¶</a></dt>
-<dd><p>Combine all geometries in group of features</p>
-</dd></dl>
-
 <dl class="method">
 <dt id="layer.ConsLayer.merge_adjacent_parts">
 <code class="descname">merge_adjacent_parts</code><span class="sig-paren">(</span><em>footprint</em>, <em>parts</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.merge_adjacent_parts"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#layer.ConsLayer.merge_adjacent_parts" title="Enlazar permanentemente con esta definición">¶</a></dt>
@@ -596,10 +595,9 @@ between its adjacent vertexs.</p>
 <dt id="layer.Point.get_corner_context">
 <code class="descname">get_corner_context</code><span class="sig-paren">(</span><em>geom</em>, <em>acute_thr=10</em>, <em>straight_thr=2</em>, <em>cath_thr=0.02</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#Point.get_corner_context"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#layer.Point.get_corner_context" title="Enlazar permanentemente con esta definición">¶</a></dt>
 <dd><p>For the vertex in a geometry nearest to this point, give context to
-determine if it is a corner (the angle differs by more than straight_thr</p>
-<blockquote>
-<div>of 180 and if the distance from the vertex to the segment formed by
-their adjacents is greater than cath_thr).</div></blockquote>
+determine if it is a corner (the angle differs by more than straight_thr
+of 180 and if the distance from the vertex to the segment formed by
+their adjacents is greater than cath_thr).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -701,6 +699,12 @@ for buildings.</p>
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="layer.PolygonLayer.get_area">
+<code class="descname">get_area</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#PolygonLayer.get_area"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#layer.PolygonLayer.get_area" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Returns total area</p>
+</dd></dl>
+
 <dl class="staticmethod">
 <dt id="layer.PolygonLayer.get_multipolygon">
 <em class="property">static </em><code class="descname">get_multipolygon</code><span class="sig-paren">(</span><em>feature</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#PolygonLayer.get_multipolygon"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#layer.PolygonLayer.get_multipolygon" title="Enlazar permanentemente con esta definición">¶</a></dt>
@@ -730,6 +734,12 @@ for buildings.</p>
 <dt id="layer.PolygonLayer.get_vertices_list">
 <em class="property">static </em><code class="descname">get_vertices_list</code><span class="sig-paren">(</span><em>feature</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#PolygonLayer.get_vertices_list"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#layer.PolygonLayer.get_vertices_list" title="Enlazar permanentemente con esta definición">¶</a></dt>
 <dd><p>Returns list of all distinct vertices in feature geometry</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="layer.PolygonLayer.merge_adjacent_features">
+<em class="property">static </em><code class="descname">merge_adjacent_features</code><span class="sig-paren">(</span><em>group</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#PolygonLayer.merge_adjacent_features"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#layer.PolygonLayer.merge_adjacent_features" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Combine all geometries in group of features</p>
 </dd></dl>
 
 <dl class="method">
@@ -767,6 +777,12 @@ less than &#8216;cath_thr&#8217; meters.</li>
 <dt id="layer.ZoningLayer.append">
 <code class="descname">append</code><span class="sig-paren">(</span><em>layer</em>, <em>level=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ZoningLayer.append"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#layer.ZoningLayer.append" title="Enlazar permanentemente con esta definición">¶</a></dt>
 <dd><p>Append features of layer with levelName &#8216;M&#8217; for rustic or &#8216;P&#8217; for urban</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="layer.ZoningLayer.export_poly">
+<code class="descname">export_poly</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ZoningLayer.export_poly"><span class="viewcode-link">[fuente]</span></a><a class="headerlink" href="#layer.ZoningLayer.export_poly" title="Enlazar permanentemente con esta definición">¶</a></dt>
+<dd><p>Export as polygon file for Osmosis</p>
 </dd></dl>
 
 <dl class="method">
@@ -823,7 +839,7 @@ multiparts and merged adjacent zones</p>
         <li class="right" >
           <a href="hgwnames.html" title="hgwnames module"
              >anterior</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 2017-11-09dev</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 2017-11-13dev</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../api.html" >Referencia API</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="modules.html" >CatAtom2Osm</a> &#187;</li> 
       </ul>

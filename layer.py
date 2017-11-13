@@ -62,8 +62,8 @@ class Point(QgsPoint):
         """
         For the vertex in a geometry nearest to this point, give context to
         determine if it is a corner (the angle differs by more than straight_thr
-            of 180 and if the distance from the vertex to the segment formed by
-            their adjacents is greater than cath_thr).
+        of 180 and if the distance from the vertex to the segment formed by
+        their adjacents is greater than cath_thr).
 
         Args:
             geom (QgsGeometry): Geometry to test.
