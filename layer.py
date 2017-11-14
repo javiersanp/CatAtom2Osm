@@ -268,7 +268,7 @@ class BaseLayer(QgsVectorLayer):
             self.writer.addFeatures(to_add)
         if total:
             log.debug (_("Loaded %d features in '%s' from '%s'"), total,
-                self.name().encode('utf-8'), layer.name().encode('utf-8'))
+                self.name(), layer.name())
 
     def reproject(self, target_crs=None):
         """Reproject all features in this layer to a new CRS.
@@ -299,7 +299,7 @@ class BaseLayer(QgsVectorLayer):
             if os.path.exists(path + '.qpj'):
                 os.remove(path + '.qpj')
         log.debug(_("Reprojected the '%s' layer to '%s' CRS"),
-            self.name().encode('utf-8'), target_crs.description())
+            self.name(), target_crs.description())
 
     def join_field(self, source_layer, target_field_name, join_field_name,
             field_names_subset, prefix = ""):
@@ -347,8 +347,8 @@ class BaseLayer(QgsVectorLayer):
         if len(to_change) > 0:
             self.writer.changeAttributeValues(to_change)
         if total:
-            log.debug(_("Joined '%s' to '%s'"), source_layer.name().encode('utf-8'),
-                self.name().encode('utf-8'))
+            log.debug(_("Joined '%s' to '%s'"), source_layer.name(),
+                self.name())
 
     def translate_field(self, field_name, translations, clean=True):
         """
@@ -453,7 +453,7 @@ class BaseLayer(QgsVectorLayer):
                 e = data.Node(geom.asPoint())
             else:
                 msg = _("Detected a %s geometry in the '%s' layer") % \
-                    (geom.wkbType(), self.name().encode('utf-8'))
+                    (geom.wkbType(), self.name())
                 log.warning(msg)
                 report.warnings.add(msg)
             if e: e.tags.update(tags_translation(feature))
@@ -463,7 +463,7 @@ class BaseLayer(QgsVectorLayer):
             data.tags['source:date'] = self.source_date
         log.debug(_("Loaded %d nodes, %d ways, %d relations from '%s' layer"),
             len(data.nodes) - nodes, len(data.ways) - ways,
-            len(data.relations) - relations, self.name().encode('utf-8'))
+            len(data.relations) - relations, self.name())
         return data
 
     def search(self, expression):
@@ -549,7 +549,7 @@ class PolygonLayer(BaseLayer):
             self.writer.addFeatures(to_add)
             log.debug(_("%d multi-polygons splited into %d polygons in "
                 "the '%s' layer"), len(to_clean), len(to_add),
-                self.name().encode('utf-8'))
+                self.name())
             report.values['multipart_geoms_' + self.name()] = len(to_clean)
             report.values['exploded_parts_' + self.name()] = len(to_add)
 
@@ -677,11 +677,11 @@ class PolygonLayer(BaseLayer):
             self.writer.changeGeometryValues(to_change)
         if td:
             log.debug(_("Merged %d close vertices in the '%s' layer"), td,
-                self.name().encode('utf-8'))
+                self.name())
             report.values['vertex_close_' + self.name()] = td
         if tp:
             log.debug(_("Created %d topological points in the '%s' layer"),
-                tp, self.name().encode('utf-8'))
+                tp, self.name())
             report.values['vertex_topo_' + self.name()] = tp
 
     def delete_invalid_geometries(self):
@@ -791,20 +791,20 @@ class PolygonLayer(BaseLayer):
             self.writer.changeGeometryValues(to_change)
         if rings:
             log.debug(_("Deleted %d invalid ring geometries in the '%s' layer"),
-                rings, self.name().encode('utf-8'))
+                rings, self.name())
             report.values['geom_rings_' + self.name()] = rings
         if to_clean:
             self.writer.deleteFeatures(to_clean)
             log.debug(_("Deleted %d invalid geometries in the '%s' layer"),
-                len(to_clean), self.name().encode('utf-8'))
+                len(to_clean), self.name())
             report.values['geom_invalid_' + self.name()] = len(to_clean)
         if zz:
             log.debug(_("Deleted %d zig-zag vertices in the '%s' layer"), zz,
-                self.name().encode('utf-8'))
+                self.name())
             report.values['vertex_zz_' + self.name()] = zz
         if spikes:
             log.debug(_("Deleted %d spike vertices in the '%s' layer"), spikes,
-                self.name().encode('utf-8'))
+                self.name())
             report.values['vertex_spike_' + self.name()] = spikes
 
     def simplify(self):
@@ -855,7 +855,7 @@ class PolygonLayer(BaseLayer):
         if to_change:
             self.writer.changeGeometryValues(to_change)
             log.debug(_("Simplified %d vertices in the '%s' layer"), killed,
-                self.name().encode('utf-8'))
+                self.name())
             report.values['vertex_simplify_' + self.name()] = killed
 
     def merge_adjacents(self):
@@ -885,7 +885,7 @@ class PolygonLayer(BaseLayer):
             self.writer.changeGeometryValues(to_change)
             self.writer.deleteFeatures(to_clean)
             log.debug(_("%d adjacent polygons merged into %d polygons in the '%s' "
-                "layer"), count_adj, count_com, self.name().encode('utf-8'))
+                "layer"), count_adj, count_com, self.name())
 
     def clean(self):
         """Merge duplicated vertices and simplify layer"""
@@ -967,10 +967,10 @@ class ZoningLayer(PolygonLayer):
             self.writer.addFeatures(to_add)
         if total:
             log.debug (_("Loaded %d features in '%s' from '%s'"), total,
-                self.name().encode('utf-8'), layer.name().encode('utf-8'))
+                self.name(), layer.name())
         if multi:
             log.debug(_("%d multi-polygons splited into %d polygons in "
-                "the '%s' layer"), multi, final, self.name().encode('utf-8'))
+                "the '%s' layer"), multi, final, self.name())
 
     def export_poly(self, filename):
         """Export as polygon file for Osmosis"""
@@ -1154,7 +1154,7 @@ class ConsLayer(PolygonLayer):
             self.writer.addFeatures(to_add)
         if total > 0:
             log.debug (_("Loaded %d features in '%s' from '%s'"), total,
-                self.name().encode('utf-8'), layer.name().encode('utf-8'))
+                self.name(), layer.name())
         return refs
 
     def set_tasks(self, uzoning, rzoning):

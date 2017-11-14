@@ -3,6 +3,7 @@
 
 from collections import OrderedDict, Counter
 from datetime import datetime
+import codecs
 import platform
 import time
 
@@ -258,19 +259,14 @@ class Report(object):
                         if title:
                             output += title + ' ' + str(len(self.values[key])) + setup.eol
                         for value in self.values[key]:
-                            if isinstance(value, unicode):
-                                value = value.encode(setup.encoding)
                             output += TAB + value + setup.eol
                 else:
-                    value = self.values[key]
-                    if isinstance(value, unicode):
-                        value = value.encode(setup.encoding)
-                    output += title.format(value)
+                    output += title.format(self.values[key])
                     output += setup.eol
         return output
 
     def to_file(self, fn):
-        with open(fn, "w") as fo:
+        with codecs.open(fn, "w", setup.encoding) as fo:
             fo.write(self.to_string())
         
 

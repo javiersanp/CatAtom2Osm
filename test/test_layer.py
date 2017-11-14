@@ -422,17 +422,6 @@ class TestPolygonLayer(unittest.TestCase):
         del vertices
         return duplicates
 
-    def test_merge_duplicates(self):
-        duplicates = self.get_duplicates()
-        self.assertGreater(len(duplicates), 0)
-        self.layer.topology()
-        duplicates = self.get_duplicates()
-        for p, dups in duplicates.items():
-            print '%.2f, %.2f' % (p.x(), p.y())
-            for d in dups:
-                print '  %.2f, %.2f' % (d.x(), d.y())                
-        self.assertEquals(len(duplicates), 0)
-
 class TestParcelLayer(unittest.TestCase):
 
     def test_init(self):

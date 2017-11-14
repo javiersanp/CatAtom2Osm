@@ -149,7 +149,7 @@ class Reader(object):
             if not allow_empty:
                 raise IOError(_("The layer '%s' is empty") % gml_path)
             else:
-                log.info(_("The layer '%s' is empty"), gml_path.encode('utf-8'))
+                log.info(_("The layer '%s' is empty"), gml_path)
                 return None
         gml = layer.BaseLayer(vsizip_path, layername+'.gml', 'ogr')
         if not gml.isValid():
@@ -160,8 +160,7 @@ class Reader(object):
         if not crs.isValid():
             raise IOError(_("Could not determine the CRS of '%s'") % gml_path)
         gml.setCrs(crs)
-        log.info(_("Read %d features in '%s'"), gml.featureCount(), 
-            gml_path.encode('utf-8'))
+        log.info(_("Read %d features in '%s'"), gml.featureCount(), gml_path)
         gml.source_date = self.gml_date
         return gml
 

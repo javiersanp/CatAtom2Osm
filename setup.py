@@ -29,7 +29,7 @@ def winenv():
             os.environ['LANG'] = language
 winenv()
 
-gettext.install(app_name.lower(), localedir=localedir, codeset=encoding)
+gettext.install(app_name.lower(), localedir=localedir, unicode=1)
 
 
 log_level = 'INFO' # Default log level

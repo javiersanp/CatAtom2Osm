@@ -274,7 +274,7 @@ class CatAtom2Osm:
         if layer.export(out_path, driver_name):
             log.info(_("Generated '%s'"), filename)
         else:
-            raise IOError(_("Failed to write layer: '%s'") % filename.encode('utf-8'))
+            raise IOError(_("Failed to write layer: '%s'") % filename)
 
     def read_osm(self, ql, filename):
         """
@@ -296,12 +296,12 @@ class CatAtom2Osm:
         fo = open(osm_path, 'r')
         data = osmxml.deserialize(fo)
         if len(data.elements) == 0:
-            msg = _("No OSM data were obtained from '%s'") % filename.encode('utf-8')
+            msg = _("No OSM data were obtained from '%s'") % filename
             log.warning(msg)
             report.warnings.append(msg)
         else:
             log.info(_("Read '%s': %d nodes, %d ways, %d relations"),
-                filename.encode('utf-8'), len(data.nodes), len(data.ways),
+                filename, len(data.nodes), len(data.ways),
                 len(data.relations))
         return data
 
@@ -321,7 +321,7 @@ class CatAtom2Osm:
         with codecs.open(osm_path, "w", "utf-8") as file_obj:
             osmxml.serialize(file_obj, data)
         log.info(_("Generated '%s': %d nodes, %d ways, %d relations"),
-            filename.encode('utf-8'), len(data.nodes), len(data.ways), 
+            filename, len(data.nodes), len(data.ways), 
             len(data.relations))
 
     def get_zoning(self):
@@ -366,7 +366,7 @@ class CatAtom2Osm:
             address_gml = self.cat.read("address", force_zip=True)
             if address_gml.fieldNameIndex('component_href') == -1:
                 msg = _("Could not resolve joined tables for the "
-                    "'%s' layer") % address_gml.name().encode('utf-8')
+                    "'%s' layer") % address_gml.name()
                 raise IOError(msg)
         postaldescriptor = self.cat.read("postaldescriptor")
         thoroughfarename = self.cat.read("thoroughfarename")

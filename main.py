@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 """CatAtom2Osm command line entry point"""
 from optparse import OptionParser
+import codecs
 import logging
+import sys
 import setup
 
 log = logging.getLogger(setup.app_name)
 fh = logging.FileHandler(setup.log_file)
-ch = logging.StreamHandler()
+ch = logging.StreamHandler(codecs.getwriter(setup.encoding)(sys.stderr))
 fh.setLevel(logging.DEBUG)
 ch.setLevel(logging.DEBUG)
 formatter = logging.Formatter(setup.log_format)
@@ -20,12 +22,15 @@ import os
 from zipfile import BadZipfile
 
     
-usage = _("""catatom2osm [OPTION]... [PATH]
+def __(msg):
+    return msg.encode(setup.encoding).decode(sys.stdout.encoding)
+
+usage = __(_("""catatom2osm [OPTION]... [PATH]
 The argument path states the directory for input and output files. 
 The directory name shall start with 5 digits (GGMMM) matching the Cadastral 
 Provincial Office and Municipality Code. If the program don't find the input 
 files it will download them for you from the INSPIRE Services of the Spanish 
-Cadastre.""").decode(sys.stdout.encoding)
+Cadastre."""))
 
 def process(args, options):
     if options.list:
@@ -40,35 +45,30 @@ def process(args, options):
 def run():
     parser = OptionParser(usage=usage)
     parser.add_option("-v", "--version", dest="version", default=False,
-        action="store_true", help=_("Print CatAtom2Osm version and exit") \
-        .decode(sys.stdout.encoding))
+        action="store_true", help=__(_("Print CatAtom2Osm version and exit")))
     parser.add_option("-l", "--list", dest="list", metavar="prov",
-        default=False, help=_("List available municipalities given the two "
-        "digits province code").decode(sys.stdout.encoding))
+        default=False, help=__(_("List available municipalities given the two "
+        "digits province code")))
     parser.add_option("-t", "--tasks", dest="tasks", default=False,
-        action="store_true", help=_("Splits constructions into tasks files " \
-        "(default, implies -z)").decode(sys.stdout.encoding))
+        action="store_true", help=__(_("Splits constructions into tasks files " \
+        "(default, implies -z)")))
     parser.add_option("-z", "--zoning", dest="zoning", default=False,
-        action="store_true", help=_("Process the cadastral zoning dataset") \
-        .decode(sys.stdout.encoding))
+        action="store_true", help=__(_("Process the cadastral zoning dataset")))
     parser.add_option("-b", "--building", dest="building", default=False,
-        action="store_true", help=_("Process buildings to a single file " \
-        "instead of tasks").decode(sys.stdout.encoding))
+        action="store_true", help=__(_("Process buildings to a single file " \
+        "instead of tasks")))
     parser.add_option("-d", "--address", dest="address", default=False,
-        action="store_true", help=_("Process the address dataset (default)") \
-        .decode(sys.stdout.encoding))
+        action="store_true", help=__(_("Process the address dataset (default)")))
     parser.add_option("-p", "--parcel", dest="parcel", default=False,
-        action="store_true", help=_("Process the cadastral parcel dataset") \
-        .decode(sys.stdout.encoding))
+        action="store_true", help=__(_("Process the cadastral parcel dataset")))
     parser.add_option("-a", "--all", dest="all", default=False,
-        action="store_true", help=_("Process all datasets (equivalent " \
-        "to -bdptz)").decode(sys.stdout.encoding))
+        action="store_true", help=__(_("Process all datasets (equivalent " \
+        "to -bdptz)")))
     parser.add_option("-m", "--manual", dest="manual", default=False,
-        action="store_true", help=_("Dissable conflation with OSM data") \
-        .decode(sys.stdout.encoding))
+        action="store_true", help=__(_("Dissable conflation with OSM data")))
     parser.add_option("", "--log", dest="log_level", metavar="log_level",
-        default=setup.log_level, help=_("Select the log level between " \
-        "DEBUG, INFO, WARNING, ERROR or CRITICAL.").decode(sys.stdout.encoding))
+        default=setup.log_level, help=__(_("Select the log level between " \
+        "DEBUG, INFO, WARNING, ERROR or CRITICAL.")))
     (options, args) = parser.parse_args()
     if options.all:
         options.building = True
