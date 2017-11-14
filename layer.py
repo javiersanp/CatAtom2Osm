@@ -1447,7 +1447,8 @@ class ConsLayer(PolygonLayer):
             geom = feat.geometry()
             errors = geom.validateGeometry()
             if errors:
-                feat['fixme'] = '; '.join([e.what() for e in errors])
+                feat['fixme'] = _('GEOS validation: ') + \
+                    '; '.join([e.what() for e in errors])
                 to_change[feat.id()] = get_attributes(feat)
             if ConsLayer.is_building(feat):
                 localid = feat['localId']
