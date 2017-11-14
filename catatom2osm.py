@@ -5,6 +5,7 @@ Tool to convert INSPIRE data sets from the Spanish Cadastre ATOM Services to OSM
 import os
 import codecs
 import logging
+import shutil
 from collections import defaultdict, Counter, OrderedDict
 
 from qgis.core import *
@@ -102,6 +103,9 @@ class CatAtom2Osm:
             if not self.options.manual:
                 current_bu_osm = self.get_current_bu_osm()
                 if self.building.conflate(current_bu_osm):
+                    fn = os.path.join(self.path, 'current_building')
+                    if not os.path.exists(fn + '.bak.osm'):
+                        shutil.copyfile(fn+'.osm', fn+'.bak.osm')
                     self.write_osm(current_bu_osm, 'current_building.osm')
                 del current_bu_osm
             report.building_counter = Counter()
