@@ -62,7 +62,7 @@ class CatAtom2Osm:
         self.cat = catatom.Reader(a_path)
         self.path = self.cat.path
         report.mun_code = self.cat.zip_code
-        report.sys_info = log.getEffectiveLevel() == logging.DEBUG
+        report.sys_info = True
         self.qgs = QgsSingleton()
         if report.sys_info:
             report.qgs_version = qgis.utils.QGis.QGIS_VERSION
