@@ -38,7 +38,8 @@ def process(args, options):
         list_municipalities('{:>02}'.format(options.list))
     else:
         from catatom2osm import CatAtom2Osm
-        app = CatAtom2Osm(args[0], options)
+        a_path = args[0].decode(setup.encoding)
+        app = CatAtom2Osm(a_path, options)
         app.run()
         app.exit()
 
