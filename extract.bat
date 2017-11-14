@@ -1,4 +1,10 @@
 @echo off
+rem  Extract OSM data for conflation using Osmosis
+rem  Usage: extract PATH
+rem  PATH should contain a '.pbf' file with the input data and a 'boundary.poly' 
+rem  file whit the boundary polygon limits.
+rem  Sugested source for pbf's https://mapzen.com/data/metro-extracts/
+
 if "%1"=="" (
 
   echo Uso: %0 PATH
