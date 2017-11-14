@@ -66,10 +66,11 @@ class Query(object):
                 u=api_servers[n], q=query, o=self.output, d=self.down, m=self.meta)
         return self.url
 
-    def download(self, filename):
+    def download(self, filename, log=False):
         """Downloads query result to filename"""
         for i in range(len(api_servers)):
             try:
+                if log: log.debug(self.get_url(i))
                 download.wget(self.get_url(i), filename)
                 return
             except IOError as e:

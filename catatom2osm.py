@@ -296,7 +296,10 @@ class CatAtom2Osm:
         if not os.path.exists(osm_path):
             log.info(_("Downloading '%s'") % filename)
             query = overpass.Query(self.cat.boundary_search_area).add(ql)
-            query.download(osm_path)
+            if log.getEffectiveLevel() == logging.DEBUG:
+                query.download(osm_path, log)
+            else:
+                query.download(osm_path)
         fo = open(osm_path, 'r')
         data = osmxml.deserialize(fo)
         if len(data.elements) == 0:
