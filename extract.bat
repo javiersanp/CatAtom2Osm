@@ -30,16 +30,19 @@ set CURADDR="%OUTPATH%\current_address.osm"
 
 if not exist %CURADDR% call osmosis ^
     --read-pbf %PBFFILE% ^
-    --node-key keyList="addr:street,addr:place" outPipe.0=nodedata ^
+    --node-key keyList="addr:street,addr:place" ^
+    --tag-filter accept-nodes "addr:housenumber=*" outPipe.0=nodedata ^
     ^
     --read-pbf %PBFFILE% ^
     --way-key keyList="addr:street,addr:place" ^
+    --tf reject-relations --used-node outPipe.0=waydata ^
     --tf reject-relations --used-node outPipe.0=waydata ^
     ^
     --merge inPipe.0=nodedata inPipe.1=waydata outPipe.0=waynodedata ^
     ^
     --read-pbf %PBFFILE% ^
     --tag-filter accept-relations "addr:street=*" "addr:plac=*" ^
+    --tag-filter accept-relations "addr:housenumber=*" ^
     --used-way --used-node outPipe.0=reldata ^
     ^
     --merge inPipe.0=waynodedata inPipe.1=reldata ^
