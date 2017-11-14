@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" href="../../_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>test.test_catatom2osm &#8212; documentación de CatAtom2Osm - 2017-11-13dev</title>
+    <title>test.test_catatom2osm &#8212; documentación de CatAtom2Osm - 2017-11-14dev</title>
     
     <link rel="stylesheet" href="../../_static/guzzle.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -23,7 +23,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '2017-11-13dev',
+        VERSION:     '2017-11-14dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -50,7 +50,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Índice de Módulos Python"
              >módulos</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">documentación de CatAtom2Osm - 2017-11-13dev</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">documentación de CatAtom2Osm - 2017-11-14dev</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Código de módulo</a> &#187;</li> 
       </ul>
     </div>
@@ -177,7 +177,8 @@
         <span class="n">m_gdal</span><span class="o">.</span><span class="n">PushErrorHandler</span><span class="o">.</span><span class="n">called_once_with</span><span class="p">(</span><span class="s1">&#39;CPLQuietErrorHandler&#39;</span><span class="p">)</span></div>
 
     <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;catatom2osm.report&#39;</span><span class="p">)</span>
-<div class="viewcode-block" id="TestCatAtom2Osm.test_run1"><a class="viewcode-back" href="../../api/test.test_catatom2osm.html#test.test_catatom2osm.TestCatAtom2Osm.test_run1">[documentos]</a>    <span class="k">def</span> <span class="nf">test_run1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m_report</span><span class="p">):</span>
+    <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;catatom2osm.shutil&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="TestCatAtom2Osm.test_run1"><a class="viewcode-back" href="../../api/test.test_catatom2osm.html#test.test_catatom2osm.TestCatAtom2Osm.test_run1">[documentos]</a>    <span class="k">def</span> <span class="nf">test_run1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m_sh</span><span class="p">,</span> <span class="n">m_report</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">m_app</span><span class="o">.</span><span class="n">run</span> <span class="o">=</span> <span class="n">cat</span><span class="o">.</span><span class="n">CatAtom2Osm</span><span class="o">.</span><span class="n">run</span><span class="o">.</span><span class="n">__func__</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">m_app</span><span class="o">.</span><span class="n">is_new</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m_app</span><span class="o">.</span><span class="n">urban_zoning</span>
@@ -617,7 +618,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Índice de Módulos Python"
              >módulos</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">documentación de CatAtom2Osm - 2017-11-13dev</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">documentación de CatAtom2Osm - 2017-11-14dev</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Código de módulo</a> &#187;</li> 
       </ul>
     </div>

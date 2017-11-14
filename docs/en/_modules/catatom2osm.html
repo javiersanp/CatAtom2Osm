@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>catatom2osm &#8212; CatAtom2Osm 2017-11-13dev documentation</title>
+    <title>catatom2osm &#8212; CatAtom2Osm 2017-11-14dev documentation</title>
     
     <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -23,7 +23,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '2017-11-13dev',
+        VERSION:     '2017-11-14dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -49,7 +49,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 2017-11-13dev documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 2017-11-14dev documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &#187;</li> 
       </ul>
     </div>
@@ -118,6 +118,7 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">codecs</span>
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span><span class="p">,</span> <span class="n">Counter</span><span class="p">,</span> <span class="n">OrderedDict</span>
 
 <span class="kn">from</span> <span class="nn">qgis.core</span> <span class="k">import</span> <span class="o">*</span>
@@ -174,7 +175,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">cat</span> <span class="o">=</span> <span class="n">catatom</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span><span class="n">a_path</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cat</span><span class="o">.</span><span class="n">path</span>
         <span class="n">report</span><span class="o">.</span><span class="n">mun_code</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cat</span><span class="o">.</span><span class="n">zip_code</span>
-        <span class="n">report</span><span class="o">.</span><span class="n">sys_info</span> <span class="o">=</span> <span class="n">log</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">()</span> <span class="o">==</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">sys_info</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">qgs</span> <span class="o">=</span> <span class="n">QgsSingleton</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">report</span><span class="o">.</span><span class="n">sys_info</span><span class="p">:</span>
             <span class="n">report</span><span class="o">.</span><span class="n">qgs_version</span> <span class="o">=</span> <span class="n">qgis</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">QGis</span><span class="o">.</span><span class="n">QGIS_VERSION</span>
@@ -215,6 +216,9 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">manual</span><span class="p">:</span>
                 <span class="n">current_bu_osm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_current_bu_osm</span><span class="p">()</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">building</span><span class="o">.</span><span class="n">conflate</span><span class="p">(</span><span class="n">current_bu_osm</span><span class="p">):</span>
+                    <span class="n">fn</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;current_building&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fn</span> <span class="o">+</span> <span class="s1">&#39;.bak.osm&#39;</span><span class="p">):</span>
+                        <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">fn</span><span class="o">+</span><span class="s1">&#39;.osm&#39;</span><span class="p">,</span> <span class="n">fn</span><span class="o">+</span><span class="s1">&#39;.bak.osm&#39;</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">write_osm</span><span class="p">(</span><span class="n">current_bu_osm</span><span class="p">,</span> <span class="s1">&#39;current_building.osm&#39;</span><span class="p">)</span>
                 <span class="k">del</span> <span class="n">current_bu_osm</span>
             <span class="n">report</span><span class="o">.</span><span class="n">building_counter</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
@@ -405,7 +409,10 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">osm_path</span><span class="p">):</span>
             <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Downloading &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
             <span class="n">query</span> <span class="o">=</span> <span class="n">overpass</span><span class="o">.</span><span class="n">Query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cat</span><span class="o">.</span><span class="n">boundary_search_area</span><span class="p">)</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ql</span><span class="p">)</span>
-            <span class="n">query</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">osm_path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">log</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">()</span> <span class="o">==</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
+                <span class="n">query</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">osm_path</span><span class="p">,</span> <span class="n">log</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">query</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">osm_path</span><span class="p">)</span>
         <span class="n">fo</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">osm_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">osmxml</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">fo</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">elements</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -658,7 +665,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 2017-11-13dev documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 2017-11-14dev documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &#187;</li> 
       </ul>
     </div>

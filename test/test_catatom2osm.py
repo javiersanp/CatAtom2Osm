@@ -63,7 +63,8 @@ class TestCatAtom2Osm(unittest.TestCase):
         m_gdal.PushErrorHandler.called_once_with('CPLQuietErrorHandler')
 
     @mock.patch('catatom2osm.report')
-    def test_run1(self, m_report):
+    @mock.patch('catatom2osm.shutil')
+    def test_run1(self, m_sh, m_report):
         self.m_app.run = cat.CatAtom2Osm.run.__func__
         self.m_app.is_new = False
         u = self.m_app.urban_zoning
