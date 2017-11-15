@@ -4,7 +4,11 @@ from optparse import OptionParser
 import codecs
 import logging
 import sys
+import os
+from zipfile import BadZipfile
+
 import setup
+from report import instance as report
 
 log = logging.getLogger(setup.app_name)
 fh = logging.FileHandler(setup.log_file)
@@ -17,11 +21,7 @@ fh.setFormatter(formatter)
 log.addHandler(ch)
 log.addHandler(fh)
 
-import sys
-import os
-from zipfile import BadZipfile
 
-    
 def __(msg):
     return msg.encode(setup.encoding).decode(sys.stdout.encoding)
 
@@ -71,6 +71,8 @@ def run():
         default=setup.log_level, help=__(_("Select the log level between " \
         "DEBUG, INFO, WARNING, ERROR or CRITICAL.")))
     (options, args) = parser.parse_args()
+    argv = ' '.join(sys.argv[1:-1])
+    report.options = argv if argv else '-td'
     if options.all:
         options.building = True
         options.tasks = True
