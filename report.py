@@ -36,7 +36,7 @@ class Report(object):
             ('mun_population', _('Population: {}')),
             ('mun_wikipedia', _('Wikipedia: https://www.wikipedia.org/wiki/{}')),
             ('mun_wikidata', _('Wikidata: https://www.wikidata.org/wiki/{}')),
-            ('group_system_info', _('=System info=')),
+            ('group_system_info', _('System info')),
             ('app_version', _('Application version: {}')),
             ('platform', _('Platform: {}')),
             ('qgs_version', _('QGIS version: {}')),
@@ -133,9 +133,6 @@ class Report(object):
         self.out_address = len(address_osm.elements)
 
     def cons_stats(self, data):
-        self.inc('nodes', len(data.nodes))
-        self.inc('ways', len(data.ways))
-        self.inc('relations', len(data.relations))
         for el in data.elements:
             if 'leisure' in el.tags and el.tags['leisure'] == 'swimming_pool':
                 self.inc('out_pools')
@@ -149,6 +146,11 @@ class Report(object):
                 self.inc('out_features')
             if 'fixme' in el.tags:
                 self.fixme_counter[el.tags['fixme']] += 1
+
+    def osm_stats(self, data):
+        self.inc('nodes', len(data.nodes))
+        self.inc('ways', len(data.ways))
+        self.inc('relations', len(data.relations))
 
     def cons_end_stats(self):
         self.dlag = ', '.join(["%d: %d" % (l, c) for (l, c) in \
