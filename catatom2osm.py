@@ -124,6 +124,8 @@ class CatAtom2Osm:
             if not self.options.tasks:
                 report.cons_stats(self.building_osm)
             self.write_osm(self.building_osm, 'building.osm')
+            if not self.options.tasks:
+                report.osm_stats(self.building_osm)
             del self.building_osm
         elif self.options.tasks:
             del self.building
@@ -175,6 +177,7 @@ class CatAtom2Osm:
                         self.merge_address(task_osm, self.address_osm)
                         report.cons_stats(task_osm)
                         self.write_osm(task_osm, fn)
+                        report.osm_stats(task_osm)
 
     def get_tasks(self, source):
         base_path = os.path.join(self.path, 'tasks')

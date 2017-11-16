@@ -888,7 +888,8 @@ class PolygonLayer(BaseLayer):
                 "layer"), count_adj, count_com, self.name())
 
     def clean(self):
-        """Merge duplicated vertices and simplify layer"""
+        """Delete invalid geometries and close vertices, add topological points
+        and simplify vertices."""
         self.delete_invalid_geometries()
         self.topology()
         self.simplify()
@@ -1356,8 +1357,8 @@ class ConsLayer(PolygonLayer):
 
     def clean(self):
         """
-        Merge duplicated vertices, add topological points, simplify layer
-        and merge building parts.
+        Delete invalid geometries and close vertices, add topological points, 
+        merge building parts and simplify vertices.
         """
         self.delete_invalid_geometries()
         self.topology()
