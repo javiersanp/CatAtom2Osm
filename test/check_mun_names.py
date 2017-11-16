@@ -33,18 +33,6 @@ def run():
             title = entry.find('atom:title', ns).text
             zip_code = title[1:6]
             mun = title.replace('buildings', '').strip()[6:]
-            """
-            poly = entry.find('georss:polygon', ns).text
-            lat = [float(lat) for lat in poly.strip().split(' ')[::2]]
-            lon = [float(lon) for lon in poly.strip().split(' ')[1:][::2]]
-            bbox_bltr = [min(lat)-0.1, max(lon)-0.1, min(lat)+0.1, max(lon)+0.1]
-            bbox = '{:.8f},{:.8f},{:.8f},{:.8f}'.format(*bbox_bltr)
-            query = overpass.Query(bbox, 'json', False, False)
-            query.add('rel["admin_level"="8"]')
-            response = download.get_response(query.get_url())
-            data = response.json()
-            matching = hgwnames.dsmatch(mun, data['elements'], lambda e: e['tags']['name'])
-            """
             url = u"{0}{1}/{2}-{3}/A.ES.SDGC.BU.{2}.zip".format(baseurl, prov_code, zip_code, mun)
             download.wget(url, 'temp')
             zf = zipfile.ZipFile('temp')

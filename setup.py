@@ -208,6 +208,7 @@ mun_fails = {
     '37367': [u'Villarino de los Aires', '340062'],
     '38023': [u'San Cristóbal de La Laguna', '345393'],
     '38039': [u'Santa Úrsula', '340717'],
+    '39103': [u'Mancomunidad de Campoo-Cabuérniga', '340042'],
     '44007': [u'Alba', '345065'],
     '47047': [u'Castroponce', '340763'],
     '47101': [u'Muriel', '346973'],
