@@ -2,6 +2,7 @@
 import mock
 import unittest
 import os
+import locale
 import random
 import time
 from collections import Counter
@@ -121,7 +122,7 @@ class TestReport(unittest.TestCase):
             + "Date: " + datetime.now().strftime('%x') + setup.eol + setup.eol \
             + "=Addresses=" + setup.eol + setup.eol \
             + "==Input data==" + setup.eol \
-            + "Postal codes: 1000" + setup.eol
+            + "Postal codes: " + report.int_format(1000) + setup.eol
         self.assertEquals(output, expected)
 
     def test_to_string2(self):
@@ -141,7 +142,7 @@ class TestReport(unittest.TestCase):
     def test_to_string3(self):
         r = report.Report(sys_info=True)
         output = r.to_string()
-        expected = "Execution time: {:.2f} seconds".format(r.ex_time)
+        expected = locale.format_string("Execution time: %.1f seconds", r.ex_time, 1)
         self.assertIn(expected, output)
 
     def test_to_file(self):

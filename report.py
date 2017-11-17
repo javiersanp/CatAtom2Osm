@@ -4,14 +4,16 @@
 from collections import OrderedDict, Counter
 from datetime import datetime
 import codecs
+import locale
 import platform
 import time
 
 import setup
 
 TAB = '  '
+SEP = ': '
 MEMORY_UNIT = 1048576.0
-
+int_format = lambda v: locale.format('%d', v, True)
 
 class Report(object):
 
@@ -27,93 +29,104 @@ class Report(object):
         for k,v in kwargs.items():
             self.values[k] = v
         self.titles = OrderedDict([
-            ('mun_name', _('Municipality: {}')),
-            ('cat_mun', _('Cadastre name: {}')),
-            ('mun_code', _('Code: {}')),
-            ('date', _('Date: {}')),
-            ('options', _('Options: {}')),
-            ('mun_area', _(u'Area: {} km²')),
-            ('mun_population', _('Population: {}')),
-            ('mun_wikipedia', _('Wikipedia: https://www.wikipedia.org/wiki/{}')),
-            ('mun_wikidata', _('Wikidata: https://www.wikidata.org/wiki/{}')),
+            ('mun_name', _('Municipality')),
+            ('cat_mun', _('Cadastre name')),
+            ('mun_code', _('Code')),
+            ('date', _('Date')),
+            ('options', _('Options')),
+            ('mun_area', _(u'Area')),
+            ('mun_population', _('Population')),
+            ('mun_wikipedia', _('Wikipedia')),
+            ('mun_wikidata', _('Wikidata')),
             ('group_system_info', _('System info')),
-            ('app_version', _('Application version: {}')),
-            ('platform', _('Platform: {}')),
-            ('qgs_version', _('QGIS version: {}')),
-            ('cpu_count', _('CPU count: {}')),
-            ('cpu_freq', _('CPU frequency: {} Mhz')),
-            ('ex_time', _('Execution time: {:.2f} seconds')),
-            ('memory', _('Total memory: {:.2f} GB')),
-            ('rss', _('Physical memory usage: {:.2f} GB')),
-            ('vms', _('Virtual memory usage: {:.2f} GB')),
+            ('app_version', _('Application version')),
+            ('platform', _('Platform')),
+            ('qgs_version', _('QGIS version')),
+            ('cpu_count', _('CPU count')),
+            ('cpu_freq', _('CPU frequency')),
+            ('ex_time', _('Execution time')),
+            ('memory', _('Total memory')),
+            ('rss', _('Physical memory usage')),
+            ('vms', _('Virtual memory usage')),
             ('group_address', _('Addresses')),
             ('subgroup_ad_input', _('Input data')),
-            ('address_date', _('Source date: {}')),
-            ('inp_address', _('Feature count: {}')),
-            ('inp_address_entrance', TAB + _('Type entrance: {}')),
-            ('inp_address_parcel', TAB + _('Type parcel: {}')),
-            ('inp_zip_codes', _('Postal codes: {}')),
-            ('inp_street_names', _('Street names: {}')),
+            ('address_date', _('Source date')),
+            ('inp_address', _('Feature count')),
+            ('inp_address_entrance', TAB + _('Type entrance')),
+            ('inp_address_parcel', TAB + _('Type parcel')),
+            ('inp_zip_codes', _('Postal codes')),
+            ('inp_street_names', _('Street names')),
             ('subgroup_ad_process', _('Process')),
-            ('ignored_addresses', _('Addresses deleted by street name: {}')),
-            ('addresses_without_number', _('Addresses without house number deleted: {}')),
-            ('orphand_addresses', _('Addresses without associated building deleted: {}')),
-            ('multiple_addresses', _('Addresses belonging to multiple buildings deleted: {}')),
-            ('not_unique_addresses', _("'Parcel' addresses not unique for it building deleted: {}")),
+            ('ignored_addresses', _('Addresses deleted by street name')),
+            ('addresses_without_number', _('Addresses without house number deleted')),
+            ('orphand_addresses', _('Addresses without associated building deleted')),
+            ('multiple_addresses', _('Addresses belonging to multiple buildings deleted')),
+            ('not_unique_addresses', _("'Parcel' addresses not unique for it building deleted")),
             ('subgroup_ad_conflation', _("Conflation")),
-            ('osm_addresses', _("OSM addresses : {}")),
-            ('osm_addresses_whithout_number', TAB + _("Without house number: {}")),
-            ('refused_addresses', _("Addresses rejected because they exist in OSM: {}")),
+            ('osm_addresses', _("OSM addresses ")),
+            ('osm_addresses_whithout_number', TAB + _("Without house number")),
+            ('refused_addresses', _("Addresses rejected because they exist in OSM")),
             ('subgroup_ad_output', _('Output data')),
-            ('out_address', _('Addresses: {}')),
-            ('out_address_entrance', TAB + _('In entrance nodes: {}')),
-            ('out_address_building', TAB + _('In buildings: {}')),
-            ('out_addr_str', TAB + _('Type addr:street: {}')),
-            ('out_addr_plc', TAB + _('Type addr:place: {}')),
+            ('out_address', _('Addresses')),
+            ('out_address_entrance', TAB + _('In entrance nodes')),
+            ('out_address_building', TAB + _('In buildings')),
+            ('out_addr_str', TAB + _('Type addr:street')),
+            ('out_addr_plc', TAB + _('Type addr:place')),
             ('group_buildings', _('Buildings')),
             ('subgroup_bu_input', _('Input data')),
-            ('building_date', _('Source date: {}')),
-            ('inp_features', _('Feature count: {}')),
-            ('inp_buildings', TAB + _('Edificios: {}')),
-            ('inp_parts', TAB + _('Buildings parts: {}')),
-            ('inp_pools', TAB + _('Swimming pools: {}')),
+            ('building_date', _('Source date')),
+            ('inp_features', _('Feature count')),
+            ('inp_buildings', TAB + _('Edificios')),
+            ('inp_parts', TAB + _('Buildings parts')),
+            ('inp_pools', TAB + _('Swimming pools')),
             ('subgroup_bu_process', _('Process')),
-            ('orphand_parts', _("Parts outside footprint deleted: {}")),
-            ('underground_parts', _("Parts with no floors above ground: {}")),
-            ('new_footprints', _("Building footprints created: {}")),
-            ('multipart_geoms_building', _("Buildings with multipart geometries: {}")),
-            ('exploded_parts_building', _("Buildings resulting from spliting multiparts: {}")),
-            ('parts_to_footprint', _("Parts merged to the footprint: {}")),
-            ('adjacent_parts', _("Adjacent parts merged: {}")),
-            ('geom_rings_building', _('Invalid geometry rings deleted: {}')),
-            ('geom_invalid_building', _('Invalid geometries deleted: {}')),
-            ('vertex_zigzag_building', _('Zig-zag vertices deleted: {}')),
-            ('vertex_spike_building', _('Spike vertices deleted: {}')),
-            ('vertex_close_building', _('Close vertices merged: {}')),
-            ('vertex_topo_building', _('Topological points created: {}')),
-            ('vertex_simplify_building', _("Simplified vertices: {}")),
+            ('orphand_parts', _("Parts outside footprint deleted")),
+            ('underground_parts', _("Parts with no floors above ground")),
+            ('new_footprints', _("Building footprints created")),
+            ('multipart_geoms_building', _("Buildings with multipart geometries")),
+            ('exploded_parts_building', _("Buildings resulting from spliting multiparts")),
+            ('parts_to_footprint', _("Parts merged to the footprint")),
+            ('adjacent_parts', _("Adjacent parts merged")),
+            ('geom_rings_building', _('Invalid geometry rings deleted')),
+            ('geom_invalid_building', _('Invalid geometries deleted')),
+            ('vertex_zigzag_building', _('Zig-zag vertices deleted')),
+            ('vertex_spike_building', _('Spike vertices deleted')),
+            ('vertex_close_building', _('Close vertices merged')),
+            ('vertex_topo_building', _('Topological points created')),
+            ('vertex_simplify_building', _("Simplified vertices")),
             ('subgroup_bu_conflation', _("Conflation")),
-            ('osm_buildings', _("Buildings/pools in OSM: {}")),
-            ('osm_building_conflicts', TAB + _("With conflic: {}")),
+            ('osm_buildings', _("Buildings/pools in OSM")),
+            ('osm_building_conflicts', TAB + _("With conflic")),
             ('subgroup_bu_output', _('Output data')),
-            ('nodes', _("Nodes: {}")),
-            ('ways', _("Ways: {}")),
-            ('relations', _("Relations: {}")),
-            ('out_features', _("Feature count: {}")),
-            ('out_buildings', TAB + _('Buildings: {}')),
-            ('out_parts', TAB + _('Buildings parts: {}')),
-            ('out_pools', TAB + _('Swimming pools: {}')),
-            ('building_types', _("Building types counter: {}")),
-            ('dlag', _("Max. levels above ground (level: # of buildings): {}")),
-            ('dlbg', _("Min. levels below ground (level: # of buildings): {}")),
-            ('tasks_r', _("Rustic tasks files: {}")),
-            ('tasks_u', _("Urban tasks files: {}")),
+            ('nodes', _("Nodes")),
+            ('ways', _("Ways")),
+            ('relations', _("Relations")),
+            ('out_features', _("Feature count")),
+            ('out_buildings', TAB + _('Buildings')),
+            ('out_parts', TAB + _('Buildings parts')),
+            ('out_pools', TAB + _('Swimming pools')),
+            ('building_types', _("Building types counter")),
+            ('dlag', _("Max. levels above ground (level: # of buildings)")),
+            ('dlbg', _("Min. levels below ground (level: # of buildings)")),
+            ('tasks_r', _("Rustic tasks files")),
+            ('tasks_u', _("Urban tasks files")),
             ('group_problems', _("Problems")),
             ('errors', _("Report validation:")),
-            ('fixme_count', _("Fixmes: {}")),
+            ('fixme_count', _("Fixmes")),
             ('fixmes', ''),
             ('warnings', _("Warnings:")),
         ])
+        self.formats = {
+            'mun_area': lambda v: locale.format_string(u'%.1f km²', v, True),
+            'mun_population': lambda v: '{} hab. ({})'.format(*v),
+            'mun_wikipedia': lambda v: 'https://www.wikipedia.org/wiki/' + v,
+            'mun_wikidata': lambda v: 'https://www.wikidata.org/wiki/' + v,
+            'cpu_freq': lambda v: locale.format_string('%.1f Mhz', v, True),
+            'ex_time': lambda v: locale.format_string('%.1f seconds', v, True),
+            'memory': lambda v: locale.format_string('%.2f GB', v, True),
+            'rss': lambda v: locale.format_string('%.2f GB', v, True),
+            'vms': lambda v: locale.format_string('%.2f GB', v, True),
+        }
 
     def __setattr__(self, key, value):
         if key in ['values', 'titles', 'groups']:
@@ -250,7 +263,7 @@ class Report(object):
                 groups.add(last_group)
             if last_subgroup and exists:
                 groups.add(last_subgroup)
-        output = ''
+        output = u''
         for key, title in self.titles.items():
             if key.startswith('group_') and key in groups:
                 output += setup.eol + '=' + self.titles[key] + '=' + setup.eol
@@ -260,11 +273,17 @@ class Report(object):
                 if isinstance(self.values[key], list):
                     if len(self.values[key]) > 0:
                         if title:
-                            output += title + ' ' + str(len(self.values[key])) + setup.eol
+                            output += title + ' ' + \
+                                int_format(len(self.values[key])) + setup.eol
                         for value in self.values[key]:
                             output += TAB + value + setup.eol
                 else:
-                    output += title.format(self.values[key])
+                    value = self.values[key]
+                    if key in self.formats:
+                        value = self.formats[key](value)
+                    elif isinstance(value, int) or isinstance(value, long):
+                        value = int_format(value)
+                    output += title + SEP + value
                     output += setup.eol
         return output
 

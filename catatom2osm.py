@@ -354,8 +354,7 @@ class CatAtom2Osm:
             if 'wikidata' in self.cat.boundary_data:
                 report.mun_wikidata = self.cat.boundary_data['wikidata']
             if 'population' in self.cat.boundary_data:
-                report.mun_population = '{} hab. ({})'.format(
-                    self.cat.boundary_data['population'], 
+                report.mun_population = (self.cat.boundary_data['population'], 
                     self.cat.boundary_data.get('population:date', '?'))
         if self.options.tasks or self.options.zoning:
             fn = os.path.join(self.path, 'urban_zoning.shp')
