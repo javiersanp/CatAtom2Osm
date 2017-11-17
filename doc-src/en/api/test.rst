@@ -8,6 +8,7 @@ Submodules
 
    test.benchmark
    test.check_mun_names
+   test.count_buildings
    test.test_catatom
    test.test_catatom2osm
    test.test_csvtools
