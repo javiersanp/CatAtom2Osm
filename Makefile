@@ -2,6 +2,7 @@ SHELL         = /bin/bash
 SPHINXBUILD   = sphinx-build
 APIBUILD      = sphinx-apidoc
 COVERAGE      = coverage
+UNITTEST      = python -m unittest
 DOCSRCDIR     = doc-src
 BUILDDIR      = docs
 COVERAGEDIR   = $(BUILDDIR)/coverage
@@ -23,6 +24,7 @@ I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
 	@echo "  clean      to clean docs build directory"
+	@echo "  test       to run unit tests"
 	@echo "  coverage   to make coverage report files"
 	@echo "  api        to make autodoc files"
 	@echo "  html       to make documentation html files"
@@ -42,6 +44,10 @@ html:
 		echo ".. include:: ../../en/api/$$(basename $$f)" > "$(DOCSRCDIR)/es/api/$$(basename $$f)"; \
 	done
 	cd $(DOCSRCDIR) && make html
+
+.PHONY: test
+test:
+	$(UNITTEST) discover
 
 .PHONY: coverage
 coverage:
