@@ -171,9 +171,9 @@ NtRp51
 g17
 I1
 sg18
-I78
+I82
 sg19
-I108
+I118
 sg20
 I2
 sg21
@@ -183,7 +183,7 @@ I1
 sg23
 I2
 sbssg24
-S'\x1a\xe7\x1a\x00N^\x181\xbb44\x14\x89~I\xcd'
+S'\xec\x01F\xb3\xca|\xf2\xe4\xd2\x8d\xe7\x83\xfa\\\x8c\x06'
 p53
 ssS'hgwnames'
 p54
@@ -282,7 +282,7 @@ I0
 sg23
 I0
 sbssg24
-S'\xbdN%\x1d\x9dz\x8d\xc2s#\xe0\xd7\xc0\xa0\xe7^'
+S'#\x7f\xfc\xfd\xbcoYM|\x04n&\x83\xbc\xbe\x9a'
 p74
 ssS'catatom'
 p75

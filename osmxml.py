@@ -58,40 +58,50 @@ def deserialize(infile, data=None):
     """Generates or append to an OSM data set from OSM XML"""
     if data is None:
         data = osm.Osm()
-    context = etree.iterparse(infile, events=('start',))
-    last_elem = data
+    context = etree.iterparse(infile, events=('end',))
+    childs = []
+    tags = {}
     for event, elem in context:
         if elem.tag == 'osm':
             data.upload = elem.get('upload')
             data.version = elem.get('version')
             data.generator = elem.get('generator')
         elif elem.tag == 'changeset':
-            last_elem = data
+            data.tags = tags
+            tags = {}
         elif elem.tag == 'note':
-            data.note = elem.text
+            data.note = unicode(elem.text)
         elif elem.tag == 'meta':
             data.meta = dict(elem.attrib)
         elif elem.tag == 'node':
             n = data.Node(float(elem.get('lon')), float(elem.get('lat')), 
-                attrs=dict(elem.attrib))
-            last_elem = n
+                attrs=dict(elem.attrib), tags=tags)
+            tags = {}
         elif elem.tag == 'way':
-            w = data.Way(attrs=dict(elem.attrib))
-            last_elem = w
+            w = data.Way(attrs=dict(elem.attrib), tags=tags)
+            w.nodes = childs
+            childs = []
+            tags = {}
         elif elem.tag == 'nd':
-            last_elem.nodes.append(elem.get('ref'))
+            childs.append(elem.get('ref'))
         elif elem.tag == 'relation':
-            r = data.Relation(attrs=dict(elem.attrib))
-            last_elem = r
+            r = data.Relation(attrs=dict(elem.attrib), tags=tags)
+            r.members = childs
+            childs = []
+            tags = {}
         elif elem.tag == 'member':
-            last_elem.members.append({
+            childs.append({
                 'ref': elem.get('ref'),
                 'type': elem.get('type'),
                 'role': elem.get('role')
             })
         elif elem.tag == 'tag':
-            last_elem.tags[elem.get('k')] = elem.get('v')
+            tags[elem.get('k')] = elem.get('v')
         elem.clear()
+        for ancestor in elem.xpath('ancestor-or-self::*'):
+            while ancestor.getprevious() is not None:
+                del ancestor.getparent()[0]
+    del context
     for way in data.ways:
         missing = []
         for i, ref in enumerate(way.nodes):
