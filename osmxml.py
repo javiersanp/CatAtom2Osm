@@ -98,9 +98,10 @@ def deserialize(infile, data=None):
         elif elem.tag == 'tag':
             tags[elem.get('k')] = elem.get('v')
         elem.clear()
-        for ancestor in elem.xpath('ancestor-or-self::*'):
-            while ancestor.getprevious() is not None:
-                del ancestor.getparent()[0]
+        if hasattr(elem, 'xpath'):
+            for ancestor in elem.xpath('ancestor-or-self::*'):
+                while ancestor.getprevious() is not None:
+                    del ancestor.getparent()[0]
     del context
     for way in data.ways:
         missing = []
