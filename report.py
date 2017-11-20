@@ -143,7 +143,12 @@ class Report(object):
                 self.inc('out_addr_str')
             if 'addr:place' in el.tags:
                 self.inc('out_addr_plc')
-        self.out_address = len(address_osm.elements)
+            if 'addr:street' in el.tags or 'addr:place' in el.tags:
+                self.inc('out_address')
+                if el.type == 'node' and 'entrance' in el.tags:
+                    self.inc('out_address_entrance')
+                if not 'entrance' in el.tags:
+                    self.inc('out_address_building')
 
     def cons_stats(self, data):
         for el in data.elements:

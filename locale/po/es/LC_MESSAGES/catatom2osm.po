@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-11-16 21:34+WET\n"
+"POT-Creation-Date: 2017-11-20 20:22+WET\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -41,7 +41,7 @@ msgstr "Buscando la url para la capa '%s' de '%s'..."
 msgid "Zip code '%s' don't exists"
 msgstr "El Código Postal '%s' no existe"
 
-#: catatom.py:80 catatom2osm.py:300
+#: catatom.py:80 catatom2osm.py:304
 msgid "Downloading '%s'"
 msgstr "Descargando '%s'"
 
@@ -94,63 +94,63 @@ msgstr "Se requiere QGIS versión %s o superior"
 msgid "Start processing '%s'"
 msgstr "Comienza el procesado de '%s'"
 
-#: catatom2osm.py:212
+#: catatom2osm.py:216
 msgid "Generated %d rustic and %d urban tasks files"
 msgstr "Generados %d ficheros de tareas de rústica y %d de urbana"
 
-#: catatom2osm.py:226 catatom2osm.py:282
+#: catatom2osm.py:230 catatom2osm.py:286
 msgid "Generated '%s'"
 msgstr "Generado '%s'"
 
-#: catatom2osm.py:249
+#: catatom2osm.py:253
 msgid "Check %d fixme tags"
 msgstr "Revisa %d etiquetas fixme"
 
-#: catatom2osm.py:256
+#: catatom2osm.py:260
 msgid "The translation file '%s' have been writen in '%s'"
 msgstr "El fichero de conversiones '%s' ha sido generado en '%s'"
 
-#: catatom2osm.py:258
+#: catatom2osm.py:262
 msgid "Please, check it and run again"
 msgstr "Por favor, compruébelo y ejecute de nuevo"
 
-#: catatom2osm.py:260
+#: catatom2osm.py:264
 msgid "Finished!"
 msgstr "¡Terminado!"
 
-#: catatom2osm.py:261
+#: catatom2osm.py:265
 msgid "Only for testing purposses. Don't upload any result to OSM"
 msgstr "Sólo para fines de prueba. No cargue ningún resultado en OSM"
 
-#: catatom2osm.py:284
+#: catatom2osm.py:288
 msgid "Failed to write layer: '%s'"
 msgstr "Error al escribir la capa: '%s'"
 
-#: catatom2osm.py:309
+#: catatom2osm.py:313
 msgid "No OSM data were obtained from '%s'"
 msgstr "No se obtuvieron datos OSM de '%s'"
 
-#: catatom2osm.py:313
+#: catatom2osm.py:317
 msgid "Read '%s': %d nodes, %d ways, %d relations"
 msgstr "Leído '%s': %d nodos, %d vías, %d relaciones"
 
-#: catatom2osm.py:333
+#: catatom2osm.py:337
 msgid "Generated '%s': %d nodes, %d ways, %d relations"
 msgstr "Generado '%s': %d nodos, %d vías, %d relaciones"
 
-#: catatom2osm.py:377
+#: catatom2osm.py:381
 msgid "Could not resolve joined tables for the '%s' layer"
 msgstr "No se pudieron resolver las tablas combinadas para la capa '%s'"
 
-#: catatom2osm.py:397
+#: catatom2osm.py:401
 msgid "Deleted %d addresses refused by street name"
 msgstr "Eliminadas %d direcciones rechazadas por nombre de vial"
 
-#: catatom2osm.py:457
+#: catatom2osm.py:454
 msgid "Refused %d 'parcel' addresses not unique for it building"
 msgstr "Rechazadas %d direcciones tipo parcela no únicas para su edificio"
 
-#: catatom2osm.py:529
+#: catatom2osm.py:526
 msgid "There are %d address without house number in the OSM data"
 msgstr "Existen %d direcciones sin número de portal en OSM"
 
@@ -692,38 +692,38 @@ msgstr "Correcciones (fixmes)"
 msgid "Warnings:"
 msgstr "Avisos:"
 
-#: report.py:213
+#: report.py:218
 msgid "Sum of address types should be equal to the input addresses"
 msgstr ""
 "La suma de tipos de direcciones debe ser igual a las direcciones de entrada"
 
-#: report.py:218
+#: report.py:223
 msgid ""
 "Sum of output and deleted addresses should be equal to the input addresses"
 msgstr ""
 "La suma de las direcciones de salida y las eliminadas debe ser igual a las "
 "direcciones de entrada"
 
-#: report.py:223
+#: report.py:228
 msgid ""
 "Sum of entrance and building address should be equal to output addresses"
 msgstr ""
 "La suma de las direcciones en entradas y edificios debe ser igual a las "
 "direcciones de salida"
 
-#: report.py:227
+#: report.py:232
 msgid "Sum of street and place addresses should be equal to output addresses"
 msgstr ""
 "La suma de las direcciones tipo calle y lugar debe ser igual a las "
 "direcciones de salida"
 
-#: report.py:231
+#: report.py:236
 msgid "Sum of buildings, parts and pools should be equal to the feature count"
 msgstr ""
 "La suma de edificios, partes y piscinas debe ser igual al número de "
 "características"
 
-#: report.py:238
+#: report.py:243
 msgid ""
 "Sum of output and deleted minus created building features should be equal to "
 "input features"
@@ -731,7 +731,7 @@ msgstr ""
 "La suma de las características de edificios de salida y las eliminadas menos "
 "las creadas debe ser igual a las características de entrada"
 
-#: report.py:243
+#: report.py:248
 msgid "Sum of building types should be equal to the number of buildings"
 msgstr ""
 "La suma de los tipos de edificios debe ser igual al número de edificios"

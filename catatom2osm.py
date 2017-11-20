@@ -121,6 +121,8 @@ class CatAtom2Osm:
             del self.building
             if self.options.address:
                 self.merge_address(self.building_osm, self.address_osm)
+                if not self.options.tasks:
+                    report.address_stats(self.building_osm)
             if not self.options.tasks:
                 report.cons_stats(self.building_osm)
             self.write_osm(self.building_osm, 'building.osm')
@@ -132,6 +134,7 @@ class CatAtom2Osm:
         if self.options.address:
             if not self.options.building and not self.options.tasks:
                 report.address_stats(self.address_osm)
+            if not self.options.building and not self.options.tasks:
                 self.write_osm(self.address_osm, 'address.osm')
             del self.address_osm
         if self.options.parcel:
@@ -175,6 +178,7 @@ class CatAtom2Osm:
                         fn = os.path.join('tasks', label + '.osm')
                         task_osm = task.to_osm(upload='yes')
                         self.merge_address(task_osm, self.address_osm)
+                        report.address_stats(task_osm)
                         report.cons_stats(task_osm)
                         self.write_osm(task_osm, fn)
                         report.osm_stats(task_osm)
@@ -434,11 +438,6 @@ class CatAtom2Osm:
                 continue
             for ad in address_index[ref]:
                 bu = group[0]
-                report.inc('out_address')
-                if 'addr:street' in ad.tags:
-                    report.inc('out_addr_str')
-                if 'addr:place' in ad.tags:
-                    report.inc('out_addr_plc')
                 entrance = False
                 if 'entrance' in ad.tags:
                     footprint = [bu] if isinstance(bu, osm.Way) \
@@ -448,11 +447,9 @@ class CatAtom2Osm:
                         if entrance:
                             entrance.tags.update(ad.tags)
                             entrance.tags.pop('ref', None)
-                            report.inc('out_address_entrance')
                             break
                 if not entrance:
                     bu.tags.update(ad.tags)
-                    report.inc('out_address_building')
         if md > 0:
             log.debug(_("Refused %d 'parcel' addresses not unique for it building"), md)
             report.inc('not_unique_addresses', md)
