@@ -160,12 +160,15 @@ class TestReport(unittest.TestCase):
     def test_address_stats(self):
         ad = osm.Osm()
         ad.Node(0,0, {'addr:street': 's1'})
-        ad.Node(2,0, {'addr:street': 's2'})
-        ad.Node(4,0, {'addr:place': 'p1'})
+        ad.Node(2,0, {'addr:street': 's2', 'entrance': 'yes'})
+        ad.Node(4,0, {'addr:place': 'p1', 'entrance': 'yes'})
+        ad.Way([], {'addr:street': 's3'})
         r = report.Report()
         r.address_stats(ad)
-        self.assertEquals(r.out_addr_str, 2)
+        self.assertEquals(r.out_addr_str, 3)
         self.assertEquals(r.out_addr_plc, 1)
+        self.assertEquals(r.out_address_entrance, 2)
+        self.assertEquals(r.out_address_building, 2)
 
     def test_cons_end_stats(self):
         r = report.Report()

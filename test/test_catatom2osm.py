@@ -383,10 +383,6 @@ class TestCatAtom2Osm(unittest.TestCase):
 
     @mock.patch('catatom2osm.report')
     def test_merge_address(self, m_report):
-        m_report.out_address = 10
-        m_report.out_addr_str = 10
-        m_report.out_addr_plc = 10
-        m_report.inc = lambda key, x=1: setattr(m_report, key, getattr(m_report, key) + x)
         address = osm.Osm()
         address.Node(0,0, {'ref': '1', 'addr:street': 'address1'})
         address.Node(2,0, {'ref': '2', 'addr:street': 'address2', 'entrance': 'yes'})
@@ -412,9 +408,6 @@ class TestCatAtom2Osm(unittest.TestCase):
         r1.append(w8, 'inner')
         self.m_app.merge_address = cat.CatAtom2Osm.merge_address.__func__
         self.m_app.merge_address(self.m_app, building, address)
-        self.assertEquals(m_report.out_address, 14)
-        self.assertEquals(m_report.out_addr_str, 13)
-        self.assertEquals(m_report.out_addr_plc, 11)
         self.assertNotIn('addrtags', w0.tags)
         self.assertEquals(w1.tags['addr:street'], 'address1')
         self.assertEquals(n2.tags['addr:street'], 'address2')
