@@ -116,8 +116,9 @@ class CatAtom2Osm:
             self.delete_shp('address.shp')
         if self.options.tasks:
             self.process_tasks(self.building)
-            del self.rustic_zoning
-            self.delete_shp('rustic_zoning.shp')
+        del self.rustic_zoning
+        self.delete_shp('rustic_zoning.shp')
+        if hasattr(self, 'urban_zoning'):
             del self.urban_zoning
             self.delete_shp('urban_zoning.shp')
         if self.options.building:
