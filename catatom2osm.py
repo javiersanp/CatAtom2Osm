@@ -81,7 +81,7 @@ class CatAtom2Osm:
         if self.options.zoning:
             self.process_zoning()
             if not self.options.tasks:
-                del self.rustic_zoning
+                self.delelete_shp(self.rustic_zoning)
         self.address_osm = osm.Osm()
         self.building_osm = osm.Osm()
         if self.options.address:
@@ -112,13 +112,18 @@ class CatAtom2Osm:
         if self.options.address:
             self.address.reproject()
             self.address_osm = self.address.to_osm()
+            del self.address
+            self.delete_shp('address.shp')
         if self.options.tasks:
             self.process_tasks(self.building)
             del self.rustic_zoning
+            self.delete_shp('rustic_zoning.shp')
             del self.urban_zoning
+            self.delete_shp('urban_zoning.shp')
         if self.options.building:
             self.building_osm = self.building.to_osm()
             del self.building
+            self.delete_shp('building.shp')
             if self.options.address:
                 self.merge_address(self.building_osm, self.address_osm)
                 if not self.options.tasks:
@@ -131,10 +136,10 @@ class CatAtom2Osm:
             del self.building_osm
         elif self.options.tasks:
             del self.building
+            self.delete_shp('building.shp')
         if self.options.address:
             if not self.options.building and not self.options.tasks:
                 report.address_stats(self.address_osm)
-            if not self.options.building and not self.options.tasks:
                 self.write_osm(self.address_osm, 'address.osm')
             del self.address_osm
         if self.options.parcel:
@@ -175,11 +180,13 @@ class CatAtom2Osm:
                 if os.path.exists(fn):
                     task = layer.ConsLayer(fn, label, 'ogr', source_date=source.source_date)
                     if task.featureCount() > 0:
-                        fn = os.path.join('tasks', label + '.osm')
                         task_osm = task.to_osm(upload='yes')
+                        del task
+                        self.delete_shp(fn, False)
                         self.merge_address(task_osm, self.address_osm)
                         report.address_stats(task_osm)
                         report.cons_stats(task_osm)
+                        fn = os.path.join('tasks', label + '.osm')
                         self.write_osm(task_osm, fn)
                         report.osm_stats(task_osm)
 
@@ -209,7 +216,6 @@ class CatAtom2Osm:
                     else:
                         tasks_u += 1
                 task = layer.ConsLayer(fn, last_task, 'ogr', source_date=source.source_date)
-                task.keep = True
                 task.writer.addFeatures(to_add)
                 to_add = [f]
             last_task = label
@@ -246,6 +252,8 @@ class CatAtom2Osm:
         del parcel_gml
         parcel.reproject()
         parcel_osm = parcel.to_osm()
+        del parcel
+        self.delete_shp('parcel.shp')
         self.write_osm(parcel_osm, "parcel.osm")
 
     def end_messages(self):
@@ -534,4 +542,12 @@ class CatAtom2Osm:
         ql = 'way[building];relation[building];way[leisure=swimming_pool];relation[leisure=swimming_pool]'
         current_bu_osm = self.read_osm(ql, 'current_building.osm')
         return current_bu_osm
+
+    def delete_shp(self, name, relative=True):
+        if log.getEffectiveLevel() > logging.DEBUG:
+            path = os.path.join(self.path, name) if relative else name
+            QgsVectorFileWriter.deleteShapeFile(path)
+            path = os.path.splitext(path)[0] + '.cpg'
+            if os.path.exists(path):
+                os.remove(path)
 

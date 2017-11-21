@@ -166,15 +166,6 @@ class BaseLayer(QgsVectorLayer):
             raise IOError(msg)
         return writer
 
-    def __del__(self):
-        if log.getEffectiveLevel() > logging.DEBUG and not self.keep and \
-                self.writer.storageType() == 'ESRI Shapefile':
-            path = self.writer.dataSourceUri().split('|')[0]
-            QgsVectorFileWriter.deleteShapeFile(path)
-            path = os.path.splitext(path)[0] + '.cpg'
-            if os.path.exists(path):
-                os.remove(path)
-            
     def copy_feature(self, feature, rename=None, resolve=None):
         """
         Return a copy of feature renaming attributes or resolving xlink references.
