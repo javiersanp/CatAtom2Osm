@@ -19,7 +19,6 @@ class TestCsvTools(unittest.TestCase):
             csv_file.write(u'á;x%sé;y%s' % (eol, eol))
         a_dict = csv2dict(tmp_path, {})
         self.assertEquals(a_dict, {u'á':u'x', u'é':u'y'})
-        os.remove(tmp_path)
 
     def test_dict2csv(self):
         _, tmp_path = mkstemp()
@@ -27,4 +26,4 @@ class TestCsvTools(unittest.TestCase):
         with codecs.open(tmp_path, 'r', encoding) as csv_file:
             text = csv_file.read()
         self.assertEquals(text, u'á;x%sé;y%s' % (eol, eol))
-        os.remove(tmp_path)
+
