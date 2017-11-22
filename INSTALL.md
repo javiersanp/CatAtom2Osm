@@ -14,7 +14,16 @@ In a command line shell write::
     cd CatAtom2Osm
     sudo pip install -r requisites.txt
     sudo make install
-    cd ..
+
+If you want to install the development requeriments:
+
+    sudo pip install -r requisites-dev.txt
+    
+And to run the code tests:
+
+    make test
+
+It's suggested to run the code in the ~/catastro folder.
 
 Mac OS X
 --------
@@ -33,6 +42,14 @@ Mac OS X
 
 While you install the requisites you will be prompted to install the command
 line developper tools.
+
+If you want to install the development requeriments:
+
+    sudo pip install -r requisites-dev.txt
+    
+And to run the code tests:
+
+    make test
 
 Windows
 -------
@@ -69,6 +86,14 @@ Write this in the resulting shell::
 
     python -m pip install -r requisites.txt
     python -m pip install path to downloaded/python_Levenshtein‑0.12.0‑cp27‑cp27m‑win_amd64.whl
+
+If you want to install the development requeriments:
+
+    python -m pip install -r requisites-dev.txt
+    
+And to run the code tests:
+
+    python -m unittest discover
 
 To use the program it will be necessary to run pyqgis.bat to open a convenient 
 Python QGIS shell. It's suggested to edit pyqgis.bat, uncomment the penultimate
