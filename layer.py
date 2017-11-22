@@ -166,6 +166,13 @@ class BaseLayer(QgsVectorLayer):
             raise IOError(msg)
         return writer
 
+    @staticmethod
+    def delete_shp(path):
+        QgsVectorFileWriter.deleteShapeFile(path)
+        path = os.path.splitext(path)[0] + '.cpg'
+        if os.path.exists(path):
+            os.remove(path)
+
     def copy_feature(self, feature, rename=None, resolve=None):
         """
         Return a copy of feature renaming attributes or resolving xlink references.

@@ -150,7 +150,8 @@ class TestBaseLayer(unittest.TestCase):
         self.layer.updateFields()
 
     def tearDown(self):
-        QgsVectorFileWriter.deleteShapeFile('test_layer.shp')
+        del self.layer
+        BaseLayer.delete_shp('test_layer.shp')
 
     def test_copy_feature_with_resolve(self):
         feature = self.fixture.getFeatures().next()
@@ -323,7 +324,8 @@ class TestPolygonLayer(unittest.TestCase):
         self.assertEquals(self.layer.featureCount(), self.fixture.featureCount())
 
     def tearDown(self):
-        QgsVectorFileWriter.deleteShapeFile('test_layer.shp')
+        del self.layer
+        PolygonLayer.delete_shp('test_layer.shp')
 
     def test_get_multipolygon(self):
         p = [[QgsPoint(0,0), QgsPoint(1,0), QgsPoint(1,1), QgsPoint(0,0)]]
@@ -461,6 +463,12 @@ class TestZoningLayer(unittest.TestCase):
             g = f.geometry()
             self.assertFalse(g.isMultipart())
 
+    def tearDown(self):
+        del self.layer1
+        ZoningLayer.delete_shp('urban_zoning.shp')
+        del self.layer2
+        ZoningLayer.delete_shp('rustic_zoning.shp')
+
     def test_get_adjacents_and_geometries(self):
         (groups, geometries) = self.layer1.get_adjacents_and_geometries()
         self.assertTrue(all([len(g) > 1 for g in groups]))
@@ -520,7 +528,8 @@ class TestConsLayer(unittest.TestCase):
         self.assertEquals(self.layer.featureCount(), self.fixture.featureCount())
 
     def tearDown(self):
-        QgsVectorFileWriter.deleteShapeFile('test_layer.shp')
+        del self.layer
+        ConsLayer.delete_shp('test_layer.shp')
 
     def test_is_building(self):
         self.assertTrue(ConsLayer.is_building({'localId': 'foobar'}))
@@ -996,7 +1005,8 @@ class TestAddressLayer(unittest.TestCase):
         self.layer.updateFields()
 
     def tearDown(self):
-        QgsVectorFileWriter.deleteShapeFile('test_layer.shp')
+        del self.layer
+        AddressLayer.delete_shp('test_layer.shp')
 
     def test_append(self):
         self.layer.append(self.address_gml)

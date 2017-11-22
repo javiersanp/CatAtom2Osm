@@ -547,8 +547,5 @@ class CatAtom2Osm:
     def delete_shp(self, name, relative=True):
         if log.getEffectiveLevel() > logging.DEBUG:
             path = os.path.join(self.path, name) if relative else name
-            QgsVectorFileWriter.deleteShapeFile(path)
-            path = os.path.splitext(path)[0] + '.cpg'
-            if os.path.exists(path):
-                os.remove(path)
+            layer.BaseLayer.delete_shp(path)
 
