@@ -44,7 +44,6 @@ class OsmxmlTest(unittest.TestCase):
         for (xmltag, osmtag) in zip(root.findall('way/tag'), w.tags.items()):
             self.assertEquals(xmltag.get('k'), osmtag[0])
             self.assertEquals(xmltag.get('v'), osmtag[1])
-        self.assertEquals(root.xpath('count(//relation)'), 1)
         for (i, (xmlm, osmm)) in enumerate(zip(root.findall('relation/member'), r.members)):
             self.assertEquals(int(xmlm.get('ref')), osmm.ref)
             self.assertEquals(xmlm.get('role'), 'outer' if i == 0 else 'inner')
