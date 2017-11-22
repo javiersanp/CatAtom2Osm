@@ -11,6 +11,7 @@ class TestSetup(unittest.TestCase):
     def test_win(self):
         lang = os.getenv('LANG')
         setup.platform = 'linux2'
+        setup.eol = '\n'
         setup.winenv()
         self.assertEquals(setup.eol, '\n')
         setup.platform = 'winx'
