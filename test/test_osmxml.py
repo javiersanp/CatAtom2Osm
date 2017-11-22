@@ -35,10 +35,12 @@ class OsmxmlTest(unittest.TestCase):
         for (xmltag, osmtag) in zip(root.findall('node/tag'), n.tags.items()):
             self.assertEquals(xmltag.get('k'), osmtag[0])
             self.assertEquals(xmltag.get('v'), osmtag[1])
-        self.assertEquals(root.xpath('count(//way)'), 3)
+        nw = 0
         for (xmlway, osmway) in zip(root.findall('way'), data.ways):
+            nw += 1
             for (xmlnd, osmnd) in zip(xmlway.findall('nd'), osmway.nodes):
                 self.assertEquals(int(xmlnd.get('ref')), osmnd.id)
+        self.assertEquals(nw, 3)
         for (xmltag, osmtag) in zip(root.findall('way/tag'), w.tags.items()):
             self.assertEquals(xmltag.get('k'), osmtag[0])
             self.assertEquals(xmltag.get('v'), osmtag[1])
@@ -49,6 +51,7 @@ class OsmxmlTest(unittest.TestCase):
         for (xmltag, osmtag) in zip(root.findall('relation/tag'), r.tags.items()):
             self.assertEquals(xmltag.get('k'), osmtag[0])
             self.assertEquals(xmltag.get('v'), osmtag[1])
+        self.assertEquals(sum([1 for r in root.findall('relation')]), 1)
         self.assertEquals(root.find('note'), None)
         self.assertEquals(root.find('meta'), None)
         data.note = 'foobar'
