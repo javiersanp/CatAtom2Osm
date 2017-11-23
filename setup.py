@@ -78,6 +78,8 @@ prov_url = {
     "CP": base_url['CP'] + "{code}/ES.SDGC.CP.atom_{code}.xml"
 }
 
+cadastre_doc_url = 'http://ovc.catastro.meh.es/OVCServWeb/OVCWcfLibres/OVCFotoFachada.svc/RecuperarFotoFachadaGet?ReferenciaCatastral={}'
+
 valid_provinces = ["%02d" % i for i in range(2,57) if i not in (20, 31, 48)]
 
 no_number = 'S-N' # Regular expression to match addresses without number

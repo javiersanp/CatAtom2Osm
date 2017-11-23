@@ -1000,6 +1000,7 @@ class AddressLayer(BaseLayer):
                 QgsField('localId', QVariant.String, len=254),
                 QgsField('spec', QVariant.String, len=254),
                 QgsField('designator', QVariant.String, len=254),
+                QgsField('image', QVariant.String, len=254),
                 QgsField('PD_id', QVariant.String, len=254),
                 QgsField('TN_id', QVariant.String, len=254),
                 QgsField('AU_id', QVariant.String, len=254)
@@ -1066,6 +1067,14 @@ class AddressLayer(BaseLayer):
                 highway_names[name] = hgwnames.match(name, choices)
         return highway_names
 
+    def get_image_links(self):
+        to_change = {}
+        for feat in self.getFeatures():
+            url = setup.cadastre_doc_url.format(feat['localId'][-14:])
+            feat['image'] = url
+            to_change[feat.id()] = get_attributes(feat)
+        self.writer.changeAttributeValues(to_change)
+
 
 class ConsLayer(PolygonLayer):
     """Class for constructions"""
@@ -1077,7 +1086,7 @@ class ConsLayer(PolygonLayer):
             self.writer.addAttributes([
                 QgsField('localId', QVariant.String, len=254),
                 QgsField('condition', QVariant.String, len=254),
-                QgsField('link', QVariant.String, len=254),
+                QgsField('image', QVariant.String, len=254),
                 QgsField('currentUse', QVariant.String, len=254),
                 QgsField('bu_units', QVariant.Int),
                 QgsField('dwellings', QVariant.Int),
@@ -1090,7 +1099,7 @@ class ConsLayer(PolygonLayer):
             self.updateFields()
         self.rename = {
             'condition': 'conditionOfConstruction',
-            'link': 'documentLink' ,
+            'image': 'documentLink' ,
             'bu_units': 'numberOfBuildingUnits',
             'dwellings': 'numberOfDwellings',
             'lev_above': 'numberOfFloorsAboveGround',

@@ -4,6 +4,7 @@ Change log
 **2017-11-22**
 
 * Run code tests in Windows.
+* Export image links in address.geojson.
 
 **2017-11-13**
 

@@ -111,6 +111,8 @@ class CatAtom2Osm:
             report.building_counter = Counter()
         if self.options.address:
             self.address.reproject()
+            self.address.get_image_links()
+            self.export_layer(self.address, 'address.geojson', 'GeoJSON')
             self.address_osm = self.address.to_osm()
             del self.address
             self.delete_shp('address.shp')
