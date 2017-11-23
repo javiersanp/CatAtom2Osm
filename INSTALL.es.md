@@ -14,18 +14,31 @@ En una consola de comandos ejecutar::
     cd CatAtom2Osm
     sudo pip install -r requisites.txt
     sudo make install
-    cd ..
+
+Si se desea instalar el entorno de pruebas::
+
+    sudo pip install -r requisites-dev.txt
+    
+Y para ejecutar las pruebas del código::
+
+    make test
+    
+Se sugiere ejecutar el programa en la carpeta ~/catastro
 
 Mac OS X
 --------
 
-* Instalar QGIS desde la página de descarga de KyngChaos 
-  http://www.kyngchaos.com/software/qgis
-* Instalar el programa de escritorio de GitHub desde http://desktop.github.com
-* Ejecutarlo y descargar el repositorio 
-  https://github.com/javiersanp/CatAtom2Osm.git
-* Abrir una consola de comandos y cambiar a la carpeta CatAtom2Osm descargada
-  anteriormente. Ejecutar los comandos::
+Instalar QGIS desde la página de descarga de KyngChaos 
+http://www.kyngchaos.com/software/qgis
+
+Instalar el programa de escritorio de GitHub desde
+http://desktop.github.com
+
+Ejecutarlo y descargar el repositorio 
+https://github.com/javiersanp/CatAtom2Osm.git
+
+Abrir una consola de comandos y cambiar a la carpeta CatAtom2Osm descargada
+anteriormente. Ejecutar los comandos::
 
     sudo easy_install pip
     sudo pip install -r requisites.txt
@@ -33,6 +46,14 @@ Mac OS X
 
 Durante la instalación de los requisitos pedirá la instalación de las 
 herramientas para desarrolladores de la línea de comandos.
+
+Si se desea instalar el entorno de pruebas::
+
+    sudo pip install -r requisites-dev.txt
+    
+Y para ejecutar las pruebas del código::
+
+    make test
 
 Windows
 -------
@@ -69,6 +90,14 @@ En la consola resultante ejecutar::
 
     python -m pip install -r requisites.txt
     python -m pip install ruta al archivo descargado/python_Levenshtein‑0.12.0‑cp27‑cp27m‑win_amd64.whl
+
+Si se desea instalar el entorno de pruebas::
+
+    python -m pip install -r requisites-dev.txt
+    
+Y para ejecutar las pruebas del código::
+
+    python -m unittest discover
 
 Será necesario ejecutar pyqgis.bat cuando queramos usar el programa para abrir una consola de comandos con el entorno de Python QGIS adecuado. Se sugiere editar el archivo pyqgis.bat, descomentar la penúltima línea con la orden CD e introducir la ruta de la carpeta donde se van a descargar los archivos de Catastro. Por ejemplo::
 

@@ -146,7 +146,8 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.cat.read.side_effect = [x, y, z]
         building = m_layer.ConsLayer.return_value
         self.m_app.get_building(self.m_app)
-        m_layer.ConsLayer.assert_called_once_with('foo/building.shp', providerLib='ogr', source_date = 1)
+        fn = os.path.join('foo', 'building.shp')
+        m_layer.ConsLayer.assert_called_once_with(fn, providerLib='ogr', source_date = 1)
         building.append.assert_has_calls([
             mock.call(x), mock.call(y), mock.call(z)
         ])

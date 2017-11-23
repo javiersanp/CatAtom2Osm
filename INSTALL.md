@@ -14,18 +14,31 @@ In a command line shell write::
     cd CatAtom2Osm
     sudo pip install -r requisites.txt
     sudo make install
-    cd ..
+
+If you want to install the development requeriments:
+
+    sudo pip install -r requisites-dev.txt
+    
+And to run the code tests:
+
+    make test
+
+It's suggested to run the code in the ~/catastro folder.
 
 Mac OS X
 --------
 
-* Install QGIS from KyngChaos download page 
-  http://www.kyngchaos.com/software/qgis
-* Install GitHub desktop utility from http://desktop.github.com
-* Run it and download this repository 
-  https://github.com/javiersanp/CatAtom2Osm.git
-* Open a command line shell and change the directory to the previously
-  downloaded CatAtom2Osm folder. Run this commands::
+Install QGIS from KyngChaos download page 
+http://www.kyngchaos.com/software/qgis
+
+Install GitHub desktop utility from
+http://desktop.github.com
+
+Run it and download this repository 
+https://github.com/javiersanp/CatAtom2Osm.git
+
+Open a command line shell and change the directory to the previously
+downloaded CatAtom2Osm folder. Run this commands::
 
     sudo easy_install pip
     sudo pip install -r requisites.txt
@@ -33,6 +46,14 @@ Mac OS X
 
 While you install the requisites you will be prompted to install the command
 line developper tools.
+
+If you want to install the development requeriments::
+
+    sudo pip install -r requisites-dev.txt
+    
+And to run the code tests::
+
+    make test
 
 Windows
 -------
@@ -69,6 +90,14 @@ Write this in the resulting shell::
 
     python -m pip install -r requisites.txt
     python -m pip install path to downloaded/python_Levenshtein‑0.12.0‑cp27‑cp27m‑win_amd64.whl
+
+If you want to install the development requeriments::
+
+    python -m pip install -r requisites-dev.txt
+    
+And to run the code tests::
+
+    python -m unittest discover
 
 To use the program it will be necessary to run pyqgis.bat to open a convenient 
 Python QGIS shell. It's suggested to edit pyqgis.bat, uncomment the penultimate

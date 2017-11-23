@@ -5,7 +5,7 @@ import csv
 import gettext
 
 app_name = 'CatAtom2Osm'
-app_version = '2017-11-21'
+app_version = '2017-11-22'
 app_author = u'Javier Sánchez Portero'
 app_copyright = u'2017, Javier Sánchez Portero'
 app_desc = 'Tool to convert INSPIRE data sets from the Spanish Cadastre ATOM Services to OSM files'
@@ -14,20 +14,21 @@ app_tags = ''
 MIN_QGIS_VERSION_INT = 21001
 MIN_QGIS_VERSION = '2.10.1'
 
+def winenv():
+    global eol, encoding
+    eol = '\n'
+    if platform.startswith('win'):
+        eol = '\r\n'
+        if os.getenv('LANG') is None:
+            os.environ['LANG'] = language
+
 locale.setlocale(locale.LC_ALL, '')
 language, encoding = locale.getdefaultlocale()
 app_path = os.path.dirname(__file__)
 localedir = os.path.join(app_path, 'locale', 'po')
 platform = sys.platform
-eol = '\n'
-
-def winenv():
-    global eol, encoding
-    if platform.startswith('win'):
-        eol = '\r\n'
-        if os.getenv('LANG') is None:
-            os.environ['LANG'] = language
 winenv()
+
 
 gettext.install(app_name.lower(), localedir=localedir, unicode=1)
 
@@ -77,6 +78,8 @@ prov_url = {
     "AD": base_url['AD'] + "{code}/ES.SDGC.ad.atom_{code}.xml",
     "CP": base_url['CP'] + "{code}/ES.SDGC.CP.atom_{code}.xml"
 }
+
+cadastre_doc_url = 'http://ovc.catastro.meh.es/OVCServWeb/OVCWcfLibres/OVCFotoFachada.svc/RecuperarFotoFachadaGet?ReferenciaCatastral={}'
 
 valid_provinces = ["%02d" % i for i in range(2,57) if i not in (20, 31, 48)]
 

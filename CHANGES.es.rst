@@ -1,6 +1,11 @@
 Registro de cambios
 ===================
 
+**22-11-2017**
+
+* Ejecutadas las pruebas de código en Windows.
+* Exporta los enlaces a imágenes en address.geojson.
+
 **13-11-2017**
 
 * Método alternativo para descargar los ficheros OSM para combinación de datos en municipios grandes.

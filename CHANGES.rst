@@ -1,6 +1,11 @@
 Change log
 ==========
 
+**2017-11-22**
+
+* Run code tests in Windows.
+* Export image links in address.geojson.
+
 **2017-11-13**
 
 * Alternative method to get OSM files for data conflation in big municipalities.

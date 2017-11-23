@@ -152,7 +152,7 @@ class TestReport(unittest.TestCase):
         fn = 'test_report.txt'
         r.to_file(fn)
         with open(fn, 'r') as fo:
-            text = fo.read().decode(setup.encoding)
+            text = fo.read().decode(setup.encoding).replace('\n', setup.eol)
         self.assertEquals(output, text)
         if os.path.exists(fn):
             os.remove(fn)

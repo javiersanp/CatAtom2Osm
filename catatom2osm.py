@@ -111,6 +111,8 @@ class CatAtom2Osm:
             report.building_counter = Counter()
         if self.options.address:
             self.address.reproject()
+            self.address.get_image_links()
+            self.export_layer(self.address, 'address.geojson', 'GeoJSON')
             self.address_osm = self.address.to_osm()
             del self.address
             self.delete_shp('address.shp')
@@ -547,8 +549,5 @@ class CatAtom2Osm:
     def delete_shp(self, name, relative=True):
         if log.getEffectiveLevel() > logging.DEBUG:
             path = os.path.join(self.path, name) if relative else name
-            QgsVectorFileWriter.deleteShapeFile(path)
-            path = os.path.splitext(path)[0] + '.cpg'
-            if os.path.exists(path):
-                os.remove(path)
+            layer.BaseLayer.delete_shp(path)
 
