@@ -25,7 +25,7 @@ class TestTranslate(unittest.TestCase):
     	self.assertEquals(address_tags({'TN_text': '  ', 'postCode': '9'}), {})
         feat = {
             'localId': '000',
-            'TN_text': '111', 
+            'TN_text': '111',
             'designator': '222',
             'postCode': '',
             'spec': 'Parcel'
@@ -64,6 +64,7 @@ class TestTranslate(unittest.TestCase):
             'localId': 'foobar',
             'lev_above': 0,
             'lev_below': 0,
+            'layer': 1,
             'fixme': 'check'
         }
         tags = building_tags(feat)
@@ -73,6 +74,8 @@ class TestTranslate(unittest.TestCase):
         self.assertEquals(tags['building'], 'yes')
         self.assertNotIn('building:levels', tags)
         self.assertNotIn('building:levels:underground', tags)
+        self.assertEquals(tags['layer'], '1')
+        self.assertEquals(tags['location'], 'roof')
         self.assertEquals(tags['fixme'], 'check')
         use = random.randint(0, len(use_values)-1)
         feat['currentUse'] = None

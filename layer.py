@@ -1094,7 +1094,8 @@ class ConsLayer(PolygonLayer):
                 QgsField('lev_below', QVariant.Int),
                 QgsField('nature', QVariant.String, len=254),
                 QgsField('task', QVariant.String, len=254),
-                QgsField('fixme', QVariant.String, len=254)
+                QgsField('fixme', QVariant.String, len=254),
+                QgsField('layer', QVariant.Int),
             ])
             self.updateFields()
         self.rename = {
@@ -1217,6 +1218,14 @@ class ConsLayer(PolygonLayer):
             parts[localId].append(part)
         return parts
 
+    def index_of_pools(self):
+        """ Index pools in building parcel by building localid. """
+        pools = defaultdict(list)
+        for pool in self.search("regexp_match(localId, '_PI')"):
+            localId = pool['localId'].split('_')[0]
+            pools[localId].append(pool)
+        return pools
+
     def index_of_building_and_parts(self):
         """
         Constructs some utility dicts.
@@ -1337,30 +1346,108 @@ class ConsLayer(PolygonLayer):
                             to_clean_g.append(part.id())
         return to_clean, to_clean_g, to_change, to_change_g
 
+    def remove_inner_rings(self, feat1, feat2):
+        """
+        Auxiliary method to remove feat1 or of its inner rings if equals to feat2
+        Returns True if feat1 must be deleted and new geometry if any ring is
+        removed.
+        """
+        geom1 = feat1.geometry()
+        geom2 = feat2.geometry()
+        delete = False
+        new_geom = None
+        delete_rings = []
+        for i, ring in enumerate(geom1.asPolygon()):
+            if QgsGeometry().fromPolygon([ring]).equals(geom2):
+                if i == 0:
+                    delete = True
+                    break
+                else:
+                    delete_rings.append(i)
+        if delete_rings:
+            poly = [ring for i, ring in enumerate(geom1.asPolygon()) \
+                if i not in delete_rings]
+            new_geom = QgsGeometry().fromPolygon(poly)
+        return delete, new_geom
+
     def merge_building_parts(self):
-        """Apply merge_adjacent_parts to each set of building and its parts"""
+        """
+        Detect pools contained in a building and assign layer=1. 
+        Detect buildings/parts with geometry equals to a pool geometry and 
+        delete them.
+        Detect inner rings of buildings/parts with geometry equals to a pool 
+        geometry and remove them.
+        Apply merge_adjacent_parts to each set of building and its parts.
+        """
         parts = self.index_of_parts()
+        pools = self.index_of_pools()
         to_clean = []
-        to_clean_g = []
         to_change = {}
         to_change_g = {}
+        buildings_in_pools = 0
+        levels_to_footprint = 0
+        parts_merged_to_building = 0
+        adjacent_parts_deleted = 0
+        pools_on_roofs = 0
+        visited_parcels = set()
         for building in self.search("not regexp_match(localId, '_')"):
-            it_parts = parts[building['localId']]
+            ref = building['localId']
+            it_pools = pools[ref]
+            it_parts = parts[ref]
+            for pool in it_pools:
+                if pool['layer'] != 1 and is_inside(pool, building):
+                    pool['layer'] = 1
+                    to_change[pool.id()] = get_attributes(pool)
+                    pools_on_roofs += 1
+                del_building, new_geom = self.remove_inner_rings(building, pool)
+                if del_building:
+                    to_clean.append(building.id())
+                    buildings_in_pools += 1
+                    break
+                if new_geom:
+                    to_change_g[building.id()] = QgsGeometry(new_geom)
+                if ref not in visited_parcels:
+                    for part in frozenset(it_parts):
+                        del_part, new_geom = self.remove_inner_rings(part, pool)
+                        if del_part:
+                            to_clean.append(part.id())
+                            it_parts.remove(part)
+                            if part in part in parts[ref]:
+                                parts[ref].remove(part)
+                            adjacent_parts_deleted += 1
+                        elif new_geom:
+                            to_change_g[part.id()] = QgsGeometry(new_geom)
+            visited_parcels.add(ref)
             cn, cng, ch, chg= self.merge_adjacent_parts(building, it_parts)
-            to_clean += cn
-            to_clean_g += cng
+            to_clean += cn + cng
             to_change.update(ch)
             to_change_g.update(chg)
-        if to_clean:
+            levels_to_footprint += len(ch)
+            parts_merged_to_building += len(cn)
+            adjacent_parts_deleted += len(cng)
+        if to_change:
             self.writer.changeAttributeValues(to_change)
-            log.debug(_("Translated %d level values to the footprint"), len(to_change))
+        if to_change_g:
             self.writer.changeGeometryValues(to_change_g)
-            self.writer.deleteFeatures(to_clean + to_clean_g)
-            log.debug(_("Merged %d building parts to the footprint"), len(to_clean))
-            report.parts_to_footprint = len(to_clean)
-        if to_clean_g:
-            log.debug(_("Merged %d adjacent parts"), len(to_clean_g))
-            report.adjacent_parts = len(to_clean_g)
+        if to_clean:
+            self.writer.deleteFeatures(to_clean)
+        if pools_on_roofs:
+            log.info(_("Located %d swimming pools over a building"), pools_on_roofs)
+            report.pools_on_roofs = pools_on_roofs
+        if buildings_in_pools:
+            log.info(_("Deleted %d buildings coincidents with a swimming pool"),
+                buildings_in_pools)
+            report.buildings_in_pools = buildings_in_pools
+        if levels_to_footprint:
+            log.debug(_("Translated %d level values to the footprint"), 
+                levels_to_footprint)
+        if parts_merged_to_building:
+            log.debug(_("Merged %d building parts to the footprint"), 
+                parts_merged_to_building)
+            report.parts_to_footprint = parts_merged_to_building
+        if adjacent_parts_deleted:
+            log.debug(_("Merged %d adjacent parts"), adjacent_parts_deleted)
+            report.adjacent_parts = adjacent_parts_deleted
 
     def clean(self):
         """
@@ -1518,7 +1605,6 @@ class ConsLayer(PolygonLayer):
         report.osm_buildings = num_buildings
         report.osm_building_conflicts = conflicts
         return len(to_clean) > 0
-
 
 class HighwayLayer(BaseLayer):
     """Class for OSM highways"""

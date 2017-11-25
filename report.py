@@ -76,7 +76,7 @@ class Report(object):
             ('subgroup_bu_input', _('Input data')),
             ('building_date', _('Source date')),
             ('inp_features', _('Feature count')),
-            ('inp_buildings', TAB + _('Edificios')),
+            ('inp_buildings', TAB + _('Buildings')),
             ('inp_parts', TAB + _('Buildings parts')),
             ('inp_pools', TAB + _('Swimming pools')),
             ('subgroup_bu_process', _('Process')),
@@ -87,6 +87,7 @@ class Report(object):
             ('exploded_parts_building', _("Buildings resulting from spliting multiparts")),
             ('parts_to_footprint', _("Parts merged to the footprint")),
             ('adjacent_parts', _("Adjacent parts merged")),
+            ('buildings_in_pools', _("Buildings coincidents with a swimming pool deleted")),
             ('geom_rings_building', _('Invalid geometry rings deleted')),
             ('geom_invalid_building', _('Invalid geometries deleted')),
             ('vertex_zigzag_building', _('Zig-zag vertices deleted')),
@@ -105,6 +106,7 @@ class Report(object):
             ('out_buildings', TAB + _('Buildings')),
             ('out_parts', TAB + _('Buildings parts')),
             ('out_pools', TAB + _('Swimming pools')),
+            ('pools_on_roofs', TAB + TAB + _("Over buildings")),
             ('building_types', _("Building types counter")),
             ('dlag', _("Max. levels above ground (level: # of buildings)")),
             ('dlbg', _("Min. levels below ground (level: # of buildings)")),
@@ -185,10 +187,10 @@ class Report(object):
             self.fixmes = ['%s: %d' % (f, c) \
                 for (f, c) in self.fixme_counter.items()]
         return fixme_count
-    
+
     def get(self, key, default=0):
-        return self.values.get(key, default)  
-    
+        return self.values.get(key, default)
+
     def inc(self, key, step=1):
         self.values[key] = self.get(key) + step
 
@@ -237,7 +239,7 @@ class Report(object):
                 "be equal to the feature count"))
         if self.sum('out_features', 'orphand_parts', 'underground_parts', 
                 'multipart_geoms_building', 'parts_to_footprint',
-                'adjacent_parts', 'geom_invalid_building') - \
+                'adjacent_parts', 'geom_invalid_building', 'buildings_in_pools') - \
                 self.sum('new_footprints', 'exploded_parts_building') != \
                     self.get('inp_features'):
             self.errors.append(_("Sum of output and deleted minus created "

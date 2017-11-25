@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-11-23 00:41+WET\n"
+"POT-Creation-Date: 2017-11-25 15:05+WET\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -186,7 +186,7 @@ msgstr "Progreso: %.1fK"
 msgid "Error when creating shapefile: '%s'"
 msgstr "Error al crear el fichero shapefile: '%s'"
 
-#: layer.py:268 layer.py:968 layer.py:1164
+#: layer.py:268 layer.py:968 layer.py:1165
 msgid "Loaded %d features in '%s' from '%s'"
 msgstr "Cargados %d características en '%s' desde '%s'"
 
@@ -250,67 +250,75 @@ msgstr "Rechazadas %d direcciones por existir en OSM"
 msgid "Deleted %d addresses without house number"
 msgstr "Eliminadas %d direcciones sin número de portal"
 
-#: layer.py:1200
+#: layer.py:1201
 msgid "Missing building footprint for this part"
 msgstr "Falta el contorno del edificio para esta parte"
 
-#: layer.py:1268
+#: layer.py:1277
 msgid "Removed %d building parts outside the footprint"
 msgstr "Eliminadas %d partes de edificio fuera del contorno"
 
-#: layer.py:1272
+#: layer.py:1281
 msgid "Deleted %d building parts with no floors above ground"
 msgstr "Eliminadas %d partes de edificio sin plantas sobre el nivel del suelo"
 
-#: layer.py:1277
+#: layer.py:1286
 msgid "Generated %d building footprints"
 msgstr "Generados %d contornos de edificios"
 
-#: layer.py:1321
+#: layer.py:1330
 msgid "This part is bigger than its building"
 msgstr "Esta parte es mayor que su edificio"
 
-#: layer.py:1356
+#: layer.py:1436
+msgid "Located %d swimming pools over a building"
+msgstr "Localizadas %d piscinas sobre un edificio"
+
+#: layer.py:1439
+msgid "Deleted %d buildings coincidents with a swimming pool"
+msgstr "Eliminados %d edificios conicidentes con una piscina"
+
+#: layer.py:1443
 msgid "Translated %d level values to the footprint"
 msgstr "Trasladados %d valores de niveles al contorno"
 
-#: layer.py:1359
+#: layer.py:1446
 msgid "Merged %d building parts to the footprint"
 msgstr "Fusionados %d partes de edificios al contorno"
 
-#: layer.py:1362
+#: layer.py:1450
 msgid "Merged %d adjacent parts"
 msgstr "Fusionadas %d partes adyacentes"
 
-#: layer.py:1437
+#: layer.py:1525
 msgid "Moved %d addresses to entrance, %d changed to parcel"
 msgstr "Desplazadas %d direcciones a entrada, %d cambiadas a parcela"
 
-#: layer.py:1442
+#: layer.py:1530
 msgid "Deleted %d addresses without associated building"
 msgstr "Eliminadas %d direcciones sin edificio asociado"
 
-#: layer.py:1445
+#: layer.py:1533
 msgid "Refused %d addresses belonging to multiple buildings"
 msgstr "Eliminadas %d direcciones pertenecientes a edificios múltiples"
 
-#: layer.py:1456
+#: layer.py:1544
 msgid "GEOS validation"
 msgstr "Validación GEOS"
 
-#: layer.py:1468
+#: layer.py:1556
 msgid "Check, area too small"
 msgstr "Comprobar, área demasiado pequeña"
 
-#: layer.py:1471
+#: layer.py:1559
 msgid "Check, area too big"
 msgstr "Comprobar, área demasiado grande"
 
-#: layer.py:1498
+#: layer.py:1586
 msgid "OSM building with id %s is not valid"
 msgstr "El edificio de OSM con id %s no es váido"
 
-#: layer.py:1516
+#: layer.py:1604
 msgid "Detected %d conflicts in %d buildings/pools from OSM"
 msgstr "Detectados %d edificios/piscinas con conflicto de %d en OSM"
 
@@ -484,7 +492,7 @@ msgstr "Datos de entrada"
 msgid "Source date"
 msgstr "Fecha de origen"
 
-#: report.py:54 report.py:78 report.py:104
+#: report.py:54 report.py:78 report.py:105
 msgid "Feature count"
 msgstr "Número de características"
 
@@ -528,7 +536,7 @@ msgstr "Direcciones correspondientes a edificios múltiples eliminadas"
 msgid "'Parcel' addresses not unique for it building deleted"
 msgstr "Direcciones tipo parcela no únicas para su edificio eliminadas"
 
-#: report.py:65 report.py:97
+#: report.py:65 report.py:98
 msgid "Conflation"
 msgstr "Combinación"
 
@@ -544,7 +552,7 @@ msgstr "Sin número de portal"
 msgid "Addresses rejected because they exist in OSM"
 msgstr "Direcciones rechazadas por existir en OSM"
 
-#: report.py:69 report.py:100
+#: report.py:69 report.py:101
 msgid "Output data"
 msgstr "Datos de salida"
 
@@ -564,19 +572,15 @@ msgstr "Tipo addr:street"
 msgid "Type addr:place"
 msgstr "Tipo addr:place"
 
-#: report.py:75 report.py:105
+#: report.py:75 report.py:79 report.py:106
 msgid "Buildings"
 msgstr "Edificios"
 
-#: report.py:79
-msgid "Edificios"
-msgstr ""
-
-#: report.py:80 report.py:106
+#: report.py:80 report.py:107
 msgid "Buildings parts"
 msgstr "Partes de edificios"
 
-#: report.py:81 report.py:107
+#: report.py:81 report.py:108
 msgid "Swimming pools"
 msgstr "Piscinas"
 
@@ -609,121 +613,129 @@ msgid "Adjacent parts merged"
 msgstr "Partes adyacentes fusionadas"
 
 #: report.py:90
+msgid "Buildings coincidents with a swimming pool deleted"
+msgstr "Edificios conincidentes con una piscina eliminados"
+
+#: report.py:91
 msgid "Invalid geometry rings deleted"
 msgstr "Anillos de geometrías no válidos eliminados"
 
-#: report.py:91
+#: report.py:92
 msgid "Invalid geometries deleted"
 msgstr "Geometrías no válidas eliminadas"
 
-#: report.py:92
+#: report.py:93
 msgid "Zig-zag vertices deleted"
 msgstr "Vértices en zig-zag eliminados"
 
-#: report.py:93
+#: report.py:94
 msgid "Spike vertices deleted"
 msgstr "Vértices en punta eliminados"
 
-#: report.py:94
+#: report.py:95
 msgid "Close vertices merged"
 msgstr "Vértices próximos fusionados"
 
-#: report.py:95
+#: report.py:96
 msgid "Topological points created"
 msgstr "Puntos topológicos creados"
 
-#: report.py:96
+#: report.py:97
 msgid "Simplified vertices"
 msgstr "Vértices simplificados"
 
-#: report.py:98
+#: report.py:99
 msgid "Buildings/pools in OSM"
 msgstr "Edificios/piscinas en OSM"
 
-#: report.py:99
+#: report.py:100
 msgid "With conflic"
 msgstr "Con conflicto"
 
-#: report.py:101
+#: report.py:102
 msgid "Nodes"
 msgstr "Nodos"
 
-#: report.py:102
+#: report.py:103
 msgid "Ways"
 msgstr "Vías"
 
-#: report.py:103
+#: report.py:104
 msgid "Relations"
 msgstr "Relaciones"
 
-#: report.py:108
+#: report.py:109
+msgid "Over buildings"
+msgstr "Sobre edificios"
+
+#: report.py:110
 msgid "Building types counter"
 msgstr "Recuento de tipos de edificios"
 
-#: report.py:109
+#: report.py:111
 msgid "Max. levels above ground (level: # of buildings)"
 msgstr "Plantas sobre rasante (nivel: nº de edificios)"
 
-#: report.py:110
+#: report.py:112
 msgid "Min. levels below ground (level: # of buildings)"
 msgstr "Plantas bajo rasante (nivel: nº de edificios)"
 
-#: report.py:111
+#: report.py:113
 msgid "Rustic tasks files"
 msgstr "Ficheros de tareas de rústica"
 
-#: report.py:112
+#: report.py:114
 msgid "Urban tasks files"
 msgstr "Ficheros de tareas de urbana"
 
-#: report.py:113
+#: report.py:115
 msgid "Problems"
 msgstr "Problemas"
 
-#: report.py:114
+#: report.py:116
 msgid "Report validation:"
 msgstr "Validación del informe:"
 
-#: report.py:115
+#: report.py:117
 msgid "Fixmes"
 msgstr "Correcciones (fixmes)"
 
-#: report.py:117
+#: report.py:119
 msgid "Warnings:"
 msgstr "Avisos:"
 
-#: report.py:218
+#: report.py:220
 msgid "Sum of address types should be equal to the input addresses"
 msgstr ""
 "La suma de tipos de direcciones debe ser igual a las direcciones de entrada"
 
-#: report.py:223
+#: report.py:225
 msgid ""
 "Sum of output and deleted addresses should be equal to the input addresses"
 msgstr ""
 "La suma de las direcciones de salida y las eliminadas debe ser igual a las "
 "direcciones de entrada"
 
-#: report.py:228
+#: report.py:230
 msgid ""
 "Sum of entrance and building address should be equal to output addresses"
 msgstr ""
 "La suma de las direcciones en entradas y edificios debe ser igual a las "
 "direcciones de salida"
 
-#: report.py:232
+#: report.py:234
 msgid "Sum of street and place addresses should be equal to output addresses"
 msgstr ""
 "La suma de las direcciones tipo calle y lugar debe ser igual a las "
 "direcciones de salida"
 
-#: report.py:236
+#: report.py:238
 msgid "Sum of buildings, parts and pools should be equal to the feature count"
 msgstr ""
 "La suma de edificios, partes y piscinas debe ser igual al número de "
 "características"
 
-#: report.py:243
+#: report.py:245
 msgid ""
 "Sum of output and deleted minus created building features should be equal to "
 "input features"
@@ -731,7 +743,7 @@ msgstr ""
 "La suma de las características de edificios de salida y las eliminadas menos "
 "las creadas debe ser igual a las características de entrada"
 
-#: report.py:248
+#: report.py:250
 msgid "Sum of building types should be equal to the number of buildings"
 msgstr ""
 "La suma de los tipos de edificios debe ser igual al número de edificios"
