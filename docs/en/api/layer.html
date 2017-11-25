@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>layer module &#8212; CatAtom2Osm 2017-11-22 documentation</title>
+    <title>layer module &#8212; CatAtom2Osm 2017-11-25 documentation</title>
     
     <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -23,7 +23,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '2017-11-22',
+        VERSION:     '2017-11-25',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -57,7 +57,7 @@
         <li class="right" >
           <a href="hgwnames.html" title="hgwnames module"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 2017-11-22 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 2017-11-25 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../api.html" >API reference</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="modules.html" accesskey="U">CatAtom2Osm</a> &#187;</li> 
       </ul>
@@ -213,7 +213,7 @@ a boolean deciding if each feature will be included or not</li>
 </tbody>
 </table>
 <p class="rubric">Examples</p>
-<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">feat</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">:</span> <span class="n">feat</span><span class="p">[</span><span class="s1">&#39;foo&#39;</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;bar&#39;</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">feat</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">:</span> <span class="n">feat</span><span class="p">[</span><span class="s1">&#39;foo&#39;</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;bar&#39;</span>
 <span class="go">Will copy only features with a value &#39;bar&#39; in the field &#39;foo&#39;.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">feat</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">:</span> <span class="n">layer</span><span class="o">.</span><span class="n">is_inside</span><span class="p">(</span><span class="n">feat</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;zone&#39;</span><span class="p">])</span>
 <span class="go">Will copy only features inside zone.</span>
@@ -246,7 +246,7 @@ a boolean deciding if each feature will be included or not</li>
 </table>
 <p class="rubric">Examples</p>
 <p>With this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">rename</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;spec&#39;</span><span class="p">:</span> <span class="s1">&#39;specification&#39;</span><span class="p">}</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rename</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;spec&#39;</span><span class="p">:</span> <span class="s1">&#39;specification&#39;</span><span class="p">}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">resolve</span> <span class="o">=</span> <span class="p">{</span>
 <span class="gp">... </span>    <span class="s1">&#39;PD_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;component_href&#39;</span><span class="p">,</span> <span class="s1">&#39;[\w\.]+PD[\.0-9]+&#39;</span><span class="p">),</span>
 <span class="gp">... </span>    <span class="s1">&#39;TN_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;component_href&#39;</span><span class="p">,</span> <span class="s1">&#39;[\w\.]+TN[\.0-9]+&#39;</span><span class="p">),</span>
@@ -255,7 +255,7 @@ a boolean deciding if each feature will be included or not</li>
 </pre></div>
 </div>
 <p>You get:</p>
-<div class="highlight-default"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">original_attributes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;localId&#39;</span><span class="p">,</span> <span class="s1">&#39;specification&#39;</span><span class="p">,</span> <span class="s1">&#39;component_href&#39;</span><span class="p">]</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">original_attributes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;localId&#39;</span><span class="p">,</span> <span class="s1">&#39;specification&#39;</span><span class="p">,</span> <span class="s1">&#39;component_href&#39;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">original_values</span> <span class="o">=</span> <span class="p">[</span>
 <span class="gp">... </span>    <span class="s1">&#39;38.012.1.12.0295603CS6109N&#39;</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="s1">&#39;Parcel&#39;</span><span class="p">,</span>
@@ -456,6 +456,12 @@ parts index parts of building by building localid.</p>
 <dd><p>Index parts of building by building localid.</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="layer.ConsLayer.index_of_pools">
+<code class="descname">index_of_pools</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.index_of_pools"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.index_of_pools" title="Permalink to this definition">¶</a></dt>
+<dd><p>Index pools in building parcel by building localid.</p>
+</dd></dl>
+
 <dl class="staticmethod">
 <dt id="layer.ConsLayer.is_building">
 <em class="property">static </em><code class="descname">is_building</code><span class="sig-paren">(</span><em>feature</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.is_building"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.is_building" title="Permalink to this definition">¶</a></dt>
@@ -491,7 +497,12 @@ ground to the footprint and deletes all the parts in that level.</li>
 <dl class="method">
 <dt id="layer.ConsLayer.merge_building_parts">
 <code class="descname">merge_building_parts</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.merge_building_parts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.merge_building_parts" title="Permalink to this definition">¶</a></dt>
-<dd><p>Apply merge_adjacent_parts to each set of building and its parts</p>
+<dd><p>Detect pools contained in a building and assign layer=1.
+Detect buildings/parts with geometry equals to a pool geometry and
+delete them.
+Detect inner rings of buildings/parts with geometry equals to a pool
+geometry and remove them.
+Apply merge_adjacent_parts to each set of building and its parts.</p>
 </dd></dl>
 
 <dl class="method">
@@ -504,6 +515,14 @@ associated building (same cadastral reference), but only if:</p>
 <li>The new position is enough close and is not a corner</li>
 </ul>
 <p>Delete the address if the number of associated buildings is not one.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="layer.ConsLayer.remove_inner_rings">
+<code class="descname">remove_inner_rings</code><span class="sig-paren">(</span><em>feat1</em>, <em>feat2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.remove_inner_rings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.remove_inner_rings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Auxiliary method to remove feat1 or of its inner rings if equals to feat2
+Returns True if feat1 must be deleted and new geometry if any ring is
+removed.</p>
 </dd></dl>
 
 <dl class="method">
@@ -848,7 +867,7 @@ multiparts and merged adjacent zones</p>
         <li class="right" >
           <a href="hgwnames.html" title="hgwnames module"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 2017-11-22 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 2017-11-25 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../api.html" >API reference</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="modules.html" >CatAtom2Osm</a> &#187;</li> 
       </ul>

@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>layer &#8212; documentación de CatAtom2Osm - 2017-11-22</title>
+    <title>layer &#8212; documentación de CatAtom2Osm - 2017-11-25</title>
     
     <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -23,7 +23,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '2017-11-22',
+        VERSION:     '2017-11-25',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -50,7 +50,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Índice de Módulos Python"
              >módulos</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 2017-11-22</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 2017-11-25</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Código de módulo</a> &#187;</li> 
       </ul>
     </div>
@@ -112,7 +112,7 @@
           <div class="document clearer body">
             
   <h1>Código fuente para layer</h1><div class="highlight"><pre>
-<span class="c1"># -*- coding: utf-8 -*-</span>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="sd">&quot;&quot;&quot;Application layers&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
@@ -129,7 +129,7 @@
 <span class="kn">import</span> <span class="nn">setup</span>
 <span class="kn">import</span> <span class="nn">translate</span>
 <span class="kn">from</span> <span class="nn">report</span> <span class="k">import</span> <span class="n">instance</span> <span class="k">as</span> <span class="n">report</span>
-<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">setup</span><span class="o">.</span><span class="n">app_name</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">__name__</span><span class="p">)</span>
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">setup</span><span class="o">.</span><span class="n">app_name</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="vm">__name__</span><span class="p">)</span>
 
 <span class="n">BUFFER_SIZE</span> <span class="o">=</span> <span class="mi">512</span>
 
@@ -145,9 +145,9 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">arg2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="nb">super</span><span class="p">(</span><span class="n">Point</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">arg1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">arg1</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">Point</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">arg1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">arg1</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="nb">super</span><span class="p">(</span><span class="n">Point</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">)</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">Point</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Point.boundingBox"><a class="viewcode-back" href="../api/layer.html#layer.Point.boundingBox">[documentos]</a>    <span class="k">def</span> <span class="nf">boundingBox</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">radius</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a bounding box of 2*radius centered in point.&quot;&quot;&quot;</span>
@@ -265,7 +265,7 @@
     <span class="sd">&quot;&quot;&quot;Base class for application layers&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span> <span class="o">=</span> <span class="s2">&quot;ogr&quot;</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">BaseLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">BaseLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">writer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataProvider</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rename</span><span class="o">=</span><span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">resolve</span><span class="o">=</span><span class="p">{}</span>
@@ -511,7 +511,7 @@
             <span class="n">p1</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">crs_transform</span><span class="p">)</span>
             <span class="n">p2</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">crs_transform</span><span class="p">)</span>
             <span class="n">bbox</span> <span class="o">=</span> <span class="p">[</span><span class="n">p1</span><span class="o">.</span><span class="n">asPoint</span><span class="p">()</span><span class="o">.</span><span class="n">y</span><span class="p">(),</span> <span class="n">p1</span><span class="o">.</span><span class="n">asPoint</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">p2</span><span class="o">.</span><span class="n">asPoint</span><span class="p">()</span><span class="o">.</span><span class="n">y</span><span class="p">(),</span> <span class="n">p2</span><span class="o">.</span><span class="n">asPoint</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="p">()]</span>
-            <span class="n">bbox</span> <span class="o">=</span> <span class="s1">&#39;{:.8f},{:.8f},{:.8f},{:.8f}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">bbox</span><span class="p">)</span>
+            <span class="n">bbox</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{:.8f}</span><span class="s1">,</span><span class="si">{:.8f}</span><span class="s1">,</span><span class="si">{:.8f}</span><span class="s1">,</span><span class="si">{:.8f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">bbox</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">bbox</span></div>
 
 <div class="viewcode-block" id="BaseLayer.export"><a class="viewcode-back" href="../api/layer.html#layer.BaseLayer.export">[documentos]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">driver_name</span><span class="o">=</span><span class="s2">&quot;ESRI Shapefile&quot;</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -598,7 +598,7 @@
     <span class="sd">&quot;&quot;&quot;Base class for polygon layers&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span> <span class="o">=</span> <span class="s2">&quot;ogr&quot;</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">PolygonLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">PolygonLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dup_thr</span> <span class="o">=</span> <span class="n">setup</span><span class="o">.</span><span class="n">dup_thr</span> <span class="c1"># Distance in meters to merge nearest vertex.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cath_thr</span> <span class="o">=</span> <span class="n">setup</span><span class="o">.</span><span class="n">dist_thr</span> <span class="c1"># Threshold in meters for cathetus reduction</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">straight_thr</span> <span class="o">=</span> <span class="n">setup</span><span class="o">.</span><span class="n">straight_thr</span> <span class="c1"># Threshold in degrees from straight angle to delete a vertex</span>
@@ -1012,7 +1012,7 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">&quot;Polygon&quot;</span><span class="p">,</span> <span class="n">baseName</span><span class="o">=</span><span class="s2">&quot;cadastralparcel&quot;</span><span class="p">,</span>
             <span class="n">providerLib</span><span class="o">=</span><span class="s2">&quot;memory&quot;</span><span class="p">,</span> <span class="n">source_date</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">ParcelLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ParcelLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pendingFields</span><span class="p">()</span><span class="o">.</span><span class="n">isEmpty</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">addAttributes</span><span class="p">([</span>
                 <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;localId&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">254</span><span class="p">),</span>
@@ -1026,9 +1026,9 @@
 <div class="viewcode-block" id="ZoningLayer"><a class="viewcode-back" href="../api/layer.html#layer.ZoningLayer">[documentos]</a><span class="k">class</span> <span class="nc">ZoningLayer</span><span class="p">(</span><span class="n">PolygonLayer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Class for cadastral zoning&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="s1">&#39;{}&#39;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">&quot;Polygon&quot;</span><span class="p">,</span> <span class="n">baseName</span><span class="o">=</span><span class="s2">&quot;cadastralzoning&quot;</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">&quot;Polygon&quot;</span><span class="p">,</span> <span class="n">baseName</span><span class="o">=</span><span class="s2">&quot;cadastralzoning&quot;</span><span class="p">,</span>
             <span class="n">providerLib</span><span class="o">=</span><span class="s2">&quot;memory&quot;</span><span class="p">,</span> <span class="n">source_date</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">ZoningLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ZoningLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pendingFields</span><span class="p">()</span><span class="o">.</span><span class="n">isEmpty</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">addAttributes</span><span class="p">([</span>
                 <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;localId&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">254</span><span class="p">),</span>
@@ -1108,7 +1108,7 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">&quot;Point&quot;</span><span class="p">,</span> <span class="n">baseName</span><span class="o">=</span><span class="s2">&quot;address&quot;</span><span class="p">,</span> <span class="n">providerLib</span><span class="o">=</span><span class="s2">&quot;memory&quot;</span><span class="p">,</span>
             <span class="n">source_date</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">AddressLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">AddressLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pendingFields</span><span class="p">()</span><span class="o">.</span><span class="n">isEmpty</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">addAttributes</span><span class="p">([</span>
                 <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;localId&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">254</span><span class="p">),</span>
@@ -1195,7 +1195,7 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">&quot;Polygon&quot;</span><span class="p">,</span> <span class="n">baseName</span><span class="o">=</span><span class="s2">&quot;building&quot;</span><span class="p">,</span>
             <span class="n">providerLib</span> <span class="o">=</span> <span class="s2">&quot;memory&quot;</span><span class="p">,</span> <span class="n">source_date</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">ConsLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ConsLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pendingFields</span><span class="p">()</span><span class="o">.</span><span class="n">isEmpty</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">addAttributes</span><span class="p">([</span>
                 <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;localId&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">254</span><span class="p">),</span>
@@ -1208,7 +1208,8 @@
                 <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;lev_below&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">Int</span><span class="p">),</span>
                 <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;nature&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">254</span><span class="p">),</span>
                 <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;task&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">254</span><span class="p">),</span>
-                <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;fixme&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">254</span><span class="p">)</span>
+                <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;fixme&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">254</span><span class="p">),</span>
+                <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;layer&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">Int</span><span class="p">),</span>
             <span class="p">])</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">updateFields</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rename</span> <span class="o">=</span> <span class="p">{</span>
@@ -1331,6 +1332,14 @@
             <span class="n">parts</span><span class="p">[</span><span class="n">localId</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">parts</span></div>
 
+<div class="viewcode-block" id="ConsLayer.index_of_pools"><a class="viewcode-back" href="../api/layer.html#layer.ConsLayer.index_of_pools">[documentos]</a>    <span class="k">def</span> <span class="nf">index_of_pools</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Index pools in building parcel by building localid. &quot;&quot;&quot;</span>
+        <span class="n">pools</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">pool</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;regexp_match(localId, &#39;_PI&#39;)&quot;</span><span class="p">):</span>
+            <span class="n">localId</span> <span class="o">=</span> <span class="n">pool</span><span class="p">[</span><span class="s1">&#39;localId&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">pools</span><span class="p">[</span><span class="n">localId</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pool</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pools</span></div>
+
 <div class="viewcode-block" id="ConsLayer.index_of_building_and_parts"><a class="viewcode-back" href="../api/layer.html#layer.ConsLayer.index_of_building_and_parts">[documentos]</a>    <span class="k">def</span> <span class="nf">index_of_building_and_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructs some utility dicts.</span>
@@ -1451,30 +1460,108 @@
                             <span class="n">to_clean_g</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part</span><span class="o">.</span><span class="n">id</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">to_clean</span><span class="p">,</span> <span class="n">to_clean_g</span><span class="p">,</span> <span class="n">to_change</span><span class="p">,</span> <span class="n">to_change_g</span></div>
 
+<div class="viewcode-block" id="ConsLayer.remove_inner_rings"><a class="viewcode-back" href="../api/layer.html#layer.ConsLayer.remove_inner_rings">[documentos]</a>    <span class="k">def</span> <span class="nf">remove_inner_rings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feat1</span><span class="p">,</span> <span class="n">feat2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Auxiliary method to remove feat1 or of its inner rings if equals to feat2</span>
+<span class="sd">        Returns True if feat1 must be deleted and new geometry if any ring is</span>
+<span class="sd">        removed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">geom1</span> <span class="o">=</span> <span class="n">feat1</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span>
+        <span class="n">geom2</span> <span class="o">=</span> <span class="n">feat2</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span>
+        <span class="n">delete</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">new_geom</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">delete_rings</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ring</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">geom1</span><span class="o">.</span><span class="n">asPolygon</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="n">QgsGeometry</span><span class="p">()</span><span class="o">.</span><span class="n">fromPolygon</span><span class="p">([</span><span class="n">ring</span><span class="p">])</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">geom2</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">delete</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">break</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">delete_rings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">delete_rings</span><span class="p">:</span>
+            <span class="n">poly</span> <span class="o">=</span> <span class="p">[</span><span class="n">ring</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ring</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">geom1</span><span class="o">.</span><span class="n">asPolygon</span><span class="p">())</span> \
+                <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">delete_rings</span><span class="p">]</span>
+            <span class="n">new_geom</span> <span class="o">=</span> <span class="n">QgsGeometry</span><span class="p">()</span><span class="o">.</span><span class="n">fromPolygon</span><span class="p">(</span><span class="n">poly</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">delete</span><span class="p">,</span> <span class="n">new_geom</span></div>
+
 <div class="viewcode-block" id="ConsLayer.merge_building_parts"><a class="viewcode-back" href="../api/layer.html#layer.ConsLayer.merge_building_parts">[documentos]</a>    <span class="k">def</span> <span class="nf">merge_building_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Apply merge_adjacent_parts to each set of building and its parts&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Detect pools contained in a building and assign layer=1. </span>
+<span class="sd">        Detect buildings/parts with geometry equals to a pool geometry and </span>
+<span class="sd">        delete them.</span>
+<span class="sd">        Detect inner rings of buildings/parts with geometry equals to a pool </span>
+<span class="sd">        geometry and remove them.</span>
+<span class="sd">        Apply merge_adjacent_parts to each set of building and its parts.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">parts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_of_parts</span><span class="p">()</span>
+        <span class="n">pools</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_of_pools</span><span class="p">()</span>
         <span class="n">to_clean</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">to_clean_g</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">to_change</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">to_change_g</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">buildings_in_pools</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">levels_to_footprint</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">parts_merged_to_building</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">adjacent_parts_deleted</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">pools_on_roofs</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">visited_parcels</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">building</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;not regexp_match(localId, &#39;_&#39;)&quot;</span><span class="p">):</span>
-            <span class="n">it_parts</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="n">building</span><span class="p">[</span><span class="s1">&#39;localId&#39;</span><span class="p">]]</span>
+            <span class="n">ref</span> <span class="o">=</span> <span class="n">building</span><span class="p">[</span><span class="s1">&#39;localId&#39;</span><span class="p">]</span>
+            <span class="n">it_pools</span> <span class="o">=</span> <span class="n">pools</span><span class="p">[</span><span class="n">ref</span><span class="p">]</span>
+            <span class="n">it_parts</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="n">ref</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">pool</span> <span class="ow">in</span> <span class="n">it_pools</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">pool</span><span class="p">[</span><span class="s1">&#39;layer&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">is_inside</span><span class="p">(</span><span class="n">pool</span><span class="p">,</span> <span class="n">building</span><span class="p">):</span>
+                    <span class="n">pool</span><span class="p">[</span><span class="s1">&#39;layer&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                    <span class="n">to_change</span><span class="p">[</span><span class="n">pool</span><span class="o">.</span><span class="n">id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">get_attributes</span><span class="p">(</span><span class="n">pool</span><span class="p">)</span>
+                    <span class="n">pools_on_roofs</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">del_building</span><span class="p">,</span> <span class="n">new_geom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_inner_rings</span><span class="p">(</span><span class="n">building</span><span class="p">,</span> <span class="n">pool</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">del_building</span><span class="p">:</span>
+                    <span class="n">to_clean</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">building</span><span class="o">.</span><span class="n">id</span><span class="p">())</span>
+                    <span class="n">buildings_in_pools</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">break</span>
+                <span class="k">if</span> <span class="n">new_geom</span><span class="p">:</span>
+                    <span class="n">to_change_g</span><span class="p">[</span><span class="n">building</span><span class="o">.</span><span class="n">id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">QgsGeometry</span><span class="p">(</span><span class="n">new_geom</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">ref</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">visited_parcels</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">it_parts</span><span class="p">):</span>
+                        <span class="n">del_part</span><span class="p">,</span> <span class="n">new_geom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_inner_rings</span><span class="p">(</span><span class="n">part</span><span class="p">,</span> <span class="n">pool</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">del_part</span><span class="p">:</span>
+                            <span class="n">to_clean</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part</span><span class="o">.</span><span class="n">id</span><span class="p">())</span>
+                            <span class="n">it_parts</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">[</span><span class="n">ref</span><span class="p">]:</span>
+                                <span class="n">parts</span><span class="p">[</span><span class="n">ref</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
+                            <span class="n">adjacent_parts_deleted</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="k">elif</span> <span class="n">new_geom</span><span class="p">:</span>
+                            <span class="n">to_change_g</span><span class="p">[</span><span class="n">part</span><span class="o">.</span><span class="n">id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">QgsGeometry</span><span class="p">(</span><span class="n">new_geom</span><span class="p">)</span>
+            <span class="n">visited_parcels</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
             <span class="n">cn</span><span class="p">,</span> <span class="n">cng</span><span class="p">,</span> <span class="n">ch</span><span class="p">,</span> <span class="n">chg</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">merge_adjacent_parts</span><span class="p">(</span><span class="n">building</span><span class="p">,</span> <span class="n">it_parts</span><span class="p">)</span>
-            <span class="n">to_clean</span> <span class="o">+=</span> <span class="n">cn</span>
-            <span class="n">to_clean_g</span> <span class="o">+=</span> <span class="n">cng</span>
+            <span class="n">to_clean</span> <span class="o">+=</span> <span class="n">cn</span> <span class="o">+</span> <span class="n">cng</span>
             <span class="n">to_change</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span>
             <span class="n">to_change_g</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">chg</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">to_clean</span><span class="p">:</span>
+            <span class="n">levels_to_footprint</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span>
+            <span class="n">parts_merged_to_building</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">cn</span><span class="p">)</span>
+            <span class="n">adjacent_parts_deleted</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">cng</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">to_change</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">changeAttributeValues</span><span class="p">(</span><span class="n">to_change</span><span class="p">)</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Translated </span><span class="si">%d</span><span class="s2"> level values to the footprint&quot;</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_change</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">to_change_g</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">changeGeometryValues</span><span class="p">(</span><span class="n">to_change_g</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">deleteFeatures</span><span class="p">(</span><span class="n">to_clean</span> <span class="o">+</span> <span class="n">to_clean_g</span><span class="p">)</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Merged </span><span class="si">%d</span><span class="s2"> building parts to the footprint&quot;</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">))</span>
-            <span class="n">report</span><span class="o">.</span><span class="n">parts_to_footprint</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">to_clean_g</span><span class="p">:</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Merged </span><span class="si">%d</span><span class="s2"> adjacent parts&quot;</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean_g</span><span class="p">))</span>
-            <span class="n">report</span><span class="o">.</span><span class="n">adjacent_parts</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean_g</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="n">to_clean</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">deleteFeatures</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pools_on_roofs</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Located </span><span class="si">%d</span><span class="s2"> swimming pools over a building&quot;</span><span class="p">),</span> <span class="n">pools_on_roofs</span><span class="p">)</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">pools_on_roofs</span> <span class="o">=</span> <span class="n">pools_on_roofs</span>
+        <span class="k">if</span> <span class="n">buildings_in_pools</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Deleted </span><span class="si">%d</span><span class="s2"> buildings coincidents with a swimming pool&quot;</span><span class="p">),</span>
+                <span class="n">buildings_in_pools</span><span class="p">)</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">buildings_in_pools</span> <span class="o">=</span> <span class="n">buildings_in_pools</span>
+        <span class="k">if</span> <span class="n">levels_to_footprint</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Translated </span><span class="si">%d</span><span class="s2"> level values to the footprint&quot;</span><span class="p">),</span> 
+                <span class="n">levels_to_footprint</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">parts_merged_to_building</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Merged </span><span class="si">%d</span><span class="s2"> building parts to the footprint&quot;</span><span class="p">),</span> 
+                <span class="n">parts_merged_to_building</span><span class="p">)</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">parts_to_footprint</span> <span class="o">=</span> <span class="n">parts_merged_to_building</span>
+        <span class="k">if</span> <span class="n">adjacent_parts_deleted</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Merged </span><span class="si">%d</span><span class="s2"> adjacent parts&quot;</span><span class="p">),</span> <span class="n">adjacent_parts_deleted</span><span class="p">)</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">adjacent_parts</span> <span class="o">=</span> <span class="n">adjacent_parts_deleted</span></div>
 
 <div class="viewcode-block" id="ConsLayer.clean"><a class="viewcode-back" href="../api/layer.html#layer.ConsLayer.clean">[documentos]</a>    <span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1633,13 +1720,12 @@
         <span class="n">report</span><span class="o">.</span><span class="n">osm_building_conflicts</span> <span class="o">=</span> <span class="n">conflicts</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span></div></div>
 
-
 <div class="viewcode-block" id="HighwayLayer"><a class="viewcode-back" href="../api/layer.html#layer.HighwayLayer">[documentos]</a><span class="k">class</span> <span class="nc">HighwayLayer</span><span class="p">(</span><span class="n">BaseLayer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Class for OSM highways&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">&quot;LineString&quot;</span><span class="p">,</span> <span class="n">baseName</span><span class="o">=</span><span class="s2">&quot;highway&quot;</span><span class="p">,</span>
             <span class="n">providerLib</span><span class="o">=</span><span class="s2">&quot;memory&quot;</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">HighwayLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">HighwayLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">baseName</span><span class="p">,</span> <span class="n">providerLib</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pendingFields</span><span class="p">()</span><span class="o">.</span><span class="n">isEmpty</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">addAttributes</span><span class="p">([</span>
                 <span class="n">QgsField</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">254</span><span class="p">),</span>
@@ -1679,7 +1765,7 @@
                 <span class="n">layer</span><span class="o">.</span><span class="n">dataProvider</span><span class="p">()</span><span class="o">.</span><span class="n">dataSourceUri</span><span class="p">()),</span> <span class="n">filename</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">=</span> <span class="n">QgsFields</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">QgsField</span><span class="p">(</span><span class="s2">&quot;note&quot;</span><span class="p">,</span> <span class="n">QVariant</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="nb">len</span><span class="o">=</span><span class="mi">100</span><span class="p">))</span>
-        <span class="n">QgsVectorFileWriter</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fpath</span><span class="p">,</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">,</span>
+        <span class="n">QgsVectorFileWriter</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fpath</span><span class="p">,</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">,</span>
                 <span class="n">QGis</span><span class="o">.</span><span class="n">WKBPoint</span><span class="p">,</span> <span class="n">layer</span><span class="o">.</span><span class="n">crs</span><span class="p">(),</span> <span class="n">driver_name</span><span class="p">)</span>
 
 <div class="viewcode-block" id="DebugWriter.add_point"><a class="viewcode-back" href="../api/layer.html#layer.DebugWriter.add_point">[documentos]</a>    <span class="k">def</span> <span class="nf">add_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="p">,</span> <span class="n">note</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -1707,7 +1793,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Índice de Módulos Python"
              >módulos</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 2017-11-22</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 2017-11-25</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" >Código de módulo</a> &#187;</li> 
       </ul>
     </div>
