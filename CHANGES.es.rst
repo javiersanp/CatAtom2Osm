@@ -1,6 +1,10 @@
 Registro de cambios
 ===================
 
+**25-11-2017**
+
+* Detecta piscinas encima de edificios (cuestión #51).
+
 **22-11-2017**
 
 * Ejecutadas las pruebas de código en Windows.

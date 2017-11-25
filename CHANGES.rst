@@ -1,6 +1,10 @@
 Change log
 ==========
 
+**2017-11-25**
+
+* Detect swimming pools over buildings (issue #51).
+
 **2017-11-22**
 
 * Run code tests in Windows.
