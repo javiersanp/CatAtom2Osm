@@ -87,7 +87,7 @@ class Point(QgsPoint):
         is_corner = abs(180 - angle) > straight_thr and c > cath_thr
         is_acute = angle < acute_thr if angle < 180 else 360 - angle < acute_thr
         return (angle, is_acute, is_corner, c)
-    
+
     def get_spike_context(self, geom, acute_thr=setup.acute_inv,
             straight_thr=setup.straight_thr, threshold=setup.dist_inv):
         """
@@ -95,7 +95,7 @@ class Point(QgsPoint):
         determine if its a zig-zag or a spike. It's a zig-zag if both the angles
         of this vertex and the closest adjacents are acute. It's a spike if the
         angle of this vertex is acute and the angle of the closest vertex is
-        not straight. 
+        not straight.
 
         Args:
             geom (QgsGeometry): Geometry to test.
@@ -109,9 +109,9 @@ class Point(QgsPoint):
             (int) ndx = index of the vertex
             (int) ndxa = index of the closest adjacent
             (bool) is_acute = True if the angle is too low (< acute_thr).
-            (bool) is_zigzag = True if both angle_v and angle_a are acute and 
+            (bool) is_zigzag = True if both angle_v and angle_a are acute and
             the distance from va to the segment v-vb is lower than threshold.
-            (bool) is_spike = True if is_acute and angle_a is not straight and 
+            (bool) is_spike = True if is_acute and angle_a is not straight and
             the distance from va to the segment v-vb is lower than threshold.
             (QgsPoint) vx = projection of va over the segment v-vb.
         """
@@ -1372,10 +1372,10 @@ class ConsLayer(PolygonLayer):
 
     def merge_building_parts(self):
         """
-        Detect pools contained in a building and assign layer=1. 
-        Detect buildings/parts with geometry equals to a pool geometry and 
+        Detect pools contained in a building and assign layer=1.
+        Detect buildings/parts with geometry equals to a pool geometry and
         delete them.
-        Detect inner rings of buildings/parts with geometry equals to a pool 
+        Detect inner rings of buildings/parts with geometry equals to a pool
         geometry and remove them.
         Apply merge_adjacent_parts to each set of building and its parts.
         """
@@ -1432,10 +1432,10 @@ class ConsLayer(PolygonLayer):
         if to_clean:
             self.writer.deleteFeatures(to_clean)
         if pools_on_roofs:
-            log.info(_("Located %d swimming pools over a building"), pools_on_roofs)
+            log.debug(_("Located %d swimming pools over a building"), pools_on_roofs)
             report.pools_on_roofs = pools_on_roofs
         if buildings_in_pools:
-            log.info(_("Deleted %d buildings coincidents with a swimming pool"),
+            log.debug(_("Deleted %d buildings coincidents with a swimming pool"),
                 buildings_in_pools)
             report.buildings_in_pools = buildings_in_pools
         if levels_to_footprint:
