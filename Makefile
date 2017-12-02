@@ -30,6 +30,7 @@ help:
 	@echo "  html       to make documentation html files"
 	@echo "  msg        to build translations file"
 	@echo "  install    to create application simbolic link"
+	@echo "  uninstall  to remove application simbolic link"
 	@echo "  all        clean api coverage html msg"
 
 .PHONY: clean
@@ -47,10 +48,16 @@ html:
 
 .PHONY: test
 test:
+ifeq (${OS},$(filter $(OS),Sierra Darwin))
+	@source $(shell pwd)/pyqgismac.sh
+endif
 	$(UNITTEST) discover
 
 .PHONY: coverage
 coverage:
+ifeq (${OS},$(filter $(OS),Sierra Darwin))
+	@source $(shell pwd)/pyqgismac.sh
+endif
 	$(COVERAGE) run --source=. test/unittest_main.py discover
 	$(COVERAGE) report
 	$(COVERAGE) html
@@ -76,12 +83,15 @@ msg:
 install:
 	@echo "#!/bin/bash" > catatom2osm
 ifeq (${OS},$(filter $(OS),Sierra Darwin))
-	@echo "export PATH="'"'"/Applications/QGIS.app/Contents/MacOS/bin:$$"PATH'"' >> catatom2osm
-	@echo "export PYTHONPATH="'"'"/Applications/QGIS.app/Contents/Resources/python:$$"PYTHONPATH'"' >> catatom2osm
+	@echo "source "'"'"$(shell pwd)/pyqgismac.sh"'"' >> catatom2osm
 endif
-	@echo "python $(shell pwd)/main.py $$"'*' >> catatom2osm
+	@echo "python "'"'"$(shell pwd)/main.py"'"'" $$"'*' >> catatom2osm
 	@chmod +x catatom2osm
-	@ln -sf $(shell pwd)/catatom2osm /usr/bin/catatom2osm
+	@ln -sf $(shell pwd)/catatom2osm /usr/local/bin/catatom2osm
+
+.PHONY: uninstall
+uninstall:
+	@unlink /usr/local/bin/catatom2osm
 
 all: clean coverage api html msg
 .PHONY: all
