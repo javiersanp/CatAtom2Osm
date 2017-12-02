@@ -31,20 +31,18 @@ Mac OS X
 Instalar QGIS desde la página de descarga de KyngChaos 
 http://www.kyngchaos.com/software/qgis
 
-Instalar el programa de escritorio de GitHub desde
-http://desktop.github.com
+Abrir una consola de comandos y ejecutar los comandos::
 
-Ejecutarlo y descargar el repositorio 
-https://github.com/javiersanp/CatAtom2Osm.git
-
-Abrir una consola de comandos y cambiar a la carpeta CatAtom2Osm descargada
-anteriormente. Ejecutar los comandos::
-
+    cd ~
+    mkdir catastro
+    cd catastro
+    git clone https://github.com/javiersanp/CatAtom2Osm.git
+    cd CatAtom2Osm
     sudo easy_install pip
     sudo pip install -r requisites.txt
     sudo make install
 
-Durante la instalación de los requisitos pedirá la instalación de las 
+Al intentar clonar el repositorio, el sistema solicitará instalar primero las 
 herramientas para desarrolladores de la línea de comandos.
 
 Si se desea instalar el entorno de pruebas::
