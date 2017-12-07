@@ -37,7 +37,10 @@ class QgsSingleton(QgsApplication):
         if QgsSingleton._qgs is None:
             # Init qGis API
             QgsSingleton._qgs = QgsApplication([], False)
-            QgsSingleton._qgs.initQgis()
+            qgis_prefix = os.getenv('QGISHOME')
+            if qgis_prefix:
+                QgsApplication.setPrefixPath(qgis_prefix, True)
+            QgsApplication.initQgis()
             # sets GDAL to convert xlink references to fields but not resolve
             gdal.SetConfigOption('GML_ATTRIBUTES_TO_OGR_FIELDS', 'YES')
             gdal.SetConfigOption('GML_SKIP_RESOLVE_ELEMS', 'ALL')

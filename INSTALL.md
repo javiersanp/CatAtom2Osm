@@ -31,21 +31,19 @@ Mac OS X
 Install QGIS from KyngChaos download page 
 http://www.kyngchaos.com/software/qgis
 
-Install GitHub desktop utility from
-http://desktop.github.com
+Open a command line terminal and run this commands::
 
-Run it and download this repository 
-https://github.com/javiersanp/CatAtom2Osm.git
-
-Open a command line shell and change the directory to the previously
-downloaded CatAtom2Osm folder. Run this commands::
-
+    cd ~
+    mkdir cadastre
+    cd cadastre
+    git clone https://github.com/javiersanp/CatAtom2Osm.git
+    cd CatAtom2Osm
     sudo easy_install pip
     sudo pip install -r requisites.txt
     sudo make install
 
-While you install the requisites you will be prompted to install the command
-line developper tools.
+When you try to clone the repository you will be prompted to install in first
+place the command line developper tools.
 
 If you want to install the development requeriments::
 

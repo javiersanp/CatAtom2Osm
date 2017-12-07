@@ -21,6 +21,9 @@ Requisitos
 * requests
 * GDAL
 
+Instalación
+-----------
+
 Ver INSTALL.es.md (https://javiersanp.github.io/CatAtom2Osm/es/install.html)
 
 Uso

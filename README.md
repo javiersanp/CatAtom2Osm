@@ -19,7 +19,10 @@ Requeriments
 * requests
 * GDAL
 
-See INSTALL.md (https://javiersanp.github.io/CatAtom2Osm/es/install.html)
+Install
+-------
+
+See INSTALL.md (https://javiersanp.github.io/CatAtom2Osm/en/install.html)
 
 Usage
 -----
