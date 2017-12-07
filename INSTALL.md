@@ -6,7 +6,7 @@ Linux
 
 In a command line shell write:: 
 
-    sudo apt install qgis git pip
+    sudo apt install qgis git python-pip
     cd ~
     mkdir cadastre
     cd cadastre
@@ -15,7 +15,7 @@ In a command line shell write::
     sudo pip install -r requisites.txt
     sudo make install
 
-If you want to install the development requeriments:
+Optionally, if you want to install the development requeriments:
 
     sudo pip install -r requisites-dev.txt
     
@@ -31,21 +31,23 @@ Mac OS X
 Install QGIS from KyngChaos download page 
 http://www.kyngchaos.com/software/qgis
 
-Open a command line terminal and run this commands::
+Install GitHub desktop utility from
+http://desktop.github.com
 
-    cd ~
-    mkdir cadastre
-    cd cadastre
-    git clone https://github.com/javiersanp/CatAtom2Osm.git
-    cd CatAtom2Osm
+Run it and download this repository 
+https://github.com/javiersanp/CatAtom2Osm.git
+
+Open a command line shell and change the directory to the previously
+downloaded CatAtom2Osm folder. Run this commands::
+
     sudo easy_install pip
     sudo pip install -r requisites.txt
     sudo make install
 
-When you try to clone the repository you will be prompted to install in first
-place the command line developper tools.
+While you install the requisites you will be prompted to install the command
+line developper tools.
 
-If you want to install the development requeriments::
+Optionally, if you want to install the development requeriments::
 
     sudo pip install -r requisites-dev.txt
     
@@ -89,7 +91,7 @@ Write this in the resulting shell::
     python -m pip install -r requisites.txt
     python -m pip install path to downloaded/python_Levenshtein‑0.12.0‑cp27‑cp27m‑win_amd64.whl
 
-If you want to install the development requeriments::
+Optionally, if you want to install the development requeriments::
 
     python -m pip install -r requisites-dev.txt
     
