@@ -15,7 +15,8 @@ En una consola de comandos ejecutar::
     sudo pip install -r requisites.txt
     sudo make install
 
-Opcionalmente, si se desea instalar el entorno de pruebas::
+Hasta aquí son los pasos básicos para poder ejecutar el programa.
+Opcionalmente, si deseas instalar el entorno de pruebas::
 
     sudo pip install -r requisites-dev.txt
     
@@ -47,7 +48,8 @@ anteriormente. Ejecutar los comandos::
 Durante la instalación de los requisitos pedirá la instalación de las 
 herramientas para desarrolladores de la línea de comandos.
 
-Opcionalmente, si se desea instalar el entorno de pruebas::
+Hasta aquí son los pasos básicos para poder ejecutar el programa.
+Opcionalmente, si deseas instalar el entorno de pruebas::
 
     sudo pip install -r requisites-dev.txt
     
@@ -91,7 +93,8 @@ En la consola resultante ejecutar::
     python -m pip install -r requisites.txt
     python -m pip install ruta al archivo descargado/python_Levenshtein‑0.12.0‑cp27‑cp27m‑win_amd64.whl
 
-Opcionalmente, si se desea instalar el entorno de pruebas::
+Hasta aquí son los pasos básicos para poder ejecutar el programa.
+Opcionalmente, si deseas instalar el entorno de pruebas::
 
     python -m pip install -r requisites-dev.txt
     
