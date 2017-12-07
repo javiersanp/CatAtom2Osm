@@ -11,6 +11,7 @@ GETTEXT       = pygettext
 MSGMERGE      = msgmerge
 MSGFMT        = msgfmt
 LOCALE_DIR    = locale/po
+INSTALL_DIR   = /usr/local/bin/
 OS            = $(shell uname)
 
 # Internal variables.
@@ -87,7 +88,8 @@ ifeq (${OS},$(filter $(OS),Sierra Darwin))
 endif
 	@echo "python "'"'"$(shell pwd)/main.py"'"'" $$"'*' >> catatom2osm
 	@chmod +x catatom2osm
-	@ln -sf $(shell pwd)/catatom2osm /usr/local/bin/catatom2osm
+	@ln -sf $(shell pwd)/catatom2osm $(INSTALL_DIR)/catatom2osm
+	@echo "Created a symbolic link to the program in $(INSTALL_DIR)"
 
 .PHONY: uninstall
 uninstall:
