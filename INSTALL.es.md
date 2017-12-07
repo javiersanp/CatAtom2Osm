@@ -6,7 +6,7 @@ Linux
 
 En una consola de comandos ejecutar::
 
-    sudo apt install qgis git pip
+    sudo apt install qgis git python-pip
     cd ~
     mkdir catastro
     cd catastro
@@ -15,7 +15,7 @@ En una consola de comandos ejecutar::
     sudo pip install -r requisites.txt
     sudo make install
 
-Si se desea instalar el entorno de pruebas::
+Opcionalmente, si se desea instalar el entorno de pruebas::
 
     sudo pip install -r requisites-dev.txt
     
@@ -47,7 +47,7 @@ anteriormente. Ejecutar los comandos::
 Durante la instalación de los requisitos pedirá la instalación de las 
 herramientas para desarrolladores de la línea de comandos.
 
-Si se desea instalar el entorno de pruebas::
+Opcionalmente, si se desea instalar el entorno de pruebas::
 
     sudo pip install -r requisites-dev.txt
     
@@ -91,7 +91,7 @@ En la consola resultante ejecutar::
     python -m pip install -r requisites.txt
     python -m pip install ruta al archivo descargado/python_Levenshtein‑0.12.0‑cp27‑cp27m‑win_amd64.whl
 
-Si se desea instalar el entorno de pruebas::
+Opcionalmente, si se desea instalar el entorno de pruebas::
 
     python -m pip install -r requisites-dev.txt
     
