@@ -126,7 +126,7 @@
 <div class="section" id="linux">
 <h2>Linux<a class="headerlink" href="#linux" title="Enlazar permanentemente con este título">¶</a></h2>
 <p>En una consola de comandos ejecutar:</p>
-<div class="highlight-default"><div class="highlight"><pre><span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">qgis</span> <span class="n">git</span> <span class="n">pip</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">qgis</span> <span class="n">git</span> <span class="n">python</span><span class="o">-</span><span class="n">pip</span>
 <span class="n">cd</span> <span class="o">~</span>
 <span class="n">mkdir</span> <span class="n">catastro</span>
 <span class="n">cd</span> <span class="n">catastro</span>
@@ -136,12 +136,13 @@
 <span class="n">sudo</span> <span class="n">make</span> <span class="n">install</span>
 </pre></div>
 </div>
-<p>Si se desea instalar el entorno de pruebas:</p>
-<div class="highlight-default"><div class="highlight"><pre><span class="n">sudo</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requisites</span><span class="o">-</span><span class="n">dev</span><span class="o">.</span><span class="n">txt</span>
+<p>Hasta aquí son los pasos básicos para poder ejecutar el programa.
+Opcionalmente, si deseas instalar el entorno de pruebas:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requisites</span><span class="o">-</span><span class="n">dev</span><span class="o">.</span><span class="n">txt</span>
 </pre></div>
 </div>
 <p>Y para ejecutar las pruebas del código:</p>
-<div class="highlight-default"><div class="highlight"><pre><span class="n">make</span> <span class="n">test</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">test</span>
 </pre></div>
 </div>
 <p>Se sugiere ejecutar el programa en la carpeta ~/catastro</p>
@@ -150,25 +151,26 @@
 <h2>Mac OS X<a class="headerlink" href="#mac-os-x" title="Enlazar permanentemente con este título">¶</a></h2>
 <p>Instalar QGIS desde la página de descarga de KyngChaos
 <a class="reference external" href="http://www.kyngchaos.com/software/qgis">http://www.kyngchaos.com/software/qgis</a></p>
-<p>Abrir una consola de comandos y ejecutar los comandos:</p>
-<div class="highlight-default"><div class="highlight"><pre><span class="n">cd</span> <span class="o">~</span>
-<span class="n">mkdir</span> <span class="n">catastro</span>
-<span class="n">cd</span> <span class="n">catastro</span>
-<span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">javiersanp</span><span class="o">/</span><span class="n">CatAtom2Osm</span><span class="o">.</span><span class="n">git</span>
-<span class="n">cd</span> <span class="n">CatAtom2Osm</span>
-<span class="n">sudo</span> <span class="n">easy_install</span> <span class="n">pip</span>
+<p>Instalar el programa de escritorio de GitHub desde
+<a class="reference external" href="http://desktop.github.com">http://desktop.github.com</a></p>
+<p>Ejecutarlo y descargar el repositorio
+<a class="reference external" href="https://github.com/javiersanp/CatAtom2Osm.git">https://github.com/javiersanp/CatAtom2Osm.git</a></p>
+<p>Abrir una consola de comandos y cambiar a la carpeta CatAtom2Osm descargada
+anteriormente. Ejecutar los comandos:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">easy_install</span> <span class="n">pip</span>
 <span class="n">sudo</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requisites</span><span class="o">.</span><span class="n">txt</span>
 <span class="n">sudo</span> <span class="n">make</span> <span class="n">install</span>
 </pre></div>
 </div>
-<p>Al intentar clonar el repositorio, el sistema solicitará instalar primero las
+<p>Durante la instalación de los requisitos pedirá la instalación de las
 herramientas para desarrolladores de la línea de comandos.</p>
-<p>Si se desea instalar el entorno de pruebas:</p>
-<div class="highlight-default"><div class="highlight"><pre><span class="n">sudo</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requisites</span><span class="o">-</span><span class="n">dev</span><span class="o">.</span><span class="n">txt</span>
+<p>Hasta aquí son los pasos básicos para poder ejecutar el programa.
+Opcionalmente, si deseas instalar el entorno de pruebas:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requisites</span><span class="o">-</span><span class="n">dev</span><span class="o">.</span><span class="n">txt</span>
 </pre></div>
 </div>
 <p>Y para ejecutar las pruebas del código:</p>
-<div class="highlight-default"><div class="highlight"><pre><span class="n">make</span> <span class="n">test</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">test</span>
 </pre></div>
 </div>
 </div>
@@ -199,20 +201,21 @@ Christoph Gohlke desde <a class="reference external" href="http://www.lfd.uci.ed
 <p>Ejecutarlo y descargar el repositorio <a class="reference external" href="https://github.com/javiersanp/CatAtom2Osm.git">https://github.com/javiersanp/CatAtom2Osm.git</a></p>
 <p>En la carpeta CatAtom2Osm descargada lanzar el archivo pyqgis.bat.
 En la consola resultante ejecutar:</p>
-<div class="highlight-default"><div class="highlight"><pre>python -m pip install -r requisites.txt
+<div class="highlight-default"><div class="highlight"><pre><span></span>python -m pip install -r requisites.txt
 python -m pip install ruta al archivo descargado/python_Levenshtein‑0.12.0‑cp27‑cp27m‑win_amd64.whl
 </pre></div>
 </div>
-<p>Si se desea instalar el entorno de pruebas:</p>
-<div class="highlight-default"><div class="highlight"><pre><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requisites</span><span class="o">-</span><span class="n">dev</span><span class="o">.</span><span class="n">txt</span>
+<p>Hasta aquí son los pasos básicos para poder ejecutar el programa.
+Opcionalmente, si deseas instalar el entorno de pruebas:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requisites</span><span class="o">-</span><span class="n">dev</span><span class="o">.</span><span class="n">txt</span>
 </pre></div>
 </div>
 <p>Y para ejecutar las pruebas del código:</p>
-<div class="highlight-default"><div class="highlight"><pre><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">unittest</span> <span class="n">discover</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">unittest</span> <span class="n">discover</span>
 </pre></div>
 </div>
 <p>Será necesario ejecutar pyqgis.bat cuando queramos usar el programa para abrir una consola de comandos con el entorno de Python QGIS adecuado. Se sugiere editar el archivo pyqgis.bat, descomentar la penúltima línea con la orden CD e introducir la ruta de la carpeta donde se van a descargar los archivos de Catastro. Por ejemplo:</p>
-<div class="highlight-default"><div class="highlight"><pre><span class="n">cd</span> <span class="n">c</span><span class="p">:</span>\<span class="n">Users</span>\<span class="n">Javier</span>\<span class="n">Documents</span>\<span class="n">catastro</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">c</span><span class="p">:</span>\<span class="n">Users</span>\<span class="n">Javier</span>\<span class="n">Documents</span>\<span class="n">catastro</span>
 </pre></div>
 </div>
 </div>

@@ -111,7 +111,7 @@
           <div class="document clearer body">
             
   <h1>Source code for hgwnames</h1><div class="highlight"><pre>
-<span class="c1"># -*- coding: utf-8 -*-</span>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Parsing of highway names</span>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -154,8 +154,8 @@
                 <span class="n">new_word</span> <span class="o">=</span> <span class="n">word</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">new_word</span> <span class="o">=</span> <span class="n">word</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
-        <span class="n">new_word</span> <span class="o">=</span> <span class="n">new_word</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">u&#39;·L&#39;</span><span class="p">,</span> <span class="s1">u&#39;·l&#39;</span><span class="p">)</span> <span class="c1"># Letra ele geminada</span>
-        <span class="n">new_word</span> <span class="o">=</span> <span class="n">new_word</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">u&#39;.L&#39;</span><span class="p">,</span> <span class="s1">u&#39;·l&#39;</span><span class="p">)</span> <span class="c1"># Letra ele geminada</span>
+        <span class="n">new_word</span> <span class="o">=</span> <span class="n">new_word</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;·L&#39;</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;·l&#39;</span><span class="p">)</span> <span class="c1"># Letra ele geminada</span>
+        <span class="n">new_word</span> <span class="o">=</span> <span class="n">new_word</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;.L&#39;</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;·l&#39;</span><span class="p">)</span> <span class="c1"># Letra ele geminada</span>
         <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_word</span><span class="p">)</span>
     <span class="k">return</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></div>
 

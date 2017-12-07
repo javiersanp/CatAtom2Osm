@@ -111,7 +111,7 @@
           <div class="document clearer body">
             
   <h1>Source code for test.test_download</h1><div class="highlight"><pre>
-<span class="kn">import</span> <span class="nn">unittest</span>
+<span></span><span class="kn">import</span> <span class="nn">unittest</span>
 <span class="kn">import</span> <span class="nn">mock</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">random</span>
@@ -193,7 +193,7 @@
         <span class="n">mock_gr</span><span class="o">.</span><span class="n">return_value</span><span class="o">.</span><span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Content-Length&#39;</span><span class="p">:</span> <span class="s1">&#39;99999&#39;</span><span class="p">}</span>
         <span class="n">file_mock</span> <span class="o">=</span> <span class="n">mock</span><span class="o">.</span><span class="n">MagicMock</span><span class="p">()</span>
         <span class="n">mock_open</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="n">mock</span><span class="o">.</span><span class="n">MagicMock</span><span class="p">()</span>
-        <span class="n">mock_open</span><span class="o">.</span><span class="n">return_value</span><span class="o">.</span><span class="n">__enter__</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="n">file_mock</span>
+        <span class="n">mock_open</span><span class="o">.</span><span class="n">return_value</span><span class="o">.</span><span class="fm">__enter__</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="n">file_mock</span>
         <span class="n">wget</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">file_mock</span><span class="o">.</span><span class="n">write</span><span class="o">.</span><span class="n">call_count</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">)</span>
         <span class="n">mock_pb</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">(</span><span class="mi">99999</span><span class="p">)</span></div>
@@ -207,7 +207,7 @@
         <span class="n">mock_gr</span><span class="o">.</span><span class="n">return_value</span><span class="o">.</span><span class="n">headers</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">file_mock</span> <span class="o">=</span> <span class="n">mock</span><span class="o">.</span><span class="n">MagicMock</span><span class="p">()</span>
         <span class="n">mock_open</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="n">mock</span><span class="o">.</span><span class="n">MagicMock</span><span class="p">()</span>
-        <span class="n">mock_open</span><span class="o">.</span><span class="n">return_value</span><span class="o">.</span><span class="n">__enter__</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="n">file_mock</span>
+        <span class="n">mock_open</span><span class="o">.</span><span class="n">return_value</span><span class="o">.</span><span class="fm">__enter__</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="n">file_mock</span>
         <span class="n">wget</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">file_mock</span><span class="o">.</span><span class="n">write</span><span class="o">.</span><span class="n">call_count</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">)</span>
         <span class="n">mock_pb</span><span class="o">.</span><span class="n">assert_called_with</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div></div>

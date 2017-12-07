@@ -112,7 +112,7 @@
           <div class="document clearer body">
             
   <h1>Código fuente para test.test_hgwnames</h1><div class="highlight"><pre>
-<span class="c1"># -*- coding: utf-8 -*-</span>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="kn">import</span> <span class="nn">unittest</span>
 <span class="kn">import</span> <span class="nn">mock</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -144,18 +144,18 @@
 <div class="viewcode-block" id="TestHgwnames.test_parse"><a class="viewcode-back" href="../../api/test.test_hgwnames.html#test.test_hgwnames.TestHgwnames.test_parse">[documentos]</a>    <span class="k">def</span> <span class="nf">test_parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">names</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;   CL  FOO BAR  TAZ  &quot;</span><span class="p">:</span> <span class="s2">&quot;Calle Foo Bar Taz&quot;</span><span class="p">,</span>
-            <span class="s2">u&quot;AV DE ESPAÑA&quot;</span><span class="p">:</span> <span class="s2">u&quot;Avenida de España&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;CJ GATA (DE LA)&quot;</span><span class="p">:</span> <span class="s2">u&quot;Calleja/Callejón Gata (de la)&quot;</span><span class="p">,</span>
+            <span class="sa">u</span><span class="s2">&quot;AV DE ESPAÑA&quot;</span><span class="p">:</span> <span class="sa">u</span><span class="s2">&quot;Avenida de España&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;CJ GATA (DE LA)&quot;</span><span class="p">:</span> <span class="sa">u</span><span class="s2">&quot;Calleja/Callejón Gata (de la)&quot;</span><span class="p">,</span>
             <span class="s2">&quot;CR CUMBRE,DE LA&quot;</span><span class="p">:</span> <span class="s2">&quot;Carretera/Carrera Cumbre, de la&quot;</span><span class="p">,</span>
             <span class="s2">&quot;CL HILARIO (ERAS LAS)&quot;</span><span class="p">:</span> <span class="s2">&quot;Calle Hilario (Eras las)&quot;</span><span class="p">,</span>
             <span class="s2">&quot;CL BASTIO D&#39;EN SANOGUERA&quot;</span><span class="p">:</span> <span class="s2">&quot;Calle Bastio d&#39;en Sanoguera&quot;</span><span class="p">,</span>
             <span class="s2">&quot;CL BANC DE L&#39;OLI&quot;</span><span class="p">:</span> <span class="s2">&quot;Calle Banc de l&#39;Oli&quot;</span><span class="p">,</span>
             <span class="s2">&quot;DS ARANJASSA,S&#39;&quot;</span><span class="p">:</span> <span class="s2">&quot;Diseminados Aranjassa, s&#39;&quot;</span><span class="p">,</span>
-            <span class="s2">u&quot;CL AIGUA DOLÇA (L&#39;)&quot;</span><span class="p">:</span> <span class="s2">u&quot;Calle Aigua Dolça (l&#39;)&quot;</span><span class="p">,</span>
-            <span class="s2">u&quot;CL RUL·LAN&quot;</span><span class="p">:</span> <span class="s2">u&quot;Calle Rul·lan&quot;</span><span class="p">,</span>
+            <span class="sa">u</span><span class="s2">&quot;CL AIGUA DOLÇA (L&#39;)&quot;</span><span class="p">:</span> <span class="sa">u</span><span class="s2">&quot;Calle Aigua Dolça (l&#39;)&quot;</span><span class="p">,</span>
+            <span class="sa">u</span><span class="s2">&quot;CL RUL·LAN&quot;</span><span class="p">:</span> <span class="sa">u</span><span class="s2">&quot;Calle Rul·lan&quot;</span><span class="p">,</span>
             <span class="s2">&quot;CL FONTE&#39;L PILO&quot;</span><span class="p">:</span> <span class="s2">&quot;Calle Fonte&#39;l Pilo&quot;</span><span class="p">,</span>
             <span class="s2">&quot;CL TRENET D&#39;ALCOI&quot;</span><span class="p">:</span> <span class="s2">&quot;Calle Trenet d&#39;Alcoi&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;CL SANT MARCEL.LI&quot;</span><span class="p">:</span> <span class="s2">u&quot;Calle Sant Marcel·li&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;CL SANT MARCEL.LI&quot;</span><span class="p">:</span> <span class="sa">u</span><span class="s2">&quot;Calle Sant Marcel·li&quot;</span><span class="p">,</span>
             <span class="s2">&quot;CL O&#39;DONNELL&quot;</span><span class="p">:</span> <span class="s2">&quot;Calle O&#39;Donnell&quot;</span><span class="p">,</span>
             <span class="s2">&quot;XX FooBar&quot;</span><span class="p">:</span> <span class="s2">&quot;XX Foobar&quot;</span>
         <span class="p">}</span>
