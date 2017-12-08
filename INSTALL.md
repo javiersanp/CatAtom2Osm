@@ -16,7 +16,7 @@ In a command line shell write::
     sudo make install
 
 In Debian Jessie when you run "catatom2osm" you will get this error:
->2017-12-08 15:08:12,559 - ERROR - Se requiere QGIS versión 2.10.1 o superior
+>2017-12-08 15:08:12,559 - ERROR - Required QGIS version 2.10.1 or greater
 
 An updated version of QGIS is required, you should run::
 
