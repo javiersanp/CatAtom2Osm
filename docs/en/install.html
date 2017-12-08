@@ -125,7 +125,7 @@
 <div class="section" id="linux">
 <h2>Linux<a class="headerlink" href="#linux" title="Permalink to this headline">¶</a></h2>
 <p>In a command line shell write:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">qgis</span> <span class="n">git</span> <span class="n">python</span><span class="o">-</span><span class="n">pip</span>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">qgis</span> <span class="n">git</span> <span class="n">python</span><span class="o">-</span><span class="n">pip</span>
 <span class="n">cd</span> <span class="o">~</span>
 <span class="n">mkdir</span> <span class="n">cadastre</span>
 <span class="n">cd</span> <span class="n">cadastre</span>
@@ -135,6 +135,16 @@
 <span class="n">sudo</span> <span class="n">make</span> <span class="n">install</span>
 </pre></div>
 </div>
+<p>In Debian Jessie when you run &#8220;catatom2osm&#8221; you will get this error:
+&gt;2017-12-08 15:08:12,559 - ERROR - Se requiere QGIS versión 2.10.1 o superior</p>
+<p>An updated version of QGIS is required, you should run:</p>
+<p><code class="docutils literal"><span class="pre">`shell</span>
+<span class="pre">su</span>
+<span class="pre">echo</span> <span class="pre">'deb</span>&#160;&#160;&#160;&#160; <span class="pre">http://qgis.org/debian</span> <span class="pre">jessie</span> <span class="pre">main'</span> <span class="pre">&gt;</span> <span class="pre">/etc/apt/sources.list.d/qgis.list</span>
+<span class="pre">echo</span> <span class="pre">'deb-src</span> <span class="pre">http://qgis.org/debian</span> <span class="pre">jessie</span> <span class="pre">main'</span> <span class="pre">&gt;&gt;</span> <span class="pre">/etc/apt/sources.list.d/qgis.list</span>
+<span class="pre">apt</span> <span class="pre">update</span>
+<span class="pre">apt</span> <span class="pre">install</span> <span class="pre">qgis</span>
+<span class="pre">`</span></code></p>
 <p>So far this is the basic installation to run the program.
 Optionally, if you want to install the development requeriments:</p>
 <blockquote>
@@ -154,7 +164,7 @@ Optionally, if you want to install the development requeriments:</p>
 <a class="reference external" href="https://github.com/javiersanp/CatAtom2Osm.git">https://github.com/javiersanp/CatAtom2Osm.git</a></p>
 <p>Open a command line shell and change the directory to the previously
 downloaded CatAtom2Osm folder. Run this commands:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">easy_install</span> <span class="n">pip</span>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">sudo</span> <span class="n">easy_install</span> <span class="n">pip</span>
 <span class="n">sudo</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requisites</span><span class="o">.</span><span class="n">txt</span>
 <span class="n">sudo</span> <span class="n">make</span> <span class="n">install</span>
 </pre></div>
@@ -163,11 +173,11 @@ downloaded CatAtom2Osm folder. Run this commands:</p>
 line developper tools.</p>
 <p>So far this is the basic installation to run the program.
 Optionally, if you want to install the development requeriments:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requisites</span><span class="o">-</span><span class="n">dev</span><span class="o">.</span><span class="n">txt</span>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">sudo</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requisites</span><span class="o">-</span><span class="n">dev</span><span class="o">.</span><span class="n">txt</span>
 </pre></div>
 </div>
 <p>And to run the code tests:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">test</span>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">make</span> <span class="n">test</span>
 </pre></div>
 </div>
 </div>
@@ -198,24 +208,24 @@ Christoph Gohlke from <a class="reference external" href="http://www.lfd.uci.edu
 <p>Run it and download the repository <a class="reference external" href="https://github.com/javiersanp/CatAtom2Osm.git">https://github.com/javiersanp/CatAtom2Osm.git</a></p>
 <p>In the previously downloaded CatAtom2Osm folder launch the file pyqgis.bat.
 Write this in the resulting shell:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>python -m pip install -r requisites.txt
+<div class="highlight-default"><div class="highlight"><pre>python -m pip install -r requisites.txt
 python -m pip install path to downloaded/python_Levenshtein‑0.12.0‑cp27‑cp27m‑win_amd64.whl
 </pre></div>
 </div>
 <p>So far this is the basic installation to run the program.
 Optionally, if you want to install the development requeriments:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requisites</span><span class="o">-</span><span class="n">dev</span><span class="o">.</span><span class="n">txt</span>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requisites</span><span class="o">-</span><span class="n">dev</span><span class="o">.</span><span class="n">txt</span>
 </pre></div>
 </div>
 <p>And to run the code tests:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">unittest</span> <span class="n">discover</span>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">unittest</span> <span class="n">discover</span>
 </pre></div>
 </div>
 <p>To use the program it will be necessary to run pyqgis.bat to open a convenient
 Python QGIS shell. It&#8217;s suggested to edit pyqgis.bat, uncomment the penultimate
 line with the CD command and enter the path of the folder where you want to
 download the Cadastre files. For example:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">c</span><span class="p">:</span>\<span class="n">Users</span>\<span class="n">YourName</span>\<span class="n">Documents</span>\<span class="n">cadastre</span>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">cd</span> <span class="n">c</span><span class="p">:</span>\<span class="n">Users</span>\<span class="n">YourName</span>\<span class="n">Documents</span>\<span class="n">cadastre</span>
 </pre></div>
 </div>
 </div>
