@@ -21,6 +21,12 @@ Requisitos
 * requests
 * GDAL
 
+Fuzzywuzzy es necesario para la combinación de nombres de calles.
+Los requisitos principales (pyqgis, GDAL) debe proporcionarlos QGIS usando los 
+instaladores disponibles en http://qgis.org/
+
+Se necestitan QGIS >= 2.10.1, GDAL >= 2.
+
 Instalación
 -----------
 

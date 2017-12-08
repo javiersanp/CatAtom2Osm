@@ -19,6 +19,12 @@ Requeriments
 * requests
 * GDAL
 
+Fuzzywuzzy is needed for street names conflation. 
+The main requisites (pyqgis, GDAL) should be provided by QGIS using the 
+installers available on http://qgis.org/
+
+QGIS >= 2.10.1, GDAL >= 2 are required.
+
 Install
 -------
 
