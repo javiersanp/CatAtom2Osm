@@ -1,6 +1,7 @@
 requests
 psutil
 fuzzywuzzy[speedup]
+future
 
 # sudo pip install -r requisites.txt
 #
