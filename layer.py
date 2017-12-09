@@ -949,7 +949,6 @@ class ZoningLayer(PolygonLayer):
             if layer.pendingFields().indexFromName('levelName') > 0:
                 zone = feature['levelName'][3]
             else:
-                print feature['LocalisedCharacterString']
                 zone = feature['LocalisedCharacterString'][0]
             if level == None or level == zone:
                 feat = self.copy_feature(feature)
