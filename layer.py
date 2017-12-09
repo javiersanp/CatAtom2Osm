@@ -946,7 +946,12 @@ class ZoningLayer(PolygonLayer):
         multi = 0
         final = 0
         for feature in layer.getFeatures():
-            if level == None or level == feature['levelName'][3]:
+            if layer.pendingFields().indexFromName('levelName') > 0:
+                zone = feature['levelName'][3]
+            else:
+                zone = feature['LocalisedCharacterString'][0]
+            print zone
+            if level == None or level == zone:
                 feat = self.copy_feature(feature)
                 geom = feature.geometry()
                 if geom.wkbType() == QGis.WKBMultiPolygon:
