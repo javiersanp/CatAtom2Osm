@@ -139,13 +139,13 @@
 <p>En Debian Jessie al ejecutar &#8220;catatom2osm&#8221; se muestra el siguiente error:
 &gt;2017-12-08 15:08:12,559 - ERROR - Se requiere QGIS versión 2.10.1 o superior</p>
 <p>Es necesario instalar una versión de QGIS más reciente, para ello se debe ejecutar:</p>
-<p><code class="docutils literal"><span class="pre">`shell</span>
-<span class="pre">su</span>
-<span class="pre">echo</span> <span class="pre">'deb</span>&#160;&#160;&#160;&#160; <span class="pre">http://qgis.org/debian</span> <span class="pre">jessie</span> <span class="pre">main'</span> <span class="pre">&gt;</span> <span class="pre">/etc/apt/sources.list.d/qgis.list</span>
-<span class="pre">echo</span> <span class="pre">'deb-src</span> <span class="pre">http://qgis.org/debian</span> <span class="pre">jessie</span> <span class="pre">main'</span> <span class="pre">&gt;&gt;</span> <span class="pre">/etc/apt/sources.list.d/qgis.list</span>
-<span class="pre">apt</span> <span class="pre">update</span>
-<span class="pre">apt</span> <span class="pre">install</span> <span class="pre">qgis</span>
-<span class="pre">`</span></code></p>
+<div class="highlight-default"><div class="highlight"><pre><span class="n">su</span>
+<span class="n">echo</span> <span class="s1">&#39;deb     http://qgis.org/debian jessie main&#39;</span> <span class="o">&gt;</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">apt</span><span class="o">/</span><span class="n">sources</span><span class="o">.</span><span class="n">list</span><span class="o">.</span><span class="n">d</span><span class="o">/</span><span class="n">qgis</span><span class="o">.</span><span class="n">list</span>
+<span class="n">echo</span> <span class="s1">&#39;deb-src http://qgis.org/debian jessie main&#39;</span> <span class="o">&gt;&gt;</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">apt</span><span class="o">/</span><span class="n">sources</span><span class="o">.</span><span class="n">list</span><span class="o">.</span><span class="n">d</span><span class="o">/</span><span class="n">qgis</span><span class="o">.</span><span class="n">list</span>
+<span class="n">apt</span> <span class="n">update</span>
+<span class="n">apt</span> <span class="n">install</span> <span class="n">qgis</span>
+</pre></div>
+</div>
 <p>Hasta aquí son los pasos básicos para poder ejecutar el programa.
 Opcionalmente, si deseas instalar el entorno de pruebas:</p>
 <div class="highlight-default"><div class="highlight"><pre><span class="n">sudo</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requisites</span><span class="o">-</span><span class="n">dev</span><span class="o">.</span><span class="n">txt</span>
