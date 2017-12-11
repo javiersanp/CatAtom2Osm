@@ -6,7 +6,7 @@ Linux
 
 En una consola de comandos ejecutar::
 
-    sudo apt install qgis git python-pip
+    sudo apt install qgis git python-pip python-dev
     cd ~
     mkdir catastro
     cd catastro

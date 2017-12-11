@@ -6,7 +6,7 @@ Linux
 
 In a command line shell write:: 
 
-    sudo apt install qgis git python-pip
+    sudo apt install qgis git python-pip python-dev
     cd ~
     mkdir cadastre
     cd cadastre
