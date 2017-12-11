@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-12-11 13:45+WET\n"
+"POT-Creation-Date: 2017-12-11 14:04+WET\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -41,7 +41,7 @@ msgstr "Buscando la url para la capa '%s' de '%s'..."
 msgid "Zip code '%s' don't exists"
 msgstr "El Código Postal '%s' no existe"
 
-#: catatom.py:80 catatom2osm.py:318
+#: catatom.py:80 catatom2osm.py:322
 msgid "Downloading '%s'"
 msgstr "Descargando '%s'"
 
@@ -90,67 +90,71 @@ msgstr "Usando GDAL %s"
 msgid "Required QGIS version %s or greater"
 msgstr "Se requiere QGIS versión %s o superior"
 
-#: catatom2osm.py:82
+#: catatom2osm.py:80
+msgid "Required GDAL version %s or greater"
+msgstr "Se requiere GDAL versión %s o superior"
+
+#: catatom2osm.py:86
 msgid "Start processing '%s'"
 msgstr "Comienza el procesado de '%s'"
 
-#: catatom2osm.py:228
+#: catatom2osm.py:232
 msgid "Generated %d rustic and %d urban tasks files"
 msgstr "Generados %d ficheros de tareas de rústica y %d de urbana"
 
-#: catatom2osm.py:242 catatom2osm.py:300
+#: catatom2osm.py:246 catatom2osm.py:304
 msgid "Generated '%s'"
 msgstr "Generado '%s'"
 
-#: catatom2osm.py:267
+#: catatom2osm.py:271
 msgid "Check %d fixme tags"
 msgstr "Revisa %d etiquetas fixme"
 
-#: catatom2osm.py:274
+#: catatom2osm.py:278
 msgid "The translation file '%s' have been writen in '%s'"
 msgstr "El fichero de conversiones '%s' ha sido generado en '%s'"
 
-#: catatom2osm.py:276
+#: catatom2osm.py:280
 msgid "Please, check it and run again"
 msgstr "Por favor, compruébelo y ejecute de nuevo"
 
-#: catatom2osm.py:278
+#: catatom2osm.py:282
 msgid "Finished!"
 msgstr "¡Terminado!"
 
-#: catatom2osm.py:279
+#: catatom2osm.py:283
 msgid "Only for testing purposses. Don't upload any result to OSM"
 msgstr "Sólo para fines de prueba. No cargue ningún resultado en OSM"
 
-#: catatom2osm.py:302
+#: catatom2osm.py:306
 msgid "Failed to write layer: '%s'"
 msgstr "Error al escribir la capa: '%s'"
 
-#: catatom2osm.py:327
+#: catatom2osm.py:331
 msgid "No OSM data were obtained from '%s'"
 msgstr "No se obtuvieron datos OSM de '%s'"
 
-#: catatom2osm.py:331
+#: catatom2osm.py:335
 msgid "Read '%s': %d nodes, %d ways, %d relations"
 msgstr "Leído '%s': %d nodos, %d vías, %d relaciones"
 
-#: catatom2osm.py:351
+#: catatom2osm.py:355
 msgid "Generated '%s': %d nodes, %d ways, %d relations"
 msgstr "Generado '%s': %d nodos, %d vías, %d relaciones"
 
-#: catatom2osm.py:395
+#: catatom2osm.py:399
 msgid "Could not resolve joined tables for the '%s' layer"
 msgstr "No se pudieron resolver las tablas combinadas para la capa '%s'"
 
-#: catatom2osm.py:415
+#: catatom2osm.py:419
 msgid "Deleted %d addresses refused by street name"
 msgstr "Eliminadas %d direcciones rechazadas por nombre de vial"
 
-#: catatom2osm.py:468
+#: catatom2osm.py:472
 msgid "Refused %d 'parcel' addresses not unique for it building"
 msgstr "Rechazadas %d direcciones tipo parcela no únicas para su edificio"
 
-#: catatom2osm.py:540
+#: catatom2osm.py:544
 msgid "There are %d address without house number in the OSM data"
 msgstr "Existen %d direcciones sin número de portal en OSM"
 

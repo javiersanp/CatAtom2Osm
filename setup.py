@@ -13,6 +13,8 @@ app_tags = ''
 
 MIN_QGIS_VERSION_INT = 21001
 MIN_QGIS_VERSION = '2.10.1'
+MIN_GDAL_VERSION_INT = 11103
+MIN_GDAL_VERSION = '1.11.3'
 
 def winenv():
     global eol, encoding

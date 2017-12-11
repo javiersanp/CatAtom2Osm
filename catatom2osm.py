@@ -75,6 +75,10 @@ class CatAtom2Osm:
         if qgis.utils.QGis.QGIS_VERSION_INT < setup.MIN_QGIS_VERSION_INT:
             msg = _("Required QGIS version %s or greater") % setup.MIN_QGIS_VERSION
             raise ValueError(msg)
+        gdal_version_int = int('{:02d}{:02d}{:02d}'.format(*map(int, gdal.__version__.split('.'))))
+        if gdal_version_int < setup.MIN_GDAL_VERSION_INT:
+            msg = _("Required GDAL version %s or greater") % setup.MIN_GDAL_VERSION
+            raise ValueError(msg)
         self.is_new = False
 
     def run(self):
