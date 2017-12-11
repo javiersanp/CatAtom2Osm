@@ -59,6 +59,8 @@ downloaded CatAtom2Osm folder. Run this commands::
 While you install the requisites you will be prompted to install the command
 line developper tools.
 
+If necessary, edit the pyqgismac.sh file and change the locale value to the one aproppiate for your country.
+
 So far this is the basic installation to run the program. 
 Optionally, if you want to install the development requeriments::
 

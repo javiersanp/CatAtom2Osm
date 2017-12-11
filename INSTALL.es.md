@@ -26,6 +26,8 @@ Es necesario instalar una versión de QGIS más reciente, para ello se debe ejec
     apt update
     apt install qgis
 
+Si es necesario, edite el archivo pyqgismac.sh y cambie el valor de configuración regional por el adecuado para su país.
+
 Hasta aquí son los pasos básicos para poder ejecutar el programa.
 Opcionalmente, si deseas instalar el entorno de pruebas::
 
