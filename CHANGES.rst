@@ -1,6 +1,11 @@
 Change log
 ==========
 
+**2017-12-11 (1.0.0)**
+
+** Passed tests in macOS Sierra 10.2, Debian 8.1.0 and Debian 9.3.0.
+** Fixed errors (issues #53, #56).
+
 **2017-11-25**
 
 * Detect swimming pools over buildings (issue #51).

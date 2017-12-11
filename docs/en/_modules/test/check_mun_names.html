@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" href="../../_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>test.check_mun_names &#8212; CatAtom2Osm 2017-12-02 documentation</title>
+    <title>test.check_mun_names &#8212; CatAtom2Osm 1.0.0 documentation</title>
     
     <link rel="stylesheet" href="../../_static/guzzle.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -23,7 +23,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '2017-12-02',
+        VERSION:     '1.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -49,7 +49,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">CatAtom2Osm 2017-12-02 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CatAtom2Osm 1.0.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
       </ul>
     </div>
@@ -111,7 +111,7 @@
           <div class="document clearer body">
             
   <h1>Source code for test.check_mun_names</h1><div class="highlight"><pre>
-<span class="c1"># -*- coding: utf-8 -*-</span>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="sd">&quot;&quot;&quot;Check municipality name resolution. Put fails in setup.mun_fails&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">codecs</span>
 <span class="kn">import</span> <span class="nn">json</span>
@@ -135,7 +135,7 @@
     <span class="s1">&#39;gco&#39;</span><span class="p">:</span> <span class="s1">&#39;http://www.isotc211.org/2005/gco&#39;</span><span class="p">,</span> 
     <span class="s1">&#39;gmd&#39;</span><span class="p">:</span> <span class="s1">&#39;http://www.isotc211.org/2005/gmd&#39;</span>
 <span class="p">}</span>
-<span class="n">trans</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">([</span><span class="nb">ord</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="s2">u&quot;ÁÉÍÓÚÑÀÈÌÒÙÄËÏÖÜ-/&#39;·.,Ç&quot;</span><span class="p">],</span> <span class="s1">u&#39;AEIOUNAEIOUAEIOU       &#39;</span><span class="p">))</span>
+<span class="n">trans</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">([</span><span class="nb">ord</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="sa">u</span><span class="s2">&quot;ÁÉÍÓÚÑÀÈÌÒÙÄËÏÖÜ-/&#39;·.,Ç&quot;</span><span class="p">],</span> <span class="sa">u</span><span class="s1">&#39;AEIOUNAEIOUAEIOU       &#39;</span><span class="p">))</span>
 
 <div class="viewcode-block" id="run"><a class="viewcode-back" href="../../api/test.check_mun_names.html#test.check_mun_names.run">[docs]</a><span class="k">def</span> <span class="nf">run</span><span class="p">():</span>
     <span class="k">for</span> <span class="n">prov_code</span> <span class="ow">in</span> <span class="n">setup</span><span class="o">.</span><span class="n">valid_provinces</span><span class="p">:</span>
@@ -146,10 +146,10 @@
             <span class="n">title</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;atom:title&#39;</span><span class="p">,</span> <span class="n">ns</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
             <span class="n">zip_code</span> <span class="o">=</span> <span class="n">title</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">6</span><span class="p">]</span>
             <span class="n">mun</span> <span class="o">=</span> <span class="n">title</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;buildings&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()[</span><span class="mi">6</span><span class="p">:]</span>
-            <span class="n">url</span> <span class="o">=</span> <span class="s2">u&quot;{0}{1}/{2}-{3}/A.ES.SDGC.BU.{2}.zip&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">baseurl</span><span class="p">,</span> <span class="n">prov_code</span><span class="p">,</span> <span class="n">zip_code</span><span class="p">,</span> <span class="n">mun</span><span class="p">)</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="sa">u</span><span class="s2">&quot;</span><span class="si">{0}{1}</span><span class="s2">/</span><span class="si">{2}</span><span class="s2">-</span><span class="si">{3}</span><span class="s2">/A.ES.SDGC.BU.</span><span class="si">{2}</span><span class="s2">.zip&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">baseurl</span><span class="p">,</span> <span class="n">prov_code</span><span class="p">,</span> <span class="n">zip_code</span><span class="p">,</span> <span class="n">mun</span><span class="p">)</span>
             <span class="n">download</span><span class="o">.</span><span class="n">wget</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="s1">&#39;temp&#39;</span><span class="p">)</span>
             <span class="n">zf</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="s1">&#39;temp&#39;</span><span class="p">)</span>
-            <span class="n">root</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">zf</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;A.ES.SDGC.BU.MD.{}.xml&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">zip_code</span><span class="p">)))</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+            <span class="n">root</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">zf</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;A.ES.SDGC.BU.MD.</span><span class="si">{}</span><span class="s1">.xml&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">zip_code</span><span class="p">)))</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
             <span class="n">gml_bbox</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;.//gmd:EX_GeographicBoundingBox&#39;</span><span class="p">,</span> <span class="n">ns</span><span class="p">)</span>
             <span class="n">gml_bbox_l</span> <span class="o">=</span> <span class="n">gml_bbox</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;gmd:westBoundLongitude/gco:Decimal&#39;</span><span class="p">,</span> <span class="n">ns</span><span class="p">)</span>
             <span class="n">gml_bbox_r</span> <span class="o">=</span> <span class="n">gml_bbox</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;gmd:eastBoundLongitude/gco:Decimal&#39;</span><span class="p">,</span> <span class="n">ns</span><span class="p">)</span>
@@ -166,13 +166,13 @@
             <span class="n">match</span> <span class="o">=</span>  <span class="n">matching</span><span class="p">[</span><span class="s1">&#39;tags&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">matching</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
             <span class="n">ok</span> <span class="o">=</span> <span class="n">mun</span> <span class="o">==</span> <span class="n">match</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">trans</span><span class="p">)</span>
             <span class="n">color</span> <span class="o">=</span> <span class="p">{</span><span class="kc">False</span><span class="p">:</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0;31m&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">:</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span><span class="p">}[</span><span class="n">ok</span><span class="p">]</span>
-            <span class="nb">print</span> <span class="s1">u&#39;{}{}</span><span class="se">\t</span><span class="s1">{}</span><span class="se">\t</span><span class="s1">{}</span><span class="se">\t</span><span class="s1">{}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="n">zip_code</span><span class="p">,</span> <span class="n">mun</span><span class="p">,</span> <span class="n">match</span><span class="p">,</span> <span class="n">ok</span><span class="p">)</span>
-            <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">u&#39;{}</span><span class="se">\t</span><span class="s1">{}</span><span class="se">\t</span><span class="s1">{}</span><span class="se">\t</span><span class="s1">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">zip_code</span><span class="p">,</span> <span class="n">mun</span><span class="p">,</span> <span class="n">match</span><span class="p">,</span> <span class="n">ok</span><span class="p">))</span>
+            <span class="nb">print</span> <span class="sa">u</span><span class="s1">&#39;</span><span class="si">{}{}</span><span class="se">\t</span><span class="si">{}</span><span class="se">\t</span><span class="si">{}</span><span class="se">\t</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="n">zip_code</span><span class="p">,</span> <span class="n">mun</span><span class="p">,</span> <span class="n">match</span><span class="p">,</span> <span class="n">ok</span><span class="p">)</span>
+            <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;</span><span class="si">{}</span><span class="se">\t</span><span class="si">{}</span><span class="se">\t</span><span class="si">{}</span><span class="se">\t</span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">zip_code</span><span class="p">,</span> <span class="n">mun</span><span class="p">,</span> <span class="n">match</span><span class="p">,</span> <span class="n">ok</span><span class="p">))</span>
     <span class="nb">print</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span>
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s1">&#39;temp&#39;</span><span class="p">):</span>
         <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;temp&#39;</span><span class="p">)</span></div>
 
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="n">run</span><span class="p">()</span>
 </pre></div>
 
@@ -190,7 +190,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">CatAtom2Osm 2017-12-02 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CatAtom2Osm 1.0.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
       </ul>
     </div>

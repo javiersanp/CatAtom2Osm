@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" href="_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>Instalación &#8212; documentación de CatAtom2Osm - 2017-12-02</title>
+    <title>Instalación &#8212; documentación de CatAtom2Osm - 1.0.0</title>
     
     <link rel="stylesheet" href="_static/guzzle.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -23,7 +23,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2017-12-02',
+        VERSION:     '1.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -58,7 +58,7 @@
         <li class="right" >
           <a href="readme.html" title="Léeme"
              accesskey="P">anterior</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">documentación de CatAtom2Osm - 2017-12-02</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">documentación de CatAtom2Osm - 1.0.0</a> &#187;</li> 
       </ul>
     </div>
     <div class="container-wrapper">
@@ -126,7 +126,7 @@
 <div class="section" id="linux">
 <h2>Linux<a class="headerlink" href="#linux" title="Enlazar permanentemente con este título">¶</a></h2>
 <p>En una consola de comandos ejecutar:</p>
-<div class="highlight-default"><div class="highlight"><pre><span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">qgis</span> <span class="n">git</span> <span class="n">python</span><span class="o">-</span><span class="n">pip</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">qgis</span> <span class="n">git</span> <span class="n">python</span><span class="o">-</span><span class="n">pip</span> <span class="n">python</span><span class="o">-</span><span class="n">dev</span>
 <span class="n">cd</span> <span class="o">~</span>
 <span class="n">mkdir</span> <span class="n">catastro</span>
 <span class="n">cd</span> <span class="n">catastro</span>
@@ -139,20 +139,21 @@
 <p>En Debian Jessie al ejecutar &#8220;catatom2osm&#8221; se muestra el siguiente error:
 &gt;2017-12-08 15:08:12,559 - ERROR - Se requiere QGIS versión 2.10.1 o superior</p>
 <p>Es necesario instalar una versión de QGIS más reciente, para ello se debe ejecutar:</p>
-<div class="highlight-default"><div class="highlight"><pre><span class="n">su</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">su</span>
 <span class="n">echo</span> <span class="s1">&#39;deb     http://qgis.org/debian jessie main&#39;</span> <span class="o">&gt;</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">apt</span><span class="o">/</span><span class="n">sources</span><span class="o">.</span><span class="n">list</span><span class="o">.</span><span class="n">d</span><span class="o">/</span><span class="n">qgis</span><span class="o">.</span><span class="n">list</span>
 <span class="n">echo</span> <span class="s1">&#39;deb-src http://qgis.org/debian jessie main&#39;</span> <span class="o">&gt;&gt;</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">apt</span><span class="o">/</span><span class="n">sources</span><span class="o">.</span><span class="n">list</span><span class="o">.</span><span class="n">d</span><span class="o">/</span><span class="n">qgis</span><span class="o">.</span><span class="n">list</span>
 <span class="n">apt</span> <span class="n">update</span>
 <span class="n">apt</span> <span class="n">install</span> <span class="n">qgis</span>
 </pre></div>
 </div>
+<p>Si es necesario, edite el archivo pyqgismac.sh y cambie el valor de configuración regional por el adecuado para su país.</p>
 <p>Hasta aquí son los pasos básicos para poder ejecutar el programa.
 Opcionalmente, si deseas instalar el entorno de pruebas:</p>
-<div class="highlight-default"><div class="highlight"><pre><span class="n">sudo</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requisites</span><span class="o">-</span><span class="n">dev</span><span class="o">.</span><span class="n">txt</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requisites</span><span class="o">-</span><span class="n">dev</span><span class="o">.</span><span class="n">txt</span>
 </pre></div>
 </div>
 <p>Y para ejecutar las pruebas del código:</p>
-<div class="highlight-default"><div class="highlight"><pre><span class="n">make</span> <span class="n">test</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">test</span>
 </pre></div>
 </div>
 <p>Se sugiere ejecutar el programa en la carpeta ~/catastro</p>
@@ -167,7 +168,7 @@ Opcionalmente, si deseas instalar el entorno de pruebas:</p>
 <a class="reference external" href="https://github.com/javiersanp/CatAtom2Osm.git">https://github.com/javiersanp/CatAtom2Osm.git</a></p>
 <p>Abrir una consola de comandos y cambiar a la carpeta CatAtom2Osm descargada
 anteriormente. Ejecutar los comandos:</p>
-<div class="highlight-default"><div class="highlight"><pre><span class="n">sudo</span> <span class="n">easy_install</span> <span class="n">pip</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">easy_install</span> <span class="n">pip</span>
 <span class="n">sudo</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requisites</span><span class="o">.</span><span class="n">txt</span>
 <span class="n">sudo</span> <span class="n">make</span> <span class="n">install</span>
 </pre></div>
@@ -176,11 +177,11 @@ anteriormente. Ejecutar los comandos:</p>
 herramientas para desarrolladores de la línea de comandos.</p>
 <p>Hasta aquí son los pasos básicos para poder ejecutar el programa.
 Opcionalmente, si deseas instalar el entorno de pruebas:</p>
-<div class="highlight-default"><div class="highlight"><pre><span class="n">sudo</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requisites</span><span class="o">-</span><span class="n">dev</span><span class="o">.</span><span class="n">txt</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requisites</span><span class="o">-</span><span class="n">dev</span><span class="o">.</span><span class="n">txt</span>
 </pre></div>
 </div>
 <p>Y para ejecutar las pruebas del código:</p>
-<div class="highlight-default"><div class="highlight"><pre><span class="n">make</span> <span class="n">test</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">test</span>
 </pre></div>
 </div>
 </div>
@@ -211,21 +212,21 @@ Christoph Gohlke desde <a class="reference external" href="http://www.lfd.uci.ed
 <p>Ejecutarlo y descargar el repositorio <a class="reference external" href="https://github.com/javiersanp/CatAtom2Osm.git">https://github.com/javiersanp/CatAtom2Osm.git</a></p>
 <p>En la carpeta CatAtom2Osm descargada lanzar el archivo pyqgis.bat.
 En la consola resultante ejecutar:</p>
-<div class="highlight-default"><div class="highlight"><pre>python -m pip install -r requisites.txt
+<div class="highlight-default"><div class="highlight"><pre><span></span>python -m pip install -r requisites.txt
 python -m pip install ruta al archivo descargado/python_Levenshtein‑0.12.0‑cp27‑cp27m‑win_amd64.whl
 </pre></div>
 </div>
 <p>Hasta aquí son los pasos básicos para poder ejecutar el programa.
 Opcionalmente, si deseas instalar el entorno de pruebas:</p>
-<div class="highlight-default"><div class="highlight"><pre><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requisites</span><span class="o">-</span><span class="n">dev</span><span class="o">.</span><span class="n">txt</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requisites</span><span class="o">-</span><span class="n">dev</span><span class="o">.</span><span class="n">txt</span>
 </pre></div>
 </div>
 <p>Y para ejecutar las pruebas del código:</p>
-<div class="highlight-default"><div class="highlight"><pre><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">unittest</span> <span class="n">discover</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">unittest</span> <span class="n">discover</span>
 </pre></div>
 </div>
 <p>Será necesario ejecutar pyqgis.bat cuando queramos usar el programa para abrir una consola de comandos con el entorno de Python QGIS adecuado. Se sugiere editar el archivo pyqgis.bat, descomentar la penúltima línea con la orden CD e introducir la ruta de la carpeta donde se van a descargar los archivos de Catastro. Por ejemplo:</p>
-<div class="highlight-default"><div class="highlight"><pre><span class="n">cd</span> <span class="n">c</span><span class="p">:</span>\<span class="n">Users</span>\<span class="n">Javier</span>\<span class="n">Documents</span>\<span class="n">catastro</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">c</span><span class="p">:</span>\<span class="n">Users</span>\<span class="n">Javier</span>\<span class="n">Documents</span>\<span class="n">catastro</span>
 </pre></div>
 </div>
 </div>
@@ -264,7 +265,7 @@ Opcionalmente, si deseas instalar el entorno de pruebas:</p>
         <li class="right" >
           <a href="readme.html" title="Léeme"
              >anterior</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">documentación de CatAtom2Osm - 2017-12-02</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">documentación de CatAtom2Osm - 1.0.0</a> &#187;</li> 
       </ul>
     </div>
 <script type="text/javascript">

@@ -1,6 +1,11 @@
 Registro de cambios
 ===================
 
+**11-12-2017 (1.0.0)**
+
+** Pasados tests en macOS Sierra 10.2, Debian 8.1.0 y Debian 9.3.0.
+** Corregidos errores (cuestiones #53, #56).
+
 **25-11-2017**
 
 * Detecta piscinas encima de edificios (cuestión #51).
