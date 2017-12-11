@@ -89,7 +89,7 @@ endif
 	@echo "python "'"'"$(shell pwd)/main.py"'"'" $$"'*' >> catatom2osm
 	@chmod +x catatom2osm
 	@ln -sf $(shell pwd)/catatom2osm $(INSTALL_DIR)/catatom2osm
-	@echo "Created a symbolic link to the program in $(INSTALL_DIR)"
+	@echo "Created symbolic link $(INSTALL_DIR)-->$(shell pwd)/catatom2osm"
 
 .PHONY: uninstall
 uninstall:
