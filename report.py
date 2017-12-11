@@ -42,6 +42,7 @@ class Report(object):
             ('app_version', _('Application version')),
             ('platform', _('Platform')),
             ('qgs_version', _('QGIS version')),
+            ('gdal_version', _('GDAL version')),
             ('cpu_count', _('CPU count')),
             ('cpu_freq', _('CPU frequency')),
             ('ex_time', _('Execution time')),
