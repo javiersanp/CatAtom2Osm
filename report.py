@@ -206,7 +206,7 @@ class Report(object):
             self.platform = ' '.join(v)
             self.app_version = setup.app_name + ' ' + setup.app_version
             self.cpu_count = psutil.cpu_count(logical=False)
-            self.cpu_freq = psutil.cpu_freq().max if psutil.cpu_freq() else 0
+            self.cpu_freq = getattr(getattr(psutil, 'cpu_freq', 0), 'max', 0)
             self.memory = psutil.virtual_memory().total / MEMORY_UNIT
             self.rss = p.memory_info().rss / MEMORY_UNIT
             self.vms = p.memory_info().vms / MEMORY_UNIT
