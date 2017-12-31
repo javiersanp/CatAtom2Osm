@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2017-12-11 14:04+WET\n"
+"POT-Creation-Date: 2017-12-31 12:43+WET\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -711,6 +711,10 @@ msgstr "Correcciones (fixmes)"
 #: report.py:120
 msgid "Warnings:"
 msgstr "Avisos:"
+
+#: report.py:128
+msgid "seconds"
+msgstr "segundos"
 
 #: report.py:221
 msgid "Sum of address types should be equal to the input addresses"

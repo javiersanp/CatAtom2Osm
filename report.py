@@ -125,7 +125,7 @@ class Report(object):
             'mun_wikipedia': lambda v: 'https://www.wikipedia.org/wiki/' + v,
             'mun_wikidata': lambda v: 'https://www.wikidata.org/wiki/' + v,
             'cpu_freq': lambda v: locale.format_string('%.1f Mhz', v, True),
-            'ex_time': lambda v: locale.format_string('%.1f seconds', v, True),
+            'ex_time': lambda v: locale.format_string('%.1f '+_('seconds'), v, True),
             'memory': lambda v: locale.format_string('%.2f GB', v, True),
             'rss': lambda v: locale.format_string('%.2f GB', v, True),
             'vms': lambda v: locale.format_string('%.2f GB', v, True),
@@ -207,7 +207,7 @@ class Report(object):
             self.platform = ' '.join(v)
             self.app_version = setup.app_name + ' ' + setup.app_version
             self.cpu_count = psutil.cpu_count(logical=False)
-            self.cpu_freq = getattr(getattr(psutil, 'cpu_freq', 0), 'max', 0)
+            self.cpu_freq = getattr(getattr(psutil, 'cpu_freq', lambda: 0)(), 'max', 0)
             self.memory = psutil.virtual_memory().total / MEMORY_UNIT
             self.rss = p.memory_info().rss / MEMORY_UNIT
             self.vms = p.memory_info().vms / MEMORY_UNIT
