@@ -23,7 +23,8 @@ log.addHandler(fh)
 
 
 def __(msg):
-    return msg.encode(setup.encoding).decode(sys.stdout.encoding)
+    return msg if not sys.stdout.encoding else \
+        msg.encode(setup.encoding).decode(sys.stdout.encoding)
 
 usage = __(_("""catatom2osm [OPTION]... [PATH]
 The argument path states the directory for input and output files. 
