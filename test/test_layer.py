@@ -487,14 +487,16 @@ class TestZoningLayer(unittest.TestCase):
         self.assertEquals(len(groups), 0)
         
     def test_set_tasks(self):
-        self.layer1.set_tasks()
+        self.layer1.set_tasks('12345')
         labels = {int(f['label'][1:]) for f in self.layer1.getFeatures()}
         self.assertEquals(max(labels), len(labels))
         self.assertEquals(min(labels), 1)
-        self.layer2.set_tasks()        
+        self.assertEquals(self.layer1.getFeatures().next()['zipcode'], '12345')
+        self.layer2.set_tasks('12345')        
         labels = {int(f['label'][1:]) for f in self.layer2.getFeatures()}
         self.assertEquals(max(labels), len(labels))
         self.assertEquals(min(labels), 1)
+        self.assertEquals(self.layer2.getFeatures().next()['zipcode'], '12345')
         
     def test_set_cons_tasks(self):
         test = Counter({u'86416': 198, u'84428': 89, u'88423': 86, u'86417': 70,

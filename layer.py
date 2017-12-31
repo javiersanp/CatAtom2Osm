@@ -919,8 +919,8 @@ class ZoningLayer(PolygonLayer):
             self.writer.addAttributes([
                 QgsField('localId', QVariant.String, len=254),
                 QgsField('label', QVariant.String, len=254),
-                QgsField('level', QVariant.String, len=254),
                 QgsField('levelName', QVariant.String, len=254),
+                QgsField('zipcode', QVariant.String, len=5),
             ])
             self.updateFields()
         self.rename = {'localId': 'inspireId_localId'}
@@ -928,12 +928,13 @@ class ZoningLayer(PolygonLayer):
         self.task_number = 0
         self.task_pattern = pattern
 
-    def set_tasks(self):
+    def set_tasks(self, zip_code):
         """Assings a unique task label to each zone by overriding splited 
         multiparts and merged adjacent zones"""
         to_change = {}
         for i, zone in enumerate(self.getFeatures()):
-            zone['label'] = self.task_pattern.format(i + 1)        
+            zone['label'] = self.task_pattern.format(i + 1)
+            zone['zipcode'] = zip_code
             attr = get_attributes(zone)
             to_change[zone.id()] = attr
         self.writer.changeAttributeValues(to_change)

@@ -88,7 +88,7 @@ class CatAtom2Osm:
         if self.options.zoning:
             self.process_zoning()
             if not self.options.tasks:
-                self.delelete_shp(self.rustic_zoning)
+                self.delete_shp('rustic_zoning.shp')
         self.address_osm = osm.Osm()
         self.building_osm = osm.Osm()
         if self.options.address:
@@ -385,8 +385,8 @@ class CatAtom2Osm:
             self.urban_zoning.append(zoning_gml, level='M')
             self.urban_zoning.topology()
             self.urban_zoning.merge_adjacents()
-            self.rustic_zoning.set_tasks()
-            self.urban_zoning.set_tasks()
+            self.rustic_zoning.set_tasks(self.cat.zip_code)
+            self.urban_zoning.set_tasks(self.cat.zip_code)
         del zoning_gml
 
     def read_address(self):
