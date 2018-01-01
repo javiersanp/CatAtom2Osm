@@ -427,6 +427,47 @@ class TestPolygonLayer(unittest.TestCase):
                     duplicates[point].add(dup)
         del vertices
         return duplicates
+    
+    def test_difference(self):
+        layer1 = PolygonLayer('Polygon', 'test1', 'memory')
+        layer2 = PolygonLayer('Polygon', 'test2', 'memory')
+        g1 = QgsGeometry().fromPolygon([[QgsPoint(10,10),
+            QgsPoint(20,10), QgsPoint(20,20), QgsPoint(10,20), QgsPoint(10,10)
+        ]])
+        g2 = QgsGeometry().fromPolygon([[QgsPoint(30,10),
+            QgsPoint(40,10), QgsPoint(40,20), QgsPoint(30,20), QgsPoint(30,10)
+        ]])
+        h1 = QgsGeometry().fromPolygon([[QgsPoint(14,14),
+            QgsPoint(16,14), QgsPoint(16,16), QgsPoint(14,16), QgsPoint(14,14)
+        ]])
+        h2 = QgsGeometry().fromPolygon([[QgsPoint(20,10),
+            QgsPoint(30,10), QgsPoint(30,20), QgsPoint(20,20), QgsPoint(20,10)
+        ]])
+        h3 = QgsGeometry().fromPolygon([[QgsPoint(38,10),
+            QgsPoint(42,10), QgsPoint(42,20), QgsPoint(38,20), QgsPoint(38,10)
+        ]])
+        h4 = QgsGeometry().fromPolygon([[QgsPoint(30,30),
+            QgsPoint(40,30), QgsPoint(40,40), QgsPoint(40,30), QgsPoint(30,30)
+        ]])
+        layer1.writer.addFeatures([QgsFeature() for i in range(2)])
+        layer1.writer.changeGeometryValues({1: g1, 2: g2})
+        layer2.writer.addFeatures([QgsFeature() for i in range(4)])
+        layer2.writer.changeGeometryValues({1: h1, 2: h2, 3: h3, 4: h4})
+        layer1.difference(layer2)
+        self.assertEquals(layer1.featureCount(), 2)
+        request = QgsFeatureRequest().setFilterFid(1)
+        f1 = layer1.getFeatures(request).next()
+        request = QgsFeatureRequest().setFilterFid(2)
+        f2 = layer1.getFeatures(request).next()
+        self.assertEquals(f1.geometry().asPolygon(), [[QgsPoint(10,10), 
+            QgsPoint(10,20), QgsPoint(20,20), QgsPoint(20,10), QgsPoint(10,10)],
+            [QgsPoint(14,14), QgsPoint(16,14), QgsPoint(16,16), QgsPoint(14,16),
+            QgsPoint(14,14)]]
+        )
+        self.assertEquals(f2.geometry().asPolygon(), [[QgsPoint(30,20), 
+            QgsPoint(38,20), QgsPoint(38,10), QgsPoint(30,10), QgsPoint(30,20)]]
+        )
+
 
 class TestParcelLayer(unittest.TestCase):
 

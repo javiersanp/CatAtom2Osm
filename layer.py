@@ -885,6 +885,22 @@ class PolygonLayer(BaseLayer):
             log.debug(_("%d adjacent polygons merged into %d polygons in the '%s' "
                 "layer"), count_adj, count_com, self.name())
 
+    def difference(self, layer):
+        """Calculate the difference of each geometry with those in layer"""
+        geometries = {f.id(): QgsGeometry(f.geometry()) for f in layer.getFeatures()}
+        index = layer.get_index()
+        to_change = {}
+        for feat in self.getFeatures():
+            g1 = feat.geometry()
+            fids = index.intersects(g1.boundingBox())
+            for fid in fids:
+                g2 = geometries[fid]
+                if g2.intersects(g1):
+                    g1 = g1.difference(g2)
+                    to_change[feat.id()] = g1
+        if to_change:
+            self.writer.changeGeometryValues(to_change)
+
     def clean(self):
         """Delete invalid geometries and close vertices, add topological points
         and simplify vertices."""
