@@ -128,11 +128,14 @@ class CatAtom2Osm:
         if self.options.zoning:
             self.export_layer(self.urban_zoning, 'urban_zoning.geojson', 'GeoJSON')
             self.export_layer(self.rustic_zoning, 'rustic_zoning.geojson', 'GeoJSON')
-        del self.rustic_zoning
-        self.delete_shp('rustic_zoning.shp')
         if hasattr(self, 'urban_zoning'):
+            self.rustic_zoning.difference(self.urban_zoning)
+            self.rustic_zoning.append(self.urban_zoning)
+            self.export_layer(self.rustic_zoning, 'zoning.geojson', 'GeoJSON')
             del self.urban_zoning
             self.delete_shp('urban_zoning.shp')
+        del self.rustic_zoning
+        self.delete_shp('rustic_zoning.shp')
         if self.options.building:
             self.building_osm = self.building.to_osm()
             del self.building
