@@ -176,43 +176,36 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.building.clean.assert_called_once_with()
         self.m_app.building.validate.assert_called_once_with(m_report.max_level, m_report.min_level)
 
-    def test_process_zoning(self):
-        self.m_app.process_zoning = cat.CatAtom2Osm.process_zoning.__func__
-        self.m_app.process_zoning(self.m_app)
-        self.m_app.export_layer.assert_has_calls([
-            mock.call(self.m_app.urban_zoning, 'urban_zoning.geojson', 'GeoJSON'),
-            mock.call(self.m_app.rustic_zoning, 'rustic_zoning.geojson', 'GeoJSON')
-        ])
-
     @mock.patch('catatom2osm.os')
     @mock.patch('catatom2osm.layer')
     @mock.patch('catatom2osm.report')
     def test_process_tasks(self, m_report, m_layer, m_os):
         m_os.path.join = lambda *args: '/'.join(args)
-        m_os.path.exists.return_value = True
+        m_os.path.exists.side_effect = [True, True, False, True, True]
         task = mock.MagicMock()
         task.featureCount.return_value = 999
-        m_layer.ConsLayer.return_value = task
+        m_layer.ConsLayer.side_effect = [task, task, task, task, task]
         building = mock.MagicMock()
         building.source_date = 1234
-        self.m_app.urban_zoning.getFeatures.return_value = [{'label':'u00001'},
-            {'label':'u00002'}
-        ]
-        self.m_app.rustic_zoning.getFeatures.return_value = [{'label':'r001'},
-            {'label':'r002'}
+        zones = []
+        for i in range(5):
+            zones.append(mock.MagicMock())
+            zones[i].id.return_value = i
+            zones[i].__getitem__.return_value = 'x00{}'.format(i)
+        self.m_app.urban_zoning.getFeatures.return_value = [zones[0], zones[1]]
+        self.m_app.rustic_zoning.getFeatures.return_value = [
+            zones[2], zones[3], zones[4]
         ]
         self.m_app.process_tasks = cat.CatAtom2Osm.process_tasks.__func__
         self.m_app.process_tasks(self.m_app, building)
         m_layer.ConsLayer.assert_has_calls([
-            mock.call('foo/tasks/r001.shp', 'r001', 'ogr', source_date=1234),
-            mock.call().featureCount(), mock.call().to_osm(upload='yes'),
-            mock.call('foo/tasks/r002.shp', 'r002', 'ogr', source_date=1234),
-            mock.call().featureCount(), mock.call().to_osm(upload='yes'),
-            mock.call('foo/tasks/u00001.shp', 'u00001', 'ogr', source_date=1234),
-            mock.call().featureCount(), mock.call().to_osm(upload='yes'),
-            mock.call('foo/tasks/u00002.shp', 'u00002', 'ogr', source_date=1234),
-            mock.call().featureCount(), mock.call().to_osm(upload='yes'),
+            mock.call('foo/tasks/x002.shp', 'x002', 'ogr', source_date=1234),
+            mock.call('foo/tasks/x003.shp', 'x003', 'ogr', source_date=1234),
+            mock.call('foo/tasks/x000.shp', 'x000', 'ogr', source_date=1234),
+            mock.call('foo/tasks/x001.shp', 'x001', 'ogr', source_date=1234),
         ])
+        self.assertEquals(self.m_app.merge_address.call_count, 4)
+        self.m_app.rustic_zoning.writer.deleteFeatures.assert_called_once_with([4])
 
     @mock.patch('catatom2osm.os')
     @mock.patch('catatom2osm.layer')

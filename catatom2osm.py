@@ -125,6 +125,9 @@ class CatAtom2Osm:
             self.delete_shp('address.shp')
         if self.options.tasks:
             self.process_tasks(self.building)
+        if self.options.zoning:
+            self.export_layer(self.urban_zoning, 'urban_zoning.geojson', 'GeoJSON')
+            self.export_layer(self.rustic_zoning, 'rustic_zoning.geojson', 'GeoJSON')
         del self.rustic_zoning
         self.delete_shp('rustic_zoning.shp')
         if hasattr(self, 'urban_zoning'):
@@ -184,6 +187,7 @@ class CatAtom2Osm:
     def process_tasks(self, source):
         self.get_tasks(source)
         for zoning in (self.rustic_zoning, self.urban_zoning):
+            to_clean = []
             for zone in zoning.getFeatures():
                 label = zone['label']
                 fn = os.path.join(self.path, 'tasks', label + '.shp')
@@ -199,6 +203,10 @@ class CatAtom2Osm:
                         fn = os.path.join('tasks', label + '.osm')
                         self.write_osm(task_osm, fn)
                         report.osm_stats(task_osm)
+                else:
+                    to_clean.append(zone.id())
+            if to_clean:
+                zoning.writer.deleteFeatures(to_clean)
 
     def get_tasks(self, source):
         base_path = os.path.join(self.path, 'tasks')
@@ -239,8 +247,6 @@ class CatAtom2Osm:
         self.rustic_zoning.clean()
         self.urban_zoning.reproject()
         self.rustic_zoning.reproject()
-        self.export_layer(self.urban_zoning, 'urban_zoning.geojson', 'GeoJSON')
-        self.export_layer(self.rustic_zoning, 'rustic_zoning.geojson', 'GeoJSON')
         out_path = os.path.join(self.path, 'boundary.poly')
         self.rustic_zoning.export_poly(out_path)
         log.info(_("Generated '%s'"), out_path)
