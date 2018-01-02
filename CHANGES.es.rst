@@ -1,10 +1,19 @@
 Registro de cambios
 ===================
 
+**01-01-2018 (1.0.2)**
+
+* Mejoras en el fichero para definir proyectos en el gestor de tareas (cuestiones #58, #59 y #60).
+* Corrige errores (cuestiones #57 y #61).
+
+**30-12-2017 (1.0.1)**
+
+* Corrige error menor en script de Macos.
+
 **11-12-2017 (1.0.0)**
 
-** Pasados tests en macOS Sierra 10.2, Debian 8.1.0 y Debian 9.3.0.
-** Corregidos errores (cuestiones #53, #56).
+* Pasados tests en macOS Sierra 10.2, Debian 8.1.0 y Debian 9.3.0.
+* Corregidos errores (cuestiones #53, #56).
 
 **25-11-2017**
 

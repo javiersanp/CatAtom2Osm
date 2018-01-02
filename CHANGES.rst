@@ -1,10 +1,19 @@
 Change log
 ==========
 
+**2018-01-01 (1.0.2)**
+
+* Enhacements in the project definition file for the tasking manager (issues #58, #59 and #60).
+* Fix some bugs (issues #57 y #61).
+
+**2017-12-30 (1.0.1)**
+
+* Fix minor error in Macos script.
+
 **2017-12-11 (1.0.0)**
 
-** Passed tests in macOS Sierra 10.2, Debian 8.1.0 and Debian 9.3.0.
-** Fixed errors (issues #53, #56).
+* Passed tests in macOS Sierra 10.2, Debian 8.1.0 and Debian 9.3.0.
+* Fixed errors (issues #53, #56).
 
 **2017-11-25**
 
