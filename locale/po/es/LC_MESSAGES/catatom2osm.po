@@ -211,7 +211,7 @@ msgid "Loaded %d nodes, %d ways, %d relations from '%s' layer"
 msgstr "Cargados %d nodos, %d vías, %d relaciones de la capa '%s'"
 
 #: layer.py:548 layer.py:992
-msgid "%d multi-polygons splited into %d polygons in the '%s' layer"
+msgid "%d multi-polygons splitted into %d polygons in the '%s' layer"
 msgstr "%d multipolígonos divididos a %d poligonos en la capa '%s'"
 
 #: layer.py:677
@@ -609,7 +609,7 @@ msgid "Buildings with multipart geometries"
 msgstr "Edificios con geometrías multiparte"
 
 #: report.py:88
-msgid "Buildings resulting from spliting multiparts"
+msgid "Buildings resulting from splitting multiparts"
 msgstr "Edificios resultantes de dividir multipartes"
 
 #: report.py:89
