@@ -85,7 +85,7 @@ class Report(object):
             ('underground_parts', _("Parts with no floors above ground")),
             ('new_footprints', _("Building footprints created")),
             ('multipart_geoms_building', _("Buildings with multipart geometries")),
-            ('exploded_parts_building', _("Buildings resulting from spliting multiparts")),
+            ('exploded_parts_building', _("Buildings resulting from splitting multiparts")),
             ('parts_to_footprint', _("Parts merged to the footprint")),
             ('adjacent_parts', _("Adjacent parts merged")),
             ('buildings_in_pools', _("Buildings coincidents with a swimming pool deleted")),

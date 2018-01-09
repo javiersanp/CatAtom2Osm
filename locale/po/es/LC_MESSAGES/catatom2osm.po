@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2018-01-01 13:10+WET\n"
+"POT-Creation-Date: 2018-01-02 09:36+WET\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -100,7 +100,7 @@ msgstr "Comienza el procesado de '%s'"
 
 #: catatom2osm.py:243
 msgid "Generated %d rustic and %d urban tasks files"
-msgstr "Generados %d ficheros de tareas de rústica y %d de urbana"
+msgstr "Generados %d archivos de tareas de rústica y %d de urbana"
 
 #: catatom2osm.py:255 catatom2osm.py:313
 msgid "Generated '%s'"
@@ -112,7 +112,7 @@ msgstr "Revisa %d etiquetas fixme"
 
 #: catatom2osm.py:287
 msgid "The translation file '%s' have been writen in '%s'"
-msgstr "El fichero de conversiones '%s' ha sido generado en '%s'"
+msgstr "El archivo de conversiones '%s' ha sido generado en '%s'"
 
 #: catatom2osm.py:289
 msgid "Please, check it and run again"
@@ -188,7 +188,7 @@ msgstr "Progreso: %.1fK"
 
 #: layer.py:165
 msgid "Error when creating shapefile: '%s'"
-msgstr "Error al crear el fichero shapefile: '%s'"
+msgstr "Error al crear el archivo shapefile: '%s'"
 
 #: layer.py:268 layer.py:989 layer.py:1186
 msgid "Loaded %d features in '%s' from '%s'"
@@ -211,7 +211,7 @@ msgid "Loaded %d nodes, %d ways, %d relations from '%s' layer"
 msgstr "Cargados %d nodos, %d vías, %d relaciones de la capa '%s'"
 
 #: layer.py:548 layer.py:992
-msgid "%d multi-polygons splited into %d polygons in the '%s' layer"
+msgid "%d multi-polygons splitted into %d polygons in the '%s' layer"
 msgstr "%d multipolígonos divididos a %d poligonos en la capa '%s'"
 
 #: layer.py:677
@@ -339,7 +339,7 @@ msgid ""
 "Cadastre."
 msgstr ""
 "catatom2osm [OPCIÓN]... [PATH]\n"
-"El argumento ruta indica el directorio para los ficheros de entrada y "
+"El argumento ruta indica el directorio para los archivos de entrada y "
 "salida. \n"
 "El nombre del directorio debe comenzar con 5 dígitos (GGMMM) "
 "correspondientes \n"
@@ -609,7 +609,7 @@ msgid "Buildings with multipart geometries"
 msgstr "Edificios con geometrías multiparte"
 
 #: report.py:88
-msgid "Buildings resulting from spliting multiparts"
+msgid "Buildings resulting from splitting multiparts"
 msgstr "Edificios resultantes de dividir multipartes"
 
 #: report.py:89
@@ -690,11 +690,11 @@ msgstr "Plantas bajo rasante (nivel: nº de edificios)"
 
 #: report.py:114
 msgid "Rustic tasks files"
-msgstr "Ficheros de tareas de rústica"
+msgstr "Archivos de tareas de rústica"
 
 #: report.py:115
 msgid "Urban tasks files"
-msgstr "Ficheros de tareas de urbana"
+msgstr "Archivos de tareas de urbana"
 
 #: report.py:116
 msgid "Problems"

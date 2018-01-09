@@ -545,7 +545,7 @@ class PolygonLayer(BaseLayer):
         if to_clean:
             self.writer.deleteFeatures(to_clean)
             self.writer.addFeatures(to_add)
-            log.debug(_("%d multi-polygons splited into %d polygons in "
+            log.debug(_("%d multi-polygons splitted into %d polygons in "
                 "the '%s' layer"), len(to_clean), len(to_add),
                 self.name())
             report.values['multipart_geoms_' + self.name()] = len(to_clean)
@@ -945,7 +945,7 @@ class ZoningLayer(PolygonLayer):
         self.task_pattern = pattern
 
     def set_tasks(self, zip_code):
-        """Assings a unique task label to each zone by overriding splited 
+        """Assings a unique task label to each zone by overriding splitted 
         multiparts and merged adjacent zones"""
         to_change = {}
         for i, zone in enumerate(self.getFeatures()):
@@ -989,7 +989,7 @@ class ZoningLayer(PolygonLayer):
             log.debug (_("Loaded %d features in '%s' from '%s'"), total,
                 self.name(), layer.name())
         if multi:
-            log.debug(_("%d multi-polygons splited into %d polygons in "
+            log.debug(_("%d multi-polygons splitted into %d polygons in "
                 "the '%s' layer"), multi, final, self.name())
 
     def export_poly(self, filename):

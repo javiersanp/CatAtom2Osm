@@ -1,5 +1,12 @@
-@call "C:\OSGeo4W\bin\o4w_env.bat" >NUL
 @echo off
+set OSGEO4W_ROOT="C:\OSGeo4W"
+IF EXISTS C:\OsGeo4W64 (
+    set OSGEO4W_ROOT="C:\OSGeo4W64"
+)
+IF EXISTS C:\OsGeo4W32 (
+    set OSGEO4W_ROOT="C:\OSGeo4W32"
+)
+call "%OSGEO4W_ROOT%\bin\o4w_env.bat" >NUL
 path %~dp0;%OSGEO4W_ROOT%\apps\qgis\bin;%PATH%
 set QGIS_PREFIX_PATH=%OSGEO4W_ROOT:\=/%/apps/qgis
 set GDAL_FILENAME_IS_UTF8=YES
