@@ -4,6 +4,7 @@ Tool to convert INSPIRE data sets from the Spanish Cadastre ATOM Services to OSM
 """
 import os
 import codecs
+import gzip
 import logging
 import shutil
 from collections import defaultdict, Counter, OrderedDict
@@ -204,7 +205,7 @@ class CatAtom2Osm:
                         report.address_stats(task_osm)
                         report.cons_stats(task_osm)
                         fn = os.path.join('tasks', label + '.osm')
-                        self.write_osm(task_osm, fn)
+                        self.write_osm(task_osm, fn, compress=True)
                         report.osm_stats(task_osm)
                 else:
                     to_clean.append(zone.id())
@@ -346,14 +347,17 @@ class CatAtom2Osm:
                 len(data.relations))
         return data
 
-    def write_osm(self, data, filename):
+    def write_osm(self, data, filename, **kwargs):
         """
         Generates a OSM XML file for a OSM data set.
 
         Args:
             data (Osm): OSM data set
             filename (str): output filename
+            compress (bool): whether the file is to be compressed
+                Defaults to not compressing the file
         """
+        compress = kwargs.pop('compress', False)
         for e in data.elements:
             if 'ref' in e.tags:
                 del e.tags['ref']
@@ -361,9 +365,37 @@ class CatAtom2Osm:
         data.merge_duplicated()
         with codecs.open(osm_path, "w", "utf-8") as file_obj:
             osmxml.serialize(file_obj, data)
+        if compress:
+            compressed_path = self.gzip_file(osm_path)
+            if compressed_path is not None:
+                head, filename = os.path.split(compressed_path)
         log.info(_("Generated '%s': %d nodes, %d ways, %d relations"),
             filename, len(data.nodes), len(data.ways), 
             len(data.relations))
+
+    def gzip_file(self, file_path, **kwargs):
+        """
+        Compresses a single file
+
+        Args:
+            file_path: the path to the file being compressed
+            out_path (os.path): optional path to the compressed file. 
+                Defaults to same path plus .gz extension
+            del_original (bool): whether the source file is to be deleted
+                Defaults to deleting the file
+
+        Returns:
+            the path to the compressed file. None of source unavailable
+        """
+        out_path = kwargs.pop('out_path', file_path + ".gz")
+        del_original = kwargs.pop('del_original', True)
+        if not os.path.exists(file_path):
+            return None
+        with open(file_path, 'rb') as infile, gzip.open(out_path, 'wb') as outfile:
+            shutil.copyfileobj(infile, outfile)
+        if del_original:
+            os.remove(file_path)
+        return out_path
 
     def get_zoning(self):
         """
