@@ -361,41 +361,19 @@ class CatAtom2Osm:
         for e in data.elements:
             if 'ref' in e.tags:
                 del e.tags['ref']
-        osm_path = os.path.join(self.path, filename)
         data.merge_duplicated()
-        with codecs.open(osm_path, "w", "utf-8") as file_obj:
-            osmxml.serialize(file_obj, data)
         if compress:
-            compressed_path = self.gzip_file(osm_path)
-            if compressed_path is not None:
-                head, filename = os.path.split(compressed_path)
+            filename += '.gz'
+            osm_path = os.path.join(self.path, filename)
+            file_obj = codecs.EncodedFile(gzip.open(osm_path, "w"), "utf-8")
+        else:
+            osm_path = os.path.join(self.path, filename)
+            file_obj = codecs.open(osm_path, "w", "utf-8")
+        osmxml.serialize(file_obj, data)
+        file_obj.close()
         log.info(_("Generated '%s': %d nodes, %d ways, %d relations"),
             filename, len(data.nodes), len(data.ways), 
             len(data.relations))
-
-    def gzip_file(self, file_path, **kwargs):
-        """
-        Compresses a single file
-
-        Args:
-            file_path: the path to the file being compressed
-            out_path (os.path): optional path to the compressed file. 
-                Defaults to same path plus .gz extension
-            del_original (bool): whether the source file is to be deleted
-                Defaults to deleting the file
-
-        Returns:
-            the path to the compressed file. None of source unavailable
-        """
-        out_path = kwargs.pop('out_path', file_path + ".gz")
-        del_original = kwargs.pop('del_original', True)
-        if not os.path.exists(file_path):
-            return None
-        with open(file_path, 'rb') as infile, gzip.open(out_path, 'wb') as outfile:
-            shutil.copyfileobj(infile, outfile)
-        if del_original:
-            os.remove(file_path)
-        return out_path
 
     def get_zoning(self):
         """
