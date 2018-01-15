@@ -367,7 +367,8 @@ class CatAtom2Osm:
             osmxml.serialize(file_obj, data)
         if compress:
             compressed_path = self.gzip_file(osm_path)
-            head, filename = os.path.split(compressed_path)
+            if compressed_path is not None:
+                head, filename = os.path.split(compressed_path)
         log.info(_("Generated '%s': %d nodes, %d ways, %d relations"),
             filename, len(data.nodes), len(data.ways), 
             len(data.relations))
@@ -384,10 +385,12 @@ class CatAtom2Osm:
                 Defaults to deleting the file
 
         Returns:
-            the path to the compressed file
+            the path to the compressed file. None of source unavailable
         """
         out_path = kwargs.pop('out_path', file_path + ".gz")
         del_original = kwargs.pop('del_original', True)
+        if not os.path.exists(file_path):
+            return None
         with open(file_path, 'rb') as infile, gzip.open(out_path, 'wb') as outfile:
             shutil.copyfileobj(infile, outfile)
         if del_original:
