@@ -319,7 +319,8 @@ class TestCatAtom2Osm(unittest.TestCase):
     @mock.patch('catatom2osm.os')
     @mock.patch('catatom2osm.osmxml')
     @mock.patch('catatom2osm.codecs')
-    def test_write_osm(self, m_codecs, m_xml, m_os):
+    @mock.patch('catatom2osm.gzip')
+    def test_write_osm(self, m_gz, m_codecs, m_xml, m_os):
         m_os.path.join = lambda *args: '/'.join(args)
         m_xml.serialize.return_value = 'taz'
         data = osm.Osm()
@@ -330,8 +331,13 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.write_osm(self.m_app, data, 'bar')
         self.assertNotIn('ref', [k for el in data.elements for k in el.tags.keys()])
         m_codecs.open.assert_called_once_with('foo/bar', 'w', 'utf-8')
-        file_obj = m_codecs.open.return_value.__enter__.return_value
+        file_obj = m_codecs.open.return_value
         m_xml.serialize.assert_called_once_with(file_obj, data)
+        m_xml.reset_mock()
+        self.m_app.write_osm(self.m_app, data, 'bar', compress=True)
+        m_gz.open.assert_called_once_with('foo/bar.gz', 'w')
+        f_gz = m_gz.open.return_value
+        m_codecs.EncodedFile.assert_called_once_with(f_gz, 'utf-8')
 
     @mock.patch('catatom2osm.layer')
     @mock.patch('catatom2osm.report')
