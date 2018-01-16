@@ -1,6 +1,11 @@
 Change log
 ==========
 
+**2018-01-16 (1.0.5)**
+
+* Compress the task files (issue #69).
+* Fix error (issue #62).
+
 **2018-01-01 (1.0.2)**
 
 * Enhacements in the project definition file for the tasking manager (issues #58, #59 and #60).

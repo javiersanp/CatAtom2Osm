@@ -1,6 +1,11 @@
 Registro de cambios
 ===================
 
+**16-01-2018 (1.0.5)**
+
+* Comprime los archivos de tareas (cuestión #69).
+* Corrige error (cuestión #62).
+
 **01-01-2018 (1.0.2)**
 
 * Mejoras en el fichero para definir proyectos en el gestor de tareas (cuestiones #58, #59 y #60).
