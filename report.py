@@ -130,6 +130,7 @@ class Report(object):
             'rss': lambda v: locale.format_string('%.2f GB', v, True),
             'vms': lambda v: locale.format_string('%.2f GB', v, True),
         }
+        self.tasks_with_fixmes = set()
 
     def __setattr__(self, key, value):
         if key in ['values', 'titles', 'groups']:
@@ -153,7 +154,7 @@ class Report(object):
                 if not 'entrance' in el.tags:
                     self.inc('out_address_building')
 
-    def cons_stats(self, data):
+    def cons_stats(self, data, task_label=None):
         for el in data.elements:
             if 'leisure' in el.tags and el.tags['leisure'] == 'swimming_pool':
                 self.inc('out_pools')
@@ -167,6 +168,11 @@ class Report(object):
                 self.inc('out_features')
             if 'fixme' in el.tags:
                 self.fixme_counter[el.tags['fixme']] += 1
+                if task_label is not None:
+                    self.tasks_with_fixmes.add(task_label)
+
+    def get_tasks_with_fixmes(self):
+        return sorted(self.tasks_with_fixmes)
 
     def osm_stats(self, data):
         self.inc('nodes', len(data.nodes))

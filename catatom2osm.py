@@ -203,7 +203,7 @@ class CatAtom2Osm:
                         self.delete_shp(fn, False)
                         self.merge_address(task_osm, self.address_osm)
                         report.address_stats(task_osm)
-                        report.cons_stats(task_osm)
+                        report.cons_stats(task_osm, label)
                         fn = os.path.join('tasks', label + '.osm')
                         self.write_osm(task_osm, fn, compress=True)
                         report.osm_stats(task_osm)
@@ -279,6 +279,10 @@ class CatAtom2Osm:
     def end_messages(self):
         if report.fixme_stats():
             log.warning(_("Check %d fixme tags"), report.fixme_count)
+            filename = 'review.txt'
+            with open(os.path.join(self.path, filename), "w") as fo:
+                fo.write(setup.eol.join(map(str, report.get_tasks_with_fixmes())))
+                log.info(_("Generated '%s'"), filename)
         if self.options.tasks or self.options.building:
             report.cons_end_stats()
         if self.options.tasks or self.options.building or self.options.address:
