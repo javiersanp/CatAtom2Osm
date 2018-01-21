@@ -183,6 +183,9 @@ highway_types = { # Dictionary for default 'highway_types.csv'
     'SC': u'Sector',
 }
 
+# List of highway types not to be parsed
+excluded_types = ['DS', 'ER']
+
 # List of highway types to translate as place addresses
 place_types = [
 	'Agregado', 'Aldea', u'Área', 'Barrio', 'Barranco', u'Cañada', 'Colegio', 
