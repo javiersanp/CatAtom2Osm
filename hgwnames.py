@@ -76,12 +76,10 @@ def dsmatch(name, dataset, fn):
     Returns:
         First element with the maximun fuzzy ratio.
     """
-    if not name:
-        return ""
     max_ratio = 0
     matching = None
     for e in dataset:
-        if fuzz:
+        if fuzz and name:
             ratio = fuzz.token_sort_ratio(normalize(name), normalize(fn(e)))
             if ratio > max_ratio:
                 max_ratio = ratio
