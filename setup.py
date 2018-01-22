@@ -94,7 +94,7 @@ lowcase_words = [ # Words to exclude from the general Title Case rule for highwa
     "D'EN", "D'EL", "D'ES", "DE'N", "DE'L", "DE'S"
 ]
 
-highway_types = { # Dictionary for default 'highway_types.csv'
+highway_types_es = { 
     'AG': u'Agregado',
     'AL': u'Aldea/Alameda',
     'AR': u'Área/Arrabal',
@@ -183,11 +183,96 @@ highway_types = { # Dictionary for default 'highway_types.csv'
     'SC': u'Sector',
 }
 
-# List of highway types not to be parsed
-excluded_types = ['DS', 'ER']
+highway_types_cat = {
+    'AG': u'Agregat',
+    'AL': u'Llogaret',
+    'AR': u'Àrea/Raval',
+    'AU': u'Autopista',
+    'AV': u'Avinguda',
+    'AY': u'Rierol',
+    'BJ': u'Baixada',
+    'BO': u'Barri',
+    'BR': u'Barranc',
+    'CA': u'Camí ramader',
+    'CG': u'Col·legi/Cigarral',
+    'CH': u'Xalet',
+    'CI': u'Cinturó/Ronda',
+    'CJ': u'Carreró',
+    'CL': u'Carrer',
+    'CM': u'Camí',
+    'CN': u'Colònia',
+    'CO': u'Ajuntament/Col·legi',
+    'CP': u'Camp',
+    'CR': u'Carretera',
+    'CS': u'Mas',
+    'CT': u'Costa/Rost',
+    'CU': u'Conjunt',
+    'CY': u'Carreró',
+    'DE': u'Darrere',
+    'DP': u'Diputació',
+    'DS': u'Disseminats',
+    'ED': u'Edificis',
+    'EM': u'Extramurs/Raval',
+    'EN': u'Entrada/Eixample',
+    'ER': u'Extraradi/Raval',
+    'ES': u'Escalinata',
+    'EX': u'Pla',
+    'FC': u'Ferrocarril',
+    'FN': u'Finca',
+    'GL': u'Rotonda/Plaça',
+    'GR': u'Grup',
+    'GV': u'Gran Via',
+    'HT': u'Hort',
+    'JR': u'Jardins',
+    'LD': u'Marge/Vessant',
+    'LG': u'Lloc',
+    'MC': u'Mercat',
+    'ML': u'Moll',
+    'MN': u'Municipi',
+    'MS': u'Masies',
+    'MT': u'Muntanya',
+    'MZ': u'Illa',
+    'PB': u'Poblat',
+    'PD': u'Partida',
+    'PJ': u'Passatge',
+    'PL': u'Polígon',
+    'PM': u'Erm',
+    'PQ': u'Parròquia/Parc',
+    'PR': u'Prolongació/Continuació',
+    'PS': u'Passeig',
+    'PT': u'Pont',
+    'PZ': u'Plaça',
+    'QT': u'Quinta',
+    'RB': u'Rambla',
+    'RC': u'Racó',
+    'RD': u'Ronda',
+    'RM': u'Branc',
+    'RP': u'Rampa',
+    'RR': u'Riera',
+    'RU': u'Rua',
+    'SA': u'Sortida',
+    'SD': u'Sender',
+    'SL': u'Solar',
+    'SN': u'Saló',
+    'SU': u'Pujada',
+    'TN': u'Terrenys',
+    'TO': u'Torrent',
+    'TR': u'Travessera',
+    'UR': u'Urbanització',
+    'VR': u'Sendera',
+    'AC': u'Accès',
+    'AD': u'Llogaret',
+    'BV': u'Bulevard',
+    'CZ': u'Calçada',
+    'PA': u'Paral·lel',
+    'PC': u'Placeta/plaça',
+    'PG': u'Polígon',
+    'PO': u'Polígon',
+    'SB': u'Pujada',
+    'SC': u'Sector',
+}
 
-# List of highway types to translate as place addresses
-place_types = [
+place_types_es = [
 	'Agregado', 'Aldea', u'Área', 'Barrio', 'Barranco', u'Cañada', 'Colegio', 
 	'Cigarral', 'Chalet', 'Concejo', 'Campa', 'Campo', u'Caserío', 'Conjunto', 
 	u'Diputación', 'Diseminados', 'Edificios', 'Extramuros', 'Entrada', 
@@ -196,6 +281,24 @@ place_types = [
 	'Manzana', 'Poblado', 'Partida', u'Polígono', u'Páramo', 'Parroquia', 'Solar', 
 	'Terrenos', u'Urbanización', 'Bulevar', 'Sector'
 ]
+place_types_cat = [
+    u'Agregat', u'Llogaret', u'Àrea', u'Barri', u'Barranc', u'Camí ramader',
+    u'Col·legi/Cigarral', u'Xalet', u'Ajuntament/Col·legi', u'Camp', u'Mas',
+    u'Conjunt', u'Diputació', u'Disseminats', u'Edificis', u'Extramurs', 
+    u'Entrada', u'Extraradi', u'Finca', u'Grup', u'Hort', u'Jardins', u'Lloc',
+    u'Mercat', u'Moll', u'Municipi', u'Masies', u'Muntanya', u'Illa', u'Poblat',
+    u'Partida', u'Polígon', u'Erm', u'Parròquia', u'Solar', u'Terrenys',
+    u'Urbanització', u'Bulevard', u'Sector'
+]
+
+# Dictionary for default 'highway_types.csv'
+highway_types = highway_types_es
+
+# List of highway types to translate as place addresses
+place_types = place_types_es
+
+# List of highway types not to be parsed
+excluded_types = ['DS', 'ER']
 
 # Dictionary of name and OSM boundary relation id for know municipalities
 # wich fails in get_boundary method.
