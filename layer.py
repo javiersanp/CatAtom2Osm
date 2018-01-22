@@ -457,7 +457,7 @@ class BaseLayer(QgsVectorLayer):
             if e: e.tags.update(tags_translation(feature))
         for (key, value) in setup.changeset_tags.items():
             data.tags[key] = value
-        if self.source_date:
+        if getattr(self, 'source_date', False):
             data.tags['source:date'] = self.source_date
         log.debug(_("Loaded %d nodes, %d ways, %d relations from '%s' layer"),
             len(data.nodes) - nodes, len(data.ways) - ways,
