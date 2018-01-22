@@ -119,8 +119,8 @@ class CatAtom2Osm:
             report.building_counter = Counter()
         if self.options.address:
             self.address.reproject()
-            self.address.get_image_links()
-            self.export_layer(self.address, 'address.geojson', 'GeoJSON')
+            #self.address.get_image_links()
+            #self.export_layer(self.address, 'address.geojson', 'GeoJSON')
             self.address_osm = self.address.to_osm()
             del self.address
             self.delete_shp('address.shp')
@@ -305,7 +305,7 @@ class CatAtom2Osm:
         if hasattr(self, 'qgs'):
             self.qgs.exitQgis()
 
-    def export_layer(self, layer, filename, driver_name='ESRI Shapefile'):
+    def export_layer(self, layer, filename, driver_name='ESRI Shapefile', target_crs_id=None):
         """
         Export a vector layer.
 
@@ -313,9 +313,10 @@ class CatAtom2Osm:
             layer (QgsVectorLayer): Source layer.
             filename (str): Output filename.
             driver_name (str): Defaults to ESRI Shapefile.
+            target_crs_id (int): Defaults to source CRS.
         """
         out_path = os.path.join(self.path, filename)
-        if layer.export(out_path, driver_name):
+        if layer.export(out_path, driver_name, target_crs_id=target_crs_id):
             log.info(_("Generated '%s'"), filename)
         else:
             raise IOError(_("Failed to write layer: '%s'") % filename)
@@ -437,6 +438,8 @@ class CatAtom2Osm:
         self.address.append(address_gml)
         self.address.join_field(postaldescriptor, 'PD_id', 'gml_id', ['postCode'])
         self.address.join_field(thoroughfarename, 'TN_id', 'gml_id', ['text'], 'TN_')
+        self.address.get_image_links()
+        self.export_layer(self.address, 'address.geojson', 'GeoJSON', target_crs_id=4326)
         (highway_names, self.is_new) = self.get_translations(self.address)
         ia = self.address.translate_field('TN_text', highway_names)
         if ia > 0:
