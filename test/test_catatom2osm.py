@@ -287,12 +287,12 @@ class TestCatAtom2Osm(unittest.TestCase):
         m_layer.export.return_value = True
         self.m_app.export_layer = cat.CatAtom2Osm.export_layer.__func__
         self.m_app.export_layer(self.m_app, m_layer, 'bar', 'taz')
-        m_layer.export.assert_called_once_with('foo/bar', 'taz')
+        m_layer.export.assert_called_once_with('foo/bar', 'taz', target_crs_id=None)
         output = m_log.info.call_args_list[0][0][0]
         self.assertIn('Generated', output)
         m_layer.export.return_value = False
         with self.assertRaises(IOError):
-            self.m_app.export_layer(self.m_app, m_layer, 'bar', 'taz')
+            self.m_app.export_layer(self.m_app, m_layer, 'bar', 'taz', target_crs_id=None)
 
     @mock.patch('catatom2osm.os')
     @mock.patch('catatom2osm.log')

@@ -400,21 +400,26 @@ class BaseLayer(QgsVectorLayer):
             bbox = '{:.8f},{:.8f},{:.8f},{:.8f}'.format(*bbox)
         return bbox
 
-    def export(self, path, driver_name="ESRI Shapefile", overwrite=True):
+    def export(self, path, driver_name="ESRI Shapefile", overwrite=True, target_crs_id=None):
         """Write layer to file
 
         Args:
             path (str): Path of the output file
             driver_name (str): Defaults to ESRI Shapefile.
             overwrite (bool): Defaults to True
+            target_crs_id (int): Defaults to source CRS
         """
+        if target_crs_id is None:
+            target_crs = self.crs() 
+        else:
+             target_crs = QgsCoordinateReferenceSystem(target_crs_id)
         if os.path.exists(path) and overwrite:
             if driver_name == 'ESRI Shapefile':
                 QgsVectorFileWriter.deleteShapeFile(path)
             else:
                 os.remove(path)
         return QgsVectorFileWriter.writeAsVectorFormat(self, path, "utf-8",
-                self.crs(), driver_name) == QgsVectorFileWriter.NoError
+                target_crs, driver_name) == QgsVectorFileWriter.NoError
 
     def to_osm(self, tags_translation=translate.all_tags, data=None, upload='never'):
         """

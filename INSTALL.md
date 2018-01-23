@@ -10,7 +10,7 @@ In a command line shell write::
     cd ~
     mkdir cadastre
     cd cadastre
-    git clone https://github.com/javiersanp/CatAtom2Osm.git
+    git clone https://github.com/OSM-es/CatAtom2Osm.git
     cd CatAtom2Osm
     sudo pip install -r requisites.txt
     sudo make install
@@ -47,7 +47,7 @@ Install GitHub desktop utility from
 http://desktop.github.com
 
 Run it and download this repository 
-https://github.com/javiersanp/CatAtom2Osm.git
+https://github.com/OSM-es/CatAtom2Osm.git
 
 Open a command line shell and change the directory to the previously
 downloaded CatAtom2Osm folder. Run this commands::
@@ -98,7 +98,7 @@ Christoph Gohlke from http://www.lfd.uci.edu/~gohlke/Pythonlibs/
 
 Install the GitHub desktop utility from desktop.github.com
 
-Run it and download the repository https://github.com/javiersanp/CatAtom2Osm.git
+Run it and download the repository https://github.com/OSM-es/CatAtom2Osm.git
 
 In the previously downloaded CatAtom2Osm folder launch the file pyqgis.bat. 
 Write this in the resulting shell::
