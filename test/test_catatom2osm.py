@@ -182,6 +182,8 @@ class TestCatAtom2Osm(unittest.TestCase):
     def test_process_tasks(self, m_report, m_layer, m_os):
         m_os.path.join = lambda *args: '/'.join(args)
         m_os.path.exists.side_effect = [True, True, False, True, True]
+        m_report.mun_code = 'AAA'
+        m_report.mun_name = 'BBB'
         task = mock.MagicMock()
         task.featureCount.return_value = 999
         m_layer.ConsLayer.side_effect = [task, task, task, task, task]
@@ -204,6 +206,8 @@ class TestCatAtom2Osm(unittest.TestCase):
             mock.call('foo/tasks/x000.shp', 'x000', 'ogr', source_date=1234),
             mock.call('foo/tasks/x001.shp', 'x001', 'ogr', source_date=1234),
         ])
+        comment = setup.changeset_tags['comment'] + ' AAA BBB x001'
+        task.to_osm.assert_called_with(upload='yes', tags={'comment': comment})
         self.assertEquals(self.m_app.merge_address.call_count, 4)
         self.m_app.rustic_zoning.writer.deleteFeatures.assert_called_once_with([4])
 
@@ -247,20 +251,26 @@ class TestCatAtom2Osm(unittest.TestCase):
         parcel_osm = parcel.to_osm.return_value
         self.m_app.write_osm.assert_called_once_with(parcel_osm, "parcel.osm")
 
+    @mock.patch('catatom2osm.os')
     @mock.patch('catatom2osm.log')
+    @mock.patch('catatom2osm.open')
     @mock.patch('catatom2osm.report')
-    def test_end_messages(self, m_report, m_log):
+    def test_end_messages(self, m_report, m_open, m_log, m_os):
+        m_os.path.join = lambda *args: '/'.join(args)
+        m_fo = mock.MagicMock()
+        m_open.return_value = m_fo
         self.m_app.end_messages = cat.CatAtom2Osm.end_messages.__func__
         self.m_app.is_new = True
         m_report.fixme_count = 3
         self.m_app.end_messages(self.m_app)
         self.assertEquals(m_log.warning.call_args_list[0][0][1], 3)
-        self.assertIn('translation', m_log.info.call_args_list[0][0][0])
+        self.assertEquals('review.txt', m_log.info.call_args_list[0][0][1])
+        self.assertIn('translation', m_log.info.call_args_list[1][0][0])
         self.m_app.fixmes = 0
         self.m_app.is_new = False
         self.m_app.options.tasks = False
         self.m_app.end_messages(self.m_app)
-        self.assertEquals(m_log.info.call_args_list[2][0][0], 'Finished!')
+        self.assertEquals(m_log.info.call_args_list[3][0][0], 'Finished!')
 
     def test_exit(self):
         self.m_app.exit = cat.CatAtom2Osm.exit.__func__
