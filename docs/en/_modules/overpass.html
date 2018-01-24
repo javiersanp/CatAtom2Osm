@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>overpass &#8212; CatAtom2Osm 1.0.5 documentation</title>
+    <title>overpass &#8212; CatAtom2Osm 1.1.0 documentation</title>
     
     <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -23,7 +23,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.0.5',
+        VERSION:     '1.1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -49,7 +49,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 1.0.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 1.1.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &#187;</li> 
       </ul>
     </div>
@@ -111,7 +111,7 @@
           <div class="document clearer body">
             
   <h1>Source code for overpass</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Minimum Overpass API interface&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;Minimum Overpass API interface&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">re</span>
 
 <span class="kn">import</span> <span class="nn">download</span>
@@ -148,7 +148,7 @@
         <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;^\d{1,8}$&#39;</span><span class="p">,</span> <span class="n">search_area</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">area_id</span> <span class="o">=</span> <span class="n">search_area</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">bbox</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-        <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;^(-?\d{1,3}(\.\d+)?,\s*)</span><span class="si">{3}</span><span class="s1">-?\d{1,3}(\.\d+)?$&#39;</span><span class="p">,</span> <span class="n">search_area</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;^(-?\d{1,3}(\.\d+)?,\s*){3}-?\d{1,3}(\.\d+)?$&#39;</span><span class="p">,</span> <span class="n">search_area</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">bbox</span> <span class="o">=</span> <span class="n">search_area</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">area_id</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
         <span class="k">else</span><span class="p">:</span>
@@ -169,13 +169,13 @@
 <div class="viewcode-block" id="Query.get_url"><a class="viewcode-back" href="../api/overpass.html#overpass.Query.get_url">[docs]</a>    <span class="k">def</span> <span class="nf">get_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns url for the query&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">statements</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">ql</span> <span class="o">=</span> <span class="s1">&#39;(</span><span class="si">{s}</span><span class="s1">);&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">statements</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;(</span><span class="si">{s}</span><span class="s1">);&#39;</span>
+            <span class="n">ql</span> <span class="o">=</span> <span class="s1">&#39;({s});&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">statements</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;({s});&#39;</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">area_id</span><span class="p">:</span>
-                <span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;area(36</span><span class="si">{id:&gt;08}</span><span class="s1">)-&gt;.searchArea;&#39;</span> <span class="o">+</span> <span class="n">ql</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;area(36{id:&gt;08})-&gt;.searchArea;&#39;</span> <span class="o">+</span> <span class="n">ql</span>
                 <span class="n">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">area_id</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="s1">&#39;area.searchArea&#39;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">query</span> <span class="o">=</span> <span class="n">ql</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bbox</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{u}</span><span class="s1">data=[out:</span><span class="si">{o}</span><span class="s1">][timeout:250];(</span><span class="si">{q}</span><span class="s1">);</span><span class="si">{d}{m}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;{u}data=[out:{o}][timeout:250];({q});{d}{m}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">u</span><span class="o">=</span><span class="n">api_servers</span><span class="p">[</span><span class="n">n</span><span class="p">],</span> <span class="n">q</span><span class="o">=</span><span class="n">query</span><span class="p">,</span> <span class="n">o</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">down</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">url</span></div>
 
@@ -211,7 +211,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 1.0.5 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 1.1.0 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &#187;</li> 
       </ul>
     </div>
