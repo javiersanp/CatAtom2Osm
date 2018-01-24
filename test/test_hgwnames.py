@@ -36,7 +36,7 @@ class TestHgwnames(unittest.TestCase):
             "CL HILARIO (ERAS LAS)": "Calle Hilario (Eras las)",
             "CL BASTIO D'EN SANOGUERA": "Calle Bastio d'en Sanoguera",
             "CL BANC DE L'OLI": "Calle Banc de l'Oli",
-            "DS ARANJASSA,S'": "Diseminados Aranjassa, s'",
+            "DS ARANJASSA,S'": "",
             u"CL AIGUA DOLÇA (L')": u"Calle Aigua Dolça (l')",
             u"CL RUL·LAN": u"Calle Rul·lan",
             "CL FONTE'L PILO": "Calle Fonte'l Pilo",

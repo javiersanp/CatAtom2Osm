@@ -10,7 +10,7 @@ En una consola de comandos ejecutar::
     cd ~
     mkdir catastro
     cd catastro
-    git clone https://github.com/javiersanp/CatAtom2Osm.git
+    git clone https://github.com/OSM-es/CatAtom2Osm.git
     cd CatAtom2Osm
     sudo pip install -r requisites.txt
     sudo make install
@@ -49,7 +49,7 @@ Instalar el programa de escritorio de GitHub desde
 http://desktop.github.com
 
 Ejecutarlo y descargar el repositorio 
-https://github.com/javiersanp/CatAtom2Osm.git
+https://github.com/OSM-es/CatAtom2Osm.git
 
 Abrir una consola de comandos y cambiar a la carpeta CatAtom2Osm descargada
 anteriormente. Ejecutar los comandos::
@@ -98,7 +98,7 @@ Christoph Gohlke desde http://www.lfd.uci.edu/~gohlke/Pythonlibs/
 
 Instalar el programa de escritorio de GitHub desde desktop.github.com
 
-Ejecutarlo y descargar el repositorio https://github.com/javiersanp/CatAtom2Osm.git
+Ejecutarlo y descargar el repositorio https://github.com/OSM-es/CatAtom2Osm.git
 
 En la carpeta CatAtom2Osm descargada lanzar el archivo pyqgis.bat. 
 En la consola resultante ejecutar::

@@ -1,6 +1,16 @@
 Change log
 ==========
 
+**2018-01-23 (1.1.0)**
+
+* Move repository to OSM-es organization.
+* Put all addresses in address.geojson enhancement #71
+* Compress task files enhancement #69
+* List of tasks to review. enhancement #66
+* Remove selected streets from addresses enhancement #65
+* Translate througfare types to Catalan enhancement #64
+* Improve changeset comments enhancement help wanted #63
+
 **2018-01-16 (1.0.5)**
 
 * Compress the task files (issue #69).
