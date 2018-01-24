@@ -24,10 +24,10 @@ def parse(name):
     for (i, word) in enumerate(re.split('[ ]+', name.strip())):
         nude_word = re.sub('^\(|\)$', '', word) # Remove enclosing parenthesis
         if i == 0:
-            try:
-                new_word = setup.highway_types[word]
-            except KeyError:
-                new_word = word
+            if word in setup.excluded_types:
+                return ""
+            else:
+                new_word = setup.highway_types.get(word, word)
         elif nude_word in setup.lowcase_words: # Articles
             new_word = word.lower()
         elif "'" in word[1:-1]: # Articles with aphostrope
@@ -55,13 +55,14 @@ def match(name, choices):
         name (str): String to look for
         choices (list): Iterable with choices
     """
-    if fuzz:
+    parsed_name = parse(name)
+    if fuzz and parsed_name:
         normalized = [normalize(c) for c in choices]
-        matching = process.extractOne(normalize(parse(name)), 
+        matching = process.extractOne(normalize(parsed_name), 
             normalized, scorer=fuzz.token_sort_ratio)
         if matching and matching[1] > MATCH_THR:
             return choices[normalized.index(matching[0])]
-    return parse(name)
+    return parsed_name
 
 def dsmatch(name, dataset, fn):
     """
@@ -78,7 +79,7 @@ def dsmatch(name, dataset, fn):
     max_ratio = 0
     matching = None
     for e in dataset:
-        if fuzz:
+        if fuzz and name:
             ratio = fuzz.token_sort_ratio(normalize(name), normalize(fn(e)))
             if ratio > max_ratio:
                 max_ratio = ratio

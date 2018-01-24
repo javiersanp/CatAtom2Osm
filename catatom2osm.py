@@ -119,8 +119,8 @@ class CatAtom2Osm:
             report.building_counter = Counter()
         if self.options.address:
             self.address.reproject()
-            self.address.get_image_links()
-            self.export_layer(self.address, 'address.geojson', 'GeoJSON')
+            #self.address.get_image_links()
+            #self.export_layer(self.address, 'address.geojson', 'GeoJSON')
             self.address_osm = self.address.to_osm()
             del self.address
             self.delete_shp('address.shp')
@@ -194,16 +194,18 @@ class CatAtom2Osm:
             to_clean = []
             for zone in zoning.getFeatures():
                 label = zone['label']
+                comment = ' '.join((setup.changeset_tags['comment'], 
+                    report.mun_code, report.mun_name, label))
                 fn = os.path.join(self.path, 'tasks', label + '.shp')
                 if os.path.exists(fn):
                     task = layer.ConsLayer(fn, label, 'ogr', source_date=source.source_date)
                     if task.featureCount() > 0:
-                        task_osm = task.to_osm(upload='yes')
+                        task_osm = task.to_osm(upload='yes', tags={'comment': comment})
                         del task
                         self.delete_shp(fn, False)
                         self.merge_address(task_osm, self.address_osm)
                         report.address_stats(task_osm)
-                        report.cons_stats(task_osm)
+                        report.cons_stats(task_osm, label)
                         fn = os.path.join('tasks', label + '.osm')
                         self.write_osm(task_osm, fn, compress=True)
                         report.osm_stats(task_osm)
@@ -279,6 +281,11 @@ class CatAtom2Osm:
     def end_messages(self):
         if report.fixme_stats():
             log.warning(_("Check %d fixme tags"), report.fixme_count)
+        if self.options.tasks:
+            filename = 'review.txt'
+            with open(os.path.join(self.path, filename), "w") as fo:
+                fo.write(setup.eol.join(report.get_tasks_with_fixmes()) + setup.eol)
+                log.info(_("Generated '%s'"), filename)
         if self.options.tasks or self.options.building:
             report.cons_end_stats()
         if self.options.tasks or self.options.building or self.options.address:
@@ -300,7 +307,7 @@ class CatAtom2Osm:
         if hasattr(self, 'qgs'):
             self.qgs.exitQgis()
 
-    def export_layer(self, layer, filename, driver_name='ESRI Shapefile'):
+    def export_layer(self, layer, filename, driver_name='ESRI Shapefile', target_crs_id=None):
         """
         Export a vector layer.
 
@@ -308,9 +315,10 @@ class CatAtom2Osm:
             layer (QgsVectorLayer): Source layer.
             filename (str): Output filename.
             driver_name (str): Defaults to ESRI Shapefile.
+            target_crs_id (int): Defaults to source CRS.
         """
         out_path = os.path.join(self.path, filename)
-        if layer.export(out_path, driver_name):
+        if layer.export(out_path, driver_name, target_crs_id=target_crs_id):
             log.info(_("Generated '%s'"), filename)
         else:
             raise IOError(_("Failed to write layer: '%s'") % filename)
@@ -432,6 +440,8 @@ class CatAtom2Osm:
         self.address.append(address_gml)
         self.address.join_field(postaldescriptor, 'PD_id', 'gml_id', ['postCode'])
         self.address.join_field(thoroughfarename, 'TN_id', 'gml_id', ['text'], 'TN_')
+        self.address.get_image_links()
+        self.export_layer(self.address, 'address.geojson', 'GeoJSON', target_crs_id=4326)
         (highway_names, self.is_new) = self.get_translations(self.address)
         ia = self.address.translate_field('TN_text', highway_names)
         if ia > 0:

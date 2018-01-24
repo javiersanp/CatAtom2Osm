@@ -1,6 +1,16 @@
 Registro de cambios
 ===================
 
+**23-01-2018 (1.1.0)**
+
+* Translada el repositorio a la organización OSM-es.
+* address.geojson recoge todas las direcciones. Mejora #71.
+* Comprime los archivos de tareas. Mejora #69.
+* Listado de archivos de tareas a revisar (fixmes). Mejora #66.
+* Elimina las direcciones de los tipos de vial configurados. Mejora #65.
+* Translada los tipos vial a Catalan. Mejora #64.
+* Mejora el comentario de los conjuntos de cambios. Mejora #63.
+
 **16-01-2018 (1.0.5)**
 
 * Comprime los archivos de tareas (cuestión #69).

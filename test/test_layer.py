@@ -290,6 +290,14 @@ class TestBaseLayer(unittest.TestCase):
         layer.test(layer)
         m_index.assert_called_with(layer.getFeatures.return_value)
 
+    def test_to_osm(self):
+        data = self.layer.to_osm(upload='always', tags={'comment': 'tryit'})
+        for (key, value) in setup.changeset_tags.items():
+            if key == 'comment':
+                self.assertEquals(data.tags[key], 'tryit')
+            else:
+                self.assertEquals(data.tags[key], value)
+
 class TestBaseLayer2(unittest.TestCase):
 
     @mock.patch('layer.QgsVectorFileWriter')
@@ -304,16 +312,19 @@ class TestBaseLayer2(unittest.TestCase):
         mock_fw.writeAsVectorFormat.assert_called_once_with(layer, 'foobar',
             'utf-8', layer.crs(), 'ESRI Shapefile')
 
+    @mock.patch('layer.QgsCoordinateReferenceSystem')
     @mock.patch('layer.QgsVectorFileWriter')
     @mock.patch('layer.os')
-    def test_export_other(self, mock_os, mock_fw):
+    def test_export_other(self, mock_os, mock_fw, mock_crs):
         layer = BaseLayer("Polygon", "test", "memory")
         mock_os.path.exists.side_effect = lambda arg: arg=='foobar'
-        layer.export('foobar', 'foo')
+        layer.export('foobar', 'foo', target_crs_id=1234)
+        mock_crs.assert_called_once_with(1234)
+        mock_fw.writeAsVectorFormat.assert_called_once_with(layer, 'foobar',
+            'utf-8', mock_crs.return_value, 'foo')
         mock_os.remove.assert_called_once_with('foobar')
         layer.export('foobar', 'foo', overwrite=False)
         mock_os.remove.assert_called_once_with('foobar')
-
 
 class TestPolygonLayer(unittest.TestCase):
 

@@ -400,23 +400,29 @@ class BaseLayer(QgsVectorLayer):
             bbox = '{:.8f},{:.8f},{:.8f},{:.8f}'.format(*bbox)
         return bbox
 
-    def export(self, path, driver_name="ESRI Shapefile", overwrite=True):
+    def export(self, path, driver_name="ESRI Shapefile", overwrite=True, target_crs_id=None):
         """Write layer to file
 
         Args:
             path (str): Path of the output file
             driver_name (str): Defaults to ESRI Shapefile.
             overwrite (bool): Defaults to True
+            target_crs_id (int): Defaults to source CRS
         """
+        if target_crs_id is None:
+            target_crs = self.crs() 
+        else:
+             target_crs = QgsCoordinateReferenceSystem(target_crs_id)
         if os.path.exists(path) and overwrite:
             if driver_name == 'ESRI Shapefile':
                 QgsVectorFileWriter.deleteShapeFile(path)
             else:
                 os.remove(path)
         return QgsVectorFileWriter.writeAsVectorFormat(self, path, "utf-8",
-                self.crs(), driver_name) == QgsVectorFileWriter.NoError
+                target_crs, driver_name) == QgsVectorFileWriter.NoError
 
-    def to_osm(self, tags_translation=translate.all_tags, data=None, upload='never'):
+    def to_osm(self, tags_translation=translate.all_tags, data=None, tags={}, 
+            upload='never', comment=None):
         """
         Export this layer to an Osm data set
 
@@ -425,6 +431,7 @@ class BaseLayer(QgsVectorLayer):
                 By defaults convert all fields.
             data (Osm): OSM data set to append. By default creates a new one.
             upload (str): upload attribute of the osm dataset, default 'never'
+            tags (dict): tags to update setup.changeset_tags
 
         Returns:
             Osm: OSM data set
@@ -455,9 +462,10 @@ class BaseLayer(QgsVectorLayer):
                 log.warning(msg)
                 report.warnings.add(msg)
             if e: e.tags.update(tags_translation(feature))
-        for (key, value) in setup.changeset_tags.items():
+        changeset_tags = dict(setup.changeset_tags, **tags)
+        for (key, value) in changeset_tags.items():
             data.tags[key] = value
-        if self.source_date:
+        if getattr(self, 'source_date', False):
             data.tags['source:date'] = self.source_date
         log.debug(_("Loaded %d nodes, %d ways, %d relations from '%s' layer"),
             len(data.nodes) - nodes, len(data.ways) - ways,
@@ -1039,9 +1047,10 @@ class AddressLayer(BaseLayer):
     def create_shp(name, crs, fields=QgsFields(), geom_type=QGis.WKBPoint):
         QgsVectorFileWriter(name, 'UTF-8', fields, geom_type, crs, 'ESRI Shapefile')
 
-    def to_osm(self, data=None, upload='never'):
+    def to_osm(self, data=None, tags={}, upload='never'):
         """Export to OSM"""
-        return super(AddressLayer, self).to_osm(translate.address_tags, data, upload)
+        return super(AddressLayer, self).to_osm(translate.address_tags, data, 
+            tags=tags, upload=upload)
 
     def conflate(self, current_address):
         """
@@ -1227,9 +1236,10 @@ class ConsLayer(PolygonLayer):
         if len(to_change) > 0:
             self.writer.changeAttributeValues(to_change)
 
-    def to_osm(self, data=None, upload='never'):
+    def to_osm(self, data=None, tags={}, upload='never'):
         """Export to OSM"""
-        return super(ConsLayer, self).to_osm(translate.building_tags, data, upload)
+        return super(ConsLayer, self).to_osm(translate.building_tags, data, 
+            tags=tags, upload=upload)
 
     def index_of_parts(self):
         """ Index parts of building by building localid. """

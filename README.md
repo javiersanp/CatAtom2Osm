@@ -28,7 +28,7 @@ QGIS >= 2.10.1, GDAL >= 2 are required.
 Install
 -------
 
-See INSTALL.md (https://javiersanp.github.io/CatAtom2Osm/en/install.html)
+See INSTALL.md (https://OSM-es.github.io/CatAtom2Osm/en/install.html)
 
 Usage
 -----
@@ -62,5 +62,5 @@ Documentation
 
 Browse the software documentation.
 
-https://javiersanp.github.io/CatAtom2Osm/en
+https://OSM-es.github.io/CatAtom2Osm/en
 
