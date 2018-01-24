@@ -291,10 +291,10 @@ class TestBaseLayer(unittest.TestCase):
         m_index.assert_called_with(layer.getFeatures.return_value)
 
     def test_to_osm(self):
-        data = self.layer.to_osm(upload='always', {comment: "tryit"})
+        data = self.layer.to_osm(upload='always', tags={'comment': 'tryit'})
         for (key, value) in setup.changeset_tags.items():
             if key == 'comment':
-                self.assertEquals(data.tags[key], value + ' tryit')
+                self.assertEquals(data.tags[key], 'tryit')
             else:
                 self.assertEquals(data.tags[key], value)
 

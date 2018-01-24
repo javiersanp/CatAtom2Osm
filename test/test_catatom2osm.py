@@ -182,6 +182,8 @@ class TestCatAtom2Osm(unittest.TestCase):
     def test_process_tasks(self, m_report, m_layer, m_os):
         m_os.path.join = lambda *args: '/'.join(args)
         m_os.path.exists.side_effect = [True, True, False, True, True]
+        m_report.mun_code = 'AAA'
+        m_report.mun_name = 'BBB'
         task = mock.MagicMock()
         task.featureCount.return_value = 999
         m_layer.ConsLayer.side_effect = [task, task, task, task, task]
@@ -204,6 +206,8 @@ class TestCatAtom2Osm(unittest.TestCase):
             mock.call('foo/tasks/x000.shp', 'x000', 'ogr', source_date=1234),
             mock.call('foo/tasks/x001.shp', 'x001', 'ogr', source_date=1234),
         ])
+        comment = setup.changeset_tags['comment'] + ' AAA BBB x001'
+        task.to_osm.assert_called_with(upload='yes', tags={'comment': comment})
         self.assertEquals(self.m_app.merge_address.call_count, 4)
         self.m_app.rustic_zoning.writer.deleteFeatures.assert_called_once_with([4])
 

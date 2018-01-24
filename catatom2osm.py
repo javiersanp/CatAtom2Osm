@@ -194,11 +194,13 @@ class CatAtom2Osm:
             to_clean = []
             for zone in zoning.getFeatures():
                 label = zone['label']
+                comment = ' '.join((setup.changeset_tags['comment'], 
+                    report.mun_code, report.mun_name, label))
                 fn = os.path.join(self.path, 'tasks', label + '.shp')
                 if os.path.exists(fn):
                     task = layer.ConsLayer(fn, label, 'ogr', source_date=source.source_date)
                     if task.featureCount() > 0:
-                        task_osm = task.to_osm(upload='yes')
+                        task_osm = task.to_osm(upload='yes', tags={'comment': comment})
                         del task
                         self.delete_shp(fn, False)
                         self.merge_address(task_osm, self.address_osm)
