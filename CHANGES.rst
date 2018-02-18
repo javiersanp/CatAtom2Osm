@@ -1,6 +1,10 @@
 Change log
 ==========
 
+**2018-02-18 (1.1.1)**
+
+* Change CSV separator to tab (issue #10)
+
 **2018-01-23 (1.1.0)**
 
 * Move repository to OSM-es organization.
