@@ -1,6 +1,10 @@
 Registro de cambios
 ===================
 
+**18-02-2018 (1.1.1)**
+
+* Cambia el separador CSV a tabulador (cuestión #10)
+
 **23-01-2018 (1.1.0)**
 
 * Translada el repositorio a la organización OSM-es.

@@ -5,7 +5,7 @@ import csv
 import gettext
 
 app_name = 'CatAtom2Osm'
-app_version = '1.1.0'
+app_version = '1.1.1'
 app_author = u'Javier Sánchez Portero'
 app_copyright = u'2017, Javier Sánchez Portero'
 app_desc = 'Tool to convert INSPIRE data sets from the Spanish Cadastre ATOM Services to OSM files'
@@ -43,6 +43,7 @@ fn_prefix = 'A.ES.SDGC' # Inspire Atom file name prefix
 
 silence_gdal = False
 
+delimiter = '\t'
 dup_thr = 0.012 # Distance in meters to merge nearest vertexs.
                 # 0.011 is about 1E-7 degrees in latitude
 dist_thr = 0.02 # Threshold in meters for vertex simplification and topological points.
