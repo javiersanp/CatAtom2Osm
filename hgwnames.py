@@ -19,6 +19,7 @@ def normalize(text):
 
 def parse(name):
     """Transform the name of a street from Cadastre conventions to OSM ones."""
+    name = name.split(';')[0] # Remove additional information
     name = re.sub('[,]+', ', ', name).strip() # Avoids comma without trailing space
     result = []
     for (i, word) in enumerate(re.split('[ ]+', name.strip())):
