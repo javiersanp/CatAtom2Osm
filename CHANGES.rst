@@ -1,6 +1,10 @@
 Change log
 ==========
 
+**2018-03-02 (1.1.2)**
+
+* Remove upload=yes parameter from OSM josm files (issue #12)
+
 **2018-02-18 (1.1.1)**
 
 * Change CSV separator to tab (issue #10)

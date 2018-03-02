@@ -123,6 +123,8 @@ class TestOsm(OsmTestCase):
         self.assertEquals(self.d.attrs, dict(upload='never', version='0.6'))
         self.d.generator = 'yo'
         self.assertEquals(self.d.attrs['generator'], 'yo')
+        self.d.upload = 'yes'
+        self.assertNotIn('upload', self.d.attrs.keys())
 
     def test_index(self):
         n = self.d.Node(1,1)

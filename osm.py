@@ -43,6 +43,8 @@ class Osm(object):
         """Returns dictionary of properties in self.attr_list"""
         attrs = {k: getattr(self, k, None) for k in self.attr_list \
             if getattr(self, k, None) is not None}
+        if self.upload in ['yes', 'upload']:
+            attrs.pop('upload')
         return attrs
 
     def get(self, eid, etype='n'):
