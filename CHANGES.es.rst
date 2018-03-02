@@ -1,6 +1,10 @@
 Registro de cambios
 ===================
 
+**02-03-2018 (1.1.2)**
+
+* Corrige problema al abrir archivos OSM con parámetro upload=yes (cuestión #12)
+
 **18-02-2018 (1.1.1)**
 
 * Cambia el separador CSV a tabulador (cuestión #10)
