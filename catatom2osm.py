@@ -155,7 +155,7 @@ class CatAtom2Osm:
         if self.options.address:
             if not self.options.building and not self.options.tasks:
                 report.address_stats(self.address_osm)
-                self.write_osm(self.address_osm, 'address.osm')
+            self.write_osm(self.address_osm, 'address.osm')
             del self.address_osm
         if self.options.parcel:
             self.process_parcel()
