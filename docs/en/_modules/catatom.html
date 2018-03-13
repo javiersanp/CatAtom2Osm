@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>catatom &#8212; CatAtom2Osm 1.1.2 documentation</title>
+    <title>catatom &#8212; CatAtom2Osm 1.1.3 documentation</title>
     
     <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -23,7 +23,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1.2',
+        VERSION:     '1.1.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -49,7 +49,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 1.1.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 1.1.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &#187;</li> 
       </ul>
     </div>
@@ -235,6 +235,18 @@
         <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span></div>
 
+<div class="viewcode-block" id="Reader.download"><a class="viewcode-back" href="../api/catatom.html#catatom.Reader.download">[docs]</a>    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layername</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Downloads the file for a a Cadastre layername.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            layername (str): Short name of the Cadastre layer. Any of </span>
+<span class="sd">                &#39;building&#39;, &#39;cadastralzoning&#39;, &#39;address&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="p">(</span><span class="n">md_path</span><span class="p">,</span> <span class="n">gml_path</span><span class="p">,</span> <span class="n">zip_path</span><span class="p">,</span> <span class="n">vsizip_path</span><span class="p">,</span> <span class="n">group</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_layer_paths</span><span class="p">(</span><span class="n">layername</span><span class="p">)</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">setup</span><span class="o">.</span><span class="n">prov_url</span><span class="p">[</span><span class="n">group</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prov_code</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_atom_file</span><span class="p">(</span><span class="n">url</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="Reader.read"><a class="viewcode-back" href="../api/catatom.html#catatom.Reader.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layername</span><span class="p">,</span> <span class="n">allow_empty</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">force_zip</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a QGIS vector layer for a Cadastre layername. Derives the GML </span>
@@ -341,7 +353,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 1.1.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 1.1.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &#187;</li> 
       </ul>
     </div>

@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>catatom2osm &#8212; CatAtom2Osm 1.1.2 documentation</title>
+    <title>catatom2osm &#8212; CatAtom2Osm 1.1.3 documentation</title>
     
     <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -23,7 +23,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1.2',
+        VERSION:     '1.1.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -49,7 +49,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 1.1.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 1.1.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &#187;</li> 
       </ul>
     </div>
@@ -232,8 +232,6 @@
             <span class="n">report</span><span class="o">.</span><span class="n">building_counter</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">address</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="o">.</span><span class="n">reproject</span><span class="p">()</span>
-            <span class="c1">#self.address.get_image_links()</span>
-            <span class="c1">#self.export_layer(self.address, &#39;address.geojson&#39;, &#39;GeoJSON&#39;)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">address_osm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="o">.</span><span class="n">to_osm</span><span class="p">()</span>
             <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">address</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">delete_shp</span><span class="p">(</span><span class="s1">&#39;address.shp&#39;</span><span class="p">)</span>
@@ -270,7 +268,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">address</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">building</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">tasks</span><span class="p">:</span>
                 <span class="n">report</span><span class="o">.</span><span class="n">address_stats</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address_osm</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">write_osm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address_osm</span><span class="p">,</span> <span class="s1">&#39;address.osm&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_osm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address_osm</span><span class="p">,</span> <span class="s1">&#39;address.osm&#39;</span><span class="p">)</span>
             <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">address_osm</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">parcel</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">process_parcel</span><span class="p">()</span>
@@ -409,8 +407,7 @@
                 <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">),</span> <span class="s1">&#39;highway_names.csv&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
             <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Please, check it and run again&quot;</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Finished!&quot;</span><span class="p">))</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Only for testing purposses. Don&#39;t upload any result to OSM&quot;</span><span class="p">))</span></div>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Finished!&quot;</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="CatAtom2Osm.exit"><a class="viewcode-back" href="../api/catatom2osm.html#catatom2osm.CatAtom2Osm.exit">[docs]</a>    <span class="k">def</span> <span class="nf">exit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Ends properly&quot;&quot;&quot;</span>
@@ -554,7 +551,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="o">.</span><span class="n">join_field</span><span class="p">(</span><span class="n">postaldescriptor</span><span class="p">,</span> <span class="s1">&#39;PD_id&#39;</span><span class="p">,</span> <span class="s1">&#39;gml_id&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;postCode&#39;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="o">.</span><span class="n">join_field</span><span class="p">(</span><span class="n">thoroughfarename</span><span class="p">,</span> <span class="s1">&#39;TN_id&#39;</span><span class="p">,</span> <span class="s1">&#39;gml_id&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">],</span> <span class="s1">&#39;TN_&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="o">.</span><span class="n">get_image_links</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">export_layer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="s1">&#39;address.geojson&#39;</span><span class="p">,</span> <span class="s1">&#39;GeoJSON&#39;</span><span class="p">,</span> <span class="n">target_crs_id</span><span class="o">=</span><span class="mi">4326</span><span class="p">)</span>
         <span class="p">(</span><span class="n">highway_names</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_new</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_translations</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
         <span class="n">ia</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="o">.</span><span class="n">translate_field</span><span class="p">(</span><span class="s1">&#39;TN_text&#39;</span><span class="p">,</span> <span class="n">highway_names</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">ia</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -716,7 +712,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 1.1.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 1.1.3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &#187;</li> 
       </ul>
     </div>
