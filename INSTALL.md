@@ -15,6 +15,18 @@ In a command line shell write::
     sudo pip install -r requisites.txt
     sudo make install
 
+After this, the program is available to run in the terminal.
+
+    catatom2osm
+
+It's suggested to run the code in a dedicate folder, for example.
+
+    cd
+    mkdir catastro
+    cd catastro
+
+Notes:
+
 In Debian Jessie when you run "catatom2osm" you will get this error:
 >2017-12-08 15:08:12,559 - ERROR - Required QGIS version 2.10.1 or greater
 
@@ -26,16 +38,6 @@ An updated version of QGIS is required, you should run::
     apt update
     apt install qgis
 
-So far this is the basic installation to run the program. 
-Optionally, if you want to install the development requeriments:
-
-    sudo pip install -r requisites-dev.txt
-    
-And to run the code tests:
-
-    make test
-
-It's suggested to run the code in the ~/catastro folder.
 
 Mac OS X
 --------
@@ -57,18 +59,20 @@ downloaded CatAtom2Osm folder. Run this commands::
     sudo make install
 
 While you install the requisites you will be prompted to install the command
-line developper tools.
+line developper tools, answer yes.
 
 If necessary, edit the pyqgismac.sh file and change the locale value to the one aproppiate for your country.
 
-So far this is the basic installation to run the program. 
-Optionally, if you want to install the development requeriments::
+After this, the program is available to run in the terminal.
 
-    sudo pip install -r requisites-dev.txt
-    
-And to run the code tests::
+    catatom2osm
 
-    make test
+It's suggested to run the code in a dedicate folder, for example.
+
+    cd
+    mkdir catastro
+    cd catastro
+
 
 Windows
 -------
@@ -106,8 +110,26 @@ Write this in the resulting shell::
     python -m pip install -r requisites.txt
     python -m pip install path to downloaded/python_Levenshtein‑0.12.0‑cp27‑cp27m‑win_amd64.whl
 
-So far this is the basic installation to run the program. 
-Optionally, if you want to install the development requeriments::
+To use the program it will be necessary to run pyqgis.bat to open a convenient 
+Python QGIS shell. It's suggested to edit pyqgis.bat, uncomment the penultimate
+line with the CD command and enter the path of the folder where you want to 
+download the Cadastre files. For example::
+
+    cd c:\Users\YourName\Documents\cadastre
+
+
+Development requeriments
+------------------------
+
+Optionally, if you want to contribute to the program, install the development requeriments. In Linux and Macos:
+
+    sudo pip install -r requisites-dev.txt
+    
+And to run the code tests:
+
+    make test
+
+In Windows::
 
     python -m pip install -r requisites-dev.txt
     
@@ -115,9 +137,3 @@ And to run the code tests::
 
     python -m unittest discover
 
-To use the program it will be necessary to run pyqgis.bat to open a convenient 
-Python QGIS shell. It's suggested to edit pyqgis.bat, uncomment the penultimate
-line with the CD command and enter the path of the folder where you want to 
-download the Cadastre files. For example::
-
-    cd c:\Users\YourName\Documents\cadastre
