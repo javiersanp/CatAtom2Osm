@@ -52,7 +52,7 @@ class TestTranslate(unittest.TestCase):
             'image': 'foobar'
         }
         tags = address_tags(feat)
-        self.assertEquals(tags['addr:place'], 'Lugar foo')
+        self.assertEquals(tags['addr:place'], 'foo')
         self.assertNotIn('addr:street', tags)
 
     def test_building_tags(self):
