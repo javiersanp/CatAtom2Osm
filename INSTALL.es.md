@@ -81,6 +81,10 @@ Se sugiere ejecutar el programa en una carpeta dedicada, por ejemplo
     mkdir catastro
     cd catastro
 
+Notas:
+
+* Ignorar el mensaje "ERROR: Opening of authentication db FAILED"
+
 
 Windows
 -------

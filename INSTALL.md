@@ -73,6 +73,10 @@ It's suggested to run the code in a dedicate folder, for example.
     mkdir catastro
     cd catastro
 
+Notes:
+
+* Ignore the message "ERROR: Opening of authentication db FAILED"
+
 
 Windows
 -------

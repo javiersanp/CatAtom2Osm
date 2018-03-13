@@ -3,6 +3,7 @@ Change log
 
 **2018-03-13 (1.1.3)**
 
+* Put image links in the address.osm file (issue #14).
 * Option to download only the Cadastre files (issue #16).
 
 **2018-03-02 (1.1.2)**
