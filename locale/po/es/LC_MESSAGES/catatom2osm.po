@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2018-03-13 09:08+WET\n"
+"POT-Creation-Date: 2018-03-13 09:17+WET\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -41,7 +41,7 @@ msgstr "Buscando la url para la capa '%s' de '%s'..."
 msgid "Zip code '%s' don't exists"
 msgstr "El Código Postal '%s' no existe"
 
-#: catatom.py:80 catatom2osm.py:340
+#: catatom.py:80 catatom2osm.py:339
 msgid "Downloading '%s'"
 msgstr "Descargando '%s'"
 
@@ -102,7 +102,7 @@ msgstr "Comienza el procesado de '%s'"
 msgid "Generated %d rustic and %d urban tasks files"
 msgstr "Generados %d archivos de tareas de rústica y %d de urbana"
 
-#: catatom2osm.py:258 catatom2osm.py:288 catatom2osm.py:322
+#: catatom2osm.py:258 catatom2osm.py:288 catatom2osm.py:321
 msgid "Generated '%s'"
 msgstr "Generado '%s'"
 
@@ -122,39 +122,35 @@ msgstr "Por favor, compruébelo y ejecute de nuevo"
 msgid "Finished!"
 msgstr "¡Terminado!"
 
-#: catatom2osm.py:300
-msgid "Only for testing purposses. Don't upload any result to OSM"
-msgstr "Sólo para fines de prueba. No cargue ningún resultado en OSM"
-
-#: catatom2osm.py:324
+#: catatom2osm.py:323
 msgid "Failed to write layer: '%s'"
 msgstr "Error al escribir la capa: '%s'"
 
-#: catatom2osm.py:349
+#: catatom2osm.py:348
 msgid "No OSM data were obtained from '%s'"
 msgstr "No se obtuvieron datos OSM de '%s'"
 
-#: catatom2osm.py:353
+#: catatom2osm.py:352
 msgid "Read '%s': %d nodes, %d ways, %d relations"
 msgstr "Leído '%s': %d nodos, %d vías, %d relaciones"
 
-#: catatom2osm.py:382
+#: catatom2osm.py:381
 msgid "Generated '%s': %d nodes, %d ways, %d relations"
 msgstr "Generado '%s': %d nodos, %d vías, %d relaciones"
 
-#: catatom2osm.py:426
+#: catatom2osm.py:425
 msgid "Could not resolve joined tables for the '%s' layer"
 msgstr "No se pudieron resolver las tablas combinadas para la capa '%s'"
 
-#: catatom2osm.py:448
+#: catatom2osm.py:447
 msgid "Deleted %d addresses refused by street name"
 msgstr "Eliminadas %d direcciones rechazadas por nombre de vial"
 
-#: catatom2osm.py:501
+#: catatom2osm.py:500
 msgid "Refused %d 'parcel' addresses not unique for it building"
 msgstr "Rechazadas %d direcciones tipo parcela no únicas para su edificio"
 
-#: catatom2osm.py:573
+#: catatom2osm.py:572
 msgid "There are %d address without house number in the OSM data"
 msgstr "Existen %d direcciones sin número de portal en OSM"
 
@@ -763,3 +759,6 @@ msgstr ""
 msgid "Sum of building types should be equal to the number of buildings"
 msgstr ""
 "La suma de los tipos de edificios debe ser igual al número de edificios"
+
+#~ msgid "Only for testing purposses. Don't upload any result to OSM"
+#~ msgstr "Sólo para fines de prueba. No cargue ningún resultado en OSM"

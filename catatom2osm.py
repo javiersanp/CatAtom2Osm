@@ -297,7 +297,6 @@ class CatAtom2Osm:
             log.info(_("Please, check it and run again"))
         else:
             log.info(_("Finished!"))
-            log.warning(_("Only for testing purposses. Don't upload any result to OSM"))
 
     def exit(self):
         """Ends properly"""
