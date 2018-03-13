@@ -15,6 +15,7 @@ qgis.utils.uninstallErrorHook()
 from osgeo import gdal
 
 import catatom
+import cdau
 import csvtools
 import layer
 import osm
@@ -437,6 +438,7 @@ class CatAtom2Osm:
         self.address.append(address_gml)
         self.address.join_field(postaldescriptor, 'PD_id', 'gml_id', ['postCode'])
         self.address.join_field(thoroughfarename, 'TN_id', 'gml_id', ['text'], 'TN_')
+        self.get_auxiliary_addresses()
         self.address.get_image_links()
         (highway_names, self.is_new) = self.get_translations(self.address)
         ia = self.address.translate_field('TN_text', highway_names)
@@ -444,6 +446,15 @@ class CatAtom2Osm:
             log.debug(_("Deleted %d addresses refused by street name"), ia)
             report.values['ignored_addresses'] = ia
 
+    def get_auxiliary_addresses(self):
+        """If exists, reads and conflate an auxiliary addresses data source"""
+        for source in setup.aux_address.keys():
+            if self.cat.zip_code[:2] in setup.aux_address[source]:
+                aux_source = globals()[source]
+                aux_path = os.path.join(os.path.dirname(self.path), 'aux')
+                reader = aux_source.Reader(aux_path)
+                print source, aux_source, aux_path, reader
+    
     def merge_address(self, building_osm, address_osm):
         """
         Copy address from address_osm to building_osm using 'ref' tag.

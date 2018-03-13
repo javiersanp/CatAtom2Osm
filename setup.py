@@ -5,7 +5,7 @@ import csv
 import gettext
 
 app_name = 'CatAtom2Osm'
-app_version = '1.1.3dev'
+app_version = '1.1.4dev'
 app_author = u'Javier Sánchez Portero'
 app_copyright = u'2017, Javier Sánchez Portero'
 app_desc = 'Tool to convert INSPIRE data sets from the Spanish Cadastre ATOM Services to OSM files'
@@ -331,4 +331,6 @@ mun_fails = {
     '51021': [u'Fuente-Álamo', '341797'],
     '52024': [u'Gijón/Xixón', '345576'],
 }
+
+aux_address = {'cdau': ['04', '11', '14', '18', '21', '23', '29', '41']}
 
