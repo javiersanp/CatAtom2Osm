@@ -85,6 +85,7 @@ install:
 	@echo "#!/bin/bash" > catatom2osm
 ifeq (${OS},$(filter $(OS),Sierra Darwin))
 	@echo "source "'"'"$(shell pwd)/pyqgismac.sh"'"' >> catatom2osm
+	@chmod +x pyqgismac.sh
 endif
 	@echo "python "'"'"$(shell pwd)/main.py"'"'" $$"'*' >> catatom2osm
 	@chmod +x catatom2osm

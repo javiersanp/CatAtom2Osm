@@ -437,7 +437,7 @@ class BaseLayer(QgsVectorLayer):
             Osm: OSM data set
         """
         if data is None:
-            data = osm.Osm(upload)
+            data = osm.Osm(upload, generator=setup.app_name + ' ' + setup.app_version)
             nodes = ways = relations = 0
         else:
             nodes = len(data.nodes)

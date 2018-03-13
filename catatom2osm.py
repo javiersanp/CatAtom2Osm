@@ -119,8 +119,6 @@ class CatAtom2Osm:
             report.building_counter = Counter()
         if self.options.address:
             self.address.reproject()
-            #self.address.get_image_links()
-            #self.export_layer(self.address, 'address.geojson', 'GeoJSON')
             self.address_osm = self.address.to_osm()
             del self.address
             self.delete_shp('address.shp')
@@ -157,7 +155,7 @@ class CatAtom2Osm:
         if self.options.address:
             if not self.options.building and not self.options.tasks:
                 report.address_stats(self.address_osm)
-                self.write_osm(self.address_osm, 'address.osm')
+            self.write_osm(self.address_osm, 'address.osm')
             del self.address_osm
         if self.options.parcel:
             self.process_parcel()
@@ -297,7 +295,6 @@ class CatAtom2Osm:
             log.info(_("Please, check it and run again"))
         else:
             log.info(_("Finished!"))
-            log.warning(_("Only for testing purposses. Don't upload any result to OSM"))
 
     def exit(self):
         """Ends properly"""
@@ -441,7 +438,6 @@ class CatAtom2Osm:
         self.address.join_field(postaldescriptor, 'PD_id', 'gml_id', ['postCode'])
         self.address.join_field(thoroughfarename, 'TN_id', 'gml_id', ['text'], 'TN_')
         self.address.get_image_links()
-        self.export_layer(self.address, 'address.geojson', 'GeoJSON', target_crs_id=4326)
         (highway_names, self.is_new) = self.get_translations(self.address)
         ia = self.address.translate_field('TN_text', highway_names)
         if ia > 0:

@@ -122,6 +122,18 @@ class Reader(object):
         except StopIteration:
             return True
 
+    def download(self, layername):
+        """
+        Downloads the file for a a Cadastre layername.
+
+        Args:
+            layername (str): Short name of the Cadastre layer. Any of 
+                'building', 'cadastralzoning', 'address'
+        """
+        (md_path, gml_path, zip_path, vsizip_path, group) = self.get_layer_paths(layername)
+        url = setup.prov_url[group].format(code=self.prov_code)
+        self.get_atom_file(url)
+
     def read(self, layername, allow_empty=False, force_zip=False):
         """
         Create a QGIS vector layer for a Cadastre layername. Derives the GML 

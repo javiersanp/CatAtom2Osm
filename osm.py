@@ -10,10 +10,10 @@ COOR_DIGITS = 0
 class Osm(object):
     """Class to implement a OSM data set."""
 
-    def __init__(self, upload='never'):
+    def __init__(self, upload='never', generator=None):
         self.upload = upload
         self.version = '0.6'
-        self.generator = None
+        self.generator = generator
         self.counter = 0
         self.parents = defaultdict(set)
         self.elements = set()

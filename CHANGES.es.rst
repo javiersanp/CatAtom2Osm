@@ -1,6 +1,12 @@
 Registro de cambios
 ===================
 
+**03-13-2018 (1.1.3)**
+
+* Elimina algunos prefijos (Lugar) de los nombres en las direcciones (cuestión #13).
+* Pone enlaces a imágenes de fachada en address.osm (cuestión #14).
+* Opción para sólamente descargar los archivos de Catastro (cuestión #16).
+
 **02-03-2018 (1.1.2)**
 
 * Corrige problema al abrir archivos OSM con parámetro upload=yes (cuestión #12)

@@ -195,6 +195,18 @@ class TestCatAtom(unittest.TestCase):
 
     @mock.patch('catatom.os')
     @mock.patch('catatom.log')
+    def test_download(self, m_log, m_os):
+        self.m_cat.download = catatom.Reader.download.__func__
+        g = random.choice(['BU', 'CP', 'AD'])
+        url = setup.prov_url[g].format(code='99')
+        self.m_cat.get_layer_paths.return_value = ('1', '2', '3', '4', g)
+        self.m_cat.prov_code = '99'
+        self.m_cat.download(self.m_cat, 'foobar')
+        self.m_cat.get_layer_paths.assert_called_once_with('foobar')
+        self.m_cat.get_atom_file.assert_called_once_with(url)
+
+    @mock.patch('catatom.os')
+    @mock.patch('catatom.log')
     @mock.patch('catatom.layer')
     @mock.patch('catatom.QgsCoordinateReferenceSystem')
     def test_read(self, m_qgscrs, m_layer, m_log, m_os):

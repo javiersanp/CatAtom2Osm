@@ -5,7 +5,7 @@ import csv
 import gettext
 
 app_name = 'CatAtom2Osm'
-app_version = '1.1.2'
+app_version = '1.1.3dev'
 app_author = u'Javier Sánchez Portero'
 app_copyright = u'2017, Javier Sánchez Portero'
 app_desc = 'Tool to convert INSPIRE data sets from the Spanish Cadastre ATOM Services to OSM files'
@@ -297,6 +297,7 @@ highway_types = highway_types_es
 
 # List of highway types to translate as place addresses
 place_types = place_types_es
+remove_place_from_name = [place_types_es[26]]
 
 # List of highway types not to be parsed
 excluded_types = ['DS', 'ER']
