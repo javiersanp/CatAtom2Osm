@@ -18,6 +18,8 @@ def address_tags(feature):
     if len(hgw_name) == 0:
     	return tags
     hgw_type = hgw_name.split(' ')[0]
+    if hgw_type in setup.remove_place_from_name:
+        hgw_name = ' '.join(hgw_name.split(' ')[1:])
     if hgw_type in setup.place_types:
     	tags['addr:place'] = hgw_name
     else:

@@ -297,6 +297,7 @@ highway_types = highway_types_es
 
 # List of highway types to translate as place addresses
 place_types = place_types_es
+remove_place_from_name = [place_types_es[26]]
 
 # List of highway types not to be parsed
 excluded_types = ['DS', 'ER']
