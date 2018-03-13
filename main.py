@@ -37,6 +37,13 @@ def process(args, options):
     if options.list:
         from catatom import list_municipalities
         list_municipalities('{:>02}'.format(options.list))
+    elif options.download:
+        from catatom import Reader
+        a_path = args[0].decode(setup.encoding)
+        cat = Reader(a_path)
+        cat.download('address')
+        cat.download('cadastralzoning')
+        cat.download('building')
     else:
         from catatom2osm import CatAtom2Osm
         a_path = args[0].decode(setup.encoding)
@@ -68,6 +75,8 @@ def run():
         "to -bdptz)")))
     parser.add_option("-m", "--manual", dest="manual", default=False,
         action="store_true", help=__(_("Dissable conflation with OSM data")))
+    parser.add_option("-w", "--download", dest="download", default=False,
+        action="store_true", help=__(_("Download only")))
     parser.add_option("", "--log", dest="log_level", metavar="log_level",
         default=setup.log_level, help=__(_("Select the log level between " \
         "DEBUG, INFO, WARNING, ERROR or CRITICAL.")))

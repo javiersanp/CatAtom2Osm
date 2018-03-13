@@ -1,6 +1,10 @@
 Change log
 ==========
 
+**2018-03-13 (1.1.3)**
+
+* Option to download only the Cadastre files (issue #16).
+
 **2018-03-02 (1.1.2)**
 
 * Remove upload=yes parameter from OSM josm files (issue #12)

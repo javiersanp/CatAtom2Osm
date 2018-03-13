@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2018-01-24 01:10+WET\n"
+"POT-Creation-Date: 2018-03-13 09:08+WET\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -21,7 +21,7 @@ msgstr ""
 msgid "Last directory name must be a 5 digits ZIP code"
 msgstr "El nombre del último directorio debe ser un Código Postal de 5 dígitos"
 
-#: catatom.py:34 catatom.py:203
+#: catatom.py:34 catatom.py:215
 msgid "Province code '%s' don't exists"
 msgstr "El Código Provincial '%s' no existe"
 
@@ -49,32 +49,32 @@ msgstr "Descargando '%s'"
 msgid "Unknow layer name '%s'"
 msgstr "El nombre de capa '%s' es desconocido"
 
-#: catatom.py:150 catatom.py:152
+#: catatom.py:162 catatom.py:164
 msgid "The layer '%s' is empty"
 msgstr "La capa '%s' está vacía"
 
-#: catatom.py:158
+#: catatom.py:170
 msgid "Failed to load layer '%s'"
 msgstr "Error al cargar la capa: '%s'"
 
-#: catatom.py:161
+#: catatom.py:173
 msgid "Could not determine the CRS of '%s'"
 msgstr "No se puede determinar el CRS de '%s'"
 
-#: catatom.py:163
+#: catatom.py:175
 msgid "Read %d features in '%s'"
 msgstr "Leídos %d características en '%s'"
 
-#: catatom.py:192
+#: catatom.py:204
 msgid "Municipality: '%s'"
 msgstr "Municipio: '%s'"
 
-#: catatom.py:195
+#: catatom.py:207
 msgid "Failed to find administrative boundary, falling back to bounding box"
 msgstr ""
 "No se pudo obtener el límite administrativo, se usará el recuadro delimitador"
 
-#: catatom.py:209
+#: catatom.py:221
 msgid "Territorial office %s"
 msgstr "Oficina territorial %s"
 
@@ -349,62 +349,66 @@ msgstr ""
 "del \n"
 "Catastro Español."
 
-#: main.py:50
+#: main.py:57
 msgid "Print CatAtom2Osm version and exit"
 msgstr "Imprime la versión de CatAtom2Osm y termina"
 
-#: main.py:52
+#: main.py:59
 msgid "List available municipalities given the two digits province code"
 msgstr ""
 "Lista los municipios disponibles para el código provincial de dos dígitos"
 
-#: main.py:55
+#: main.py:62
 msgid "Splits constructions into tasks files (default, implies -z)"
 msgstr ""
 "Reparte las construcciones en archivos de tareas (predeterminada, implica -z)"
 
-#: main.py:58
+#: main.py:65
 msgid "Process the cadastral zoning dataset"
 msgstr "Procesa el conjunto de datos de zonificación catastral"
 
-#: main.py:60
+#: main.py:67
 msgid "Process buildings to a single file instead of tasks"
 msgstr "Procesa los edificios a un archivo individual en lugar de tareas"
 
-#: main.py:63
+#: main.py:70
 msgid "Process the address dataset (default)"
 msgstr "Procesa el conjunto de datos de direcciones (predeterminada)"
 
-#: main.py:65
+#: main.py:72
 msgid "Process the cadastral parcel dataset"
 msgstr "Procesa el conjunto de datos de parcelas catastrales"
 
-#: main.py:67
+#: main.py:74
 msgid "Process all datasets (equivalent to -bdptz)"
 msgstr "Procesa todos los conjuntos de datos (equivalente a -bdptz)"
 
-#: main.py:70
+#: main.py:77
 msgid "Dissable conflation with OSM data"
 msgstr "Desactiva la combinación con datos de OSM"
 
-#: main.py:72
+#: main.py:79
+msgid "Download only"
+msgstr "Solo descargar"
+
+#: main.py:81
 msgid "Select the log level between DEBUG, INFO, WARNING, ERROR or CRITICAL."
 msgstr ""
 "Selecciona el nivel de registro entre DEBUG, INFO, WARNING, ERROR o CRITICAL."
 
-#: main.py:90
+#: main.py:99
 msgid "Invalid log level: %s"
 msgstr "Nivel de registro no válido: %s"
 
-#: main.py:95
+#: main.py:104
 msgid "%s version %s"
 msgstr "%s versión %s"
 
-#: main.py:97
+#: main.py:106
 msgid "Too many arguments, supply only a directory path."
 msgstr "Demasiados argumentos, proporcione sólo la ruta de un directorio."
 
-#: main.py:108
+#: main.py:117
 msgid "Please, install QGIS"
 msgstr "Por favor, instala QGIS"
 

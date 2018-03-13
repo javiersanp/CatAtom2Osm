@@ -1,6 +1,10 @@
 Registro de cambios
 ===================
 
+**03-13-2018 (1.1.3)**
+
+* Opción para sólamente descargar los archivos de Catastro (cuestión # 16).
+
 **02-03-2018 (1.1.2)**
 
 * Corrige problema al abrir archivos OSM con parámetro upload=yes (cuestión #12)
