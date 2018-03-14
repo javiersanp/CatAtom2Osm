@@ -53,10 +53,10 @@ class Reader(object):
         }
         if hasattr(root, 'nsmap'):
             namespace = root.nsmap
-        gml_date = root.find('gmd:dateStamp/gco:Date', namespace)
-        if is_empty or gml_date == None:
+        src_date = root.find('gmd:dateStamp/gco:Date', namespace)
+        if is_empty or src_date == None:
             raise IOError(_("Could not read metadata from '%s'") % md_path)
-        self.gml_date = gml_date.text
+        self.src_date = src_date.text
         gml_title = root.find('.//gmd:title/gco:CharacterString', namespace)
         self.cat_mun = gml_title.text.split('-')[-1].split('(')[0].strip()
         gml_code = root.find('.//gmd:code/gco:CharacterString', namespace)
@@ -173,7 +173,7 @@ class Reader(object):
             raise IOError(_("Could not determine the CRS of '%s'") % gml_path)
         gml.setCrs(crs)
         log.info(_("Read %d features in '%s'"), gml.featureCount(), gml_path)
-        gml.source_date = self.gml_date
+        gml.source_date = self.src_date
         return gml
 
     def get_boundary(self, zoning):
