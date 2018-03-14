@@ -9,7 +9,7 @@ import re
 from collections import defaultdict
 from datetime import datetime
 
-from qgis.core import QgsCoordinateReferenceSystem
+from qgis.core import *
 
 import download
 import layer
@@ -25,6 +25,7 @@ cdau_url = 'http://www.juntadeandalucia.es/institutodeestadisticaycartografia/cd
 csv_name = 'portal_{}.csv'
 meta_url = 'http://www.callejerodeandalucia.es/portal/web/cdau/inf_alfa'
 cdau_crs = 25830
+cdau_thr = 5 # Threhold in meters to conflate Cadastre addresses
 cod_mun_trans = {
     '04': {40: 901, 104: 902, 105: 903, 900: 13},
     '11': {43: 901, 44: 902, 900: 12},
@@ -58,6 +59,21 @@ def cod_mun_cat2ine(cod_mun_cat):
         cod_mun = cod_mun_trans[cod_prov].get(cod_mun, cod_mun)
     cod_mun_ine = '{}{:03d}'.format(cod_prov, cod_mun)
     return cod_mun_ine
+
+def get_cat_address(ad, cod_mun_cat):
+    """Convert CDAU address to Cadastre attributes"""
+    attr = {}
+    attr['localId'] = '{}.{}.{}.{}'.format(cod_mun_cat[:2], cod_mun_cat[2:], 
+        ad['dgc_via'], ad['refcatparc'])
+    attr['TN_text'] = u'{} {}'.format(ad['nom_tip_via'], ad['nom_via'])
+    attr['postCode'] = ad['cod_postal']
+    attr['spec'] = 'Entrance'
+    to = ad['num_por_hasta'] + ad['ext_hasta']
+    attr['designator'] = ad['num_por_desde'] + ad['ext_desde']
+    if to:
+        attr['designator'] += '-' + to
+    return attr
+
 
 class Reader(object):
     """Class to download and read CDAU CSV files"""
@@ -114,20 +130,47 @@ def conflate(cdau_address, cat_address, cod_mun_cat):
     exp = q.format(cod_mun, 'PORTAL', 'ACCESORIO')
     c = 0
     addresses = defaultdict(list)
+    index = cat_address.get_index()
+    to_add = []
+    to_change = {}
+    to_change_g = {}
     for feat in cat_address.getFeatures():
         g = feat['localId'].split('.')
         ref = '.'.join(g[:3] + g[4:])
         addresses[ref].append(feat)
     for ad in cdau_address.search(exp):
-        dgc_via = ad['dgc_via']
-        refcatparc = ad['refcatparc']
-        ref = '{}.{}.{}.{}'.format(cod_mun_cat[:2], cod_mun_cat[2:], dgc_via, refcatparc)
-        print ad['id_por_pk'], ref, len(addresses[ref])
-        #for p in cat_address.search(exp):
-        # Se busca el grupo de direcciones de Catastro que coincidan con los valores 'dgc_via' y 'refcatparc'.
-        # Si este grupo está vacío, y no hay ninguna dirección de catastro cerca, se añade la dirección CDAU.
-        # Si el grupo tiene un elemento, se sustituye la dirección de Catastro por la de CDAU.
-        # Si el grupo tiene varios elementos, se sustituye la dirección de Catastro más cercana por la de CDAU.
+        attr = get_cat_address(ad, cod_mun_cat)
+        ref = attr['localId']
+        pt = QgsPoint()
+        pt.setX(float(ad['x']))
+        pt.setY(float(ad['y']))
+        if len(addresses[ref]) == 0: # can't resolve cadastral reference
+            area_of_candidates = layer.Point(pt).boundingBox(cdau_thr)
+            fids = index.intersects(area_of_candidates)
+            if len(fids) == 0: # no close cadastre address
+                feat = QgsFeature(cat_address.fields())
+                for key, value in attr.items():
+                    feat[key] = value
+                feat.setGeometry(QgsGeometry.fromPoint(pt))
+                to_add.append(feat) # add new
+        else: # get nearest
+            min_dist = 100
+            candidate = None
+            for feat in addresses[ref]:
+                dist = feat.geometry().asPoint().sqrDist(pt)
+                if dist < min_dist:
+                   min_dist = dist
+                   candidate = feat
+            if candidate is not None: # update existing
+                to_change_g[candidate.id()] = QgsGeometry.fromPoint(pt)
+                for key, value in attr.items():
+                    candidate[key] = value
+                to_change[candidate.id()] = layer.get_attributes(candidate)
         c += 1
-    print c
-        
+    if to_change:
+        cat_address.writer.changeAttributeValues(to_change)
+        cat_address.writer.changeGeometryValues(to_change_g)
+        log.info(_("Replaced %d addresses from '%s'"), len(to_change), 'CDAU')
+    if to_add:
+        cat_address.writer.addFeatures(to_add)
+        log.info(_("Added %d addresses from '%s'"), len(to_add), 'CDAU')

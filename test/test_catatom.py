@@ -116,7 +116,7 @@ class TestCatAtom(unittest.TestCase):
         m_open.return_value.read.return_value = metadata
         self.m_cat.get_metadata(self.m_cat, 'foo')
         m_open.assert_called_once_with('foo', 'r')
-        self.assertEquals(self.m_cat.gml_date, '2017-02-25')
+        self.assertEquals(self.m_cat.src_date, '2017-02-25')
         self.assertEquals(self.m_cat.cat_mun, 'TAZ')
         self.assertEquals(self.m_cat.crs_ref, 32628)
 
@@ -131,7 +131,7 @@ class TestCatAtom(unittest.TestCase):
         m_zip.ZipFile.assert_called_once_with('bar')
         m_os.path.basename.assert_called_once_with('foo')
         m_zip.ZipFile().read.assert_called_once_with(m_os.path.basename())
-        self.assertEquals(self.m_cat.gml_date, '2017-02-25')
+        self.assertEquals(self.m_cat.src_date, '2017-02-25')
         self.assertEquals(self.m_cat.cat_mun, 'TAZ')
         self.assertEquals(self.m_cat.crs_ref, 32628)
 
@@ -220,7 +220,7 @@ class TestCatAtom(unittest.TestCase):
         self.m_cat.is_empty.return_value = False
         self.m_cat.crs_ref = '32628'
         self.m_cat.prov_code = '99'
-        self.m_cat.gml_date = 'bar'
+        self.m_cat.src_date = 'bar'
         gml = self.m_cat.read(self.m_cat, 'foobar')
         self.m_cat.get_layer_paths.assert_called_once_with('foobar')
         self.m_cat.get_atom_file.assert_not_called()

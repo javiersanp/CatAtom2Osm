@@ -6,6 +6,7 @@ os.environ['LANGUAGE'] = 'C'
 
 import setup
 import cdau
+import layer
 from catatom2osm import QgsSingleton
 qgs = QgsSingleton()
 
@@ -45,10 +46,28 @@ class TestCdau(unittest.TestCase):
         self.assertEqual(cdau.cod_mun_cat2ine('29900'), '29067')
 
     @mock.patch('cdau.os')
+    def test_init(self, m_os):
+        self.m_cdau.init = cdau.Reader.__init__.__func__
+        m_os.path.exists.return_value = True
+        m_os.path.isdir.return_value = False
+        with self.assertRaises(IOError) as cm:
+            self.m_cdau.init(self.m_cdau, 'foobar')
+        self.assertIn('Not a directory', cm.exception.message)
+        m_os.makedirs.assert_not_called()
+        m_os.path.exists.return_value = False
+        m_os.path.isdir.return_value = True
+        self.m_cdau.init(self.m_cdau, 'foobar')
+        m_os.makedirs.assert_called_with('foobar')
+
+    @mock.patch('cdau.os')
     @mock.patch('cdau.layer')
     @mock.patch('cdau.download')
     def test_read(self, m_download, m_layer, m_os):
         self.m_cdau.read = cdau.Reader.read.__func__
+        with self.assertRaises(ValueError) as cm:
+            self.m_cdau.read(self.m_cdau, '38')
+        self.assertIn('Province code', cm.exception.message)
+
         m_os.path.join = lambda *args: '/'.join(args)
         m_os.path.exists.return_value = True
         self.m_cdau.path = 'foobar'
@@ -57,12 +76,17 @@ class TestCdau(unittest.TestCase):
         csv.isValid.return_value = True
         m_layer.BaseLayer.return_value = csv
         self.assertEquals(self.m_cdau.read(self.m_cdau, '29'), csv)
-        #self.m_cdau.get_metadata.assert_called_once_with()
+        m_download.wget.assert_not_called()
         self.assertEqual(csv.source_date, 'taz')
+
+        m_os.path.exists.return_value = False
         csv.isValid.return_value = False
         with self.assertRaises(IOError) as cm:
             self.m_cdau.read(self.m_cdau, '29')
         self.assertIn('Failed to load layer', cm.exception.message)
+        fn = cdau.csv_name.format('Malaga')
+        url = cdau.cdau_url.format(fn)
+        m_download.wget.assert_called_once_with(url, 'foobar/'+fn)
 
     @mock.patch('cdau.os')
     @mock.patch('cdau.open')
@@ -89,19 +113,24 @@ class TestCdau(unittest.TestCase):
         self.assertEqual(self.m_cdau.src_date, 'foobar')
         m_open.assert_called_once_with('xxx', 'r')
 
-    def _test_conflate(self):
-        cdau_address = mock.MagicMock()
-        cat_address = mock.MagicMock()
-        cdau_address.search.return_value = [1,2,3]
-        cdau.conflate(cdau_address, cat_address, '29900')
+    def test_get_cat_address(self):
+        ad = {
+            'dgc_via': '123', 
+            'refcatparc': 'foobar',
+            'nom_tip_via': 'Calle',
+            'nom_via': u'Alegría',
+            'cod_postal': '12345',
+            'num_por_desde': '10', 'ext_desde': 'A',
+            'num_por_hasta': '', 'ext_hasta': ''
+        }
+        attr = cdau.get_cat_address(ad, '29900')
+        self.assertEqual(attr['localId'], '29.900.123.foobar')
+        self.assertEqual(attr['TN_text'], u'Calle Alegría')
+        self.assertEqual(attr['postCode'], '12345')
+        self.assertEqual(attr['spec'], 'Entrance')
+        self.assertEqual(attr['designator'], '10A')
 
-    def test_true_read(self):
-        import catatom
-        reader = cdau.Reader('/home/jsanchez/temp/catastro/aux')
-        cdau_address = reader.read('29')
-        print cdau_address.featureCount()
-        cat = catatom.Reader('/home/jsanchez/temp/catastro/29094')
-        cat_address = cat.read('address')
-        print cat_address.featureCount()
-        cdau.conflate(cdau_address, cat_address, '29094')
+        ad.update({'num_por_hasta': '14', 'ext_hasta': 'D'})
+        attr = cdau.get_cat_address(ad, '29900')
+        self.assertEqual(attr['designator'], '10A-14D')
 

@@ -466,7 +466,7 @@ class TestCatAtom2Osm(unittest.TestCase):
         m_csv.csv2dict.assert_not_called()
         m_csv.dict2csv.assert_has_calls([
             mock.call('bar/highway_types.csv', setup.highway_types),
-            mock.call('foo/highway_names.csv', 'taz'),
+            mock.call('foo/highway_names.csv', 'taz', sort=1),
         ])
         self.assertEquals(names, 'taz')
         self.assertTrue(is_new)

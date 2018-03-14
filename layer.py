@@ -959,8 +959,7 @@ class ZoningLayer(PolygonLayer):
         for i, zone in enumerate(self.getFeatures()):
             zone['label'] = self.task_pattern.format(i + 1)
             zone['zipcode'] = zip_code
-            attr = get_attributes(zone)
-            to_change[zone.id()] = attr
+            to_change[zone.id()] = get_attributes(zone)
         self.writer.changeAttributeValues(to_change)
 
     def append(self, layer, level=None):

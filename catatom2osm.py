@@ -440,11 +440,13 @@ class CatAtom2Osm:
         self.address.join_field(thoroughfarename, 'TN_id', 'gml_id', ['text'], 'TN_')
         self.get_auxiliary_addresses()
         self.address.get_image_links()
+        self.export_layer(self.address, 'address.geojson', 'GeoJSON', target_crs_id=4326)
         (highway_names, self.is_new) = self.get_translations(self.address)
         ia = self.address.translate_field('TN_text', highway_names)
         if ia > 0:
             log.debug(_("Deleted %d addresses refused by street name"), ia)
             report.values['ignored_addresses'] = ia
+        self.export_layer(self.address, 'address.geojson', 'GeoJSON', target_crs_id=4326)
 
     def get_auxiliary_addresses(self):
         """If exists, reads and conflate an auxiliary addresses data source"""
@@ -453,7 +455,8 @@ class CatAtom2Osm:
                 aux_source = globals()[source]
                 aux_path = os.path.join(os.path.dirname(self.path), 'aux')
                 reader = aux_source.Reader(aux_path)
-                reader.read(self.cat.zip_code[:2])
+                aux = reader.read(self.cat.zip_code[:2])
+                aux_source.conflate(aux, self.address, self.cat.zip_code)
     
     def merge_address(self, building_osm, address_osm):
         """
@@ -535,7 +538,7 @@ class CatAtom2Osm:
                 highway = self.get_highway()
                 highway.reproject(address.crs())
             highway_names = address.get_highway_names(highway)
-            csvtools.dict2csv(highway_names_path, highway_names)
+            csvtools.dict2csv(highway_names_path, highway_names, sort=1)
             is_new = True
         else:
             highway_names = csvtools.csv2dict(highway_names_path, {})
