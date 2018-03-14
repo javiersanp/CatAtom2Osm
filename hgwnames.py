@@ -28,7 +28,7 @@ def parse(name):
             if word in setup.excluded_types:
                 return ""
             else:
-                new_word = setup.highway_types.get(word, word)
+                new_word = setup.highway_types.get(word, word.title())
         elif nude_word in setup.lowcase_words: # Articles
             new_word = word.lower()
         elif "'" in word[1:-1]: # Articles with aphostrope
