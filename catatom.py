@@ -31,7 +31,7 @@ class Reader(object):
         self.zip_code = m.group()
         self.prov_code = self.zip_code[0:2]
         if self.prov_code not in setup.valid_provinces:
-            msg = _("Province code '%s' don't exists") % self.prov_code
+            msg = _("Province code '%s' not valid") % self.prov_code
             raise ValueError(msg)
         if not os.path.exists(a_path):
             os.makedirs(a_path)
@@ -212,7 +212,7 @@ class Reader(object):
 def list_municipalities(prov_code):
     """Get from the ATOM services a list of municipalities for a given province"""
     if prov_code not in setup.valid_provinces:
-        raise ValueError(_("Province code '%s' don't exists") % prov_code)
+        raise ValueError(_("Province code '%s' not valid") % prov_code)
     url = setup.prov_url['BU'].format(code=prov_code)
     response = download.get_response(url)
     root = etree.fromstring(response.content)

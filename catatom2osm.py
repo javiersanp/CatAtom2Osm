@@ -453,7 +453,7 @@ class CatAtom2Osm:
                 aux_source = globals()[source]
                 aux_path = os.path.join(os.path.dirname(self.path), 'aux')
                 reader = aux_source.Reader(aux_path)
-                print source, aux_source, aux_path, reader
+                reader.read(self.cat.zip_code[:2])
     
     def merge_address(self, building_osm, address_osm):
         """

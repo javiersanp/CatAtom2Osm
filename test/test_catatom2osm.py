@@ -396,6 +396,14 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.read_address(self.m_app)
         self.m_app.address.append.assert_called_once_with(self.m_app.cat.read())
 
+    @mock.patch('catatom2osm.cdau')
+    def test_get_auxiliary_addresses(self, m_cdau):
+        self.m_app.cat.zip_code = '29900'
+        self.m_app.path = '/foo/bar'
+        self.m_app.get_auxiliary_addresses = cat.CatAtom2Osm.get_auxiliary_addresses.__func__
+        self.m_app.get_auxiliary_addresses(self.m_app)
+        m_cdau.Reader.assert_called_once_with('/foo/aux')
+   
     @mock.patch('catatom2osm.report')
     def test_merge_address(self, m_report):
         address = osm.Osm()

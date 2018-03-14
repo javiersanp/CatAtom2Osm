@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2018-03-13 09:17+WET\n"
+"POT-Creation-Date: 2018-03-14 00:13+WET\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -21,11 +21,11 @@ msgstr ""
 msgid "Last directory name must be a 5 digits ZIP code"
 msgstr "El nombre del último directorio debe ser un Código Postal de 5 dígitos"
 
-#: catatom.py:34 catatom.py:215
-msgid "Province code '%s' don't exists"
-msgstr "El Código Provincial '%s' no existe"
+#: catatom.py:34 catatom.py:215 cdau.py:37
+msgid "Province code '%s' not valid"
+msgstr "El Código Provincial '%s' no es válido"
 
-#: catatom.py:39
+#: catatom.py:39 cdau.py:33
 msgid "Not a directory: '%s'"
 msgstr "No es un directorio: '%s'"
 
@@ -41,7 +41,7 @@ msgstr "Buscando la url para la capa '%s' de '%s'..."
 msgid "Zip code '%s' don't exists"
 msgstr "El Código Postal '%s' no existe"
 
-#: catatom.py:80 catatom2osm.py:339
+#: catatom.py:80 catatom2osm.py:338 cdau.py:42
 msgid "Downloading '%s'"
 msgstr "Descargando '%s'"
 
@@ -78,79 +78,79 @@ msgstr ""
 msgid "Territorial office %s"
 msgstr "Oficina territorial %s"
 
-#: catatom2osm.py:74
+#: catatom2osm.py:75
 msgid "Initialized QGIS %s API"
 msgstr "Inicializada la API de QGIS %s"
 
-#: catatom2osm.py:75
+#: catatom2osm.py:76
 msgid "Using GDAL %s"
 msgstr "Usando GDAL %s"
 
-#: catatom2osm.py:77
+#: catatom2osm.py:78
 msgid "Required QGIS version %s or greater"
 msgstr "Se requiere QGIS versión %s o superior"
 
-#: catatom2osm.py:81
+#: catatom2osm.py:82
 msgid "Required GDAL version %s or greater"
 msgstr "Se requiere GDAL versión %s o superior"
 
-#: catatom2osm.py:87
+#: catatom2osm.py:88
 msgid "Start processing '%s'"
 msgstr "Comienza el procesado de '%s'"
 
-#: catatom2osm.py:246
+#: catatom2osm.py:245
 msgid "Generated %d rustic and %d urban tasks files"
 msgstr "Generados %d archivos de tareas de rústica y %d de urbana"
 
-#: catatom2osm.py:258 catatom2osm.py:288 catatom2osm.py:321
+#: catatom2osm.py:257 catatom2osm.py:287 catatom2osm.py:320
 msgid "Generated '%s'"
 msgstr "Generado '%s'"
 
-#: catatom2osm.py:283
+#: catatom2osm.py:282
 msgid "Check %d fixme tags"
 msgstr "Revisa %d etiquetas fixme"
 
-#: catatom2osm.py:295
+#: catatom2osm.py:294
 msgid "The translation file '%s' have been writen in '%s'"
 msgstr "El archivo de conversiones '%s' ha sido generado en '%s'"
 
-#: catatom2osm.py:297
+#: catatom2osm.py:296
 msgid "Please, check it and run again"
 msgstr "Por favor, compruébelo y ejecute de nuevo"
 
-#: catatom2osm.py:299
+#: catatom2osm.py:298
 msgid "Finished!"
 msgstr "¡Terminado!"
 
-#: catatom2osm.py:323
+#: catatom2osm.py:322
 msgid "Failed to write layer: '%s'"
 msgstr "Error al escribir la capa: '%s'"
 
-#: catatom2osm.py:348
+#: catatom2osm.py:347
 msgid "No OSM data were obtained from '%s'"
 msgstr "No se obtuvieron datos OSM de '%s'"
 
-#: catatom2osm.py:352
+#: catatom2osm.py:351
 msgid "Read '%s': %d nodes, %d ways, %d relations"
 msgstr "Leído '%s': %d nodos, %d vías, %d relaciones"
 
-#: catatom2osm.py:381
+#: catatom2osm.py:380
 msgid "Generated '%s': %d nodes, %d ways, %d relations"
 msgstr "Generado '%s': %d nodos, %d vías, %d relaciones"
 
-#: catatom2osm.py:425
+#: catatom2osm.py:424
 msgid "Could not resolve joined tables for the '%s' layer"
 msgstr "No se pudieron resolver las tablas combinadas para la capa '%s'"
 
-#: catatom2osm.py:447
+#: catatom2osm.py:446
 msgid "Deleted %d addresses refused by street name"
 msgstr "Eliminadas %d direcciones rechazadas por nombre de vial"
 
-#: catatom2osm.py:500
+#: catatom2osm.py:508
 msgid "Refused %d 'parcel' addresses not unique for it building"
 msgstr "Rechazadas %d direcciones tipo parcela no únicas para su edificio"
 
-#: catatom2osm.py:572
+#: catatom2osm.py:580
 msgid "There are %d address without house number in the OSM data"
 msgstr "Existen %d direcciones sin número de portal en OSM"
 
