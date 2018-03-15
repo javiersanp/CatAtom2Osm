@@ -1,7 +1,7 @@
 Change log
 ==========
 
-**2018-03-14 (1.1.4dev)**
+**2018-03-14 (1.1.4)**
 
 * Merge Cadastre address with CDAU (issue #11).
 

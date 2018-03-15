@@ -16,7 +16,7 @@
   <link rel="stylesheet" type="text/css" href="_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>Índice &#8212; documentación de CatAtom2Osm - 1.1.3</title>
+    <title>Índice &#8212; documentación de CatAtom2Osm - 1.1.4</title>
     
     <link rel="stylesheet" href="_static/guzzle.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,7 +24,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.1.3',
+        VERSION:     '1.1.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -51,7 +51,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Índice de Módulos Python"
              >módulos</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">documentación de CatAtom2Osm - 1.1.3</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">documentación de CatAtom2Osm - 1.1.4</a> &#187;</li> 
       </ul>
     </div>
     <div class="container-wrapper">
@@ -232,6 +232,8 @@
 </li>
       <li><a href="api/catatom2osm.html#module-catatom2osm">catatom2osm (módulo)</a>
 </li>
+      <li><a href="api/cdau.html#module-cdau">cdau (módulo)</a>
+</li>
       <li><a href="api/osm.html#osm.Node.childs">childs (atributo de osm.Node)</a>
 
       <ul>
@@ -248,13 +250,17 @@
       </ul></li>
       <li><a href="api/osm.html#osm.Way.clean_duplicated_nodes">clean_duplicated_nodes() (método de osm.Way)</a>
 </li>
+      <li><a href="api/cdau.html#cdau.cod_mun_cat2ine">cod_mun_cat2ine() (en el módulo cdau)</a>
+</li>
       <li><a href="api/compat.html#module-compat">compat (módulo)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/layer.html#layer.AddressLayer.conflate">conflate() (método de layer.AddressLayer)</a>
+      <li><a href="api/cdau.html#cdau.conflate">conflate() (en el módulo cdau)</a>
 
       <ul>
+        <li><a href="api/layer.html#layer.AddressLayer.conflate">(método de layer.AddressLayer)</a>
+</li>
         <li><a href="api/layer.html#layer.ConsLayer.conflate">(método de layer.ConsLayer)</a>
 </li>
       </ul></li>
@@ -386,9 +392,13 @@
 </li>
       <li><a href="api/layer.html#layer.get_attributes">get_attributes() (en el módulo layer)</a>
 </li>
+      <li><a href="api/catatom2osm.html#catatom2osm.CatAtom2Osm.get_auxiliary_addresses">get_auxiliary_addresses() (método de catatom2osm.CatAtom2Osm)</a>
+</li>
       <li><a href="api/catatom.html#catatom.Reader.get_boundary">get_boundary() (método de catatom.Reader)</a>
 </li>
       <li><a href="api/catatom2osm.html#catatom2osm.CatAtom2Osm.get_building">get_building() (método de catatom2osm.CatAtom2Osm)</a>
+</li>
+      <li><a href="api/cdau.html#cdau.get_cat_address">get_cat_address() (en el módulo cdau)</a>
 </li>
       <li><a href="api/layer.html#layer.Point.get_corner_context">get_corner_context() (método de layer.Point)</a>
 </li>
@@ -414,10 +424,10 @@
 </li>
       <li><a href="api/test.benchmark.html#test.benchmark.TimerConsLayer.get_fids_by_loop">get_fids_by_loop() (método de test.benchmark.TimerConsLayer)</a>
 </li>
-      <li><a href="api/test.benchmark.html#test.benchmark.TimerConsLayer.get_fids_by_loop2">get_fids_by_loop2() (método de test.benchmark.TimerConsLayer)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/test.benchmark.html#test.benchmark.TimerConsLayer.get_fids_by_loop2">get_fids_by_loop2() (método de test.benchmark.TimerConsLayer)</a>
+</li>
       <li><a href="api/test.benchmark.html#test.benchmark.TimerConsLayer.get_fids_by_loop_mem">get_fids_by_loop_mem() (método de test.benchmark.TimerConsLayer)</a>
 </li>
       <li><a href="api/test.benchmark.html#test.benchmark.TimerConsLayer.get_fids_by_loop_mem2">get_fids_by_loop_mem2() (método de test.benchmark.TimerConsLayer)</a>
@@ -443,7 +453,11 @@
       <li><a href="api/catatom.html#catatom.Reader.get_layer_paths">get_layer_paths() (método de catatom.Reader)</a>
 </li>
       <li><a href="api/catatom.html#catatom.Reader.get_metadata">get_metadata() (método de catatom.Reader)</a>
+
+      <ul>
+        <li><a href="api/cdau.html#cdau.Reader.get_metadata">(método de cdau.Reader)</a>
 </li>
+      </ul></li>
       <li><a href="api/layer.html#layer.PolygonLayer.get_multipolygon">get_multipolygon() (método estático de layer.PolygonLayer)</a>
 </li>
       <li><a href="api/layer.html#layer.PolygonLayer.get_outer_vertices">get_outer_vertices() (método estático de layer.PolygonLayer)</a>
@@ -673,6 +687,8 @@
       <li><a href="api/catatom.html#catatom.Reader.read">read() (método de catatom.Reader)</a>
 
       <ul>
+        <li><a href="api/cdau.html#cdau.Reader.read">(método de cdau.Reader)</a>
+</li>
         <li><a href="api/overpass.html#overpass.Query.read">(método de overpass.Query)</a>
 </li>
       </ul></li>
@@ -683,7 +699,11 @@
       <li><a href="api/catatom2osm.html#catatom2osm.CatAtom2Osm.read_osm">read_osm() (método de catatom2osm.CatAtom2Osm)</a>
 </li>
       <li><a href="api/catatom.html#catatom.Reader">Reader (clase en catatom)</a>
+
+      <ul>
+        <li><a href="api/cdau.html#cdau.Reader">(clase en cdau)</a>
 </li>
+      </ul></li>
       <li><a href="api/osm.html#osm.Relation.Member.ref">ref (atributo de osm.Relation.Member)</a>
 </li>
       <li><a href="api/osm.html#osm.Relation">Relation (clase en osm)</a>
@@ -692,6 +712,8 @@
 </li>
       <li><a href="api/osm.html#osm.Osm.relations">relations (atributo de osm.Osm)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/osm.html#osm.Osm.remove">remove() (método de osm.Osm)</a>
 
       <ul>
@@ -700,8 +722,6 @@
         <li><a href="api/osm.html#osm.Way.remove">(método de osm.Way)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/layer.html#layer.ConsLayer.remove_inner_rings">remove_inner_rings() (método de layer.ConsLayer)</a>
 </li>
       <li><a href="api/layer.html#layer.ConsLayer.remove_outside_parts">remove_outside_parts() (método de layer.ConsLayer)</a>
@@ -765,6 +785,8 @@
       <ul>
         <li><a href="api/test.test_catatom2osm.html#test.test_catatom2osm.TestCatAtom2Osm.setUp">(método de test.test_catatom2osm.TestCatAtom2Osm)</a>
 </li>
+        <li><a href="api/test.test_cdau.html#test.test_cdau.TestCdau.setUp">(método de test.test_cdau.TestCdau)</a>
+</li>
         <li><a href="api/test.test_hgwnames.html#test.test_hgwnames.TestHgwnames.setUp">(método de test.test_hgwnames.TestHgwnames)</a>
 </li>
         <li><a href="api/test.test_layer.html#test.test_layer.TestAddressLayer.setUp">(método de test.test_layer.TestAddressLayer)</a>
@@ -821,6 +843,8 @@
       <li><a href="api/test.test_catatom.html#module-test.test_catatom">test.test_catatom (módulo)</a>
 </li>
       <li><a href="api/test.test_catatom2osm.html#module-test.test_catatom2osm">test.test_catatom2osm (módulo)</a>
+</li>
+      <li><a href="api/test.test_cdau.html#module-test.test_cdau">test.test_cdau (módulo)</a>
 </li>
       <li><a href="api/test.test_csvtools.html#module-test.test_csvtools">test.test_csvtools (módulo)</a>
 </li>
@@ -956,6 +980,8 @@
       </ul></li>
       <li><a href="api/test.test_osm.html#test.test_osm.TestOsmWay.test_clean_duplicated_nodes">test_clean_duplicated_nodes() (método de test.test_osm.TestOsmWay)</a>
 </li>
+      <li><a href="api/test.test_cdau.html#test.test_cdau.TestCdau.test_cod_mun_cat2ine">test_cod_mun_cat2ine() (método de test.test_cdau.TestCdau)</a>
+</li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestAddressLayer.test_conflate">test_conflate() (método de test.test_layer.TestAddressLayer)</a>
 
       <ul>
@@ -987,6 +1013,8 @@
       <li><a href="api/test.test_osmxml.html#test.test_osmxml.OsmxmlTest.test_deserialize">test_deserialize() (método de test.test_osmxml.OsmxmlTest)</a>
 </li>
       <li><a href="api/test.test_csvtools.html#test.test_csvtools.TestCsvTools.test_dict2csv">test_dict2csv() (método de test.test_csvtools.TestCsvTools)</a>
+</li>
+      <li><a href="api/test.test_csvtools.html#test.test_csvtools.TestCsvTools.test_dict2csv_sort">test_dict2csv_sort() (método de test.test_csvtools.TestCsvTools)</a>
 </li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestPolygonLayer.test_difference">test_difference() (método de test.test_layer.TestPolygonLayer)</a>
 </li>
@@ -1052,11 +1080,15 @@
 </li>
       <li><a href="api/test.test_catatom.html#test.test_catatom.TestCatAtom.test_get_atom_file">test_get_atom_file() (método de test.test_catatom.TestCatAtom)</a>
 </li>
+      <li><a href="api/test.test_catatom2osm.html#test.test_catatom2osm.TestCatAtom2Osm.test_get_auxiliary_addresses">test_get_auxiliary_addresses() (método de test.test_catatom2osm.TestCatAtom2Osm)</a>
+</li>
       <li><a href="api/test.test_catatom.html#test.test_catatom.TestCatAtom.test_get_boundary">test_get_boundary() (método de test.test_catatom.TestCatAtom)</a>
 </li>
       <li><a href="api/test.test_catatom2osm.html#test.test_catatom2osm.TestCatAtom2Osm.test_get_building1">test_get_building1() (método de test.test_catatom2osm.TestCatAtom2Osm)</a>
 </li>
       <li><a href="api/test.test_catatom2osm.html#test.test_catatom2osm.TestCatAtom2Osm.test_get_building2">test_get_building2() (método de test.test_catatom2osm.TestCatAtom2Osm)</a>
+</li>
+      <li><a href="api/test.test_cdau.html#test.test_cdau.TestCdau.test_get_cat_address">test_get_cat_address() (método de test.test_cdau.TestCdau)</a>
 </li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestPoint.test_get_corner_context">test_get_corner_context() (método de test.test_layer.TestPoint)</a>
 </li>
@@ -1083,6 +1115,8 @@
       <li><a href="api/test.test_layer.html#test.test_layer.TestBaseLayer.test_get_index">test_get_index() (método de test.test_layer.TestBaseLayer)</a>
 </li>
       <li><a href="api/test.test_catatom.html#test.test_catatom.TestCatAtom.test_get_layer_paths">test_get_layer_paths() (método de test.test_catatom.TestCatAtom)</a>
+</li>
+      <li><a href="api/test.test_cdau.html#test.test_cdau.TestCdau.test_get_metadata">test_get_metadata() (método de test.test_cdau.TestCdau)</a>
 </li>
       <li><a href="api/test.test_catatom.html#test.test_catatom.TestCatAtom.test_get_metadata_empty">test_get_metadata_empty() (método de test.test_catatom.TestCatAtom)</a>
 </li>
@@ -1140,6 +1174,8 @@
 
       <ul>
         <li><a href="api/test.test_catatom2osm.html#test.test_catatom2osm.TestCatAtom2Osm.test_init">(método de test.test_catatom2osm.TestCatAtom2Osm)</a>
+</li>
+        <li><a href="api/test.test_cdau.html#test.test_cdau.TestCdau.test_init">(método de test.test_cdau.TestCdau)</a>
 </li>
         <li><a href="api/test.test_download.html#test.test_download.TestProgressBar.test_init">(método de test.test_download.TestProgressBar)</a>
 </li>
@@ -1263,6 +1299,8 @@
       <li><a href="api/test.test_catatom.html#test.test_catatom.TestCatAtom.test_read">test_read() (método de test.test_catatom.TestCatAtom)</a>
 
       <ul>
+        <li><a href="api/test.test_cdau.html#test.test_cdau.TestCdau.test_read">(método de test.test_cdau.TestCdau)</a>
+</li>
         <li><a href="api/test.test_overpass.html#test.test_overpass.TestQuery.test_read">(método de test.test_overpass.TestQuery)</a>
 </li>
       </ul></li>
@@ -1395,6 +1433,8 @@
       <li><a href="api/test.test_catatom.html#test.test_catatom.TestCatAtom">TestCatAtom (clase en test.test_catatom)</a>
 </li>
       <li><a href="api/test.test_catatom2osm.html#test.test_catatom2osm.TestCatAtom2Osm">TestCatAtom2Osm (clase en test.test_catatom2osm)</a>
+</li>
+      <li><a href="api/test.test_cdau.html#test.test_cdau.TestCdau">TestCdau (clase en test.test_cdau)</a>
 </li>
       <li><a href="api/test.test_layer.html#test.test_layer.TestConsLayer">TestConsLayer (clase en test.test_layer)</a>
 </li>
@@ -1567,7 +1607,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Índice de Módulos Python"
              >módulos</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">documentación de CatAtom2Osm - 1.1.3</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">documentación de CatAtom2Osm - 1.1.4</a> &#187;</li> 
       </ul>
     </div>
 <script type="text/javascript">

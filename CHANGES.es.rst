@@ -1,7 +1,7 @@
 Registro de cambios
 ===================
 
-**14-03-2018 (1.1.4dev)**
+**14-03-2018 (1.1.4)**
 
 * Combina direcciones de Catastro con las del Callejero Digital Unificado de Andalucía (cuestión #11).
 

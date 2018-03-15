@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: CatAtom 2Osm\n"
-"POT-Creation-Date: 2018-03-15 18:56+WET\n"
+"POT-Creation-Date: 2018-03-15 23:17+WET\n"
 "PO-Revision-Date: 2017-05-28 19:23+WEST\n"
 "Last-Translator: Javier Sánchez <javiersanp@gmail.com>\n"
 "Language-Team: none\n"
@@ -21,15 +21,15 @@ msgstr ""
 msgid "Last directory name must be a 5 digits ZIP code"
 msgstr "El nombre del último directorio debe ser un Código Postal de 5 dígitos"
 
-#: catatom.py:34 catatom.py:215 cdau.py:110
+#: catatom.py:34 catatom.py:215 cdau.py:129
 msgid "Province code '%s' not valid"
 msgstr "El Código Provincial '%s' no es válido"
 
-#: catatom.py:39 cdau.py:91
+#: catatom.py:39 cdau.py:110
 msgid "Not a directory: '%s'"
 msgstr "No es un directorio: '%s'"
 
-#: catatom.py:58 cdau.py:104
+#: catatom.py:58 cdau.py:123
 msgid "Could not read metadata from '%s'"
 msgstr "No se pueden leer los metadatos de '%s'"
 
@@ -41,7 +41,7 @@ msgstr "Buscando la url para la capa '%s' de '%s'..."
 msgid "Zip code '%s' don't exists"
 msgstr "El Código Postal '%s' no existe"
 
-#: catatom.py:80 catatom2osm.py:338 cdau.py:115
+#: catatom.py:80 catatom2osm.py:338 cdau.py:134
 msgid "Downloading '%s'"
 msgstr "Descargando '%s'"
 
@@ -53,7 +53,7 @@ msgstr "El nombre de capa '%s' es desconocido"
 msgid "The layer '%s' is empty"
 msgstr "La capa '%s' está vacía"
 
-#: catatom.py:170 cdau.py:119
+#: catatom.py:170 cdau.py:138
 msgid "Failed to load layer '%s'"
 msgstr "Error al cargar la capa: '%s'"
 
@@ -61,7 +61,7 @@ msgstr "Error al cargar la capa: '%s'"
 msgid "Could not determine the CRS of '%s'"
 msgstr "No se puede determinar el CRS de '%s'"
 
-#: catatom.py:175 cdau.py:121
+#: catatom.py:175 cdau.py:140
 msgid "Read %d features in '%s'"
 msgstr "Leídos %d características en '%s'"
 
@@ -142,27 +142,27 @@ msgstr "Generado '%s': %d nodos, %d vías, %d relaciones"
 msgid "Could not resolve joined tables for the '%s' layer"
 msgstr "No se pudieron resolver las tablas combinadas para la capa '%s'"
 
-#: catatom2osm.py:444
+#: catatom2osm.py:447
 msgid "Deleted %d addresses refused by street name"
 msgstr "Eliminadas %d direcciones rechazadas por nombre de vial"
 
-#: catatom2osm.py:513
+#: catatom2osm.py:512
 msgid "Refused %d 'parcel' addresses not unique for it building"
 msgstr "Rechazadas %d direcciones tipo parcela no únicas para su edificio"
 
-#: catatom2osm.py:587
+#: catatom2osm.py:586
 msgid "There are %d address without house number in the OSM data"
 msgstr "Existen %d direcciones sin número de portal en OSM"
 
-#: cdau.py:171
+#: cdau.py:190
 msgid "Parsed %d addresses from '%s'"
 msgstr "Analizadas %d direcciones de '%s'"
 
-#: cdau.py:176
+#: cdau.py:195
 msgid "Replaced %d addresses from '%s'"
 msgstr "Reemplazadas %d direcciones de '%s'"
 
-#: cdau.py:182
+#: cdau.py:201
 msgid "Added %d addresses from '%s'"
 msgstr "Añadidas %d direcciones de '%s'"
 
