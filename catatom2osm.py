@@ -495,6 +495,8 @@ class CatAtom2Osm:
                 continue
             for ad in address_index[ref]:
                 bu = group[0]
+                if 'image' in ad.tags:
+                    del ad.tags['image']
                 entrance = False
                 if 'entrance' in ad.tags:
                     footprint = [bu] if isinstance(bu, osm.Way) \
