@@ -6,6 +6,7 @@ CatAtom2Osm
 
    catatom
    catatom2osm
+   cdau
    compat
    csvtools
    download

@@ -437,7 +437,7 @@ class BaseLayer(QgsVectorLayer):
             Osm: OSM data set
         """
         if data is None:
-            data = osm.Osm(upload)
+            data = osm.Osm(upload, generator=setup.app_name + ' ' + setup.app_version)
             nodes = ways = relations = 0
         else:
             nodes = len(data.nodes)
@@ -959,8 +959,7 @@ class ZoningLayer(PolygonLayer):
         for i, zone in enumerate(self.getFeatures()):
             zone['label'] = self.task_pattern.format(i + 1)
             zone['zipcode'] = zip_code
-            attr = get_attributes(zone)
-            to_change[zone.id()] = attr
+            to_change[zone.id()] = get_attributes(zone)
         self.writer.changeAttributeValues(to_change)
 
     def append(self, layer, level=None):

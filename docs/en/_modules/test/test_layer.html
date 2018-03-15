@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" href="../../_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>test.test_layer &#8212; CatAtom2Osm 1.0.2 documentation</title>
+    <title>test.test_layer &#8212; CatAtom2Osm 1.1.4 documentation</title>
     
     <link rel="stylesheet" href="../../_static/guzzle.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -23,7 +23,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.0.2',
+        VERSION:     '1.1.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -49,7 +49,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">CatAtom2Osm 1.0.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CatAtom2Osm 1.1.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
       </ul>
     </div>
@@ -401,7 +401,15 @@
         <span class="n">m_index</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">()</span>
         <span class="n">layer</span><span class="o">.</span><span class="n">featureCount</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="n">layer</span><span class="o">.</span><span class="n">test</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
-        <span class="n">m_index</span><span class="o">.</span><span class="n">assert_called_with</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">getFeatures</span><span class="o">.</span><span class="n">return_value</span><span class="p">)</span></div></div>
+        <span class="n">m_index</span><span class="o">.</span><span class="n">assert_called_with</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">getFeatures</span><span class="o">.</span><span class="n">return_value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TestBaseLayer.test_to_osm"><a class="viewcode-back" href="../../api/test.test_layer.html#test.test_layer.TestBaseLayer.test_to_osm">[docs]</a>    <span class="k">def</span> <span class="nf">test_to_osm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer</span><span class="o">.</span><span class="n">to_osm</span><span class="p">(</span><span class="n">upload</span><span class="o">=</span><span class="s1">&#39;always&#39;</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;comment&#39;</span><span class="p">:</span> <span class="s1">&#39;tryit&#39;</span><span class="p">})</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="n">setup</span><span class="o">.</span><span class="n">changeset_tags</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;comment&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">tags</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="s1">&#39;tryit&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">tags</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">value</span><span class="p">)</span></div></div>
 
 <div class="viewcode-block" id="TestBaseLayer2"><a class="viewcode-back" href="../../api/test.test_layer.html#test.test_layer.TestBaseLayer2">[docs]</a><span class="k">class</span> <span class="nc">TestBaseLayer2</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
 
@@ -417,16 +425,19 @@
         <span class="n">mock_fw</span><span class="o">.</span><span class="n">writeAsVectorFormat</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="s1">&#39;foobar&#39;</span><span class="p">,</span>
             <span class="s1">&#39;utf-8&#39;</span><span class="p">,</span> <span class="n">layer</span><span class="o">.</span><span class="n">crs</span><span class="p">(),</span> <span class="s1">&#39;ESRI Shapefile&#39;</span><span class="p">)</span></div>
 
+    <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;layer.QgsCoordinateReferenceSystem&#39;</span><span class="p">)</span>
     <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;layer.QgsVectorFileWriter&#39;</span><span class="p">)</span>
     <span class="nd">@mock</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="s1">&#39;layer.os&#39;</span><span class="p">)</span>
-<div class="viewcode-block" id="TestBaseLayer2.test_export_other"><a class="viewcode-back" href="../../api/test.test_layer.html#test.test_layer.TestBaseLayer2.test_export_other">[docs]</a>    <span class="k">def</span> <span class="nf">test_export_other</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mock_os</span><span class="p">,</span> <span class="n">mock_fw</span><span class="p">):</span>
+<div class="viewcode-block" id="TestBaseLayer2.test_export_other"><a class="viewcode-back" href="../../api/test.test_layer.html#test.test_layer.TestBaseLayer2.test_export_other">[docs]</a>    <span class="k">def</span> <span class="nf">test_export_other</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mock_os</span><span class="p">,</span> <span class="n">mock_fw</span><span class="p">,</span> <span class="n">mock_crs</span><span class="p">):</span>
         <span class="n">layer</span> <span class="o">=</span> <span class="n">BaseLayer</span><span class="p">(</span><span class="s2">&quot;Polygon&quot;</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="s2">&quot;memory&quot;</span><span class="p">)</span>
         <span class="n">mock_os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="o">.</span><span class="n">side_effect</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">arg</span><span class="p">:</span> <span class="n">arg</span><span class="o">==</span><span class="s1">&#39;foobar&#39;</span>
-        <span class="n">layer</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="s1">&#39;foobar&#39;</span><span class="p">,</span> <span class="s1">&#39;foo&#39;</span><span class="p">)</span>
+        <span class="n">layer</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="s1">&#39;foobar&#39;</span><span class="p">,</span> <span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="n">target_crs_id</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
+        <span class="n">mock_crs</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
+        <span class="n">mock_fw</span><span class="o">.</span><span class="n">writeAsVectorFormat</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="s1">&#39;foobar&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;utf-8&#39;</span><span class="p">,</span> <span class="n">mock_crs</span><span class="o">.</span><span class="n">return_value</span><span class="p">,</span> <span class="s1">&#39;foo&#39;</span><span class="p">)</span>
         <span class="n">mock_os</span><span class="o">.</span><span class="n">remove</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">(</span><span class="s1">&#39;foobar&#39;</span><span class="p">)</span>
         <span class="n">layer</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="s1">&#39;foobar&#39;</span><span class="p">,</span> <span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">mock_os</span><span class="o">.</span><span class="n">remove</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">(</span><span class="s1">&#39;foobar&#39;</span><span class="p">)</span></div></div>
-
 
 <div class="viewcode-block" id="TestPolygonLayer"><a class="viewcode-back" href="../../api/test.test_layer.html#test.test_layer.TestPolygonLayer">[docs]</a><span class="k">class</span> <span class="nc">TestPolygonLayer</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
 
@@ -1299,7 +1310,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">CatAtom2Osm 1.0.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CatAtom2Osm 1.1.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
       </ul>
     </div>

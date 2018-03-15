@@ -11,6 +11,7 @@ Submodules
    test.count_buildings
    test.test_catatom
    test.test_catatom2osm
+   test.test_cdau
    test.test_csvtools
    test.test_download
    test.test_hgwnames

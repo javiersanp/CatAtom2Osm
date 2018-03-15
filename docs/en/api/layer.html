@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>layer module &#8212; CatAtom2Osm 1.0.2 documentation</title>
+    <title>layer module &#8212; CatAtom2Osm 1.1.4 documentation</title>
     
     <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -23,7 +23,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.0.2',
+        VERSION:     '1.1.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -57,7 +57,7 @@
         <li class="right" >
           <a href="hgwnames.html" title="hgwnames module"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 1.0.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 1.1.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../api.html" >API reference</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="modules.html" accesskey="U">CatAtom2Osm</a> &#187;</li> 
       </ul>
@@ -181,7 +181,7 @@
 
 <dl class="method">
 <dt id="layer.AddressLayer.to_osm">
-<code class="descname">to_osm</code><span class="sig-paren">(</span><em>data=None</em>, <em>upload='never'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#AddressLayer.to_osm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.AddressLayer.to_osm" title="Permalink to this definition">¶</a></dt>
+<code class="descname">to_osm</code><span class="sig-paren">(</span><em>data=None</em>, <em>tags={}</em>, <em>upload='never'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#AddressLayer.to_osm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.AddressLayer.to_osm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Export to OSM</p>
 </dd></dl>
 
@@ -291,7 +291,7 @@ a boolean deciding if each feature will be included or not</li>
 
 <dl class="method">
 <dt id="layer.BaseLayer.export">
-<code class="descname">export</code><span class="sig-paren">(</span><em>path</em>, <em>driver_name='ESRI Shapefile'</em>, <em>overwrite=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#BaseLayer.export"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.BaseLayer.export" title="Permalink to this definition">¶</a></dt>
+<code class="descname">export</code><span class="sig-paren">(</span><em>path</em>, <em>driver_name='ESRI Shapefile'</em>, <em>overwrite=True</em>, <em>target_crs_id=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#BaseLayer.export"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.BaseLayer.export" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write layer to file</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -301,6 +301,7 @@ a boolean deciding if each feature will be included or not</li>
 <li><strong>path</strong> (<em>str</em>) &#8211; Path of the output file</li>
 <li><strong>driver_name</strong> (<em>str</em>) &#8211; Defaults to ESRI Shapefile.</li>
 <li><strong>overwrite</strong> (<em>bool</em>) &#8211; Defaults to True</li>
+<li><strong>target_crs_id</strong> (<em>int</em>) &#8211; Defaults to source CRS</li>
 </ul>
 </td>
 </tr>
@@ -359,7 +360,7 @@ in standalone script mode (without GUI).</p>
 
 <dl class="method">
 <dt id="layer.BaseLayer.to_osm">
-<code class="descname">to_osm</code><span class="sig-paren">(</span><em>tags_translation=&lt;function all_tags&gt;</em>, <em>data=None</em>, <em>upload='never'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#BaseLayer.to_osm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.BaseLayer.to_osm" title="Permalink to this definition">¶</a></dt>
+<code class="descname">to_osm</code><span class="sig-paren">(</span><em>tags_translation=&lt;function all_tags&gt;</em>, <em>data=None</em>, <em>tags={}</em>, <em>upload='never'</em>, <em>comment=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#BaseLayer.to_osm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.BaseLayer.to_osm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Export this layer to an Osm data set</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -370,6 +371,7 @@ in standalone script mode (without GUI).</p>
 By defaults convert all fields.</li>
 <li><strong>data</strong> (<a class="reference internal" href="osm.html#osm.Osm" title="osm.Osm"><em>Osm</em></a>) &#8211; OSM data set to append. By default creates a new one.</li>
 <li><strong>upload</strong> (<em>str</em>) &#8211; upload attribute of the osm dataset, default &#8216;never&#8217;</li>
+<li><strong>tags</strong> (<em>dict</em>) &#8211; tags to update setup.changeset_tags</li>
 </ul>
 </td>
 </tr>
@@ -544,7 +546,7 @@ Parts without associated building are ignored</p>
 
 <dl class="method">
 <dt id="layer.ConsLayer.to_osm">
-<code class="descname">to_osm</code><span class="sig-paren">(</span><em>data=None</em>, <em>upload='never'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.to_osm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.to_osm" title="Permalink to this definition">¶</a></dt>
+<code class="descname">to_osm</code><span class="sig-paren">(</span><em>data=None</em>, <em>tags={}</em>, <em>upload='never'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ConsLayer.to_osm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ConsLayer.to_osm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Export to OSM</p>
 </dd></dl>
 
@@ -822,7 +824,7 @@ less than &#8216;cath_thr&#8217; meters.</li>
 <dl class="method">
 <dt id="layer.ZoningLayer.set_tasks">
 <code class="descname">set_tasks</code><span class="sig-paren">(</span><em>zip_code</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/layer.html#ZoningLayer.set_tasks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#layer.ZoningLayer.set_tasks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Assings a unique task label to each zone by overriding splited
+<dd><p>Assings a unique task label to each zone by overriding splitted
 multiparts and merged adjacent zones</p>
 </dd></dl>
 
@@ -873,7 +875,7 @@ multiparts and merged adjacent zones</p>
         <li class="right" >
           <a href="hgwnames.html" title="hgwnames module"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 1.0.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">CatAtom2Osm 1.1.4 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../api.html" >API reference</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="modules.html" >CatAtom2Osm</a> &#187;</li> 
       </ul>

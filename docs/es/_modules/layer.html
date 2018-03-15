@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>layer &#8212; documentación de CatAtom2Osm - 1.0.2</title>
+    <title>layer &#8212; documentación de CatAtom2Osm - 1.1.4</title>
     
     <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -23,7 +23,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.0.2',
+        VERSION:     '1.1.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -50,7 +50,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Índice de Módulos Python"
              >módulos</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 1.0.2</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 1.1.4</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Código de módulo</a> &#187;</li> 
       </ul>
     </div>
@@ -514,23 +514,29 @@
             <span class="n">bbox</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{:.8f}</span><span class="s1">,</span><span class="si">{:.8f}</span><span class="s1">,</span><span class="si">{:.8f}</span><span class="s1">,</span><span class="si">{:.8f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">bbox</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">bbox</span></div>
 
-<div class="viewcode-block" id="BaseLayer.export"><a class="viewcode-back" href="../api/layer.html#layer.BaseLayer.export">[documentos]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">driver_name</span><span class="o">=</span><span class="s2">&quot;ESRI Shapefile&quot;</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseLayer.export"><a class="viewcode-back" href="../api/layer.html#layer.BaseLayer.export">[documentos]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">driver_name</span><span class="o">=</span><span class="s2">&quot;ESRI Shapefile&quot;</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">target_crs_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Write layer to file</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            path (str): Path of the output file</span>
 <span class="sd">            driver_name (str): Defaults to ESRI Shapefile.</span>
 <span class="sd">            overwrite (bool): Defaults to True</span>
+<span class="sd">            target_crs_id (int): Defaults to source CRS</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">target_crs_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">target_crs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="p">()</span> 
+        <span class="k">else</span><span class="p">:</span>
+             <span class="n">target_crs</span> <span class="o">=</span> <span class="n">QgsCoordinateReferenceSystem</span><span class="p">(</span><span class="n">target_crs_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="ow">and</span> <span class="n">overwrite</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">driver_name</span> <span class="o">==</span> <span class="s1">&#39;ESRI Shapefile&#39;</span><span class="p">:</span>
                 <span class="n">QgsVectorFileWriter</span><span class="o">.</span><span class="n">deleteShapeFile</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">QgsVectorFileWriter</span><span class="o">.</span><span class="n">writeAsVectorFormat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="p">(),</span> <span class="n">driver_name</span><span class="p">)</span> <span class="o">==</span> <span class="n">QgsVectorFileWriter</span><span class="o">.</span><span class="n">NoError</span></div>
+                <span class="n">target_crs</span><span class="p">,</span> <span class="n">driver_name</span><span class="p">)</span> <span class="o">==</span> <span class="n">QgsVectorFileWriter</span><span class="o">.</span><span class="n">NoError</span></div>
 
-<div class="viewcode-block" id="BaseLayer.to_osm"><a class="viewcode-back" href="../api/layer.html#layer.BaseLayer.to_osm">[documentos]</a>    <span class="k">def</span> <span class="nf">to_osm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tags_translation</span><span class="o">=</span><span class="n">translate</span><span class="o">.</span><span class="n">all_tags</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">upload</span><span class="o">=</span><span class="s1">&#39;never&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseLayer.to_osm"><a class="viewcode-back" href="../api/layer.html#layer.BaseLayer.to_osm">[documentos]</a>    <span class="k">def</span> <span class="nf">to_osm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tags_translation</span><span class="o">=</span><span class="n">translate</span><span class="o">.</span><span class="n">all_tags</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">{},</span> 
+            <span class="n">upload</span><span class="o">=</span><span class="s1">&#39;never&#39;</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Export this layer to an Osm data set</span>
 
@@ -539,12 +545,13 @@
 <span class="sd">                By defaults convert all fields.</span>
 <span class="sd">            data (Osm): OSM data set to append. By default creates a new one.</span>
 <span class="sd">            upload (str): upload attribute of the osm dataset, default &#39;never&#39;</span>
+<span class="sd">            tags (dict): tags to update setup.changeset_tags</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Osm: OSM data set</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">osm</span><span class="o">.</span><span class="n">Osm</span><span class="p">(</span><span class="n">upload</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">osm</span><span class="o">.</span><span class="n">Osm</span><span class="p">(</span><span class="n">upload</span><span class="p">,</span> <span class="n">generator</span><span class="o">=</span><span class="n">setup</span><span class="o">.</span><span class="n">app_name</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">setup</span><span class="o">.</span><span class="n">app_version</span><span class="p">)</span>
             <span class="n">nodes</span> <span class="o">=</span> <span class="n">ways</span> <span class="o">=</span> <span class="n">relations</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">nodes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
@@ -569,9 +576,10 @@
                 <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
                 <span class="n">report</span><span class="o">.</span><span class="n">warnings</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">tags_translation</span><span class="p">(</span><span class="n">feature</span><span class="p">))</span>
-        <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="n">setup</span><span class="o">.</span><span class="n">changeset_tags</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">changeset_tags</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">setup</span><span class="o">.</span><span class="n">changeset_tags</span><span class="p">,</span> <span class="o">**</span><span class="n">tags</span><span class="p">)</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="n">changeset_tags</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">data</span><span class="o">.</span><span class="n">tags</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_date</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;source_date&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
             <span class="n">data</span><span class="o">.</span><span class="n">tags</span><span class="p">[</span><span class="s1">&#39;source:date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_date</span>
         <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Loaded </span><span class="si">%d</span><span class="s2"> nodes, </span><span class="si">%d</span><span class="s2"> ways, </span><span class="si">%d</span><span class="s2"> relations from &#39;</span><span class="si">%s</span><span class="s2">&#39; layer&quot;</span><span class="p">),</span>
             <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span> <span class="o">-</span> <span class="n">nodes</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">ways</span><span class="p">)</span> <span class="o">-</span> <span class="n">ways</span><span class="p">,</span>
@@ -659,7 +667,7 @@
         <span class="k">if</span> <span class="n">to_clean</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">deleteFeatures</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">addFeatures</span><span class="p">(</span><span class="n">to_add</span><span class="p">)</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> multi-polygons splited into </span><span class="si">%d</span><span class="s2"> polygons in &quot;</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> multi-polygons splitted into </span><span class="si">%d</span><span class="s2"> polygons in &quot;</span>
                 <span class="s2">&quot;the &#39;</span><span class="si">%s</span><span class="s2">&#39; layer&quot;</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_add</span><span class="p">),</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">())</span>
             <span class="n">report</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s1">&#39;multipart_geoms_&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">()]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_clean</span><span class="p">)</span>
@@ -1059,14 +1067,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">task_pattern</span> <span class="o">=</span> <span class="n">pattern</span>
 
 <div class="viewcode-block" id="ZoningLayer.set_tasks"><a class="viewcode-back" href="../api/layer.html#layer.ZoningLayer.set_tasks">[documentos]</a>    <span class="k">def</span> <span class="nf">set_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zip_code</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Assings a unique task label to each zone by overriding splited </span>
+        <span class="sd">&quot;&quot;&quot;Assings a unique task label to each zone by overriding splitted </span>
 <span class="sd">        multiparts and merged adjacent zones&quot;&quot;&quot;</span>
         <span class="n">to_change</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">zone</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getFeatures</span><span class="p">()):</span>
             <span class="n">zone</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_pattern</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
             <span class="n">zone</span><span class="p">[</span><span class="s1">&#39;zipcode&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">zip_code</span>
-            <span class="n">attr</span> <span class="o">=</span> <span class="n">get_attributes</span><span class="p">(</span><span class="n">zone</span><span class="p">)</span>
-            <span class="n">to_change</span><span class="p">[</span><span class="n">zone</span><span class="o">.</span><span class="n">id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">attr</span>
+            <span class="n">to_change</span><span class="p">[</span><span class="n">zone</span><span class="o">.</span><span class="n">id</span><span class="p">()]</span> <span class="o">=</span> <span class="n">get_attributes</span><span class="p">(</span><span class="n">zone</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">changeAttributeValues</span><span class="p">(</span><span class="n">to_change</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ZoningLayer.append"><a class="viewcode-back" href="../api/layer.html#layer.ZoningLayer.append">[documentos]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -1103,7 +1110,7 @@
             <span class="n">log</span><span class="o">.</span><span class="n">debug</span> <span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Loaded </span><span class="si">%d</span><span class="s2"> features in &#39;</span><span class="si">%s</span><span class="s2">&#39; from &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">),</span> <span class="n">total</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">(),</span> <span class="n">layer</span><span class="o">.</span><span class="n">name</span><span class="p">())</span>
         <span class="k">if</span> <span class="n">multi</span><span class="p">:</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> multi-polygons splited into </span><span class="si">%d</span><span class="s2"> polygons in &quot;</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> multi-polygons splitted into </span><span class="si">%d</span><span class="s2"> polygons in &quot;</span>
                 <span class="s2">&quot;the &#39;</span><span class="si">%s</span><span class="s2">&#39; layer&quot;</span><span class="p">),</span> <span class="n">multi</span><span class="p">,</span> <span class="n">final</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">())</span></div>
 
 <div class="viewcode-block" id="ZoningLayer.export_poly"><a class="viewcode-back" href="../api/layer.html#layer.ZoningLayer.export_poly">[documentos]</a>    <span class="k">def</span> <span class="nf">export_poly</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
@@ -1153,9 +1160,10 @@
 <div class="viewcode-block" id="AddressLayer.create_shp"><a class="viewcode-back" href="../api/layer.html#layer.AddressLayer.create_shp">[documentos]</a>    <span class="k">def</span> <span class="nf">create_shp</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">crs</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="n">QgsFields</span><span class="p">(),</span> <span class="n">geom_type</span><span class="o">=</span><span class="n">QGis</span><span class="o">.</span><span class="n">WKBPoint</span><span class="p">):</span>
         <span class="n">QgsVectorFileWriter</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;UTF-8&#39;</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">geom_type</span><span class="p">,</span> <span class="n">crs</span><span class="p">,</span> <span class="s1">&#39;ESRI Shapefile&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="AddressLayer.to_osm"><a class="viewcode-back" href="../api/layer.html#layer.AddressLayer.to_osm">[documentos]</a>    <span class="k">def</span> <span class="nf">to_osm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">upload</span><span class="o">=</span><span class="s1">&#39;never&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="AddressLayer.to_osm"><a class="viewcode-back" href="../api/layer.html#layer.AddressLayer.to_osm">[documentos]</a>    <span class="k">def</span> <span class="nf">to_osm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">{},</span> <span class="n">upload</span><span class="o">=</span><span class="s1">&#39;never&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Export to OSM&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">AddressLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">to_osm</span><span class="p">(</span><span class="n">translate</span><span class="o">.</span><span class="n">address_tags</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">upload</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">AddressLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">to_osm</span><span class="p">(</span><span class="n">translate</span><span class="o">.</span><span class="n">address_tags</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> 
+            <span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">,</span> <span class="n">upload</span><span class="o">=</span><span class="n">upload</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AddressLayer.conflate"><a class="viewcode-back" href="../api/layer.html#layer.AddressLayer.conflate">[documentos]</a>    <span class="k">def</span> <span class="nf">conflate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_address</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1341,9 +1349,10 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">to_change</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">changeAttributeValues</span><span class="p">(</span><span class="n">to_change</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ConsLayer.to_osm"><a class="viewcode-back" href="../api/layer.html#layer.ConsLayer.to_osm">[documentos]</a>    <span class="k">def</span> <span class="nf">to_osm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">upload</span><span class="o">=</span><span class="s1">&#39;never&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="ConsLayer.to_osm"><a class="viewcode-back" href="../api/layer.html#layer.ConsLayer.to_osm">[documentos]</a>    <span class="k">def</span> <span class="nf">to_osm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">{},</span> <span class="n">upload</span><span class="o">=</span><span class="s1">&#39;never&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Export to OSM&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">ConsLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">to_osm</span><span class="p">(</span><span class="n">translate</span><span class="o">.</span><span class="n">building_tags</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">upload</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">ConsLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">to_osm</span><span class="p">(</span><span class="n">translate</span><span class="o">.</span><span class="n">building_tags</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> 
+            <span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">,</span> <span class="n">upload</span><span class="o">=</span><span class="n">upload</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ConsLayer.index_of_parts"><a class="viewcode-back" href="../api/layer.html#layer.ConsLayer.index_of_parts">[documentos]</a>    <span class="k">def</span> <span class="nf">index_of_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Index parts of building by building localid. &quot;&quot;&quot;</span>
@@ -1814,7 +1823,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Índice de Módulos Python"
              >módulos</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 1.0.2</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 1.1.4</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" >Código de módulo</a> &#187;</li> 
       </ul>
     </div>

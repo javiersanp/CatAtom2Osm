@@ -1,6 +1,24 @@
 Change log
 ==========
 
+**2018-03-14 (1.1.4)**
+
+* Merge Cadastre address with CDAU (issue #11).
+
+**2018-03-13 (1.1.3)**
+
+* Remove some prefixes from address name (issue #13).
+* Put image links in the address.osm file (issue #14).
+* Option to download only the Cadastre files (issue #16).
+
+**2018-03-02 (1.1.2)**
+
+* Remove upload=yes parameter from OSM josm files (issue #12)
+
+**2018-02-18 (1.1.1)**
+
+* Change CSV separator to tab (issue #10)
+
 **2018-01-23 (1.1.0)**
 
 * Move repository to OSM-es organization.

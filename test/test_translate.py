@@ -28,12 +28,14 @@ class TestTranslate(unittest.TestCase):
             'TN_text': '111',
             'designator': '222',
             'postCode': '',
-            'spec': 'Parcel'
+            'spec': 'Parcel',
+            'image': 'foobar'
         }
         tags = address_tags(feat)
         self.assertEquals(tags['ref'], '000')
         self.assertEquals(tags['addr:street'], '111')
         self.assertEquals(tags['addr:housenumber'], '222')
+        self.assertEquals(tags['image'], 'foobar')
         self.assertNotIn('addr:postcode', tags)
         self.assertNotIn('entrance', tags)
         feat['spec'] = 'Entrance'
@@ -46,10 +48,11 @@ class TestTranslate(unittest.TestCase):
             'TN_text': 'Lugar foo', 
             'designator': '',
             'postCode': '',
-            'spec': ''
+            'spec': '',
+            'image': 'foobar'
         }
         tags = address_tags(feat)
-        self.assertEquals(tags['addr:place'], 'Lugar foo')
+        self.assertEquals(tags['addr:place'], 'foo')
         self.assertNotIn('addr:street', tags)
 
     def test_building_tags(self):

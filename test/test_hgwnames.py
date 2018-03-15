@@ -43,7 +43,7 @@ class TestHgwnames(unittest.TestCase):
             "CL TRENET D'ALCOI": "Calle Trenet d'Alcoi",
             "CL SANT MARCEL.LI": u"Calle Sant Marcel·li",
             "CL O'DONNELL": "Calle O'Donnell",
-            "XX FooBar": "XX Foobar"
+            "XX FooBar": "Xx Foobar"
         }
         for (inp, out) in names.items():
             self.assertEquals(hgwnames.parse(inp), out)

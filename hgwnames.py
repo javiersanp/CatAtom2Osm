@@ -19,6 +19,7 @@ def normalize(text):
 
 def parse(name):
     """Transform the name of a street from Cadastre conventions to OSM ones."""
+    name = name.split(';')[0] # Remove additional information
     name = re.sub('[,]+', ', ', name).strip() # Avoids comma without trailing space
     result = []
     for (i, word) in enumerate(re.split('[ ]+', name.strip())):
@@ -27,7 +28,7 @@ def parse(name):
             if word in setup.excluded_types:
                 return ""
             else:
-                new_word = setup.highway_types.get(word, word)
+                new_word = setup.highway_types.get(word, word.title())
         elif nude_word in setup.lowcase_words: # Articles
             new_word = word.lower()
         elif "'" in word[1:-1]: # Articles with aphostrope

@@ -1,6 +1,24 @@
 Registro de cambios
 ===================
 
+**14-03-2018 (1.1.4)**
+
+* Combina direcciones de Catastro con las del Callejero Digital Unificado de Andalucía (cuestión #11).
+
+**13-03-2018 (1.1.3)**
+
+* Elimina algunos prefijos (Lugar) de los nombres en las direcciones (cuestión #13).
+* Pone enlaces a imágenes de fachada en address.osm (cuestión #14).
+* Opción para sólamente descargar los archivos de Catastro (cuestión #16).
+
+**02-03-2018 (1.1.2)**
+
+* Corrige problema al abrir archivos OSM con parámetro upload=yes (cuestión #12)
+
+**18-02-2018 (1.1.1)**
+
+* Cambia el separador CSV a tabulador (cuestión #10)
+
 **23-01-2018 (1.1.0)**
 
 * Translada el repositorio a la organización OSM-es.

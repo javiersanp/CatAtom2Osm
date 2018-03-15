@@ -5,7 +5,7 @@ import csv
 import gettext
 
 app_name = 'CatAtom2Osm'
-app_version = '1.1.0'
+app_version = '1.1.4'
 app_author = u'Javier Sánchez Portero'
 app_copyright = u'2017, Javier Sánchez Portero'
 app_desc = 'Tool to convert INSPIRE data sets from the Spanish Cadastre ATOM Services to OSM files'
@@ -43,6 +43,7 @@ fn_prefix = 'A.ES.SDGC' # Inspire Atom file name prefix
 
 silence_gdal = False
 
+delimiter = '\t'
 dup_thr = 0.012 # Distance in meters to merge nearest vertexs.
                 # 0.011 is about 1E-7 degrees in latitude
 dist_thr = 0.02 # Threshold in meters for vertex simplification and topological points.
@@ -296,6 +297,7 @@ highway_types = highway_types_es
 
 # List of highway types to translate as place addresses
 place_types = place_types_es
+remove_place_from_name = [place_types_es[26]]
 
 # List of highway types not to be parsed
 excluded_types = ['DS', 'ER']
@@ -329,4 +331,6 @@ mun_fails = {
     '51021': [u'Fuente-Álamo', '341797'],
     '52024': [u'Gijón/Xixón', '345576'],
 }
+
+aux_address = {'cdau': ['04', '11', '14', '18', '21', '23', '29', '41']}
 

@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>report &#8212; documentación de CatAtom2Osm - 1.0.2</title>
+    <title>report &#8212; documentación de CatAtom2Osm - 1.1.4</title>
     
     <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -23,7 +23,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.0.2',
+        VERSION:     '1.1.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -50,7 +50,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Índice de Módulos Python"
              >módulos</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 1.0.2</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 1.1.4</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Código de módulo</a> &#187;</li> 
       </ul>
     </div>
@@ -164,6 +164,10 @@
             <span class="p">(</span><span class="s1">&#39;rss&#39;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Physical memory usage&#39;</span><span class="p">)),</span>
             <span class="p">(</span><span class="s1">&#39;vms&#39;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Virtual memory usage&#39;</span><span class="p">)),</span>
             <span class="p">(</span><span class="s1">&#39;group_address&#39;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Addresses&#39;</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s1">&#39;subgroup_ad_cdau&#39;</span><span class="p">,</span> <span class="s1">&#39;CDAU&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;inp_address_cdau&#39;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Feature count&#39;</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s1">&#39;rep_address_cdau&#39;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Replaced addresses&#39;</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s1">&#39;add_address_cdau&#39;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Added addresses&#39;</span><span class="p">)),</span>
             <span class="p">(</span><span class="s1">&#39;subgroup_ad_input&#39;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Input data&#39;</span><span class="p">)),</span>
             <span class="p">(</span><span class="s1">&#39;address_date&#39;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Source date&#39;</span><span class="p">)),</span>
             <span class="p">(</span><span class="s1">&#39;inp_address&#39;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Feature count&#39;</span><span class="p">)),</span>
@@ -199,7 +203,7 @@
             <span class="p">(</span><span class="s1">&#39;underground_parts&#39;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Parts with no floors above ground&quot;</span><span class="p">)),</span>
             <span class="p">(</span><span class="s1">&#39;new_footprints&#39;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Building footprints created&quot;</span><span class="p">)),</span>
             <span class="p">(</span><span class="s1">&#39;multipart_geoms_building&#39;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Buildings with multipart geometries&quot;</span><span class="p">)),</span>
-            <span class="p">(</span><span class="s1">&#39;exploded_parts_building&#39;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Buildings resulting from spliting multiparts&quot;</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s1">&#39;exploded_parts_building&#39;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Buildings resulting from splitting multiparts&quot;</span><span class="p">)),</span>
             <span class="p">(</span><span class="s1">&#39;parts_to_footprint&#39;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Parts merged to the footprint&quot;</span><span class="p">)),</span>
             <span class="p">(</span><span class="s1">&#39;adjacent_parts&#39;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Adjacent parts merged&quot;</span><span class="p">)),</span>
             <span class="p">(</span><span class="s1">&#39;buildings_in_pools&#39;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Buildings coincidents with a swimming pool deleted&quot;</span><span class="p">)),</span>
@@ -244,6 +248,7 @@
             <span class="s1">&#39;rss&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">locale</span><span class="o">.</span><span class="n">format_string</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%.2f</span><span class="s1"> GB&#39;</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
             <span class="s1">&#39;vms&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">locale</span><span class="o">.</span><span class="n">format_string</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%.2f</span><span class="s1"> GB&#39;</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
         <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tasks_with_fixmes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">,</span> <span class="s1">&#39;titles&#39;</span><span class="p">,</span> <span class="s1">&#39;groups&#39;</span><span class="p">]:</span>
@@ -267,7 +272,7 @@
                 <span class="k">if</span> <span class="ow">not</span> <span class="s1">&#39;entrance&#39;</span> <span class="ow">in</span> <span class="n">el</span><span class="o">.</span><span class="n">tags</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">inc</span><span class="p">(</span><span class="s1">&#39;out_address_building&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Report.cons_stats"><a class="viewcode-back" href="../api/report.html#report.Report.cons_stats">[documentos]</a>    <span class="k">def</span> <span class="nf">cons_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<div class="viewcode-block" id="Report.cons_stats"><a class="viewcode-back" href="../api/report.html#report.Report.cons_stats">[documentos]</a>    <span class="k">def</span> <span class="nf">cons_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">task_label</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">elements</span><span class="p">:</span>
             <span class="k">if</span> <span class="s1">&#39;leisure&#39;</span> <span class="ow">in</span> <span class="n">el</span><span class="o">.</span><span class="n">tags</span> <span class="ow">and</span> <span class="n">el</span><span class="o">.</span><span class="n">tags</span><span class="p">[</span><span class="s1">&#39;leisure&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;swimming_pool&#39;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">inc</span><span class="p">(</span><span class="s1">&#39;out_pools&#39;</span><span class="p">)</span>
@@ -280,7 +285,12 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">inc</span><span class="p">(</span><span class="s1">&#39;out_parts&#39;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">inc</span><span class="p">(</span><span class="s1">&#39;out_features&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="s1">&#39;fixme&#39;</span> <span class="ow">in</span> <span class="n">el</span><span class="o">.</span><span class="n">tags</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">fixme_counter</span><span class="p">[</span><span class="n">el</span><span class="o">.</span><span class="n">tags</span><span class="p">[</span><span class="s1">&#39;fixme&#39;</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fixme_counter</span><span class="p">[</span><span class="n">el</span><span class="o">.</span><span class="n">tags</span><span class="p">[</span><span class="s1">&#39;fixme&#39;</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">task_label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">tasks_with_fixmes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">task_label</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Report.get_tasks_with_fixmes"><a class="viewcode-back" href="../api/report.html#report.Report.get_tasks_with_fixmes">[documentos]</a>    <span class="k">def</span> <span class="nf">get_tasks_with_fixmes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tasks_with_fixmes</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Report.osm_stats"><a class="viewcode-back" href="../api/report.html#report.Report.osm_stats">[documentos]</a>    <span class="k">def</span> <span class="nf">osm_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">inc</span><span class="p">(</span><span class="s1">&#39;nodes&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">nodes</span><span class="p">))</span>
@@ -432,7 +442,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Índice de Módulos Python"
              >módulos</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 1.0.2</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 1.1.4</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" >Código de módulo</a> &#187;</li> 
       </ul>
     </div>
