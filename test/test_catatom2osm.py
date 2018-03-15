@@ -447,18 +447,18 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.get_translations = cat.CatAtom2Osm.get_translations.__func__
         setup.app_path = 'bar'
         m_os.path.join = lambda *args: '/'.join(args)
-        m_csv.csv2dict.return_value = 'raz'
-        address = mock.MagicMock()
-        address.get_highway_names = mock.MagicMock(return_value = 'taz')
+        m_csv.csv2dict.return_value = {'RAZ': ' raz '}
         m_os.path.exists.return_value = True
+        address = mock.MagicMock()
         (names, is_new) = self.m_app.get_translations(self.m_app, address)
         m_csv.dict2csv.assert_not_called()
         m_csv.csv2dict.assert_has_calls([
             mock.call('bar/highway_types.csv', setup.highway_types),
             mock.call('foo/highway_names.csv', {}),
         ])
-        self.assertEquals(names, 'raz')
+        self.assertEquals(names, {'RAZ': 'raz'})
         self.assertFalse(is_new)
+        address.get_highway_names.return_value = {'TAZ': ' taz '}
         m_csv.csv2dict.reset_mock()
         m_os.path.exists.return_value = False
         (names, is_new) = self.m_app.get_translations(self.m_app, address)
@@ -466,9 +466,9 @@ class TestCatAtom2Osm(unittest.TestCase):
         m_csv.csv2dict.assert_not_called()
         m_csv.dict2csv.assert_has_calls([
             mock.call('bar/highway_types.csv', setup.highway_types),
-            mock.call('foo/highway_names.csv', 'taz', sort=1),
+            mock.call('foo/highway_names.csv', {'TAZ': 'taz'}, sort=1),
         ])
-        self.assertEquals(names, 'taz')
+        self.assertEquals(names, {'TAZ': 'taz'})
         self.assertTrue(is_new)
         self.m_app.options.manual = True
         (names, is_new) = self.m_app.get_translations(self.m_app, address)
