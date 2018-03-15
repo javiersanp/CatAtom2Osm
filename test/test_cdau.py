@@ -117,7 +117,7 @@ class TestCdau(unittest.TestCase):
         ad = {
             'dgc_via': '123', 
             'refcatparc': 'foobar',
-            'nom_tip_via': 'Calle',
+            'nom_tip_via': 'CALLE',
             'nom_via': u'Alegría',
             'cod_postal': '12345',
             'num_por_desde': '10', 'ext_desde': 'A',
@@ -125,7 +125,7 @@ class TestCdau(unittest.TestCase):
         }
         attr = cdau.get_cat_address(ad, '29900')
         self.assertEqual(attr['localId'], '29.900.123.foobar')
-        self.assertEqual(attr['TN_text'], u'Calle Alegría')
+        self.assertEqual(attr['TN_text'], u'CL Alegría')
         self.assertEqual(attr['postCode'], '12345')
         self.assertEqual(attr['spec'], 'Entrance')
         self.assertEqual(attr['designator'], '10A')
@@ -133,4 +133,8 @@ class TestCdau(unittest.TestCase):
         ad.update({'num_por_hasta': '14', 'ext_hasta': 'D'})
         attr = cdau.get_cat_address(ad, '29900')
         self.assertEqual(attr['designator'], '10A-14D')
+        
+        ad['nom_tip_via'] = 'VIA'
+        attr = cdau.get_cat_address(ad, '29900')
+        self.assertEqual(attr['TN_text'], u'Vía Alegría')
 

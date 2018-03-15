@@ -38,6 +38,24 @@ cod_mun_trans = {
     '41': {103: 901, 104: 902, 105: 903, 900: 91}
 }
 
+highway_types_equiv = {
+    'ACCESO': 'AC', 'ARROYO': 'AY', 'AUTOPISTA': 'AU', 'AUTOVIA': 'AU',
+    'AVENIDA': 'AV', 'BARRIO': 'BO', 'BAJADA': 'BJ', 'BARRANCO': 'BR',
+    'BULEVAR': 'BV', 'CALLE': 'CL', 'CALLEJON': u'Callejón', 'CANTON': u'Cantón',
+    'CAÑADA': 'CA', 'CASERIO': 'CS', 'CALZADA': 'CZ', 'CINTURON': 'CI', 
+    'CIRCUNVALACION': u'Circunvalación', 'CONCEJO, COLEGIO': 'CO', 
+    'DISEMINADO': 'DS', 'EXPLANADA': 'EX', 'EXTRAMUROS': 'EM',
+    'EXTRARRADIO': 'ER', 'GENERICA': u'Genérica', 'GRAN VIA': 'GV', 
+    'GRUPO': 'GR',  'GLORIETA': 'GL', 'HUERTA, HUERTO': 'HT', 'JARDINES': 'JR',
+    'JARDIN': u'Jardín', 'LUGAR': 'LG', 'MALECON': u'Malecón', 'MONTE': 'MT',
+    'MUELLE': 'ML', 'PASEO': 'PS', 'POBLADO': 'PB', 'PLAZA': 'PZ',
+    'PROLONGACION': u'Prolongación', 'PUENTE': 'PT', 'POLIGONO': 'PL', 
+    'RAMAL': 'RM', 'RAMBLA': 'RB', 'RINCON': u'Rincón', 'RONDA': 'RD',
+    'SUBIDA': 'SU', 'SECTOR': 'SC', 'TRANSITO': u'Tránsito',
+    'TRAVESIA': u'Travesía', 'URBANIZACION': 'UR', 'VIA': u'Vía'
+}
+
+
 def cod_mun_cat2ine(cod_mun_cat):
     """Return the INE municipality code from the Cadastre code"""
     cod_prov = cod_mun_cat[0:2]
@@ -66,7 +84,8 @@ def get_cat_address(ad, cod_mun_cat):
     attr = {}
     attr['localId'] = '{}.{}.{}.{}'.format(cod_mun_cat[:2], cod_mun_cat[2:], 
         ad['dgc_via'], ad['refcatparc'])
-    attr['TN_text'] = u'{} {}'.format(ad['nom_tip_via'], ad['nom_via'])
+    nom_tip_via = highway_types_equiv.get(ad['nom_tip_via'], ad['nom_tip_via'])
+    attr['TN_text'] = u'{} {}'.format(nom_tip_via, ad['nom_via'])
     attr['postCode'] = ad['cod_postal']
     attr['spec'] = 'Entrance'
     to = ad['num_por_hasta'] + ad['ext_hasta']
