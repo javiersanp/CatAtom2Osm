@@ -31,7 +31,7 @@ class Reader(object):
         self.zip_code = m.group()
         self.prov_code = self.zip_code[0:2]
         if self.prov_code not in setup.valid_provinces:
-            msg = _("Province code '%s' don't exists") % self.prov_code
+            msg = _("Province code '%s' not valid") % self.prov_code
             raise ValueError(msg)
         if not os.path.exists(a_path):
             os.makedirs(a_path)
@@ -53,10 +53,10 @@ class Reader(object):
         }
         if hasattr(root, 'nsmap'):
             namespace = root.nsmap
-        gml_date = root.find('gmd:dateStamp/gco:Date', namespace)
-        if is_empty or gml_date == None:
+        src_date = root.find('gmd:dateStamp/gco:Date', namespace)
+        if is_empty or src_date == None:
             raise IOError(_("Could not read metadata from '%s'") % md_path)
-        self.gml_date = gml_date.text
+        self.src_date = src_date.text
         gml_title = root.find('.//gmd:title/gco:CharacterString', namespace)
         self.cat_mun = gml_title.text.split('-')[-1].split('(')[0].strip()
         gml_code = root.find('.//gmd:code/gco:CharacterString', namespace)
@@ -122,6 +122,18 @@ class Reader(object):
         except StopIteration:
             return True
 
+    def download(self, layername):
+        """
+        Downloads the file for a a Cadastre layername.
+
+        Args:
+            layername (str): Short name of the Cadastre layer. Any of 
+                'building', 'cadastralzoning', 'address'
+        """
+        (md_path, gml_path, zip_path, vsizip_path, group) = self.get_layer_paths(layername)
+        url = setup.prov_url[group].format(code=self.prov_code)
+        self.get_atom_file(url)
+
     def read(self, layername, allow_empty=False, force_zip=False):
         """
         Create a QGIS vector layer for a Cadastre layername. Derives the GML 
@@ -161,7 +173,7 @@ class Reader(object):
             raise IOError(_("Could not determine the CRS of '%s'") % gml_path)
         gml.setCrs(crs)
         log.info(_("Read %d features in '%s'"), gml.featureCount(), gml_path)
-        gml.source_date = self.gml_date
+        gml.source_date = self.src_date
         return gml
 
     def get_boundary(self, zoning):
@@ -200,7 +212,7 @@ class Reader(object):
 def list_municipalities(prov_code):
     """Get from the ATOM services a list of municipalities for a given province"""
     if prov_code not in setup.valid_provinces:
-        raise ValueError(_("Province code '%s' don't exists") % prov_code)
+        raise ValueError(_("Province code '%s' not valid") % prov_code)
     url = setup.prov_url['BU'].format(code=prov_code)
     response = download.get_response(url)
     root = etree.fromstring(response.content)

@@ -15,6 +15,7 @@ qgis.utils.uninstallErrorHook()
 from osgeo import gdal
 
 import catatom
+import cdau
 import csvtools
 import layer
 import osm
@@ -119,8 +120,6 @@ class CatAtom2Osm:
             report.building_counter = Counter()
         if self.options.address:
             self.address.reproject()
-            #self.address.get_image_links()
-            #self.export_layer(self.address, 'address.geojson', 'GeoJSON')
             self.address_osm = self.address.to_osm()
             del self.address
             self.delete_shp('address.shp')
@@ -157,7 +156,7 @@ class CatAtom2Osm:
         if self.options.address:
             if not self.options.building and not self.options.tasks:
                 report.address_stats(self.address_osm)
-                self.write_osm(self.address_osm, 'address.osm')
+            self.write_osm(self.address_osm, 'address.osm')
             del self.address_osm
         if self.options.parcel:
             self.process_parcel()
@@ -297,7 +296,6 @@ class CatAtom2Osm:
             log.info(_("Please, check it and run again"))
         else:
             log.info(_("Finished!"))
-            log.warning(_("Only for testing purposses. Don't upload any result to OSM"))
 
     def exit(self):
         """Ends properly"""
@@ -440,6 +438,7 @@ class CatAtom2Osm:
         self.address.append(address_gml)
         self.address.join_field(postaldescriptor, 'PD_id', 'gml_id', ['postCode'])
         self.address.join_field(thoroughfarename, 'TN_id', 'gml_id', ['text'], 'TN_')
+        self.get_auxiliary_addresses()
         self.address.get_image_links()
         self.export_layer(self.address, 'address.geojson', 'GeoJSON', target_crs_id=4326)
         (highway_names, self.is_new) = self.get_translations(self.address)
@@ -448,6 +447,16 @@ class CatAtom2Osm:
             log.debug(_("Deleted %d addresses refused by street name"), ia)
             report.values['ignored_addresses'] = ia
 
+    def get_auxiliary_addresses(self):
+        """If exists, reads and conflate an auxiliary addresses data source"""
+        for source in setup.aux_address.keys():
+            if self.cat.zip_code[:2] in setup.aux_address[source]:
+                aux_source = globals()[source]
+                aux_path = os.path.join(os.path.dirname(self.path), 'aux')
+                reader = aux_source.Reader(aux_path)
+                aux = reader.read(self.cat.zip_code[:2])
+                aux_source.conflate(aux, self.address, self.cat.zip_code)
+    
     def merge_address(self, building_osm, address_osm):
         """
         Copy address from address_osm to building_osm using 'ref' tag.
@@ -485,6 +494,8 @@ class CatAtom2Osm:
                 continue
             for ad in address_index[ref]:
                 bu = group[0]
+                if 'image' in ad.tags:
+                    del ad.tags['image']
                 entrance = False
                 if 'entrance' in ad.tags:
                     footprint = [bu] if isinstance(bu, osm.Way) \
@@ -528,11 +539,13 @@ class CatAtom2Osm:
                 highway = self.get_highway()
                 highway.reproject(address.crs())
             highway_names = address.get_highway_names(highway)
-            csvtools.dict2csv(highway_names_path, highway_names)
+            csvtools.dict2csv(highway_names_path, highway_names, sort=1)
             is_new = True
         else:
             highway_names = csvtools.csv2dict(highway_names_path, {})
             is_new = False
+        for key, value in highway_names.items():
+            highway_names[key] = value.strip()
         return (highway_names, is_new)
 
     def get_highway(self):

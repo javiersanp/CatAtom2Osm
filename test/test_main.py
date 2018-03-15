@@ -94,6 +94,19 @@ class TestMain(unittest.TestCase):
         with capture(main.run) as output:
             self.assertIn(setup.app_version, output)
 
+    @mock.patch('main.sys.argv', ['catatom2osm.py', '-w', '33333'])
+    @mock.patch('catatom2osm.catatom.Reader')
+    def test_list(self, mockcat):
+        cat = mock.MagicMock()
+        mockcat.return_value = cat
+        main.run()
+        mockcat.assert_called_once_with('33333')
+        cat.download.assert_has_calls([
+            mock.call('address'),
+            mock.call('cadastralzoning'),
+            mock.call('building'),
+        ])
+
     @mock.patch('main.sys.argv', ['catatom2osm.py', '-l', '33'])
     @mock.patch('catatom2osm.catatom.list_municipalities')
     def test_list(self, mocklist):

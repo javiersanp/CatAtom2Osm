@@ -25,8 +25,8 @@
         </h1>
         <img id='keyboard_icon' src='keybd_closed.png'>
         <h2 class='stats'>
-            60 statements &nbsp;
-            <span class='run hide_run shortkey_r button_toggle_run'>60 run</span>
+            62 statements &nbsp;
+            <span class='run hide_run shortkey_r button_toggle_run'>62 run</span>
             <span class='mis shortkey_m button_toggle_mis'>0 missing</span>
             <span class='exc shortkey_x button_toggle_exc'>0 excluded</span>
             
@@ -362,14 +362,14 @@
 <p id='n297' class='pln'><a href='#n297'>297</a></p>
 <p id='n298' class='pln'><a href='#n298'>298</a></p>
 <p id='n299' class='stm run hide_run'><a href='#n299'>299</a></p>
-<p id='n300' class='pln'><a href='#n300'>300</a></p>
+<p id='n300' class='stm run hide_run'><a href='#n300'>300</a></p>
 <p id='n301' class='pln'><a href='#n301'>301</a></p>
-<p id='n302' class='stm run hide_run'><a href='#n302'>302</a></p>
-<p id='n303' class='pln'><a href='#n303'>303</a></p>
+<p id='n302' class='pln'><a href='#n302'>302</a></p>
+<p id='n303' class='stm run hide_run'><a href='#n303'>303</a></p>
 <p id='n304' class='pln'><a href='#n304'>304</a></p>
 <p id='n305' class='pln'><a href='#n305'>305</a></p>
-<p id='n306' class='stm run hide_run'><a href='#n306'>306</a></p>
-<p id='n307' class='pln'><a href='#n307'>307</a></p>
+<p id='n306' class='pln'><a href='#n306'>306</a></p>
+<p id='n307' class='stm run hide_run'><a href='#n307'>307</a></p>
 <p id='n308' class='pln'><a href='#n308'>308</a></p>
 <p id='n309' class='pln'><a href='#n309'>309</a></p>
 <p id='n310' class='pln'><a href='#n310'>310</a></p>
@@ -396,6 +396,9 @@
 <p id='n331' class='pln'><a href='#n331'>331</a></p>
 <p id='n332' class='pln'><a href='#n332'>332</a></p>
 <p id='n333' class='pln'><a href='#n333'>333</a></p>
+<p id='n334' class='pln'><a href='#n334'>334</a></p>
+<p id='n335' class='stm run hide_run'><a href='#n335'>335</a></p>
+<p id='n336' class='pln'><a href='#n336'>336</a></p>
                 
             </td>
             <td class='text' valign='top'>
@@ -406,7 +409,7 @@
 <p id='t5' class='stm run hide_run'><span class='key'>import</span> <span class='nam'>gettext</span><span class='strut'>&nbsp;</span></p>
 <p id='t6' class='pln'><span class='strut'>&nbsp;</span></p>
 <p id='t7' class='stm run hide_run'><span class='nam'>app_name</span> <span class='op'>=</span> <span class='str'>&#39;CatAtom2Osm&#39;</span><span class='strut'>&nbsp;</span></p>
-<p id='t8' class='stm run hide_run'><span class='nam'>app_version</span> <span class='op'>=</span> <span class='str'>&#39;1.1.1&#39;</span><span class='strut'>&nbsp;</span></p>
+<p id='t8' class='stm run hide_run'><span class='nam'>app_version</span> <span class='op'>=</span> <span class='str'>&#39;1.1.4&#39;</span><span class='strut'>&nbsp;</span></p>
 <p id='t9' class='stm run hide_run'><span class='nam'>app_author</span> <span class='op'>=</span> <span class='str'>u&#39;Javier S&#225;nchez Portero&#39;</span><span class='strut'>&nbsp;</span></p>
 <p id='t10' class='stm run hide_run'><span class='nam'>app_copyright</span> <span class='op'>=</span> <span class='str'>u&#39;2017, Javier S&#225;nchez Portero&#39;</span><span class='strut'>&nbsp;</span></p>
 <p id='t11' class='stm run hide_run'><span class='nam'>app_desc</span> <span class='op'>=</span> <span class='str'>&#39;Tool to convert INSPIRE data sets from the Spanish Cadastre ATOM Services to OSM files&#39;</span><span class='strut'>&nbsp;</span></p>
@@ -698,40 +701,43 @@
 <p id='t297' class='pln'><span class='strut'>&nbsp;</span></p>
 <p id='t298' class='pln'><span class='com'># List of highway types to translate as place addresses</span><span class='strut'>&nbsp;</span></p>
 <p id='t299' class='stm run hide_run'><span class='nam'>place_types</span> <span class='op'>=</span> <span class='nam'>place_types_es</span><span class='strut'>&nbsp;</span></p>
-<p id='t300' class='pln'><span class='strut'>&nbsp;</span></p>
-<p id='t301' class='pln'><span class='com'># List of highway types not to be parsed</span><span class='strut'>&nbsp;</span></p>
-<p id='t302' class='stm run hide_run'><span class='nam'>excluded_types</span> <span class='op'>=</span> <span class='op'>[</span><span class='str'>&#39;DS&#39;</span><span class='op'>,</span> <span class='str'>&#39;ER&#39;</span><span class='op'>]</span><span class='strut'>&nbsp;</span></p>
-<p id='t303' class='pln'><span class='strut'>&nbsp;</span></p>
-<p id='t304' class='pln'><span class='com'># Dictionary of name and OSM boundary relation id for know municipalities</span><span class='strut'>&nbsp;</span></p>
-<p id='t305' class='pln'><span class='com'># wich fails in get_boundary method.</span><span class='strut'>&nbsp;</span></p>
-<p id='t306' class='stm run hide_run'><span class='nam'>mun_fails</span> <span class='op'>=</span> <span class='op'>{</span><span class='strut'>&nbsp;</span></p>
-<p id='t307' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;07032&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Ma&#243;&#39;</span><span class='op'>,</span> <span class='str'>&#39;1809102&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
-<p id='t308' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;07040&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Palma&#39;</span><span class='op'>,</span> <span class='str'>&#39;341321&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
-<p id='t309' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;11042&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Zahara&#39;</span><span class='op'>,</span> <span class='str'>&#39;343140&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
-<p id='t310' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;16176&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Pozorrubio&#39;</span><span class='op'>,</span> <span class='str'>&#39;347331&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
-<p id='t311' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;19178&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Humanes&#39;</span><span class='op'>,</span> <span class='str'>&#39;341781&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
-<p id='t312' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;23043&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Hornos&#39;</span><span class='op'>,</span> <span class='str'>&#39;344389&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
-<p id='t313' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;23086&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Torre del Campo&#39;</span><span class='op'>,</span> <span class='str'>&#39;346324&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
-<p id='t314' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;26004&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Ajamil&#39;</span><span class='op'>,</span> <span class='str'>&#39;348189&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
-<p id='t315' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;26093&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Mansilla de la Sierra&#39;</span><span class='op'>,</span> <span class='str'>&#39;345202&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
-<p id='t316' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;28063&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Gargantilla del Lozoya y Pinilla de Buitrago&#39;</span><span class='op'>,</span> <span class='str'>&#39;345009&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
-<p id='t317' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;29101&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Montecorto&#39;</span><span class='op'>,</span> <span class='str'>&#39;7541639&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
-<p id='t318' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;35010&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Santa Mar&#237;a de Gu&#237;a de Gran Canaria&#39;</span><span class='op'>,</span> <span class='str'>&#39;345440&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
-<p id='t319' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;37252&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Pere&#241;a de la Ribera&#39;</span><span class='op'>,</span> <span class='str'>&#39;343095&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
-<p id='t320' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;37367&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Villarino de los Aires&#39;</span><span class='op'>,</span> <span class='str'>&#39;340062&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
-<p id='t321' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;38023&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;San Crist&#243;bal de La Laguna&#39;</span><span class='op'>,</span> <span class='str'>&#39;345393&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
-<p id='t322' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;38039&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Santa &#218;rsula&#39;</span><span class='op'>,</span> <span class='str'>&#39;340717&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
-<p id='t323' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;39103&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Mancomunidad de Campoo-Cabu&#233;rniga&#39;</span><span class='op'>,</span> <span class='str'>&#39;340042&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
-<p id='t324' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;44007&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Alba&#39;</span><span class='op'>,</span> <span class='str'>&#39;345065&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
-<p id='t325' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;47047&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Castroponce&#39;</span><span class='op'>,</span> <span class='str'>&#39;340763&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
-<p id='t326' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;47101&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Muriel&#39;</span><span class='op'>,</span> <span class='str'>&#39;346973&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
-<p id='t327' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;47207&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Villafuerte&#39;</span><span class='op'>,</span> <span class='str'>&#39;341197&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
-<p id='t328' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;50030&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;A&#241;&#243;n de Moncayo&#39;</span><span class='op'>,</span> <span class='str'>&#39;342653&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
-<p id='t329' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;50049&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Biel&#39;</span><span class='op'>,</span> <span class='str'>&#39;348008&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
-<p id='t330' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;51021&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Fuente-&#193;lamo&#39;</span><span class='op'>,</span> <span class='str'>&#39;341797&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
-<p id='t331' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;52024&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Gij&#243;n/Xix&#243;n&#39;</span><span class='op'>,</span> <span class='str'>&#39;345576&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
-<p id='t332' class='pln'><span class='op'>}</span><span class='strut'>&nbsp;</span></p>
-<p id='t333' class='pln'><span class='strut'>&nbsp;</span></p>
+<p id='t300' class='stm run hide_run'><span class='nam'>remove_place_from_name</span> <span class='op'>=</span> <span class='op'>[</span><span class='nam'>place_types_es</span><span class='op'>[</span><span class='num'>26</span><span class='op'>]</span><span class='op'>]</span><span class='strut'>&nbsp;</span></p>
+<p id='t301' class='pln'><span class='strut'>&nbsp;</span></p>
+<p id='t302' class='pln'><span class='com'># List of highway types not to be parsed</span><span class='strut'>&nbsp;</span></p>
+<p id='t303' class='stm run hide_run'><span class='nam'>excluded_types</span> <span class='op'>=</span> <span class='op'>[</span><span class='str'>&#39;DS&#39;</span><span class='op'>,</span> <span class='str'>&#39;ER&#39;</span><span class='op'>]</span><span class='strut'>&nbsp;</span></p>
+<p id='t304' class='pln'><span class='strut'>&nbsp;</span></p>
+<p id='t305' class='pln'><span class='com'># Dictionary of name and OSM boundary relation id for know municipalities</span><span class='strut'>&nbsp;</span></p>
+<p id='t306' class='pln'><span class='com'># wich fails in get_boundary method.</span><span class='strut'>&nbsp;</span></p>
+<p id='t307' class='stm run hide_run'><span class='nam'>mun_fails</span> <span class='op'>=</span> <span class='op'>{</span><span class='strut'>&nbsp;</span></p>
+<p id='t308' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;07032&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Ma&#243;&#39;</span><span class='op'>,</span> <span class='str'>&#39;1809102&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
+<p id='t309' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;07040&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Palma&#39;</span><span class='op'>,</span> <span class='str'>&#39;341321&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
+<p id='t310' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;11042&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Zahara&#39;</span><span class='op'>,</span> <span class='str'>&#39;343140&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
+<p id='t311' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;16176&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Pozorrubio&#39;</span><span class='op'>,</span> <span class='str'>&#39;347331&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
+<p id='t312' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;19178&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Humanes&#39;</span><span class='op'>,</span> <span class='str'>&#39;341781&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
+<p id='t313' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;23043&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Hornos&#39;</span><span class='op'>,</span> <span class='str'>&#39;344389&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
+<p id='t314' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;23086&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Torre del Campo&#39;</span><span class='op'>,</span> <span class='str'>&#39;346324&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
+<p id='t315' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;26004&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Ajamil&#39;</span><span class='op'>,</span> <span class='str'>&#39;348189&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
+<p id='t316' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;26093&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Mansilla de la Sierra&#39;</span><span class='op'>,</span> <span class='str'>&#39;345202&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
+<p id='t317' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;28063&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Gargantilla del Lozoya y Pinilla de Buitrago&#39;</span><span class='op'>,</span> <span class='str'>&#39;345009&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
+<p id='t318' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;29101&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Montecorto&#39;</span><span class='op'>,</span> <span class='str'>&#39;7541639&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
+<p id='t319' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;35010&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Santa Mar&#237;a de Gu&#237;a de Gran Canaria&#39;</span><span class='op'>,</span> <span class='str'>&#39;345440&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
+<p id='t320' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;37252&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Pere&#241;a de la Ribera&#39;</span><span class='op'>,</span> <span class='str'>&#39;343095&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
+<p id='t321' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;37367&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Villarino de los Aires&#39;</span><span class='op'>,</span> <span class='str'>&#39;340062&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
+<p id='t322' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;38023&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;San Crist&#243;bal de La Laguna&#39;</span><span class='op'>,</span> <span class='str'>&#39;345393&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
+<p id='t323' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;38039&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Santa &#218;rsula&#39;</span><span class='op'>,</span> <span class='str'>&#39;340717&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
+<p id='t324' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;39103&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Mancomunidad de Campoo-Cabu&#233;rniga&#39;</span><span class='op'>,</span> <span class='str'>&#39;340042&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
+<p id='t325' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;44007&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Alba&#39;</span><span class='op'>,</span> <span class='str'>&#39;345065&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
+<p id='t326' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;47047&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Castroponce&#39;</span><span class='op'>,</span> <span class='str'>&#39;340763&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
+<p id='t327' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;47101&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Muriel&#39;</span><span class='op'>,</span> <span class='str'>&#39;346973&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
+<p id='t328' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;47207&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Villafuerte&#39;</span><span class='op'>,</span> <span class='str'>&#39;341197&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
+<p id='t329' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;50030&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;A&#241;&#243;n de Moncayo&#39;</span><span class='op'>,</span> <span class='str'>&#39;342653&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
+<p id='t330' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;50049&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Biel&#39;</span><span class='op'>,</span> <span class='str'>&#39;348008&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
+<p id='t331' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;51021&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Fuente-&#193;lamo&#39;</span><span class='op'>,</span> <span class='str'>&#39;341797&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
+<p id='t332' class='pln'>&nbsp; &nbsp; <span class='str'>&#39;52024&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>u&#39;Gij&#243;n/Xix&#243;n&#39;</span><span class='op'>,</span> <span class='str'>&#39;345576&#39;</span><span class='op'>]</span><span class='op'>,</span><span class='strut'>&nbsp;</span></p>
+<p id='t333' class='pln'><span class='op'>}</span><span class='strut'>&nbsp;</span></p>
+<p id='t334' class='pln'><span class='strut'>&nbsp;</span></p>
+<p id='t335' class='stm run hide_run'><span class='nam'>aux_address</span> <span class='op'>=</span> <span class='op'>{</span><span class='str'>&#39;cdau&#39;</span><span class='op'>:</span> <span class='op'>[</span><span class='str'>&#39;04&#39;</span><span class='op'>,</span> <span class='str'>&#39;11&#39;</span><span class='op'>,</span> <span class='str'>&#39;14&#39;</span><span class='op'>,</span> <span class='str'>&#39;18&#39;</span><span class='op'>,</span> <span class='str'>&#39;21&#39;</span><span class='op'>,</span> <span class='str'>&#39;23&#39;</span><span class='op'>,</span> <span class='str'>&#39;29&#39;</span><span class='op'>,</span> <span class='str'>&#39;41&#39;</span><span class='op'>]</span><span class='op'>}</span><span class='strut'>&nbsp;</span></p>
+<p id='t336' class='pln'><span class='strut'>&nbsp;</span></p>
                 
             </td>
         </tr>

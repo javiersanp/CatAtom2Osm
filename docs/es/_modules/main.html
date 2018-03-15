@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap-theme.min.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-    <title>main &#8212; documentación de CatAtom2Osm - 1.1.1</title>
+    <title>main &#8212; documentación de CatAtom2Osm - 1.1.4</title>
     
     <link rel="stylesheet" href="../_static/guzzle.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -23,7 +23,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.1.1',
+        VERSION:     '1.1.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -50,7 +50,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Índice de Módulos Python"
              >módulos</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 1.1.1</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 1.1.4</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Código de módulo</a> &#187;</li> 
       </ul>
     </div>
@@ -151,6 +151,13 @@
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">list</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">catatom</span> <span class="k">import</span> <span class="n">list_municipalities</span>
         <span class="n">list_municipalities</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{:&gt;02}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">list</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">options</span><span class="o">.</span><span class="n">download</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">catatom</span> <span class="k">import</span> <span class="n">Reader</span>
+        <span class="n">a_path</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">setup</span><span class="o">.</span><span class="n">encoding</span><span class="p">)</span>
+        <span class="n">cat</span> <span class="o">=</span> <span class="n">Reader</span><span class="p">(</span><span class="n">a_path</span><span class="p">)</span>
+        <span class="n">cat</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s1">&#39;address&#39;</span><span class="p">)</span>
+        <span class="n">cat</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s1">&#39;cadastralzoning&#39;</span><span class="p">)</span>
+        <span class="n">cat</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s1">&#39;building&#39;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">catatom2osm</span> <span class="k">import</span> <span class="n">CatAtom2Osm</span>
         <span class="n">a_path</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">setup</span><span class="o">.</span><span class="n">encoding</span><span class="p">)</span>
@@ -182,6 +189,8 @@
         <span class="s2">&quot;to -bdptz)&quot;</span><span class="p">)))</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;--manual&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;manual&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="n">__</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Dissable conflation with OSM data&quot;</span><span class="p">)))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s2">&quot;-w&quot;</span><span class="p">,</span> <span class="s2">&quot;--download&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;download&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="n">__</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Download only&quot;</span><span class="p">)))</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;--log&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;log_level&quot;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;log_level&quot;</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="n">setup</span><span class="o">.</span><span class="n">log_level</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="n">__</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Select the log level between &quot;</span> \
         <span class="s2">&quot;DEBUG, INFO, WARNING, ERROR or CRITICAL.&quot;</span><span class="p">)))</span>
@@ -239,7 +248,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Índice de Módulos Python"
              >módulos</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 1.1.1</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">documentación de CatAtom2Osm - 1.1.4</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" >Código de módulo</a> &#187;</li> 
       </ul>
     </div>
