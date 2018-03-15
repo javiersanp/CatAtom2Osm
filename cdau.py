@@ -14,6 +14,7 @@ from qgis.core import *
 import download
 import layer
 import setup
+from report import instance as report
 
 log = logging.getLogger(setup.app_name + "." + __name__)
 
@@ -139,6 +140,7 @@ def conflate(cdau_address, cat_address, cod_mun_cat):
         ref = '.'.join(g[:3] + g[4:])
         addresses[ref].append(feat)
     for ad in cdau_address.search(exp):
+        c += 1
         attr = get_cat_address(ad, cod_mun_cat)
         ref = attr['localId']
         pt = QgsPoint()
@@ -166,11 +168,21 @@ def conflate(cdau_address, cat_address, cod_mun_cat):
                 for key, value in attr.items():
                     candidate[key] = value
                 to_change[candidate.id()] = layer.get_attributes(candidate)
-        c += 1
+    log.info(_("Parsed %d addresses from '%s'"), c, 'CDAU')
+    report.inp_address_cdau = c
     if to_change:
         cat_address.writer.changeAttributeValues(to_change)
         cat_address.writer.changeGeometryValues(to_change_g)
         log.info(_("Replaced %d addresses from '%s'"), len(to_change), 'CDAU')
+        report.rep_address_cdau = len(to_change)
+        cat_address.source_date = cdau_address.source_date
+        report.address_date = cdau_address.source_date
     if to_add:
         cat_address.writer.addFeatures(to_add)
         log.info(_("Added %d addresses from '%s'"), len(to_add), 'CDAU')
+        report.add_address_cdau = len(to_add)
+        report.inp_address += len(to_add)
+        report.inp_address_entrance += len(to_add)
+        cat_address.source_date = cdau_address.source_date
+        report.address_date = cdau_address.source_date
+

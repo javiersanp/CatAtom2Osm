@@ -446,7 +446,6 @@ class CatAtom2Osm:
         if ia > 0:
             log.debug(_("Deleted %d addresses refused by street name"), ia)
             report.values['ignored_addresses'] = ia
-        self.export_layer(self.address, 'address.geojson', 'GeoJSON', target_crs_id=4326)
 
     def get_auxiliary_addresses(self):
         """If exists, reads and conflate an auxiliary addresses data source"""
