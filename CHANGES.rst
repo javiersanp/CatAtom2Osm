@@ -1,6 +1,10 @@
 Change log
 ==========
 
+**2018-03-14 (1.1.4dev)**
+
+* Merge Cadastre address with CDAU (issue #11).
+
 **2018-03-13 (1.1.3)**
 
 * Remove some prefixes from address name (issue #13).

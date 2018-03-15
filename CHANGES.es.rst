@@ -1,7 +1,11 @@
 Registro de cambios
 ===================
 
-**03-13-2018 (1.1.3)**
+**14-03-2018 (1.1.4dev)**
+
+* Combina direcciones de Catastro con las del Callejero Digital Unificado de Andalucía (cuestión #11).
+
+**13-03-2018 (1.1.3)**
 
 * Elimina algunos prefijos (Lugar) de los nombres en las direcciones (cuestión #13).
 * Pone enlaces a imágenes de fachada en address.osm (cuestión #14).

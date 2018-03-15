@@ -396,11 +396,19 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.read_address(self.m_app)
         self.m_app.address.append.assert_called_once_with(self.m_app.cat.read())
 
+    @mock.patch('catatom2osm.cdau')
+    def test_get_auxiliary_addresses(self, m_cdau):
+        self.m_app.cat.zip_code = '29900'
+        self.m_app.path = '/foo/bar'
+        self.m_app.get_auxiliary_addresses = cat.CatAtom2Osm.get_auxiliary_addresses.__func__
+        self.m_app.get_auxiliary_addresses(self.m_app)
+        m_cdau.Reader.assert_called_once_with('/foo/aux')
+   
     @mock.patch('catatom2osm.report')
     def test_merge_address(self, m_report):
         address = osm.Osm()
-        address.Node(0,0, {'ref': '1', 'addr:street': 'address1'})
-        address.Node(2,0, {'ref': '2', 'addr:street': 'address2', 'entrance': 'yes'})
+        address.Node(0,0, {'ref': '1', 'addr:street': 'address1', 'image': 'foo'})
+        address.Node(2,0, {'ref': '2', 'addr:street': 'address2', 'entrance': 'yes', 'image': 'bar'})
         address.Node(4,0, {'ref': '3', 'addr:street': 'address3', 'entrance': 'yes'})
         address.Node(6,0, {'ref': '4', 'addr:place': 'address5', 'entrance': 'yes'})
         building = osm.Osm()
@@ -425,7 +433,9 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.merge_address(self.m_app, building, address)
         self.assertNotIn('addrtags', w0.tags)
         self.assertEquals(w1.tags['addr:street'], 'address1')
+        self.assertNotIn('image', w1.tags)
         self.assertEquals(n2.tags['addr:street'], 'address2')
+        self.assertNotIn('image', n2.tags)
         self.assertEquals(w3.tags['addr:street'], 'address3')
         self.assertNotIn('addr:street', [k for n in w3.nodes for k in n.tags.keys()])
         self.assertEquals(n5.tags['addr:place'], 'address5')
@@ -439,18 +449,18 @@ class TestCatAtom2Osm(unittest.TestCase):
         self.m_app.get_translations = cat.CatAtom2Osm.get_translations.__func__
         setup.app_path = 'bar'
         m_os.path.join = lambda *args: '/'.join(args)
-        m_csv.csv2dict.return_value = 'raz'
-        address = mock.MagicMock()
-        address.get_highway_names = mock.MagicMock(return_value = 'taz')
+        m_csv.csv2dict.return_value = {'RAZ': ' raz '}
         m_os.path.exists.return_value = True
+        address = mock.MagicMock()
         (names, is_new) = self.m_app.get_translations(self.m_app, address)
         m_csv.dict2csv.assert_not_called()
         m_csv.csv2dict.assert_has_calls([
             mock.call('bar/highway_types.csv', setup.highway_types),
             mock.call('foo/highway_names.csv', {}),
         ])
-        self.assertEquals(names, 'raz')
+        self.assertEquals(names, {'RAZ': 'raz'})
         self.assertFalse(is_new)
+        address.get_highway_names.return_value = {'TAZ': ' taz '}
         m_csv.csv2dict.reset_mock()
         m_os.path.exists.return_value = False
         (names, is_new) = self.m_app.get_translations(self.m_app, address)
@@ -458,9 +468,9 @@ class TestCatAtom2Osm(unittest.TestCase):
         m_csv.csv2dict.assert_not_called()
         m_csv.dict2csv.assert_has_calls([
             mock.call('bar/highway_types.csv', setup.highway_types),
-            mock.call('foo/highway_names.csv', 'taz'),
+            mock.call('foo/highway_names.csv', {'TAZ': 'taz'}, sort=1),
         ])
-        self.assertEquals(names, 'taz')
+        self.assertEquals(names, {'TAZ': 'taz'})
         self.assertTrue(is_new)
         self.m_app.options.manual = True
         (names, is_new) = self.m_app.get_translations(self.m_app, address)

@@ -27,3 +27,12 @@ class TestCsvTools(unittest.TestCase):
             text = csv_file.read()
         self.assertEquals(text, u'á%sx%sé%sy%s' % (delimiter, eol, delimiter, eol))
 
+    def test_dict2csv_sort(self):
+        _, tmp_path = mkstemp()
+        dict2csv(tmp_path, {'b':'1', 'a':'3', 'c': '2'}, sort=1)
+        with codecs.open(tmp_path, 'r', encoding) as csv_file:
+            text = csv_file.read()
+        self.assertEquals(text, u'b%s1%sc%s2%sa%s3%s' % (delimiter, eol, 
+            delimiter, eol, delimiter, eol))
+
+
