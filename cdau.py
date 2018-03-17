@@ -41,18 +41,14 @@ cod_mun_trans = {
 highway_types_equiv = {
     'ACCESO': 'AC', 'ALAMEDA', 'AL', 'ARROYO': 'AY', 'AUTOPISTA': 'AU', 
     'AUTOVIA': 'AU', 'AVENIDA': 'AV', 'BARRIO': 'BO', 'BAJADA': 'BJ', 
-    'BARRANCO': 'BR', 'BULEVAR': 'BV', 'CALLE': 'CL', 'CALLEJON': u'Callejón', 
-    'CANTON': u'Cantón', 'CAÑADA': 'CA', 'CASERIO': 'CS', 'CALZADA': 'CZ', 
-    'CINTURON': 'CI', 'CIRCUNVALACION': u'Circunvalación', 
-    'CONCEJO, COLEGIO': 'CO', 'DISEMINADO': 'DS', 'EXPLANADA': 'EX', 
-    'EXTRAMUROS': 'EM', 'EXTRARRADIO': 'ER', 'GENERICA': u'Genérica', 
+    'BARRANCO': 'BR', 'BULEVAR': 'BV', 'CALLE': 'CL', 'CAÑADA': 'CA', 
+    'CASERIO': 'CS', 'CALZADA': 'CZ', 'CINTURON': 'CI', 'CONCEJO, COLEGIO': 'CO',
+    'DISEMINADO': 'DS', 'EXPLANADA': 'EX', 'EXTRAMUROS': 'EM', 'EXTRARRADIO': 'ER', 
     'GRAN VIA': 'GV', 'GRUPO': 'GR',  'GLORIETA': 'GL', 'HUERTA, HUERTO': 'HT', 
-    'JARDINES': 'JR', 'JARDIN': u'Jardín', 'LUGAR': 'LG', 'MALECON': u'Malecón',
-    'MONTE': 'MT', 'MUELLE': 'ML', 'PASEO': 'PS', 'POBLADO': 'PB', 'PLAZA': 'PZ',
-    'PROLONGACION': u'Prolongación', 'PUENTE': 'PT', 'POLIGONO': 'PL', 
-    'RAMAL': 'RM', 'RAMBLA': 'RB', 'RINCON': u'Rincón', 'RONDA': 'RD',
-    'SUBIDA': 'SU', 'SECTOR': 'SC', 'TRANSITO': u'Tránsito',
-    'TRAVESIA': u'Travesía', 'URBANIZACION': 'UR', 'VIA': u'Vía'
+    'JARDINES': 'JR', 'LUGAR': 'LG', 'MONTE': 'MT', 'MUELLE': 'ML', 'PASEO': 'PS',
+    'POBLADO': 'PB', 'PLAZA': 'PZ', 'PUENTE': 'PT', 'POLIGONO': 'PL', 
+    'RAMAL': 'RM', 'RAMBLA': 'RB', 'RONDA': 'RD', 'SUBIDA': 'SU', 'SECTOR': 'SC', 
+    'TRAVESIA': u'Travesía', 'URBANIZACION': 'UR', 
 }
 
 

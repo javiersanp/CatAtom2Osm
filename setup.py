@@ -182,6 +182,10 @@ highway_types_es = {
     'PO': u'Polígono',
     'SB': u'Subida',
     'SC': u'Sector',
+    'CALLEJON': u'Callejón', 'CANTON': u'Cantón', 
+    'CIRCUNVALACION': u'Circunvalación', 'GENERICA': u'Genérica', 
+    'JARDIN': u'Jardín', 'MALECON': u'Malecón', 'RINCON': u'Rincón', 
+    'TRANSITO': u'Tránsito', 'VIA': u'Vía' 'PROLONGACION': u'Prolongación', 
 }
 
 highway_types_cat = {
