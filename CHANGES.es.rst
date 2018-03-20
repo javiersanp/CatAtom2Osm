@@ -1,6 +1,10 @@
 Registro de cambios
 ===================
 
+**20-03-2018 (1.1.6)**
+
+* Corrige errores menores.
+
 **19-03-2018 (1.1.5)**
 
 * Corrige errores menores.

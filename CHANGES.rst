@@ -1,6 +1,10 @@
 Change log
 ==========
 
+**2018-03-20 (1.1.6)**
+
+* Fix minor errors.
+
 **2018-03-19 (1.1.5)**
 
 * Fix minor errors.
