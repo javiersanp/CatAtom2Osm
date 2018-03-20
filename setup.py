@@ -5,7 +5,7 @@ import csv
 import gettext
 
 app_name = 'CatAtom2Osm'
-app_version = '1.1.4'
+app_version = '1.1.6'
 app_author = u'Javier Sánchez Portero'
 app_copyright = u'2017, Javier Sánchez Portero'
 app_desc = 'Tool to convert INSPIRE data sets from the Spanish Cadastre ATOM Services to OSM files'
@@ -182,6 +182,11 @@ highway_types_es = {
     'PO': u'Polígono',
     'SB': u'Subida',
     'SC': u'Sector',
+    'CALLEJON': u'Callejón', 'CANTON': u'Cantón',
+    'CIRCUNVALACION': u'Circunvalación', 'GENERICA': u'Genérica',
+    'JARDIN': u'Jardín', 'MALECON': u'Malecón', 'RINCON': u'Rincón',
+    'PROLONGACION': u'Prolongación', 'TRANSITO': u'Tránsito',
+    'TRAVESIA': u'Travesía', 'VIA': u'Vía'
 }
 
 highway_types_cat = {

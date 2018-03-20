@@ -20,6 +20,13 @@ class TestCsvTools(unittest.TestCase):
         a_dict = csv2dict(tmp_path, {})
         self.assertEquals(a_dict, {u'á':u'x', u'é':u'y'})
 
+    def test_csv2dict_bad_delimiter(self):
+        _, tmp_path = mkstemp()
+        with codecs.open(tmp_path, 'w', encoding) as csv_file:
+            csv_file.write('a;1%sb;2' % eol)
+        with self.assertRaises(IOError):
+            a_dict = csv2dict(tmp_path, {})
+
     def test_dict2csv(self):
         _, tmp_path = mkstemp()
         dict2csv(tmp_path, {u'á':'x', u'é':'y'})

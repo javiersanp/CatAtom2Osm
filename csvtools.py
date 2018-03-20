@@ -25,6 +25,9 @@ def csv2dict(csv_path, a_dict, encoding=encoding):
     with open(csv_path) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=delimiter)
         for row in csv_reader:
-            a_dict[row[0].decode(encoding)] = row[1].decode(encoding)
+            if len(row) < 2:
+                raise IOError(_("Failed to load CSV file '%s'") % csv_file.name)
+            else:
+                a_dict[row[0].decode(encoding)] = row[1].decode(encoding)
     return a_dict
 
