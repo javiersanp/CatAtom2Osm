@@ -133,8 +133,3 @@ class TestCdau(unittest.TestCase):
         ad.update({'num_por_hasta': '14', 'ext_hasta': 'D'})
         attr = cdau.get_cat_address(ad, '29900')
         self.assertEqual(attr['designator'], '10A-14D')
-        
-        ad['nom_tip_via'] = 'VIA'
-        attr = cdau.get_cat_address(ad, '29900')
-        self.assertEqual(attr['TN_text'], u'Vía Alegría')
-

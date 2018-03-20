@@ -197,9 +197,11 @@ class CatAtom2Osm:
                     report.mun_code, report.mun_name, label))
                 fn = os.path.join(self.path, 'tasks', label + '.shp')
                 if os.path.exists(fn):
-                    task = layer.ConsLayer(fn, label, 'ogr', source_date=source.source_date)
+                    task = layer.ConsLayer(fn, label, 'ogr', 
+                        source_date=source.source_date)
                     if task.featureCount() > 0:
-                        task_osm = task.to_osm(upload='yes', tags={'comment': comment})
+                        task_osm = task.to_osm(upload='yes', 
+                            tags={'comment': comment})
                         del task
                         self.delete_shp(fn, False)
                         self.merge_address(task_osm, self.address_osm)
@@ -469,8 +471,8 @@ class CatAtom2Osm:
         Precondition: building.move_address deleted addresses belonging to multiple buildings
 
         Args:
-            building_osm (Osm): OSM data set with addresses
-            address_osm (Osm): OSM data set with buildings
+            building_osm (Osm): OSM data set with buildings
+            address_osm (Osm): OSM data set with addresses
         """
         if 'source:date' in address_osm.tags:
             building_osm.tags['source:date:addr'] = address_osm.tags['source:date']
@@ -487,15 +489,14 @@ class CatAtom2Osm:
             address_count = len(address_index[ref])
             if address_count == 0:
                 continue
-            entrance_count = sum([1 if 'entrance' in ad.tags else 0 for ad in address_index[ref]])
+            entrance_count = sum([1 if 'entrance' in ad.tags else 0
+                for ad in address_index[ref]])
             parcel_count = address_count - entrance_count
             if parcel_count > 1 or (parcel_count == 1 and entrance_count > 0):
                 md += address_count
                 continue
             for ad in address_index[ref]:
                 bu = group[0]
-                if 'image' in ad.tags:
-                    del ad.tags['image']
                 entrance = False
                 if 'entrance' in ad.tags:
                     footprint = [bu] if isinstance(bu, osm.Way) \
@@ -505,9 +506,11 @@ class CatAtom2Osm:
                         if entrance:
                             entrance.tags.update(ad.tags)
                             entrance.tags.pop('ref', None)
+                            entrance.tags.pop('image', None)
                             break
                 if not entrance:
                     bu.tags.update(ad.tags)
+                    bu.tags.pop('image', None)
         if md > 0:
             log.debug(_("Refused %d 'parcel' addresses not unique for it building"), md)
             report.inc('not_unique_addresses', md)
