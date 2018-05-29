@@ -1,6 +1,10 @@
 Change log
 ==========
 
+**2018-05-29 (1.1.7)**
+
+* Add translation of street names in Galician.
+
 **2018-03-20 (1.1.6)**
 
 * Fix minor errors.
