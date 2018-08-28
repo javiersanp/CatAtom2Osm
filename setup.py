@@ -200,7 +200,7 @@ highway_types_cat = {
     'BO': u'Barri',
     'BR': u'Barranc',
     'CA': u'Camí ramader',
-    'CG': u'Col·legi/Cigarral',
+    'CG': u'Col·legi',
     'CH': u'Xalet',
     'CI': u'Cinturó/Ronda',
     'CJ': u'Carreró',
@@ -266,7 +266,7 @@ highway_types_cat = {
     'TR': u'Travessera',
     'UR': u'Urbanització',
     'VR': u'Sendera',
-    'AC': u'Accès',
+    'AC': u'Accés',
     'AD': u'Llogaret',
     'BV': u'Bulevard',
     'CZ': u'Calçada',
@@ -289,7 +289,7 @@ place_types_es = [
 ]
 place_types_cat = [
     u'Agregat', u'Llogaret', u'Àrea', u'Barri', u'Barranc', u'Camí ramader',
-    u'Col·legi/Cigarral', u'Xalet', u'Ajuntament/Col·legi', u'Camp', u'Mas',
+    u'Col·legi', u'Xalet', u'Ajuntament/Col·legi', u'Camp', u'Mas',
     u'Conjunt', u'Diputació', u'Disseminats', u'Edificis', u'Extramurs', 
     u'Entrada', u'Extraradi', u'Finca', u'Grup', u'Hort', u'Jardins', u'Lloc',
     u'Mercat', u'Moll', u'Municipi', u'Masies', u'Muntanya', u'Illa', u'Poblat',
