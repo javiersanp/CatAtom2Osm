@@ -1,6 +1,10 @@
 Registro de cambios
 ===================
 
+**29-05-2018 (1.1.7)**
+
+* Añade traducción de nombres de calles en Gallego y Catalán.
+
 **20-03-2018 (1.1.6)**
 
 * Corrige errores menores.
