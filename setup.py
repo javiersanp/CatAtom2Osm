@@ -5,7 +5,7 @@ import csv
 import gettext
 
 app_name = 'CatAtom2Osm'
-app_version = '1.1.6'
+app_version = '1.1.7'
 app_author = u'Javier Sánchez Portero'
 app_copyright = u'2017, Javier Sánchez Portero'
 app_desc = 'Tool to convert INSPIRE data sets from the Spanish Cadastre ATOM Services to OSM files'
@@ -200,7 +200,7 @@ highway_types_cat = {
     'BO': u'Barri',
     'BR': u'Barranc',
     'CA': u'Camí ramader',
-    'CG': u'Col·legi/Cigarral',
+    'CG': u'Col·legi',
     'CH': u'Xalet',
     'CI': u'Cinturó/Ronda',
     'CJ': u'Carreró',
@@ -266,7 +266,7 @@ highway_types_cat = {
     'TR': u'Travessera',
     'UR': u'Urbanització',
     'VR': u'Sendera',
-    'AC': u'Accès',
+    'AC': u'Accés',
     'AD': u'Llogaret',
     'BV': u'Bulevard',
     'CZ': u'Calçada',
@@ -276,6 +276,100 @@ highway_types_cat = {
     'PO': u'Polígon',
     'SB': u'Pujada',
     'SC': u'Sector',
+}
+
+highway_types_gl = {
+    'AG': u'Engadido',
+    'AL': u'Aldea/Alameda',
+    'AR': u'Área/Arrabalde',
+    'AU': u'Autoestrada',
+    'AV': u'Avenida',
+    'AY': u'Regato',
+    'BJ': u'Baixada',
+    'BO': u'Barrio',
+    'BR': u'Cavorco',
+    'CA': u'Canella',
+    'CG': u'Colexio/Cigarreiro',
+    'CH': u'Chalet',
+    'CI': u'Cinto',
+    'CJ': u'Calexa/Quella/Ruela',
+    'CL': u'Rúa',
+    'CM': u'Camiño/Carme',
+    'CN': u'Colonia',
+    'CO': u'Concello/Colexio',
+    'CP': u'Campeira/Campo',
+    'CR': u'Estrada/Carreiro',
+    'CS': u'Caserío',
+    'CT': u'Costa/Pendente',
+    'CU': u'Conxunto',
+    'CY': u'Caleya',
+    'DE': u'Detrás',
+    'DP': u'Deputación',
+    'DS': u'Espallado',
+    'ED': u'Edificios',
+    'EM': u'Extramuros',
+    'EN': u'Entrada/Ensanche',
+    'ER': u'Arrabalde',
+    'ES': u'Escalinata',
+    'EX': u'Chaira',
+    'FC': u'Ferrocarril/Finca',
+    'FN': u'Finca',
+    'GL': u'Glorieta',
+    'GR': u'Grupo',
+    'GV': u'Gran Vía',
+    'HT': u'Horta/Horto',
+    'JR': u'Xardíns',
+    'LD': u'Costado/Ladeira',
+    'LG': u'Lugar',
+    'MC': u'Mercado',
+    'ML': u'Peirao',
+    'MN': u'Concello',
+    'MS': u'Masías',
+    'MT': u'Monte',
+    'MZ': u'Mazá',
+    'PB': u'Poboado',
+    'PD': u'Partida',
+    'PJ': u'Pasaxe/Pasadizo',
+    'PL': u'Polígono',
+    'PM': u'Páramo',
+    'PQ': u'Parroquia/Parque',
+    'PR': u'Prolonga/Continuación',
+    'PS': u'Paseo',
+    'PT': u'Ponte',
+    'PZ': u'Praza',
+    'QT': u'Quinta',
+    'RB': u'Rambla',
+    'RC': u'Recuncho/Cornecho',
+    'RD': u'Rolda',
+    'RM': u'Ramal',
+    'RP': u'Rampla',
+    'RR': u'Riera',
+    'RU': u'Rúa',
+    'SA': u'Saída',
+    'SD': u'Sendeiro',
+    'SL': u'Soar',
+    'SN': u'Salón',
+    'SU': u'Costa',
+    'TN': u'Terreos',
+    'TO': u'Torrente',
+    'TR': u'Travesía/Transversal',
+    'UR': u'Urbanización',
+    'VR': u'Carreiro/Verea',
+    'AC': u'Acceso',
+    'AD': u'Aldea',
+    'BV': u'Bulevar',
+    'CZ': u'Calzada',
+    'PA': u'Paralela',
+    'PC': u'Prazola',
+    'PG': u'Polígono',
+    'PO': u'Polígono',
+    'SB': u'Costa',
+    'SC': u'Sector',
+    'CALLEJON': u'Quella/Ruela', 'CANTON': u'Cantón',
+    'CIRCUNVALACION': u'Circunvalación', 'GENERICA': u'Xenérica',
+    'JARDIN': u'Xardín', 'MALECON': u'Dique', 'RINCON': u'Recuncho',
+    'PROLONGACION': u'Prolonga', 'TRANSITO': u'Tránsito',
+    'TRAVESIA': u'Travesía', 'VIA': u'Vía'
 }
 
 place_types_es = [
@@ -289,19 +383,32 @@ place_types_es = [
 ]
 place_types_cat = [
     u'Agregat', u'Llogaret', u'Àrea', u'Barri', u'Barranc', u'Camí ramader',
-    u'Col·legi/Cigarral', u'Xalet', u'Ajuntament/Col·legi', u'Camp', u'Mas',
+    u'Col·legi', u'Xalet', u'Ajuntament/Col·legi', u'Camp', u'Mas',
     u'Conjunt', u'Diputació', u'Disseminats', u'Edificis', u'Extramurs', 
     u'Entrada', u'Extraradi', u'Finca', u'Grup', u'Hort', u'Jardins', u'Lloc',
     u'Mercat', u'Moll', u'Municipi', u'Masies', u'Muntanya', u'Illa', u'Poblat',
     u'Partida', u'Polígon', u'Erm', u'Parròquia', u'Solar', u'Terrenys',
     u'Urbanització', u'Bulevard', u'Sector'
 ]
+place_types_gl = [
+ 'Engadido', 'Aldea', u'Área', 'Barrio', 'Cavorco', 'Canella', 'Colexio',
+ 'Cigarreiro', 'Chalet', 'Concello', 'Campeira', 'Campo', u'Caserío', 'Conxunto',
+ u'Deputación', 'Espallados', 'Edificios', 'Extramuros', 'Entrada',
+ 'Ensanche', 'Arrabaldes', 'Finca', 'Grupo', 'Horta', 'Horto',
+ 'Xardíns', 'Lugar', 'Mercado', 'Peirao', 'Concello', u'Masías', 'Monte',
+ 'Mazá', 'Poboado', 'Partida', u'Polígono', u'Páramo', 'Parroquia', 'Soar',
+ 'Terreos', u'Urbanización', 'Bulevar', 'Sector'
+]
+
+# To select another language replace _es with _cat or _gl below
 
 # Dictionary for default 'highway_types.csv'
 highway_types = highway_types_es
 
 # List of highway types to translate as place addresses
 place_types = place_types_es
+
+# List of place types to remove from the name
 remove_place_from_name = [place_types_es[26]]
 
 # List of highway types not to be parsed
