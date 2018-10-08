@@ -3,7 +3,7 @@ Change log
 
 **2018-05-29 (1.1.7)**
 
-* Add translation of street names in Galician.
+* Add translation of street names in Galician and Catalan.
 
 **2018-03-20 (1.1.6)**
 
