@@ -970,7 +970,7 @@ class ZoningLayer(PolygonLayer):
         multi = 0
         final = 0
         for feature in layer.getFeatures():
-            if layer.fieldNameIndex('levelName') > 0:
+            if layer.fieldNameIndex('levelName') > 0 and feature['levelName']:
                 zone = feature['levelName'][3]
             else:
                 zone = feature['LocalisedCharacterString'][0]
